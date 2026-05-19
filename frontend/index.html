@@ -600,6 +600,7 @@
       <div class="lang-menu-title" id="lang-menu-title">Site language</div>
       <button class="lang-option active" data-lang="en">🇬🇧 English</button>
       <button class="lang-option" data-lang="fr">🇫🇷 Français</button>
+      <button class="lang-option" data-lang="es">🇪🇸 Español</button>
     </div>
   </div>
 
@@ -629,6 +630,7 @@
       <button class="country-chip active" data-region="uk">🇬🇧 UK</button>
       <button class="country-chip active" data-region="us">🇺🇸 USA</button>
       <button class="country-chip active" data-region="au">🇦🇺 Australia</button>
+      <button class="country-chip active" data-region="es">🇪🇸 España</button>
       <button class="mix-btn" id="mix-btn" title="Mix countries">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="16 3 21 3 21 8"/>
@@ -659,9 +661,9 @@
     let scrollObserver = null;
     let mixCountries  = false;
 
-    const selectedRegions = new Set(['fr', 'uk', 'us', 'au']);
+    const selectedRegions = new Set(['fr', 'uk', 'us', 'au', 'es']);
 
-    const FLAG  = { fr: '🇫🇷', uk: '🇬🇧', us: '🇺🇸', au: '🇦🇺' };
+    const FLAG  = { fr: '🇫🇷', uk: '🇬🇧', us: '🇺🇸', au: '🇦🇺', es: '🇪🇸' };
 
     // Semantic icons — same icon for cross-language synonyms (argent = money = 💰)
     const TAG_ICONS = {
@@ -755,6 +757,17 @@
       // Clothes
       vêtements: '👗', clothes: '👗', clothing: '👗',
       chapeau: '🎩', hat: '🎩',
+      // Spanish synonyms
+      dinero: '💰', precio: '💰', caro: '💰',
+      trabajo: '💼', esfuerzo: '💪', valentía: '💪',
+      animales: '🐾', pájaro: '🐦', pez: '🐟', gato: '🐱', perro: '🐕', lobo: '🐺',
+      fuego: '🔥', agua: '💧',
+      miedo: '😱', suerte: '🍀',
+      amor: '❤️', amistad: '🤝', familia: '👨‍👩‍👧',
+      alegría: '😄', tristeza: '😢', vergüenza: '😳',
+      engaño: '🤥', secreto: '🔒',
+      comida: '🍽️', sueño: '😴',
+      viajes: '✈️', costumbres: '✈️',
       // French cultural
       verlan: '🔄', argot: '🗣️',
       // Expressions about difficulty / problems
@@ -784,6 +797,7 @@
       uk: ['rain', 'luck', 'time'],
       us: ['money', 'fire', 'cake'],
       au: ['mate', 'fair', 'work'],
+      es: ['dinero', 'suerte', 'agua', 'trabajo'],
     };
 
     const T = {
@@ -829,6 +843,27 @@
         semantic:       'Sémantique',
         summary: (n, q) => `<b>${n}</b> expression${n > 1 ? 's' : ''} pour « <b>${q}</b> »`,
       },
+      es: {
+        heroLabel:      'Lengua & Cultura',
+        heroTitle:      'Expresiones <em>del Mundo</em>',
+        heroSubtitle:   'Escribe una palabra, descubre expresiones de todo el mundo — por texto o por significado.',
+        placeholder:    'Prueba: dinero, suerte, agua, trabajo…',
+        filterLabel:    'Expresiones de',
+        mixLabel:       'Mezclar países',
+        langMenuTitle:  'Idioma del sitio',
+        welcomeTitle:   'Escribe una palabra para explorar',
+        welcomeSub:     'Por ejemplo…',
+        noResult:       'Ninguna expresión encontrada',
+        noResultSub:    'Prueba otra palabra o una variante…',
+        serverError:    'Servidor inalcanzable',
+        serverErrorSub: 'Asegúrate de que el backend está activo en localhost:8000',
+        originLabel:    'Origen',
+        exampleLabel:   'Ejemplo',
+        toggleBtn:      'Origen &amp; ejemplo',
+        exact:          'Exacta',
+        semantic:       'Semántica',
+        summary: (n, q) => `<b>${n}</b> expresión${n !== 1 ? 'es' : ''} para « <b>${q}</b> »`,
+      },
     };
 
     // ── Language switcher ─────────────────────────
@@ -863,7 +898,7 @@
       document.getElementById('filter-label').textContent = t.filterLabel;
       document.getElementById('mix-btn').title             = t.mixLabel;
       document.getElementById('lang-menu-title').textContent = t.langMenuTitle;
-      document.getElementById('lang-flag').textContent = uiLang === 'fr' ? '🇫🇷' : '🇬🇧';
+      document.getElementById('lang-flag').textContent = { en: '🇬🇧', fr: '🇫🇷', es: '🇪🇸' }[uiLang] || '🌐';
       input.placeholder = t.placeholder;
       document.querySelectorAll('.lang-option').forEach(opt => {
         opt.classList.toggle('active', opt.dataset.lang === uiLang);
@@ -1150,6 +1185,7 @@
       if (selectedRegions.has('uk')) words.push(...HINTS.uk);
       if (selectedRegions.has('us')) words.push(...HINTS.us);
       if (selectedRegions.has('au')) words.push(...HINTS.au);
+      if (selectedRegions.has('es')) words.push(...HINTS.es);
       const chips = words
         .map(w => {
           const icon = tagIcon(w) || '🔍';
