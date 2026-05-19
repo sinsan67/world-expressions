@@ -418,6 +418,59 @@
     .country-chip:hover { opacity: 0.8; }
     .country-chip.active:hover { opacity: 0.85; }
 
+    /* ── MIX BUTTON ─────────────────────────── */
+    .mix-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 28px;
+      height: 28px;
+      background: transparent;
+      border: 1.5px solid rgba(196,181,253,0.35);
+      border-radius: 50%;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.18s;
+      margin-left: 4px;
+      flex-shrink: 0;
+    }
+
+    .mix-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .mix-btn::after {
+      content: attr(title);
+      position: absolute;
+      bottom: calc(100% + 7px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(30,27,75,0.88);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 500;
+      white-space: nowrap;
+      padding: 4px 9px;
+      border-radius: 7px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .mix-btn:hover::after { opacity: 1; }
+
+    .mix-btn.active {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    @keyframes cardsFade {
+      from { opacity: 0.25; transform: translateY(8px); }
+      to   { opacity: 1;    transform: translateY(0); }
+    }
+
+    .cards-fade { animation: cardsFade 0.28s ease; }
+
     /* ── LANGUAGE SWITCHER ───────────────────── */
     .lang-switcher {
       position: fixed;
@@ -576,6 +629,14 @@
       <button class="country-chip active" data-region="uk">🇬🇧 UK</button>
       <button class="country-chip active" data-region="us">🇺🇸 USA</button>
       <button class="country-chip active" data-region="au">🇦🇺 Australia</button>
+      <button class="mix-btn" id="mix-btn" title="Mix countries">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 3 21 3 21 8"/>
+          <line x1="4" y1="20" x2="21" y2="3"/>
+          <polyline points="21 16 21 21 16 21"/>
+          <line x1="4" y1="4" x2="14" y2="14"/>
+        </svg>
+      </button>
     </div>
   </header>
 
@@ -592,9 +653,11 @@
     let uiLang     = 'en';
 
     const PAGE_SIZE   = 20;
+    let rawResults    = [];
     let allResults    = [];
     let renderedCount = 0;
     let scrollObserver = null;
+    let mixCountries  = false;
 
     const selectedRegions = new Set(['fr', 'uk', 'us', 'au']);
 
@@ -730,6 +793,7 @@
         heroSubtitle:   'Type a word, discover expressions from around the world — by text or by meaning.',
         placeholder:    'Try: luck, money, rain, easy…',
         filterLabel:    'Expressions from',
+        mixLabel:       'Mix countries',
         langMenuTitle:  'Site language',
         welcomeTitle:   'Type a word to explore',
         welcomeSub:     'For example…',
@@ -750,6 +814,7 @@
         heroSubtitle:   'Tapez un mot, découvrez des expressions du monde entier — par le texte ou par le sens.',
         placeholder:    'Essaie : pied, argent, animal, partir…',
         filterLabel:    'Expressions depuis',
+        mixLabel:       'Mélanger les pays',
         langMenuTitle:  'Langue du site',
         welcomeTitle:   'Tapez un mot pour explorer',
         welcomeSub:     'Par exemple…',
@@ -795,7 +860,8 @@
       document.getElementById('hero-label').textContent      = t.heroLabel;
       document.getElementById('hero-title').innerHTML        = t.heroTitle;
       document.getElementById('hero-subtitle').textContent   = t.heroSubtitle;
-      document.getElementById('filter-label').textContent    = t.filterLabel;
+      document.getElementById('filter-label').textContent = t.filterLabel;
+      document.getElementById('mix-btn').title             = t.mixLabel;
       document.getElementById('lang-menu-title').textContent = t.langMenuTitle;
       document.getElementById('lang-flag').textContent = uiLang === 'fr' ? '🇫🇷' : '🇬🇧';
       input.placeholder = t.placeholder;
@@ -803,6 +869,48 @@
         opt.classList.toggle('active', opt.dataset.lang === uiLang);
       });
     }
+
+    // ── Mix toggle ───────────────────────────────
+
+    function applyMix(results) {
+      if (!mixCountries) return results;
+      const map = new Map();
+      for (const expr of results) {
+        const r = expr.region || 'other';
+        if (!map.has(r)) map.set(r, []);
+        map.get(r).push(expr);
+      }
+      const buckets = [...map.values()];
+      const mixed = [];
+      let round = 0;
+      while (mixed.length < results.length) {
+        let added = false;
+        for (const bucket of buckets) {
+          if (bucket[round] !== undefined) { mixed.push(bucket[round]); added = true; }
+        }
+        if (!added) break;
+        round++;
+      }
+      return mixed;
+    }
+
+    document.getElementById('mix-btn').addEventListener('click', () => {
+      mixCountries = !mixCountries;
+      document.getElementById('mix-btn').classList.toggle('active', mixCountries);
+      if (rawResults.length > 0) {
+        allResults    = applyMix(rawResults);
+        renderedCount = 0;
+        const container = document.getElementById('cards-container');
+        if (container) {
+          container.innerHTML = '';
+          container.classList.add('cards-fade');
+          container.addEventListener('animationend', () => container.classList.remove('cards-fade'), { once: true });
+        }
+        if (scrollObserver) { scrollObserver.disconnect(); scrollObserver = null; }
+        renderBatch();
+        initScrollObserver();
+      }
+    });
 
     // ── Country filter ────────────────────────────
 
@@ -864,7 +972,8 @@
     function renderConceptResults(data, tag) {
       const t    = T[uiLang];
       const icon = tagIcon(tag) || '';
-      allResults    = data.results;
+      rawResults    = data.results;
+      allResults    = applyMix(rawResults);
       renderedCount = 0;
 
       if (data.total === 0) {
@@ -912,7 +1021,8 @@
 
     function renderResults(data) {
       const t = T[uiLang];
-      allResults    = data.results;
+      rawResults    = data.results;
+      allResults    = applyMix(rawResults);
       renderedCount = 0;
 
       if (data.total === 0) {
