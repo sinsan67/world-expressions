@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expressions du Monde</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f7f5ff;
+      --card-bg: #ffffff;
+      --text: #1e1b4b;
+      --text-muted: #6b7280;
+      --border: #e5e1f8;
+      --accent: #7c3aed;
+      --accent-light: #ede9fe;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HERO ─────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #ece8ff 0%, #dff0ff 50%, #e8f8f0 100%);
+      padding: 72px 24px 56px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: '\201C';
+      position: absolute;
+      font-family: 'Playfair Display', serif;
+      font-size: 480px;
+      color: rgba(124,58,237,0.06);
+      top: -160px;
+      right: -40px;
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    .hero-label {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #9d8fd4;
+      margin-bottom: 20px;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 14px;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero-subtitle {
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      margin-bottom: 44px;
+      max-width: 440px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    /* ── SEARCH BAR ───────────────────────────── */
+    .search-wrap {
+      max-width: 580px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 18px 56px 18px 26px;
+      font-size: 1.05rem;
+      font-family: 'Inter', sans-serif;
+      border: none;
+      border-radius: 100px;
+      background: #fff;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.1);
+      outline: none;
+      color: var(--text);
+      transition: box-shadow 0.2s;
+    }
+
+    .search-input::placeholder { color: #a8a29e; }
+    .search-input:focus { box-shadow: 0 8px 48px rgba(124,58,237,0.15), 0 0 0 2px #c4b5fd; }
+
+    .search-icon {
+      position: absolute;
+      right: 22px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #a8a29e;
+      pointer-events: none;
+    }
+
+    /* ── MAIN ─────────────────────────────────── */
+    .main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 36px 20px 80px;
+    }
+
+    /* ── STATE MESSAGES ───────────────────────── */
+    .state-msg {
+      text-align: center;
+      padding: 64px 24px;
+    }
+
+    .state-msg .icon {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 20px;
+      background: var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+    }
+
+    .state-msg h3 {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .state-msg p {
+      font-size: 0.9rem;
+      color: #a8a29e;
+    }
+
+    .state-msg .hints {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .hint-chip {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .hint-chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    /* ── RESULTS SUMMARY ──────────────────────── */
+    .results-summary {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .results-summary b { color: var(--text); }
+
+    .summary-tags {
+      display: inline-flex;
+      gap: 6px;
+      margin-left: 8px;
+    }
+
+    .stag {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .stag-exact { background: #d1fae5; color: #065f46; }
+    .stag-sem   { background: #ede9fe; color: #6d28d9; }
+
+    /* ── CARDS ────────────────────────────────── */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 26px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+      transition: box-shadow 0.18s, border-color 0.18s;
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.09);
+      border-color: #d4c8b5;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .expr-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .match-pill {
+      flex-shrink: 0;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-top: 4px;
+    }
+
+    .match-exact      { background: #d1fae5; color: #065f46; }
+    .match-semantique { background: #ede9fe; color: #6d28d9; }
+
+    /* ── META ROW ─────────────────────────────── */
+    .card-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .reg-pill {
+      font-size: 0.73rem;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .reg-courant  { background: #dbeafe; color: #1d4ed8; }
+    .reg-familier { background: #ede9fe; color: #6d28d9; }
+    .reg-argot    { background: #fef9c3; color: #854d0e; }
+    .reg-vulgaire { background: #fce7f3; color: #9d174d; }
+    .reg-soutenu  { background: #dcfce7; color: #166534; }
+
+    .tag-pill {
+      font-size: 0.7rem;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: #f0ebff;
+      color: #9d8fd4;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .tag-pill:hover {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    /* ── SIGNIFICATION ────────────────────────── */
+    .signification {
+      font-size: 0.96rem;
+      line-height: 1.65;
+      color: #44403c;
+    }
+
+    /* ── EXPANDABLE SECTION ───────────────────── */
+    .card-more {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+    }
+
+    .card-more.open {
+      max-height: 600px;
+      opacity: 1;
+    }
+
+    .card-more-inner {
+      padding-top: 18px;
+      margin-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .more-block { margin-bottom: 14px; }
+    .more-block:last-child { margin-bottom: 0; }
+
+    .more-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: #c4b9a8;
+      margin-bottom: 6px;
+    }
+
+    .more-text {
+      font-size: 0.92rem;
+      line-height: 1.65;
+      color: #57534e;
+    }
+
+    .more-exemple {
+      font-style: italic;
+      color: #6b7280;
+      padding-left: 14px;
+      border-left: 3px solid #c4b5fd;
+    }
+
+    /* ── TOGGLE BUTTON ────────────────────────── */
+    .toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--accent);
+      cursor: pointer;
+      padding: 0;
+      margin-top: 12px;
+      opacity: 0.85;
+      transition: opacity 0.15s;
+    }
+
+    .toggle-btn:hover { opacity: 1; text-decoration: underline; }
+
+    .toggle-btn .arrow { font-style: normal; transition: transform 0.2s; display: inline-block; }
+    .toggle-btn.open .arrow { transform: rotate(180deg); }
+
+    /* ── LOADING ──────────────────────────────── */
+    .loading-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 48px;
+    }
+
+    .loading-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      animation: bounce 1s ease-in-out infinite;
+    }
+
+    .loading-dots span:nth-child(2) { animation-delay: 0.15s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); background: var(--border); }
+      50% { transform: translateY(-8px); background: #c4b5fd; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── HERO ──────────────────────────────────── -->
+  <header class="hero">
+    <span class="hero-label">Langue &amp; Culture</span>
+    <h1 class="hero-title">Expressions <em>du Monde</em></h1>
+    <p class="hero-subtitle">Tape un mot, découvre les expressions françaises qui lui sont liées — par le texte ou par le sens.</p>
+
+    <div class="search-wrap">
+      <input
+        id="search-input"
+        class="search-input"
+        type="text"
+        placeholder="Essaie : pied, argent, animal, partir…"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <svg class="search-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+    </div>
+  </header>
+
+  <!-- ── MAIN ──────────────────────────────────── -->
+  <main class="main">
+    <div id="results"></div>
+  </main>
+
+  <script>
+    const API = 'http://localhost:8000';
+    const input  = document.getElementById('search-input');
+    const output = document.getElementById('results');
+    let timer = null;
+
+    // ── Événements ──────────────────────────────
+
+    input.addEventListener('input', () => {
+      clearTimeout(timer);
+      const q = input.value.trim();
+      if (q.length < 2) { showWelcome(); return; }
+      timer = setTimeout(() => fetchResults(q), 300);
+    });
+
+    // Clic sur les chips de suggestion et les tags
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('hint-chip') || e.target.classList.contains('tag-pill')) {
+        input.value = e.target.dataset.query;
+        input.focus();
+        input.dispatchEvent(new Event('input'));
+      }
+      if (e.target.closest('.toggle-btn')) {
+        e.stopPropagation();
+        const btn = e.target.closest('.toggle-btn');
+        const id  = btn.dataset.id;
+        toggleCard(id, btn);
+      }
+    });
+
+    // ── API ──────────────────────────────────────
+
+    async function fetchResults(q) {
+      showLoading();
+      try {
+        const res  = await fetch(`${API}/recherche?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        renderResults(data);
+      } catch {
+        showError();
+      }
+    }
+
+    // ── Rendu ────────────────────────────────────
+
+    function renderResults(data) {
+      if (data.total === 0) {
+        output.innerHTML = `
+          <div class="state-msg">
+            <div class="icon">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+              </svg>
+            </div>
+            <h3>Aucune expression trouvée</h3>
+            <p>Essaie un autre mot ou une variante...</p>
+          </div>`;
+        return;
+      }
+
+      const exactLabel = data.exacts > 0
+        ? `<span class="stag stag-exact">${data.exacts} exact${data.exacts > 1 ? 's' : ''}</span>` : '';
+      const semLabel = data.semantiques > 0
+        ? `<span class="stag stag-sem">${data.semantiques} sens proche</span>` : '';
+
+      const summary = `
+        <div class="results-summary">
+          <b>${data.total}</b> expression${data.total > 1 ? 's' : ''} pour «&nbsp;<b>${esc(data.query)}</b>&nbsp;»
+          <span class="summary-tags">${exactLabel}${semLabel}</span>
+        </div>`;
+
+      const cards = data.resultats.map((expr, i) => renderCard(expr, i)).join('');
+      output.innerHTML = summary + cards;
+    }
+
+    function renderCard(expr, i) {
+      const matchLabel = expr.match_type === 'exact' ? 'Exact' : 'Sens proche';
+      const tags = expr.tags.slice(0, 4).map(t => `<span class="tag-pill" data-query="${esc(t)}">${esc(t)}</span>`).join('');
+
+      return `
+        <article class="card">
+          <div class="card-head">
+            <span class="expr-title">${esc(expr.expression)}</span>
+            <span class="match-pill match-${expr.match_type}">${matchLabel}</span>
+          </div>
+          <div class="card-meta">
+            <span class="reg-pill reg-${expr.registre}">${expr.registre}</span>
+            ${tags}
+          </div>
+          <p class="signification">${esc(expr.signification)}</p>
+
+          <div class="card-more" id="more-${i}">
+            <div class="card-more-inner">
+              <div class="more-block">
+                <div class="more-label">Origine</div>
+                <p class="more-text">${esc(expr.origine)}</p>
+              </div>
+              <div class="more-block">
+                <div class="more-label">Exemple</div>
+                <p class="more-text more-exemple">${esc(expr.exemple)}</p>
+              </div>
+            </div>
+          </div>
+
+          <button class="toggle-btn" data-id="${i}">
+            Origine &amp; exemple <span class="arrow">↓</span>
+          </button>
+        </article>`;
+    }
+
+    function toggleCard(id, btn) {
+      const more = document.getElementById(`more-${id}`);
+      const isOpen = more.classList.contains('open');
+      more.classList.toggle('open', !isOpen);
+      btn.classList.toggle('open', !isOpen);
+    }
+
+    // ── États ────────────────────────────────────
+
+    function showWelcome() {
+      output.innerHTML = `
+        <div class="state-msg">
+          <div class="icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <h3>Tape un mot pour explorer</h3>
+          <p>Par exemple…</p>
+          <div class="hints">
+            <span class="hint-chip" data-query="pied">pied</span>
+            <span class="hint-chip" data-query="argent">argent</span>
+            <span class="hint-chip" data-query="animal">animal</span>
+            <span class="hint-chip" data-query="mentir">mentir</span>
+            <span class="hint-chip" data-query="partir">partir</span>
+            <span class="hint-chip" data-query="peur">peur</span>
+            <span class="hint-chip" data-query="verlan">verlan</span>
+          </div>
+        </div>`;
+    }
+
+    function showLoading() {
+      output.innerHTML = `
+        <div class="loading-dots">
+          <span></span><span></span><span></span>
+        </div>`;
+    }
+
+    function showError() {
+      output.innerHTML = `
+        <div class="state-msg">
+          <div class="icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <h3>Serveur inaccessible</h3>
+          <p>Vérifie que le backend tourne sur localhost:8000</p>
+        </div>`;
+    }
+
+    // ── Utilitaire ───────────────────────────────
+
+    function esc(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Afficher l'état d'accueil au démarrage
+    showWelcome();
+  </script>
+</body>
+</html>
