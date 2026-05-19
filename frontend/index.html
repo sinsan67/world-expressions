@@ -63,7 +63,11 @@
       color: var(--text);
       line-height: 1.2;
       margin-bottom: 14px;
+      cursor: pointer;
+      transition: opacity 0.15s;
     }
+
+    .hero-title:hover { opacity: 0.75; }
 
     .hero-title em {
       font-style: italic;
@@ -991,6 +995,8 @@
     // ── API ──────────────────────────────────────
 
     async function fetchConceptResults(tag) {
+      input.value = tag;
+      history.replaceState(null, '', '#q=' + encodeURIComponent(tag));
       if (scrollObserver) { scrollObserver.disconnect(); scrollObserver = null; }
       showLoading();
       const group = getConceptGroup(tag);
@@ -1040,6 +1046,7 @@
     }
 
     async function fetchResults(q) {
+      history.replaceState(null, '', '#q=' + encodeURIComponent(q));
       if (scrollObserver) { scrollObserver.disconnect(); scrollObserver = null; }
       showLoading();
       try {
@@ -1179,6 +1186,7 @@
     // ── States ───────────────────────────────────
 
     function showWelcome() {
+      history.replaceState(null, '', location.href.split('#')[0]);
       const t = T[uiLang];
       const words = [];
       if (selectedRegions.has('fr')) words.push(...HINTS.fr);
@@ -1235,8 +1243,24 @@
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    document.getElementById('hero-title').addEventListener('click', () => {
+      input.value = '';
+      showWelcome();
+    });
+
     applyTranslations();
-    showWelcome();
+
+    if (location.hash.startsWith('#q=')) {
+      const initQ = decodeURIComponent(location.hash.slice(3));
+      if (initQ.length >= 2) {
+        input.value = initQ;
+        fetchResults(initQ);
+      } else {
+        showWelcome();
+      }
+    } else {
+      showWelcome();
+    }
   </script>
 </body>
 </html>

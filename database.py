@@ -1,97 +1,134 @@
 """
-Couche d'accès aux données — SQLite.
+Couche d'accès aux données — PostgreSQL via SQLAlchemy.
 
 Ce fichier est le seul endroit qui "parle" à la base.
 main.py appelle ces fonctions sans savoir comment les données sont stockées.
-→ Quand on migrera vers PostgreSQL, seul ce fichier changera.
+
+Le schéma PostgreSQL a 5 tables (expressions, expression_content, tags, tag_names, expression_tags).
+Ce fichier les assemble et retourne des dicts au même format qu'avant,
+pour que main.py et le frontend n'aient pas besoin de changer.
 """
 
-import json
-import sqlite3
-from pathlib import Path
 from typing import Optional
-
-DB_PATH = Path(__file__).parent / "data" / "expressions.db"
-
-
-def _connect() -> sqlite3.Connection:
-    """Ouvre une connexion SQLite avec row_factory pour obtenir des dicts."""
-    conn = sqlite3.connect(DB_PATH)
-    # row_factory permet de lire les résultats comme des dicts : row["id"] au lieu de row[0]
-    conn.row_factory = sqlite3.Row
-    return conn
+from sqlalchemy import text
+from config import engine
 
 
-def _row_to_dict(row: sqlite3.Row) -> dict:
-    """Convertit une ligne SQLite en dict Python, en désérialisant les tags JSON."""
-    d = dict(row)
-    # Les tags sont stockés en JSON texte dans SQLite, on les repasse en liste Python
-    d["tags"] = json.loads(d["tags"]) if d.get("tags") else []
-    return d
+def _build_expression_dict(row, match_type: str) -> dict:
+    """
+    Construit un dict standard depuis une ligne de résultat SQL.
+    Les tags sont retournés en liste Python.
+    Le champ 'expression' (nom historique) correspond à 'text' dans la nouvelle table.
+    """
+    tags_raw = row.tags or ""
+    # Les tags sont agrégés en une chaîne "tag1,tag2,tag3" par la requête SQL
+    tags_list = [t.strip() for t in tags_raw.split(",") if t.strip()]
+
+    return {
+        "id":           row.id,
+        "expression":   row.text,       # renommé 'text' en base, mais 'expression' dans l'API
+        "meaning":      row.meaning or "",
+        "origin":       row.origin or "",
+        "example":      row.example or "",
+        "register":     row.register or "",
+        "tags":         tags_list,
+        "region":       row.region or "",
+        "illustration": row.illustration,
+        "language":     row.language or "",
+        "match_type":   match_type,
+    }
+
+
+def _region_clause(regions: Optional[set[str]]) -> tuple[str, dict]:
+    """
+    Retourne un fragment SQL et ses paramètres pour filtrer par région.
+    Utilise ANY(:regions) — syntaxe PostgreSQL pour tester l'appartenance à un tableau.
+    """
+    if regions:
+        return "AND e.region = ANY(:regions)", {"regions": list(regions)}
+    return "", {}
 
 
 # ── Requêtes ──────────────────────────────────────────────────────────────────
 
 def count_expressions() -> dict[str, int]:
     """Retourne le nombre total d'expressions et le décompte par langue."""
-    with _connect() as conn:
-        total = conn.execute("SELECT COUNT(*) FROM expressions").fetchone()[0]
-        rows  = conn.execute(
-            "SELECT language, COUNT(*) as n FROM expressions GROUP BY language"
+    with engine.connect() as conn:
+        total = conn.execute(text("SELECT COUNT(*) FROM expressions")).scalar()
+        rows = conn.execute(
+            text("SELECT language, COUNT(*) AS n FROM expressions GROUP BY language ORDER BY n DESC")
         ).fetchall()
-    return {"total": total, "by_language": {r["language"]: r["n"] for r in rows}}
+    return {
+        "total": total,
+        "by_language": {r.language: r.n for r in rows}
+    }
 
 
 def search_expressions(query: str, regions: Optional[set[str]] = None) -> list[dict]:
     """
-    Cherche des expressions par mot-clé.
+    Cherche des expressions par mot-clé dans le texte, le sens, les tags, l'exemple et l'origine.
 
-    Deux types de correspondance, dans cet ordre :
+    Deux types de correspondance, retournés dans cet ordre :
     - "exact"    : le mot apparaît dans le texte de l'expression elle-même
     - "semantic" : le mot apparaît dans le sens, les tags, l'exemple ou l'origine
 
-    regions : ensemble de codes région à inclure (ex: {"fr", "uk"}).
-              None ou vide = toutes les régions.
+    Le JOIN avec expression_content utilise la locale = langue de l'expression.
+    Les tags sont agrégés en une seule chaîne par la requête SQL (string_agg).
     """
     q = f"%{query.lower().strip()}%"
+    region_sql, region_params = _region_clause(regions)
 
-    # Filtre région : si des régions sont demandées, on ajoute une clause WHERE
-    if regions:
-        placeholders = ",".join("?" * len(regions))
-        region_clause = f"AND region IN ({placeholders})"
-        region_params = list(regions)
-    else:
-        region_clause = ""
-        region_params = []
+    # Sous-requête réutilisée : jointure expressions + contenu + tags agrégés
+    base_cte = """
+        WITH expr_full AS (
+            SELECT
+                e.id,
+                e.text,
+                e.language,
+                e.region,
+                e.register,
+                e.illustration,
+                ec.meaning,
+                ec.origin,
+                ec.example,
+                STRING_AGG(t.slug, ',') AS tags
+            FROM expressions e
+            LEFT JOIN expression_content ec
+                ON ec.expression_id = e.id AND ec.locale = e.language
+            LEFT JOIN expression_tags et ON et.expression_id = e.id
+            LEFT JOIN tags t ON t.id = et.tag_id
+            WHERE 1=1 {region_clause}
+            GROUP BY e.id, e.text, e.language, e.region, e.register,
+                     e.illustration, ec.meaning, ec.origin, ec.example
+        )
+    """.format(region_clause=region_sql)
 
-    # Requête "exact" : le mot est dans le texte de l'expression
-    exact_sql = f"""
-        SELECT * FROM expressions
-        WHERE lower(expression) LIKE ?
-        {region_clause}
+    exact_sql = base_cte + """
+        SELECT * FROM expr_full
+        WHERE lower(text) LIKE :q
+        ORDER BY text
     """
 
-    # Requête "semantic" : le mot est ailleurs, mais PAS dans l'expression (pour éviter les doublons)
-    semantic_sql = f"""
-        SELECT * FROM expressions
-        WHERE lower(expression) NOT LIKE ?
+    semantic_sql = base_cte + """
+        SELECT * FROM expr_full
+        WHERE lower(text) NOT LIKE :q
           AND (
-              lower(meaning)  LIKE ?
-           OR lower(tags)     LIKE ?
-           OR lower(example)  LIKE ?
-           OR lower(origin)   LIKE ?
+              lower(meaning) LIKE :q
+           OR lower(tags)    LIKE :q
+           OR lower(example) LIKE :q
+           OR lower(origin)  LIKE :q
           )
-        {region_clause}
+        ORDER BY text
     """
 
-    with _connect() as conn:
-        exact_rows = conn.execute(exact_sql, [q] + region_params).fetchall()
-        semantic_rows = conn.execute(
-            semantic_sql, [q, q, q, q, q] + region_params
-        ).fetchall()
+    params = {"q": q, **region_params}
 
-    exact    = [{**_row_to_dict(r), "match_type": "exact"}    for r in exact_rows]
-    semantic = [{**_row_to_dict(r), "match_type": "semantic"} for r in semantic_rows]
+    with engine.connect() as conn:
+        exact_rows    = conn.execute(text(exact_sql),    params).fetchall()
+        semantic_rows = conn.execute(text(semantic_sql), params).fetchall()
+
+    exact    = [_build_expression_dict(r, "exact")    for r in exact_rows]
+    semantic = [_build_expression_dict(r, "semantic") for r in semantic_rows]
 
     return exact + semantic
 
@@ -100,33 +137,67 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None) -> 
     """
     Retourne toutes les expressions ayant au moins un tag parmi tag_set (logique OR).
     Utilisé pour la recherche cross-lingue par concept (argent + money + wealth...).
-    Le filtrage se fait en Python après désérialisation des tags JSON.
+    Le filtrage se fait en SQL via expression_tags.
     """
-    if regions:
-        placeholders = ",".join("?" * len(regions))
-        sql = f"SELECT * FROM expressions WHERE region IN ({placeholders})"
-        params: list = list(regions)
-    else:
-        sql = "SELECT * FROM expressions"
-        params = []
+    region_sql, region_params = _region_clause(regions)
 
-    with _connect() as conn:
-        rows = conn.execute(sql, params).fetchall()
+    sql = """
+        SELECT
+            e.id,
+            e.text,
+            e.language,
+            e.region,
+            e.register,
+            e.illustration,
+            ec.meaning,
+            ec.origin,
+            ec.example,
+            STRING_AGG(t.slug, ',') AS tags
+        FROM expressions e
+        LEFT JOIN expression_content ec
+            ON ec.expression_id = e.id AND ec.locale = e.language
+        JOIN expression_tags et ON et.expression_id = e.id
+        JOIN tags t ON t.id = et.tag_id
+        WHERE t.slug = ANY(:tag_set)
+        {region_clause}
+        GROUP BY e.id, e.text, e.language, e.region, e.register,
+                 e.illustration, ec.meaning, ec.origin, ec.example
+        ORDER BY e.language, e.text
+    """.format(region_clause=region_sql)
 
-    results = []
-    for row in rows:
-        d = _row_to_dict(row)
-        expr_tags = {t.lower() for t in d.get("tags", [])}
-        if tag_set & expr_tags:
-            results.append({**d, "match_type": "tag"})
+    params = {"tag_set": list(tag_set), **region_params}
 
-    return results
+    with engine.connect() as conn:
+        rows = conn.execute(text(sql), params).fetchall()
+
+    return [_build_expression_dict(r, "tag") for r in rows]
 
 
 def get_expression_by_id(expression_id: str) -> Optional[dict]:
-    """Retourne une expression par son id, ou None si elle n'existe pas."""
-    with _connect() as conn:
-        row = conn.execute(
-            "SELECT * FROM expressions WHERE id = ?", (expression_id,)
-        ).fetchone()
-    return _row_to_dict(row) if row else None
+    """Retourne une expression par son id (avec contenu et tags), ou None si elle n'existe pas."""
+    sql = """
+        SELECT
+            e.id,
+            e.text,
+            e.language,
+            e.region,
+            e.register,
+            e.illustration,
+            ec.meaning,
+            ec.origin,
+            ec.example,
+            STRING_AGG(t.slug, ',') AS tags
+        FROM expressions e
+        LEFT JOIN expression_content ec
+            ON ec.expression_id = e.id AND ec.locale = e.language
+        LEFT JOIN expression_tags et ON et.expression_id = e.id
+        LEFT JOIN tags t ON t.id = et.tag_id
+        WHERE e.id = :id
+        GROUP BY e.id, e.text, e.language, e.region, e.register,
+                 e.illustration, ec.meaning, ec.origin, ec.example
+    """
+
+    with engine.connect() as conn:
+        row = conn.execute(text(sql), {"id": expression_id}).fetchone()
+
+    return _build_expression_dict(row, "direct") if row else None
