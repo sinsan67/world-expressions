@@ -494,6 +494,18 @@
       font-weight: 600;
     }
 
+    /* ── SCROLL INDICATOR ────────────────────── */
+    .scroll-status {
+      text-align: center;
+      padding: 20px 0 10px;
+      font-size: 0.78rem;
+      color: #c4b9a8;
+    }
+
+    .scroll-sentinel {
+      height: 1px;
+    }
+
     /* ── LOADING ──────────────────────────────── */
     .loading-dots {
       display: flex;
@@ -573,11 +585,16 @@
   </main>
 
   <script>
-    const API   = 'http://localhost:8000';
-    const input  = document.getElementById('search-input');
-    const output = document.getElementById('results');
-    let timer = null;
-    let uiLang = 'en';
+    const API      = 'http://localhost:8000';
+    const input    = document.getElementById('search-input');
+    const output   = document.getElementById('results');
+    let timer      = null;
+    let uiLang     = 'en';
+
+    const PAGE_SIZE   = 20;
+    let allResults    = [];
+    let renderedCount = 0;
+    let scrollObserver = null;
 
     const selectedRegions = new Set(['fr', 'uk', 'us', 'au']);
 
@@ -824,6 +841,7 @@
     // ── API ──────────────────────────────────────
 
     async function fetchResults(q) {
+      if (scrollObserver) { scrollObserver.disconnect(); scrollObserver = null; }
       showLoading();
       try {
         const regionParam = [...selectedRegions].join(',');
@@ -839,6 +857,9 @@
 
     function renderResults(data) {
       const t = T[uiLang];
+      allResults    = data.results;
+      renderedCount = 0;
+
       if (data.total === 0) {
         output.innerHTML = `
           <div class="state-msg">
@@ -858,14 +879,54 @@
       const semLabel = data.semantic > 0
         ? `<span class="stag stag-sem">${data.semantic} ${t.semantic}</span>` : '';
 
-      const summary = `
+      output.innerHTML = `
         <div class="results-summary">
           ${t.summary(data.total, esc(data.query))}
           <span class="summary-tags">${exactLabel}${semLabel}</span>
-        </div>`;
+        </div>
+        <div id="cards-container"></div>
+        <div class="scroll-status" id="scroll-status"></div>
+        <div class="scroll-sentinel" id="scroll-sentinel"></div>`;
 
-      const cards = data.results.map((expr, i) => renderCard(expr, i)).join('');
-      output.innerHTML = summary + cards;
+      renderBatch();
+      initScrollObserver();
+    }
+
+    function renderBatch() {
+      const container = document.getElementById('cards-container');
+      if (!container) return;
+      const batch = allResults.slice(renderedCount, renderedCount + PAGE_SIZE);
+      container.innerHTML += batch.map((expr, i) => renderCard(expr, renderedCount + i)).join('');
+      renderedCount += batch.length;
+      updateScrollStatus();
+    }
+
+    function updateScrollStatus() {
+      const el = document.getElementById('scroll-status');
+      if (!el) return;
+      const total = allResults.length;
+      if (total <= PAGE_SIZE) { el.textContent = ''; return; }
+      if (renderedCount >= total) {
+        el.textContent = uiLang === 'fr'
+          ? `Toutes les ${total} expressions affichées`
+          : `All ${total} results shown`;
+        if (scrollObserver) { scrollObserver.disconnect(); scrollObserver = null; }
+      } else {
+        el.textContent = uiLang === 'fr'
+          ? `${renderedCount} / ${total} expressions`
+          : `${renderedCount} / ${total} results`;
+      }
+    }
+
+    function initScrollObserver() {
+      const sentinel = document.getElementById('scroll-sentinel');
+      if (!sentinel) return;
+      scrollObserver = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && renderedCount < allResults.length) {
+          renderBatch();
+        }
+      }, { rootMargin: '300px' });
+      scrollObserver.observe(sentinel);
     }
 
     function renderCard(expr, i) {
