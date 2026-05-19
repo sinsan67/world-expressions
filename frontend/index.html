@@ -428,16 +428,16 @@
       <button class="lang-btn active" data-lang="en">🇬🇧 EN</button>
       <button class="lang-btn" data-lang="fr">🇫🇷 FR</button>
     </div>
-    <span class="hero-label">Language &amp; Culture</span>
-    <h1 class="hero-title">Expressions <em>du Monde</em></h1>
-    <p class="hero-subtitle">Type a word, discover the French expressions related to it — by text or by meaning.</p>
+    <span id="hero-label" class="hero-label">Language &amp; Culture</span>
+    <h1 id="hero-title" class="hero-title">World <em>Expressions</em></h1>
+    <p id="hero-subtitle" class="hero-subtitle">Type a word, discover expressions related to it — by text or by meaning.</p>
 
     <div class="search-wrap">
       <input
         id="search-input"
         class="search-input"
         type="text"
-        placeholder="Try: pied, argent, animal, partir…"
+        placeholder="Try: luck, money, rain, easy…"
         autocomplete="off"
         spellcheck="false"
       />
@@ -464,6 +464,29 @@
       fr: ['pied', 'argent', 'animal', 'mentir', 'partir', 'peur', 'verlan'],
     };
 
+    const UI_TEXT = {
+      en: {
+        label:       'Language &amp; Culture',
+        title:       'World <em>Expressions</em>',
+        subtitle:    'Type a word, discover expressions related to it — by text or by meaning.',
+        placeholder: 'Try: luck, money, rain, easy…',
+      },
+      fr: {
+        label:       'Langue &amp; Culture',
+        title:       'Expressions <em>du Monde</em>',
+        subtitle:    'Tape un mot, découvre des expressions qui lui sont liées — par le texte ou par le sens.',
+        placeholder: 'Essaie : pied, argent, animal, partir…',
+      },
+    };
+
+    function applyLang(lang) {
+      const t = UI_TEXT[lang];
+      document.getElementById('hero-label').innerHTML   = t.label;
+      document.getElementById('hero-title').innerHTML   = t.title;
+      document.getElementById('hero-subtitle').textContent = t.subtitle;
+      input.placeholder = t.placeholder;
+    }
+
     // ── Events ───────────────────────────────────
 
     input.addEventListener('input', () => {
@@ -480,6 +503,7 @@
         currentLang = btn.dataset.lang;
         document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        applyLang(currentLang);
         const q = input.value.trim();
         if (q.length >= 2) fetchResults(q);
         else showWelcome();
@@ -633,6 +657,7 @@
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    applyLang(currentLang);
     showWelcome();
   </script>
 </body>
