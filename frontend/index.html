@@ -358,6 +358,43 @@
     .toggle-btn .arrow { font-style: normal; transition: transform 0.2s; display: inline-block; }
     .toggle-btn.open .arrow { transform: rotate(180deg); }
 
+    /* ── LANGUAGE SELECTOR ───────────────────── */
+    .lang-selector {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .lang-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255,255,255,0.75);
+      border: 1px solid rgba(196,181,253,0.5);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .lang-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .lang-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
     /* ── LOADING ──────────────────────────────── */
     .loading-dots {
       display: flex;
@@ -387,6 +424,10 @@
 
   <!-- ── HERO ──────────────────────────────────── -->
   <header class="hero">
+    <div class="lang-selector">
+      <button class="lang-btn active" data-lang="en">🇬🇧 EN</button>
+      <button class="lang-btn" data-lang="fr">🇫🇷 FR</button>
+    </div>
     <span class="hero-label">Language &amp; Culture</span>
     <h1 class="hero-title">Expressions <em>du Monde</em></h1>
     <p class="hero-subtitle">Type a word, discover the French expressions related to it — by text or by meaning.</p>
@@ -416,6 +457,12 @@
     const input  = document.getElementById('search-input');
     const output = document.getElementById('results');
     let timer = null;
+    let currentLang = 'en';
+
+    const HINTS = {
+      en: ['luck', 'money', 'rain', 'easy', 'time', 'fire', 'cake'],
+      fr: ['pied', 'argent', 'animal', 'mentir', 'partir', 'peur', 'verlan'],
+    };
 
     // ── Events ───────────────────────────────────
 
@@ -424,6 +471,19 @@
       const q = input.value.trim();
       if (q.length < 2) { showWelcome(); return; }
       timer = setTimeout(() => fetchResults(q), 300);
+    });
+
+    // Language selector
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.lang === currentLang) return;
+        currentLang = btn.dataset.lang;
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const q = input.value.trim();
+        if (q.length >= 2) fetchResults(q);
+        else showWelcome();
+      });
     });
 
     // Clicks on suggestion chips and tag pills
@@ -446,7 +506,7 @@
     async function fetchResults(q) {
       showLoading();
       try {
-        const res  = await fetch(`${API}/search?q=${encodeURIComponent(q)}`);
+        const res  = await fetch(`${API}/search?q=${encodeURIComponent(q)}&lang=${currentLang}`);
         const data = await res.json();
         renderResults(data);
       } catch {
@@ -531,6 +591,9 @@
     // ── States ───────────────────────────────────
 
     function showWelcome() {
+      const chips = HINTS[currentLang]
+        .map(w => `<span class="hint-chip" data-query="${esc(w)}">${esc(w)}</span>`)
+        .join('');
       output.innerHTML = `
         <div class="state-msg">
           <div class="icon">
@@ -540,15 +603,7 @@
           </div>
           <h3>Type a word to explore</h3>
           <p>For example…</p>
-          <div class="hints">
-            <span class="hint-chip" data-query="pied">pied</span>
-            <span class="hint-chip" data-query="argent">argent</span>
-            <span class="hint-chip" data-query="animal">animal</span>
-            <span class="hint-chip" data-query="mentir">mentir</span>
-            <span class="hint-chip" data-query="partir">partir</span>
-            <span class="hint-chip" data-query="peur">peur</span>
-            <span class="hint-chip" data-query="verlan">verlan</span>
-          </div>
+          <div class="hints">${chips}</div>
         </div>`;
     }
 

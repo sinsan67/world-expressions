@@ -24,9 +24,9 @@ def normalize(text: str) -> str:
     return text.lower().strip()
 
 
-def search(query: str) -> list[dict]:
+def search(query: str, lang: str = "en") -> list[dict]:
     """
-    Search expressions by keyword.
+    Search expressions by keyword, filtered by language.
 
     Two match types, in priority order:
     - "exact"    : the word appears in the expression text itself
@@ -40,6 +40,9 @@ def search(query: str) -> list[dict]:
     semantic_results = []
 
     for expr in EXPRESSIONS:
+        if expr.get("language", "fr") != lang:
+            continue
+
         in_expression = q in normalize(expr["expression"])
         in_meaning    = q in normalize(expr["meaning"])
         in_tags       = any(q in normalize(tag) for tag in expr["tags"])
@@ -56,22 +59,29 @@ def search(query: str) -> list[dict]:
 
 @app.get("/")
 def home():
+    fr_count = sum(1 for e in EXPRESSIONS if e.get("language") == "fr")
+    en_count = sum(1 for e in EXPRESSIONS if e.get("language") == "en")
     return {
         "message": "Welcome to the Expressions du Monde API",
         "expressions_loaded": len(EXPRESSIONS),
-        "usage": "GET /search?q=your_word",
+        "by_language": {"fr": fr_count, "en": en_count},
+        "usage": "GET /search?q=your_word&lang=en",
     }
 
 
 @app.get("/search")
-def search_expressions(q: str = Query(..., min_length=2, description="Word to search")):
+def search_expressions(
+    q: str = Query(..., min_length=2, description="Word to search"),
+    lang: str = Query("en", description="Language: 'en' or 'fr'"),
+):
     """
     Search for expressions related to a word.
     Returns exact matches first, then semantic matches.
     """
-    results = search(q)
+    results = search(q, lang)
     return {
         "query": q,
+        "lang": lang,
         "total": len(results),
         "exact": sum(1 for r in results if r["match_type"] == "exact"),
         "semantic": sum(1 for r in results if r["match_type"] == "semantic"),
