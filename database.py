@@ -88,6 +88,7 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
                 e.region,
                 e.register,
                 e.illustration,
+                e."type",
                 ec.meaning,
                 ec.origin,
                 ec.example,
@@ -99,14 +100,14 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
             LEFT JOIN tags t ON t.id = et.tag_id
             WHERE 1=1 {region_clause}
             GROUP BY e.id, e.text, e.language, e.region, e.register,
-                     e.illustration, ec.meaning, ec.origin, ec.example
+                     e.illustration, e."type", ec.meaning, ec.origin, ec.example
         )
     """.format(region_clause=region_sql)
 
     exact_sql = base_cte + """
         SELECT * FROM expr_full
         WHERE lower(text) LIKE :q
-        ORDER BY text
+        ORDER BY CASE WHEN "type" = 'word' THEN 1 ELSE 0 END, text
     """
 
     semantic_sql = base_cte + """
@@ -118,7 +119,7 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
            OR lower(example) LIKE :q
            OR lower(origin)  LIKE :q
           )
-        ORDER BY text
+        ORDER BY CASE WHEN "type" = 'word' THEN 1 ELSE 0 END, text
     """
 
     params = {"q": q, **region_params}
@@ -150,6 +151,7 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, lim
             e.region,
             e.register,
             e.illustration,
+            e."type",
             ec.meaning,
             ec.origin,
             ec.example,
@@ -162,8 +164,8 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, lim
         WHERE t.slug = ANY(:tag_set)
         {region_clause}
         GROUP BY e.id, e.text, e.language, e.region, e.register,
-                 e.illustration, ec.meaning, ec.origin, ec.example
-        ORDER BY e.language, e.text
+                 e.illustration, e."type", ec.meaning, ec.origin, ec.example
+        ORDER BY e.language, CASE WHEN e."type" = 'word' THEN 1 ELSE 0 END, e.text
     """.format(region_clause=region_sql)
 
     params = {"tag_set": list(tag_set), **region_params}
