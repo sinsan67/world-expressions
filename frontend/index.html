@@ -707,6 +707,15 @@
       return TAG_ICONS[tag.toLowerCase()] || TAG_ICONS[tag] || '';
     }
 
+    // Returns all tags that share the same semantic icon as `tag` (cross-language synonyms)
+    function getConceptGroup(tag) {
+      const icon = tagIcon(tag);
+      if (!icon) return [tag];
+      return Object.entries(TAG_ICONS)
+        .filter(([, v]) => v === icon)
+        .map(([k]) => k);
+    }
+
     const HINTS = {
       fr: ['pied', 'argent', 'animal', 'peur'],
       uk: ['rain', 'luck', 'time'],
@@ -827,9 +836,7 @@
     document.addEventListener('click', (e) => {
       const chip = e.target.closest('.hint-chip, .tag-pill');
       if (chip && chip.dataset.query) {
-        input.value = chip.dataset.query;
-        input.focus();
-        input.dispatchEvent(new Event('input'));
+        fetchConceptResults(chip.dataset.query);
       }
       if (e.target.closest('.toggle-btn')) {
         e.stopPropagation();
@@ -839,6 +846,54 @@
     });
 
     // ── API ──────────────────────────────────────
+
+    async function fetchConceptResults(tag) {
+      if (scrollObserver) { scrollObserver.disconnect(); scrollObserver = null; }
+      showLoading();
+      const group = getConceptGroup(tag);
+      const regionParam = [...selectedRegions].join(',');
+      try {
+        const res  = await fetch(`${API}/concept?tags=${encodeURIComponent(group.join(','))}&region=${regionParam}`);
+        const data = await res.json();
+        renderConceptResults(data, tag);
+      } catch {
+        showError();
+      }
+    }
+
+    function renderConceptResults(data, tag) {
+      const t    = T[uiLang];
+      const icon = tagIcon(tag) || '';
+      allResults    = data.results;
+      renderedCount = 0;
+
+      if (data.total === 0) {
+        output.innerHTML = `
+          <div class="state-msg">
+            <div class="icon">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+              </svg>
+            </div>
+            <h3>${t.noResult}</h3>
+            <p>${t.noResultSub}</p>
+          </div>`;
+        return;
+      }
+
+      const label = uiLang === 'fr'
+        ? `Concept ${icon} <b>${esc(tag)}</b> — <b>${data.total}</b> expression${data.total > 1 ? 's' : ''} dans toutes les langues`
+        : `Concept ${icon} <b>${esc(tag)}</b> — <b>${data.total}</b> expression${data.total > 1 ? 's' : ''} across all languages`;
+
+      output.innerHTML = `
+        <div class="results-summary">${label}</div>
+        <div id="cards-container"></div>
+        <div class="scroll-status" id="scroll-status"></div>
+        <div class="scroll-sentinel" id="scroll-sentinel"></div>`;
+
+      renderBatch();
+      initScrollObserver();
+    }
 
     async function fetchResults(q) {
       if (scrollObserver) { scrollObserver.disconnect(); scrollObserver = null; }

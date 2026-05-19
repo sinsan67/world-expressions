@@ -46,6 +46,25 @@ def search_expressions(
     }
 
 
+@app.get("/concept")
+def search_by_concept(
+    tags: str = Query(..., description="Comma-separated tag synonyms (OR logic). e.g. 'argent,money,wealth'"),
+    region: str = Query("", description="Comma-separated regions. Empty = all."),
+):
+    """
+    Return all expressions that have at least one of the given tags.
+    Powers cross-language concept navigation: clicking 'argent' also finds 'money', 'wealth'...
+    """
+    tag_set = {t.lower().strip() for t in tags.split(",") if t.strip()}
+    regions = set(region.split(",")) - {""} if region else None
+    results = database.search_by_concept(tag_set, regions)
+    return {
+        "concept_tags": sorted(tag_set),
+        "total": len(results),
+        "results": results,
+    }
+
+
 @app.get("/expression/{expression_id}")
 def get_expression(expression_id: str):
     """Return the full detail of an expression by its id."""

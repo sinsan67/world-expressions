@@ -96,6 +96,33 @@ def search_expressions(query: str, regions: Optional[set[str]] = None) -> list[d
     return exact + semantic
 
 
+def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None) -> list[dict]:
+    """
+    Retourne toutes les expressions ayant au moins un tag parmi tag_set (logique OR).
+    Utilisé pour la recherche cross-lingue par concept (argent + money + wealth...).
+    Le filtrage se fait en Python après désérialisation des tags JSON.
+    """
+    if regions:
+        placeholders = ",".join("?" * len(regions))
+        sql = f"SELECT * FROM expressions WHERE region IN ({placeholders})"
+        params: list = list(regions)
+    else:
+        sql = "SELECT * FROM expressions"
+        params = []
+
+    with _connect() as conn:
+        rows = conn.execute(sql, params).fetchall()
+
+    results = []
+    for row in rows:
+        d = _row_to_dict(row)
+        expr_tags = {t.lower() for t in d.get("tags", [])}
+        if tag_set & expr_tags:
+            results.append({**d, "match_type": "tag"})
+
+    return results
+
+
 def get_expression_by_id(expression_id: str) -> Optional[dict]:
     """Retourne une expression par son id, ou None si elle n'existe pas."""
     with _connect() as conn:
