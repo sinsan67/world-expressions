@@ -15,5 +15,8 @@ venv/
 # Node
 node_modules/
 
+# Database (fichier généré — source de vérité = data/expressions.json)
+data/*.db
+
 # Logs
 *.log
