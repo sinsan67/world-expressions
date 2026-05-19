@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import ExpressionCard from "@/components/ExpressionCard";
 import { searchExpressions, searchByConcept, Expression } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
+
+const LIMIT = 20;
 
 const REGIONS = [
   { code: "fr", label: "🇫🇷 France" },
@@ -29,8 +31,12 @@ export default function Home() {
   const [results, setResults] = useState<Expression[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searched, setSearched] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [searchMode, setSearchMode] = useState<"text" | "concept">("text");
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const activeRegions = [...selectedRegions];
 
@@ -50,16 +56,21 @@ export default function Home() {
   const runConceptSearch = useCallback(
     async (tag: string, regions: string[]) => {
       setQuery(tag);
+      setSearchMode("concept");
       setLoading(true);
       setError(null);
       setSearched(true);
+      setResults([]);
+      window.history.replaceState(null, "", "#q=" + encodeURIComponent(tag));
       try {
-        const data = await searchByConcept([tag], regions);
+        const data = await searchByConcept([tag], regions, LIMIT, 0);
         setResults(data.results);
         setTotal(data.total);
+        setHasMore(data.results.length < data.total);
       } catch {
         setError("Impossible de contacter le serveur. Vérifie que l'API tourne sur localhost:8000.");
         setResults([]);
+        setHasMore(false);
       } finally {
         setLoading(false);
       }
@@ -70,22 +81,68 @@ export default function Home() {
   const handleSearch = useCallback(
     async (q: string) => {
       if (q.trim().length < 2) return;
+      setSearchMode("text");
       setLoading(true);
       setError(null);
       setSearched(true);
+      setResults([]);
+      window.history.replaceState(null, "", "#q=" + encodeURIComponent(q));
       try {
-        const data = await searchExpressions(q, activeRegions);
+        const data = await searchExpressions(q, activeRegions, LIMIT, 0);
         setResults(data.results);
         setTotal(data.total);
+        setHasMore(data.results.length < data.total);
       } catch {
         setError("Impossible de contacter le serveur. Vérifie que l'API tourne sur localhost:8000.");
         setResults([]);
+        setHasMore(false);
       } finally {
         setLoading(false);
       }
     },
     [activeRegions]
   );
+
+  const loadMore = useCallback(async () => {
+    if (!hasMore || loadingMore) return;
+    setLoadingMore(true);
+    const currentOffset = results.length;
+    try {
+      const data =
+        searchMode === "concept"
+          ? await searchByConcept([query], activeRegions, LIMIT, currentOffset)
+          : await searchExpressions(query, activeRegions, LIMIT, currentOffset);
+      setResults((prev) => [...prev, ...data.results]);
+      setHasMore(currentOffset + data.results.length < data.total);
+    } catch {
+      // silent for load-more failures — user can scroll up and try again
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [hasMore, loadingMore, searchMode, query, activeRegions, results.length]);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasMore || loadingMore) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) loadMore(); },
+      { rootMargin: "200px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, loadMore]);
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.startsWith("#q=")) {
+      const initQ = decodeURIComponent(hash.slice(3));
+      if (initQ.trim().length >= 2) {
+        handleSearch(initQ);
+      }
+    }
+    // run once on mount — handleSearch is stable at this point (all regions selected)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Chips de suggestion affichées sur l'écran d'accueil
   const hintWords = REGIONS.flatMap((r) =>
@@ -115,6 +172,7 @@ export default function Home() {
             setSearched(false);
             setResults([]);
             setError(null);
+            window.history.replaceState(null, "", window.location.pathname);
           }}
         >
           Expressions{" "}
@@ -139,7 +197,6 @@ export default function Home() {
               border: "1.5px solid #ede9fe",
               color: "#1a0a2e",
               background: "#faf9ff",
-              focusRingColor: "#7c3aed",
             }}
           />
           <button
@@ -175,7 +232,7 @@ export default function Home() {
       </div>
 
       {/* Zone principale */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Erreur */}
         {error && (
           <p className="text-red-500 text-center mb-6 text-sm">{error}</p>
@@ -192,15 +249,33 @@ export default function Home() {
 
         {/* Grille de résultats */}
         {results.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {results.map((expr) => (
-              <ExpressionCard
-                key={expr.id}
-                expression={expr}
-                onTagClick={(tag) => runConceptSearch(tag, activeRegions)}
-              />
-            ))}
-          </div>
+          <>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
+              {results.map((expr) => (
+                <ExpressionCard
+                  key={expr.id}
+                  expression={expr}
+                  onTagClick={(tag) => runConceptSearch(tag, activeRegions)}
+                />
+              ))}
+            </div>
+
+            {/* Sentinel + spinner infinite scroll */}
+            <div ref={sentinelRef} className="h-4" />
+            {loadingMore && (
+              <div className="flex justify-center py-6">
+                <div
+                  className="w-6 h-6 rounded-full border-2 border-t-transparent animate-spin"
+                  style={{ borderColor: "#ede9fe", borderTopColor: "#7c3aed" }}
+                />
+              </div>
+            )}
+            {!hasMore && results.length > 0 && results.length === total && total > LIMIT && (
+              <p className="text-center text-xs py-4" style={{ color: "#9ca3af" }}>
+                {total} expression{total > 1 ? "s" : ""} affichée{total > 1 ? "s" : ""}
+              </p>
+            )}
+          </>
         )}
 
         {/* Aucun résultat */}

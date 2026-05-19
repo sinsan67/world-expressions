@@ -64,7 +64,7 @@ def count_expressions() -> dict[str, int]:
     }
 
 
-def search_expressions(query: str, regions: Optional[set[str]] = None) -> list[dict]:
+def search_expressions(query: str, regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0) -> tuple[list[dict], int]:
     """
     Cherche des expressions par mot-clé dans le texte, le sens, les tags, l'exemple et l'origine.
 
@@ -130,10 +130,11 @@ def search_expressions(query: str, regions: Optional[set[str]] = None) -> list[d
     exact    = [_build_expression_dict(r, "exact")    for r in exact_rows]
     semantic = [_build_expression_dict(r, "semantic") for r in semantic_rows]
 
-    return exact + semantic
+    all_results = exact + semantic
+    return all_results[offset:offset + limit], len(all_results)
 
 
-def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None) -> list[dict]:
+def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0) -> tuple[list[dict], int]:
     """
     Retourne toutes les expressions ayant au moins un tag parmi tag_set (logique OR).
     Utilisé pour la recherche cross-lingue par concept (argent + money + wealth...).
@@ -170,7 +171,8 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None) -> 
     with engine.connect() as conn:
         rows = conn.execute(text(sql), params).fetchall()
 
-    return [_build_expression_dict(r, "tag") for r in rows]
+    all_results = [_build_expression_dict(r, "tag") for r in rows]
+    return all_results[offset:offset + limit], len(all_results)
 
 
 def get_expression_by_id(expression_id: str) -> Optional[dict]:

@@ -23,6 +23,8 @@ export type SearchResponse = {
   query: string;
   regions: string[] | "all";
   total: number;
+  offset: number;
+  limit: number;
   exact: number;
   semantic: number;
   results: Expression[];
@@ -31,29 +33,41 @@ export type SearchResponse = {
 export type ConceptResponse = {
   concept_tags: string[];
   total: number;
+  offset: number;
+  limit: number;
   results: Expression[];
 };
 
 export async function searchExpressions(
   query: string,
-  regions: string[]
+  regions: string[],
+  limit = 20,
+  offset = 0
 ): Promise<SearchResponse> {
-  const regionParam = regions.join(",");
-  const res = await fetch(
-    `${API}/search?q=${encodeURIComponent(query)}&region=${regionParam}`
-  );
+  const params = new URLSearchParams({
+    q: query,
+    region: regions.join(","),
+    limit: String(limit),
+    offset: String(offset),
+  });
+  const res = await fetch(`${API}/search?${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();
 }
 
 export async function searchByConcept(
   tags: string[],
-  regions: string[]
+  regions: string[],
+  limit = 20,
+  offset = 0
 ): Promise<ConceptResponse> {
-  const regionParam = regions.join(",");
-  const res = await fetch(
-    `${API}/concept?tags=${encodeURIComponent(tags.join(","))}&region=${regionParam}`
-  );
+  const params = new URLSearchParams({
+    tags: tags.join(","),
+    region: regions.join(","),
+    limit: String(limit),
+    offset: String(offset),
+  });
+  const res = await fetch(`${API}/concept?${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();
 }

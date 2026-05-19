@@ -28,6 +28,8 @@ def home():
 def search_expressions(
     q: str = Query(..., min_length=2, description="Word to search"),
     region: str = Query("", description="Comma-separated regions to include, e.g. 'fr,uk,us'. Empty = all."),
+    limit: int = Query(20, ge=1, le=100, description="Number of results per page"),
+    offset: int = Query(0, ge=0, description="Number of results to skip"),
 ):
     """
     Search for expressions related to a word.
@@ -35,11 +37,13 @@ def search_expressions(
     Pass region=fr,uk,us to filter by origin country; omit for all regions.
     """
     regions = set(region.split(",")) - {""} if region else None
-    results = database.search_expressions(q, regions)
+    results, total = database.search_expressions(q, regions, limit, offset)
     return {
         "query": q,
         "regions": sorted(regions) if regions else "all",
-        "total": len(results),
+        "total": total,
+        "offset": offset,
+        "limit": limit,
         "exact":    sum(1 for r in results if r["match_type"] == "exact"),
         "semantic": sum(1 for r in results if r["match_type"] == "semantic"),
         "results": results,
@@ -50,6 +54,8 @@ def search_expressions(
 def search_by_concept(
     tags: str = Query(..., description="Comma-separated tag synonyms (OR logic). e.g. 'argent,money,wealth'"),
     region: str = Query("", description="Comma-separated regions. Empty = all."),
+    limit: int = Query(20, ge=1, le=100, description="Number of results per page"),
+    offset: int = Query(0, ge=0, description="Number of results to skip"),
 ):
     """
     Return all expressions that have at least one of the given tags.
@@ -57,10 +63,12 @@ def search_by_concept(
     """
     tag_set = {t.lower().strip() for t in tags.split(",") if t.strip()}
     regions = set(region.split(",")) - {""} if region else None
-    results = database.search_by_concept(tag_set, regions)
+    results, total = database.search_by_concept(tag_set, regions, limit, offset)
     return {
         "concept_tags": sorted(tag_set),
-        "total": len(results),
+        "total": total,
+        "offset": offset,
+        "limit": limit,
         "results": results,
     }
 
