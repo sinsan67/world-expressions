@@ -24,9 +24,10 @@ def normalize(text: str) -> str:
     return text.lower().strip()
 
 
-def search(query: str, lang: str = "en") -> list[dict]:
+def search(query: str, langs: set[str] | None = None) -> list[dict]:
     """
-    Search expressions by keyword, filtered by language.
+    Search expressions by keyword, optionally filtered by a set of languages.
+    If langs is None or empty, all languages are included.
 
     Two match types, in priority order:
     - "exact"    : the word appears in the expression text itself
@@ -40,7 +41,7 @@ def search(query: str, lang: str = "en") -> list[dict]:
     semantic_results = []
 
     for expr in EXPRESSIONS:
-        if expr.get("language", "fr") != lang:
+        if langs and expr.get("language") not in langs:
             continue
 
         in_expression = q in normalize(expr["expression"])
@@ -72,16 +73,18 @@ def home():
 @app.get("/search")
 def search_expressions(
     q: str = Query(..., min_length=2, description="Word to search"),
-    lang: str = Query("en", description="Language: 'en' or 'fr'"),
+    lang: str = Query("", description="Comma-separated languages to include, e.g. 'en,fr'. Empty = all."),
 ):
     """
     Search for expressions related to a word.
     Returns exact matches first, then semantic matches.
+    Pass lang=en,fr to filter by language; omit for all languages.
     """
-    results = search(q, lang)
+    langs = set(lang.split(",")) - {""} if lang else None
+    results = search(q, langs)
     return {
         "query": q,
-        "lang": lang,
+        "langs": sorted(langs) if langs else "all",
         "total": len(results),
         "exact": sum(1 for r in results if r["match_type"] == "exact"),
         "semantic": sum(1 for r in results if r["match_type"] == "semantic"),

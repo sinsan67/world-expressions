@@ -358,41 +358,44 @@
     .toggle-btn .arrow { font-style: normal; transition: transform 0.2s; display: inline-block; }
     .toggle-btn.open .arrow { transform: rotate(180deg); }
 
-    /* ── LANGUAGE SELECTOR ───────────────────── */
-    .lang-selector {
-      position: absolute;
-      top: 20px;
-      right: 24px;
+    /* ── COUNTRY FILTER ──────────────────────── */
+    .country-filter {
       display: flex;
-      gap: 6px;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 14px;
     }
 
-    .lang-btn {
+    .country-chip {
       display: flex;
       align-items: center;
       gap: 5px;
-      background: rgba(255,255,255,0.75);
-      border: 1px solid rgba(196,181,253,0.5);
+      background: rgba(255,255,255,0.55);
+      border: 1.5px solid rgba(196,181,253,0.3);
       border-radius: 20px;
-      padding: 5px 12px;
+      padding: 5px 14px;
       font-family: 'Inter', sans-serif;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       font-weight: 500;
       color: var(--text-muted);
       cursor: pointer;
+      opacity: 0.45;
       transition: all 0.15s;
     }
 
-    .lang-btn:hover {
+    .country-chip.active {
+      background: rgba(255,255,255,0.92);
       border-color: var(--accent);
-      color: var(--accent);
-      background: var(--accent-light);
+      color: var(--text);
+      opacity: 1;
     }
 
-    .lang-btn.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
+    .country-chip:hover {
+      opacity: 0.8;
+    }
+
+    .country-chip.active:hover {
+      opacity: 0.85;
     }
 
     /* ── LOADING ──────────────────────────────── */
@@ -424,13 +427,9 @@
 
   <!-- ── HERO ──────────────────────────────────── -->
   <header class="hero">
-    <div class="lang-selector">
-      <button class="lang-btn active" data-lang="en">🇬🇧 EN</button>
-      <button class="lang-btn" data-lang="fr">🇫🇷 FR</button>
-    </div>
     <span id="hero-label" class="hero-label">Language &amp; Culture</span>
     <h1 id="hero-title" class="hero-title">World <em>Expressions</em></h1>
-    <p id="hero-subtitle" class="hero-subtitle">Type a word, discover expressions related to it — by text or by meaning.</p>
+    <p id="hero-subtitle" class="hero-subtitle">Type a word, discover expressions from around the world — by text or by meaning.</p>
 
     <div class="search-wrap">
       <input
@@ -445,6 +444,11 @@
         <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
       </svg>
     </div>
+
+    <div class="country-filter">
+      <button class="country-chip active" data-lang="en">🇬🇧 English</button>
+      <button class="country-chip active" data-lang="fr">🇫🇷 Français</button>
+    </div>
   </header>
 
   <!-- ── MAIN ──────────────────────────────────── -->
@@ -453,39 +457,52 @@
   </main>
 
   <script>
-    const API = 'http://localhost:8000';
+    const API    = 'http://localhost:8000';
     const input  = document.getElementById('search-input');
     const output = document.getElementById('results');
     let timer = null;
-    let currentLang = 'en';
 
+    // Both languages active by default
+    const selectedLangs = new Set(['en', 'fr']);
+
+    const FLAG  = { en: '🇬🇧', fr: '🇫🇷' };
     const HINTS = {
-      en: ['luck', 'money', 'rain', 'easy', 'time', 'fire', 'cake'],
-      fr: ['pied', 'argent', 'animal', 'mentir', 'partir', 'peur', 'verlan'],
+      en: ['luck', 'money', 'rain', 'fire', 'cake'],
+      fr: ['pied', 'argent', 'animal', 'peur'],
     };
 
-    const UI_TEXT = {
-      en: {
-        label:       'Language &amp; Culture',
-        title:       'World <em>Expressions</em>',
-        subtitle:    'Type a word, discover expressions related to it — by text or by meaning.',
-        placeholder: 'Try: luck, money, rain, easy…',
-      },
-      fr: {
-        label:       'Langue &amp; Culture',
-        title:       'Expressions <em>du Monde</em>',
-        subtitle:    'Tape un mot, découvre des expressions qui lui sont liées — par le texte ou par le sens.',
-        placeholder: 'Essaie : pied, argent, animal, partir…',
-      },
-    };
+    // ── Title & placeholder update ────────────────
 
-    function applyLang(lang) {
-      const t = UI_TEXT[lang];
-      document.getElementById('hero-label').innerHTML   = t.label;
-      document.getElementById('hero-title').innerHTML   = t.title;
-      document.getElementById('hero-subtitle').textContent = t.subtitle;
-      input.placeholder = t.placeholder;
+    function updateHero() {
+      const onlyFr = selectedLangs.size === 1 && selectedLangs.has('fr');
+      document.getElementById('hero-title').innerHTML =
+        onlyFr ? 'Expressions <em>du Monde</em>' : 'World <em>Expressions</em>';
+      input.placeholder = onlyFr
+        ? 'Essaie : pied, argent, animal, partir…'
+        : 'Try: luck, money, rain, easy…';
     }
+
+    // ── Country filter ────────────────────────────
+
+    document.querySelectorAll('.country-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const lang = chip.dataset.lang;
+        const willDeselect = chip.classList.contains('active');
+        // Prevent deselecting the last active chip
+        if (willDeselect && selectedLangs.size === 1) return;
+        if (willDeselect) {
+          selectedLangs.delete(lang);
+          chip.classList.remove('active');
+        } else {
+          selectedLangs.add(lang);
+          chip.classList.add('active');
+        }
+        updateHero();
+        const q = input.value.trim();
+        if (q.length >= 2) fetchResults(q);
+        else showWelcome();
+      });
+    });
 
     // ── Events ───────────────────────────────────
 
@@ -496,21 +513,6 @@
       timer = setTimeout(() => fetchResults(q), 300);
     });
 
-    // Language selector
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (btn.dataset.lang === currentLang) return;
-        currentLang = btn.dataset.lang;
-        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        applyLang(currentLang);
-        const q = input.value.trim();
-        if (q.length >= 2) fetchResults(q);
-        else showWelcome();
-      });
-    });
-
-    // Clicks on suggestion chips and tag pills
     document.addEventListener('click', (e) => {
       if (e.target.classList.contains('hint-chip') || e.target.classList.contains('tag-pill')) {
         input.value = e.target.dataset.query;
@@ -520,8 +522,7 @@
       if (e.target.closest('.toggle-btn')) {
         e.stopPropagation();
         const btn = e.target.closest('.toggle-btn');
-        const id  = btn.dataset.id;
-        toggleCard(id, btn);
+        toggleCard(btn.dataset.id, btn);
       }
     });
 
@@ -530,7 +531,8 @@
     async function fetchResults(q) {
       showLoading();
       try {
-        const res  = await fetch(`${API}/search?q=${encodeURIComponent(q)}&lang=${currentLang}`);
+        const langParam = [...selectedLangs].join(',');
+        const res  = await fetch(`${API}/search?q=${encodeURIComponent(q)}&lang=${langParam}`);
         const data = await res.json();
         renderResults(data);
       } catch {
@@ -572,12 +574,13 @@
 
     function renderCard(expr, i) {
       const matchLabel = expr.match_type === 'exact' ? 'Exact' : 'Semantic';
+      const flag = FLAG[expr.language] || '';
       const tags = expr.tags.slice(0, 4).map(t => `<span class="tag-pill" data-query="${esc(t)}">${esc(t)}</span>`).join('');
 
       return `
         <article class="card">
           <div class="card-head">
-            <span class="expr-title">${esc(expr.expression)}</span>
+            <span class="expr-title">${flag} ${esc(expr.expression)}</span>
             <span class="match-pill match-${expr.match_type}">${matchLabel}</span>
           </div>
           <div class="card-meta">
@@ -615,7 +618,10 @@
     // ── States ───────────────────────────────────
 
     function showWelcome() {
-      const chips = HINTS[currentLang]
+      const words = [];
+      if (selectedLangs.has('en')) words.push(...HINTS.en);
+      if (selectedLangs.has('fr')) words.push(...HINTS.fr);
+      const chips = words
         .map(w => `<span class="hint-chip" data-query="${esc(w)}">${esc(w)}</span>`)
         .join('');
       output.innerHTML = `
@@ -657,7 +663,7 @@
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    applyLang(currentLang);
+    updateHero();
     showWelcome();
   </script>
 </body>
