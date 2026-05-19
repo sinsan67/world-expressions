@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Récapitulatif session — Expressions du Monde — 19 mai 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f7f5ff;
+      --card: #ffffff;
+      --text: #1e1b4b;
+      --muted: #6b7280;
+      --border: #e5e1f8;
+      --accent: #7c3aed;
+      --accent-light: #ede9fe;
+      --green: #059669;
+      --green-light: #d1fae5;
+      --orange: #d97706;
+      --orange-light: #fef3c7;
+      --blue: #2563eb;
+      --blue-light: #dbeafe;
+      --red: #dc2626;
+      --red-light: #fee2e2;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ── COVER ── */
+    .cover {
+      background: linear-gradient(135deg, #ece8ff 0%, #dff0ff 50%, #e8f8f0 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 40px;
+      position: relative;
+      page-break-after: always;
+    }
+
+    .cover::after {
+      content: '\201C';
+      position: absolute;
+      font-family: 'Playfair Display', serif;
+      font-size: 500px;
+      color: rgba(124,58,237,0.05);
+      top: -180px;
+      right: -60px;
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    .cover-badge {
+      display: inline-block;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin-bottom: 28px;
+    }
+
+    .cover h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+
+    .cover h1 em {
+      color: var(--accent);
+      font-style: italic;
+    }
+
+    .cover-sub {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto 48px;
+    }
+
+    .cover-stats {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .stat-box {
+      background: rgba(255,255,255,0.8);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 28px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .cover-date {
+      margin-top: 48px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 64px 40px;
+    }
+
+    .section + .section {
+      border-top: 1px solid var(--border);
+    }
+
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+
+    .section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .section-intro {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-bottom: 36px;
+      max-width: 620px;
+    }
+
+    /* ── TIMELINE ── */
+    .timeline {
+      position: relative;
+      padding-left: 32px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 10px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--border);
+      border-radius: 1px;
+    }
+
+    .tl-item {
+      position: relative;
+      margin-bottom: 36px;
+    }
+
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: -26px;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+
+    .tl-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .tl-desc {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .tl-tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+    }
+
+    .tl-tag.frontend { background: var(--blue-light); color: var(--blue); }
+    .tl-tag.backend  { background: var(--green-light); color: var(--green); }
+    .tl-tag.data     { background: var(--orange-light); color: var(--orange); }
+    .tl-tag.ux       { background: var(--accent-light); color: var(--accent); }
+
+    /* ── CARDS GRID ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .feat-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .feat-card .icon {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+
+    .feat-card h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .feat-card p {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── CODE BLOCKS ── */
+    .code-block {
+      background: #1e1b4b;
+      color: #c4b5fd;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      border-radius: 12px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin: 16px 0;
+      line-height: 1.7;
+    }
+
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: #818cf8; }
+    .code-block .string  { color: #86efac; }
+    .code-block .fn      { color: #fde68a; }
+
+    /* ── DB TABLE ── */
+    .db-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.85rem;
+    }
+
+    .db-table th {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 10px 16px;
+      text-align: left;
+    }
+
+    .db-table td {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .db-table td:first-child { color: var(--text); font-weight: 500; }
+
+    .db-table tr:last-child td { border-bottom: none; font-weight: 700; color: var(--accent); }
+
+    .flag { font-size: 1.1rem; }
+
+    /* ── ARCH DIAGRAM ── */
+    .arch {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 24px 0;
+    }
+
+    .arch-box {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 24px;
+      text-align: center;
+      min-width: 130px;
+    }
+
+    .arch-box.highlight { border-color: var(--accent); background: var(--accent-light); }
+
+    .arch-box .arch-icon { font-size: 1.6rem; margin-bottom: 6px; }
+    .arch-box .arch-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .arch-box .arch-name { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-top: 2px; }
+
+    .arch-arrow {
+      font-size: 1.4rem;
+      color: var(--muted);
+    }
+
+    /* ── NEXT ACTIONS ── */
+    .action-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .action-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+    }
+
+    .action-item.priority-high { border-left: 4px solid var(--accent); }
+    .action-item.priority-med  { border-left: 4px solid var(--orange); }
+    .action-item.priority-low  { border-left: 4px solid var(--muted); }
+
+    .action-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+      width: 28px;
+      line-height: 1.2;
+    }
+
+    .action-num.med  { color: var(--orange); }
+    .action-num.low  { color: var(--muted); }
+
+    .action-body h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+    .action-body p  { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+    .priority-label {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+
+    .pl-high { background: var(--accent-light); color: var(--accent); }
+    .pl-med  { background: var(--orange-light); color: var(--orange); }
+    .pl-low  { background: var(--border);        color: var(--muted); }
+
+    /* ── GIT HISTORY ── */
+    .git-log {
+      background: #1e1b4b;
+      border-radius: 12px;
+      padding: 20px 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      line-height: 2;
+    }
+
+    .git-hash  { color: #fde68a; }
+    .git-msg   { color: #c4b5fd; }
+    .git-type  { color: #86efac; }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      padding: 48px 40px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    .footer a { color: var(--accent); text-decoration: none; }
+
+    /* ── PRINT ── */
+    @media print {
+      .cover { page-break-after: always; }
+      .section { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║               COVER                      ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<div class="cover">
+  <div class="cover-badge">Rapport de session · 19 mai 2026</div>
+  <h1>Expressions<br/><em>du Monde</em></h1>
+  <p class="cover-sub">Ce document récapitule tout ce qui a été construit aujourd'hui — fonctionnalités, architecture, base de données — et les prochaines étapes recommandées.</p>
+
+  <div class="cover-stats">
+    <div class="stat-box">
+      <span class="stat-num">1 020</span>
+      <span class="stat-label">Expressions en base</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-num">5</span>
+      <span class="stat-label">Langues / régions</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-num">9</span>
+      <span class="stat-label">Features ajoutées</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-num">4</span>
+      <span class="stat-label">Commits GitHub</span>
+    </div>
+  </div>
+
+  <p class="cover-date">Projet : <strong>Expressions du Monde</strong> · Repo : <strong>github.com/sinsan67/world-expressions</strong> · Session V1.7→V1.8</p>
+</div>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║            ARCHITECTURE                  ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<div class="section">
+  <div class="section-badge">🏗️ Architecture actuelle</div>
+  <h2>Stack technique</h2>
+  <p class="section-intro">Le projet tourne entièrement en local. Un seul fichier HTML constitue tout le frontend ; le backend Python expose une API REST.</p>
+
+  <div class="arch">
+    <div class="arch-box">
+      <div class="arch-icon">🌐</div>
+      <div class="arch-label">Frontend</div>
+      <div class="arch-name">index.html</div>
+    </div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-box highlight">
+      <div class="arch-icon">⚡</div>
+      <div class="arch-label">Backend</div>
+      <div class="arch-name">FastAPI</div>
+    </div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-box">
+      <div class="arch-icon">🗄️</div>
+      <div class="arch-label">Base de données</div>
+      <div class="arch-name">SQLite</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px;">
+    <div class="feat-card">
+      <div class="icon">🐍</div>
+      <h3>Backend — main.py + database.py</h3>
+      <p>FastAPI délègue tout accès aux données à <code>database.py</code> (couche SQLite). Migration JSON → SQLite faite. Prêt pour PostgreSQL.</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">📄</div>
+      <h3>Frontend — index.html</h3>
+      <p>HTML/CSS/JS vanilla dans un seul fichier. Aucune dépendance, pas de build. Tout fonctionne en ouvrant le fichier directement.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px;margin-bottom:12px;font-size:1rem;font-weight:600;">Endpoints API</h3>
+  <div class="code-block">
+<span class="comment"># Santé + comptage</span>
+GET /
+
+<span class="comment"># Recherche exacte + sémantique</span>
+GET /search?q=<span class="string">argent</span>&region=<span class="string">fr,uk,us,au,es</span>
+
+<span class="comment"># Recherche cross-langue par concept (OR sur les tags)</span>
+GET /concept?tags=<span class="string">argent,money,dinero,wealth</span>&region=<span class="string">fr,us</span>
+
+<span class="comment"># Détail d'une expression</span>
+GET /expression/<span class="string">{id}</span>
+  </div>
+
+  <h3 style="margin-top:32px;margin-bottom:12px;font-size:1rem;font-weight:600;">Base de données</h3>
+  <table class="db-table">
+    <thead>
+      <tr>
+        <th>Région</th>
+        <th>Drapeau</th>
+        <th>Langue</th>
+        <th>Expressions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>France</td>
+        <td class="flag">🇫🇷</td>
+        <td>Français</td>
+        <td>400</td>
+      </tr>
+      <tr>
+        <td>USA</td>
+        <td class="flag">🇺🇸</td>
+        <td>English</td>
+        <td>300</td>
+      </tr>
+      <tr>
+        <td>España</td>
+        <td class="flag">🇪🇸</td>
+        <td>Español <span style="font-size:0.7rem;background:#d1fae5;color:#059669;padding:2px 6px;border-radius:6px;margin-left:4px;">NOUVEAU</span></td>
+        <td>120</td>
+      </tr>
+      <tr>
+        <td>UK</td>
+        <td class="flag">🇬🇧</td>
+        <td>English</td>
+        <td>100</td>
+      </tr>
+      <tr>
+        <td>Australia</td>
+        <td class="flag">🇦🇺</td>
+        <td>English</td>
+        <td>100</td>
+      </tr>
+      <tr>
+        <td colspan="3"><strong>TOTAL</strong></td>
+        <td><strong>1 020</strong></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║            FEATURES AJOUTÉES             ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<div class="section">
+  <div class="section-badge">✅ Ce qui a été fait aujourd'hui</div>
+  <h2>9 fonctionnalités construites</h2>
+  <p class="section-intro">Tout le travail de cette session, dans l'ordre chronologique.</p>
+
+  <div class="timeline">
+
+    <div class="tl-item">
+      <div><span class="tl-tag ux">UX · Frontend</span></div>
+      <div class="tl-title">1 — Renommage du filtre pays : "F from" → "Expressions from"</div>
+      <div class="tl-desc">Le label était ambigu. "Expressions from" clarifie que les drapeaux servent à filtrer la provenance des expressions, pas la langue de l'interface.</div>
+    </div>
+
+    <div class="tl-item">
+      <div><span class="tl-tag frontend">Frontend</span></div>
+      <div class="tl-title">2 — Menu burger : sélecteur de langue de l'interface</div>
+      <div class="tl-desc">Bouton fixe en haut à droite. Bascule toute l'interface entre EN / FR / ES. Implémenté via un objet <code>T[]</code> de traductions et une fonction <code>applyTranslations()</code>. L'objet T est extensible : ajouter une langue = ajouter un bloc.</div>
+    </div>
+
+    <div class="tl-item">
+      <div><span class="tl-tag frontend">Frontend</span></div>
+      <div class="tl-title">3 — Icônes sémantiques sur les tags (TAG_ICONS)</div>
+      <div class="tl-desc">Un objet <code>TAG_ICONS</code> de 80+ entrées associe chaque tag à un emoji. La clé du design : les synonymes cross-langues partagent le même pictogramme — <code>argent</code>, <code>money</code>, <code>dinero</code> → 💰. Les tags deviennent visuels et multilingues.</div>
+    </div>
+
+    <div class="tl-item">
+      <div><span class="tl-tag ux">UX · Frontend</span></div>
+      <div class="tl-title">4 — Redesign des hint chips en mini-cartes visuelles</div>
+      <div class="tl-desc">Les chips de suggestion passent d'un format pill plat à des mini-cartes avec icône au-dessus du mot. Résultat : plus visuel, plus cliquable, et cohérent avec les icônes sémantiques.</div>
+    </div>
+
+    <div class="tl-item">
+      <div><span class="tl-tag frontend">Frontend</span></div>
+      <div class="tl-title">5 — Scroll infini : 20 résultats par batch + compteur "X / Y"</div>
+      <div class="tl-desc">Avant : tous les résultats rendus d'un coup. Après : <code>IntersectionObserver</code> sur un sentinel div, <code>PAGE_SIZE = 20</code>, compteur "24 / 89 résultats" visible. Les résultats se chargent au fur et à mesure que l'utilisateur descend.</div>
+    </div>
+
+    <div class="tl-item">
+      <div><span class="tl-tag backend">Backend</span> <span class="tl-tag frontend">Frontend</span></div>
+      <div class="tl-title">6 — Recherche cross-langue par concept (endpoint /concept)</div>
+      <div class="tl-desc">Problème initial : cliquer sur le tag "argent" ne retournait que des expressions françaises. Solution en deux parties :<br/>
+      — <strong>Backend</strong> : nouveau endpoint <code>GET /concept?tags=argent,money,dinero,wealth</code> qui fait un OR logique sur les tags<br/>
+      — <strong>Frontend</strong> : <code>getConceptGroup(tag)</code> inverse TAG_ICONS pour trouver tous les synonymes du tag cliqué, puis appelle /concept avec tous ces synonymes</div>
+    </div>
+
+    <div class="tl-item">
+      <div><span class="tl-tag ux">UX · Frontend</span></div>
+      <div class="tl-title">7 — Toggle "Mix countries" : interleaving round-robin par région</div>
+      <div class="tl-desc">Un bouton shuffle discret (⇄ circulaire, 28px) dans la rangée des chips. Par défaut, désactivé — l'ordre API est conservé (exact puis sémantique). Activé : les résultats sont redistribués en round-robin par région (1 🇫🇷, 1 🇺🇸, 1 🇬🇧, 1 🇦🇺, 1 🇪🇸...). Algorithme côté frontend uniquement, pas de nouveau fetch. Inclut une animation fondu au re-render.</div>
+    </div>
+
+    <div class="tl-item">
+      <div><span class="tl-tag ux">UX · Frontend</span></div>
+      <div class="tl-title">8 — Tooltip CSS sur le bouton Mix (via attr(title))</div>
+      <div class="tl-desc">Le tooltip natif du navigateur est lent et laid. Solution : <code>::after</code> avec <code>content: attr(title)</code> — le label (Mix countries / Mezclar países / Mélanger les pays) vient directement de l'attribut HTML, donc il suit automatiquement la langue de l'interface sans JS supplémentaire.</div>
+    </div>
+
+    <div class="tl-item">
+      <div><span class="tl-tag data">Data</span> <span class="tl-tag frontend">Frontend</span> <span class="tl-tag backend">Backend</span></div>
+      <div class="tl-title">9 — Ajout de l'espagnol : 120 expressions + chip 🇪🇸 + langue Español</div>
+      <div class="tl-desc">Trois composantes :<br/>
+      — <strong>Script Python</strong> <code>add_spanish_expressions.py</code> : 120 refranes et expresiones idiomáticas (proverbes, corps humain, animaux, argent, amour...)<br/>
+      — <strong>Chip pays</strong> 🇪🇸 España dans le filtre "Expressions from", activé par défaut<br/>
+      — <strong>Español</strong> comme 3ème langue d'interface dans le menu burger, avec traduction complète de tous les textes<br/>
+      — <strong>TAG_ICONS</strong> enrichis des synonymes espagnols (dinero, miedo, suerte, amor, engaño...)</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║            CONCEPTS TECHNIQUES           ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<div class="section">
+  <div class="section-badge">🧠 Concepts techniques clés</div>
+  <h2>Ce qu'il faut retenir</h2>
+  <p class="section-intro">Les décisions d'architecture qui forment le socle du projet.</p>
+
+  <div class="cards-grid">
+    <div class="feat-card">
+      <div class="icon">🔄</div>
+      <h3>TAG_ICONS — synonymes cross-langues</h3>
+      <p>Le même emoji pour plusieurs langues. <code>getConceptGroup(tag)</code> inverse la map pour retrouver tous les synonymes. C'est ce qui permet la recherche cross-langue au clic d'un tag.</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">🌍</div>
+      <h3>i18n via T[] + applyTranslations()</h3>
+      <p>Tout le texte de l'interface est dans un objet JS. Ajouter une langue = ajouter un bloc dans T[]. Aucune lib externe, juste des clés et une fonction de mise à jour DOM.</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">📜</div>
+      <h3>IntersectionObserver pour le scroll infini</h3>
+      <p>Un div sentinel invisible en bas de page. Quand il entre dans le viewport, on charge le prochain batch. Propre, performant, sans polling ni scroll events.</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">⇄</div>
+      <h3>Round-robin par région (Mix countries)</h3>
+      <p>Grouper par région, créer un tableau de buckets, itérer bucket par bucket. Résultat : résultats équilibrés entre les langues sans toucher le backend.</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">🗄️</div>
+      <h3>Séparation main.py / database.py</h3>
+      <p>main.py = routes HTTP uniquement. database.py = accès SQLite uniquement. Migrer vers PostgreSQL ne touchera que database.py.</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">🎨</div>
+      <h3>Tooltip CSS via attr(title)</h3>
+      <p>Le pseudo-élément <code>::after</code> lit <code>content: attr(title)</code>. Pas de JS, pas de lib. Le texte suit la langue de l'interface automatiquement via <code>applyTranslations()</code>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║            HISTORIQUE GIT                ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<div class="section">
+  <div class="section-badge">📦 Git & GitHub</div>
+  <h2>Historique des commits</h2>
+  <p class="section-intro">4 commits poussés sur <strong>github.com/sinsan67/world-expressions</strong> (branche main).</p>
+
+  <div class="git-log">
+    <div><span class="git-hash">7ef60d1</span> <span class="git-type">feat:</span> <span class="git-msg">add Spanish — 120 expressions + 🇪🇸 chip + Español UI language</span></div>
+    <div><span class="git-hash">eae28ed</span> <span class="git-type">feat:</span> <span class="git-msg">add mix countries toggle with animated re-render</span></div>
+    <div><span class="git-hash">938fed6</span> <span class="git-type">feat:</span> <span class="git-msg">concept search cross-language via /concept endpoint</span></div>
+    <div style="color:#4b5563;">... commits précédents (sessions antérieures)</div>
+  </div>
+
+  <p style="margin-top:16px;font-size:0.82rem;color:var(--muted);">
+    <strong>Git tip :</strong> <code style="background:var(--accent-light);color:var(--accent);padding:2px 6px;border-radius:4px;">git log --oneline</code> affiche l'historique complet en mode compact, une ligne par commit.
+  </p>
+</div>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║         PROCHAINES ACTIONS               ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<div class="section">
+  <div class="section-badge">🚀 Prochaines étapes</div>
+  <h2>Ce que je recommande pour la suite</h2>
+  <p class="section-intro">Classées par impact et faisabilité. Les 3 premières peuvent se faire dans la prochaine session.</p>
+
+  <div class="action-list">
+
+    <div class="action-item priority-high">
+      <div class="action-num">1</div>
+      <div class="action-body">
+        <div class="priority-label pl-high">Priorité haute — Session suivante</div>
+        <h3>Déploiement en ligne (Render + Vercel)</h3>
+        <p>Le site tourne en local. Pour que ton cousin puisse le voir et y contribuer, il faut le mettre en ligne. <strong>Backend</strong> : déployer sur <a href="https://render.com" style="color:var(--accent);">Render.com</a> (gratuit, Python natif). <strong>Frontend</strong> : déployer sur <a href="https://vercel.com" style="color:var(--accent);">Vercel</a> ou Netlify (drag-and-drop du fichier HTML). Temps estimé : 1 heure. Impact : le site devient accessible à n'importe qui.</p>
+      </div>
+    </div>
+
+    <div class="action-item priority-high">
+      <div class="action-num">2</div>
+      <div class="action-body">
+        <div class="priority-label pl-high">Priorité haute — Session suivante</div>
+        <h3>Filtres "Expressions from" dynamiques (issus de l'API)</h3>
+        <p>Actuellement les chips France/UK/USA/AU/España sont codés en dur dans le HTML. Si on ajoute l'italien demain, il faut modifier le HTML manuellement. Solution : l'endpoint <code>GET /</code> retourne déjà <code>by_language</code> — utiliser cette data au chargement pour générer les chips automatiquement. Les drapeaux et labels peuvent être dans un objet JS de config.</p>
+      </div>
+    </div>
+
+    <div class="action-item priority-high">
+      <div class="action-num">3</div>
+      <div class="action-body">
+        <div class="priority-label pl-high">Priorité haute — Prochaine session</div>
+        <h3>Ajouter l'italien (100–150 expressions)</h3>
+        <p>Tu prépares un voyage en Sicile et tu apprends l'italien — c'est la parfaite motivation. Un script Python similaire à <code>add_spanish_expressions.py</code> suffit. Expressions idiomatiques italiennes : <em>in bocca al lupo, avere le mani in pasta, prendere due piccioni con una fava</em>... Ajouter ensuite le chip 🇮🇹 Italia et la traduction Italiano dans le menu burger.</p>
+      </div>
+    </div>
+
+    <div class="action-item priority-med">
+      <div class="action-num">4</div>
+      <div class="action-body">
+        <div class="priority-label pl-med">Priorité moyenne — V2</div>
+        <h3>Frontend router : URLs individuelles par expression</h3>
+        <p>Actuellement tout se passe sur une seule page sans URL propre. Pour la navigabilité et le partage, chaque expression devrait avoir une URL : <code>/expression/casser-les-pieds</code>. Implémentable avec un simple hash router (<code>#/expression/id</code>) sans framework. C'est la clé pour que le site soit partageable et indexable.</p>
+      </div>
+    </div>
+
+    <div class="action-item priority-med">
+      <div class="action-num">5</div>
+      <div class="action-body">
+        <div class="priority-label pl-med">Priorité moyenne — V2</div>
+        <h3>Redesign visuel inspiré d'ethereum.org</h3>
+        <p>Le design actuel est propre mais basique. La référence choisie (ethereum.org) utilise des illustrations SVG, des palettes pastel, des sections alternées, une typographie Playfair Display affirmée. Commence par la page d'accueil : hero avec illustration, section "Explore by theme" avec cards visuelles. Les cartes d'expressions peuvent avoir des emojis illustratifs générés depuis les tags.</p>
+      </div>
+    </div>
+
+    <div class="action-item priority-med">
+      <div class="action-num">6</div>
+      <div class="action-body">
+        <div class="priority-label pl-med">Priorité moyenne — V2</div>
+        <h3>Page "Parcourir par thème" (tags cliquables → liste)</h3>
+        <p>En cliquant sur un tag, l'utilisateur voit toutes les expressions de ce concept dans toutes les langues. C'est déjà partiellement fonctionnel via <code>/concept</code>, mais il manque une vraie page "tag" avec URL propre, titre, description du concept, et les expressions groupées par langue.</p>
+      </div>
+    </div>
+
+    <div class="action-item priority-low">
+      <div class="action-num">7</div>
+      <div class="action-body">
+        <div class="priority-label pl-low">Long terme — V3</div>
+        <h3>Carte interactive de France par région</h3>
+        <p>Le champ <code>region</code> est déjà dans la base de données (actuellement : fr/uk/us/au/es). Enrichir les expressions françaises avec leur région d'origine (Normandie, Provence, Alsace...) via le TLFi (CNRS). Une SVG de France cliquable permettrait d'explorer les expressions par terroir. Un projet à envisager en partenariat avec une institution culturelle.</p>
+      </div>
+    </div>
+
+    <div class="action-item priority-low">
+      <div class="action-num">8</div>
+      <div class="action-body">
+        <div class="priority-label pl-low">Long terme — V3/V4</div>
+        <h3>Illustration SVG par expression (AI → vectorisation)</h3>
+        <p>Chaque expression est unique et mérite une illustration. Le champ <code>illustration</code> est déjà prévu en base. Workflow possible : générer avec Midjourney ou DALL-E → vectoriser → stocker en SVG. Commence par les 10 expressions les plus cherchées pour tester le format visuel.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║            ÉTAT DU PROJET               ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<div class="section">
+  <div class="section-badge">📋 Pour reprendre rapidement</div>
+  <h2>Commandes pour relancer le projet</h2>
+  <p class="section-intro">Tout ce dont tu as besoin pour reprendre là où on s'est arrêtés.</p>
+
+  <h3 style="font-size:0.9rem;font-weight:600;margin-bottom:8px;margin-top:24px;">1. Lancer le backend</h3>
+  <div class="code-block">
+<span class="comment"># Dans le dossier du projet</span>
+cd /Users/sinsan/Projets/expressions-du-monde
+
+<span class="comment"># Démarrer l'API (toujours avec python3 -m uvicorn)</span>
+python3 -m uvicorn main:app --reload
+
+<span class="comment"># API disponible sur http://localhost:8000</span>
+  </div>
+
+  <h3 style="font-size:0.9rem;font-weight:600;margin-bottom:8px;margin-top:24px;">2. Ouvrir le frontend</h3>
+  <div class="code-block">
+<span class="comment"># Ouvrir directement dans le navigateur :</span>
+/Users/sinsan/Projets/expressions-du-monde/frontend/index.html
+
+<span class="comment"># Ou depuis le terminal :</span>
+open frontend/index.html
+  </div>
+
+  <h3 style="font-size:0.9rem;font-weight:600;margin-bottom:8px;margin-top:24px;">3. Tester la base de données</h3>
+  <div class="code-block">
+<span class="comment"># Compter les expressions par région</span>
+python3 -c <span class="string">"import sqlite3; conn=sqlite3.connect('data/expressions.db'); [print(r) for r in conn.execute('SELECT region, COUNT(*) FROM expressions GROUP BY region').fetchall()]"</span>
+
+<span class="comment"># Résultat attendu :</span>
+<span class="comment"># ('au', 100), ('es', 120), ('fr', 400), ('uk', 100), ('us', 300)</span>
+  </div>
+
+  <h3 style="font-size:0.9rem;font-weight:600;margin-bottom:8px;margin-top:24px;">4. Ajouter une nouvelle langue</h3>
+  <div class="code-block">
+<span class="comment"># Copier le script espagnol et adapter</span>
+cp scripts/add_spanish_expressions.py scripts/add_italian_expressions.py
+
+<span class="comment"># Dans le script : changer language="es" → "it", region="es" → "it"</span>
+<span class="comment"># Remplir les 100 expressions italiennes</span>
+python3 scripts/add_italian_expressions.py
+
+<span class="comment"># Dans index.html : ajouter le chip 🇮🇹 Italia + T[it] + HINTS.it</span>
+  </div>
+
+  <h3 style="font-size:0.9rem;font-weight:600;margin-bottom:8px;margin-top:24px;">5. Pusher un commit</h3>
+  <div class="code-block">
+git add frontend/index.html
+git commit -m <span class="string">"feat: description de la feature"</span>
+git push origin main
+  </div>
+
+</div>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║               FOOTER                    ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<div class="footer">
+  <p><strong>Expressions du Monde</strong> · Session du 19 mai 2026</p>
+  <p style="margin-top:8px;">Repo : <a href="https://github.com/sinsan67/world-expressions">github.com/sinsan67/world-expressions</a> · Construit avec FastAPI, SQLite, HTML/CSS/JS vanilla</p>
+  <p style="margin-top:8px;">Généré avec Claude Sonnet 4.6 (Claude Code · Anthropic)</p>
+</div>
+
+</body>
+</html>
