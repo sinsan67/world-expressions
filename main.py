@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Expressions du Monde API")
 
-# Autoriser le frontend à appeler cette API (nécessaire quand le HTML est ouvert en local)
+# Allow the frontend to call this API when the HTML is opened locally
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,77 +13,76 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Chargement des expressions au démarrage du serveur (une seule fois en mémoire)
+# Load expressions once at startup
 DATA_PATH = Path(__file__).parent / "data" / "expressions.json"
 with open(DATA_PATH, encoding="utf-8") as f:
     EXPRESSIONS = json.load(f)
 
 
-def normaliser(texte: str) -> str:
-    """Convertit en minuscules pour une comparaison insensible à la casse."""
-    return texte.lower().strip()
+def normalize(text: str) -> str:
+    """Lowercase and strip for case-insensitive comparison."""
+    return text.lower().strip()
 
 
-def chercher(query: str) -> list[dict]:
+def search(query: str) -> list[dict]:
     """
-    Recherche une expression par mot-clé.
+    Search expressions by keyword.
 
-    Deux types de correspondance, dans l'ordre de priorité :
-    - "exact"     : le mot apparaît dans le texte de l'expression elle-même
-    - "semantique": le mot apparaît dans la signification, les tags ou l'exemple
+    Two match types, in priority order:
+    - "exact"    : the word appears in the expression text itself
+    - "semantic" : the word appears in meaning, tags, example, or origin
     """
-    q = normaliser(query)
+    q = normalize(query)
     if not q:
         return []
 
-    resultats_exacts = []
-    resultats_semantiques = []
+    exact_results = []
+    semantic_results = []
 
     for expr in EXPRESSIONS:
-        dans_expression = q in normaliser(expr["expression"])
-        dans_signification = q in normaliser(expr["signification"])
-        dans_tags = any(q in normaliser(tag) for tag in expr["tags"])
-        dans_exemple = q in normaliser(expr.get("exemple", ""))
-        dans_origine = q in normaliser(expr.get("origine", ""))
+        in_expression = q in normalize(expr["expression"])
+        in_meaning    = q in normalize(expr["meaning"])
+        in_tags       = any(q in normalize(tag) for tag in expr["tags"])
+        in_example    = q in normalize(expr.get("example", ""))
+        in_origin     = q in normalize(expr.get("origin", ""))
 
-        if dans_expression:
-            resultats_exacts.append({**expr, "match_type": "exact"})
-        elif dans_signification or dans_tags or dans_exemple or dans_origine:
-            resultats_semantiques.append({**expr, "match_type": "semantique"})
+        if in_expression:
+            exact_results.append({**expr, "match_type": "exact"})
+        elif in_meaning or in_tags or in_example or in_origin:
+            semantic_results.append({**expr, "match_type": "semantic"})
 
-    # Les correspondances exactes apparaissent en premier
-    return resultats_exacts + resultats_semantiques
+    return exact_results + semantic_results
 
 
 @app.get("/")
-def accueil():
+def home():
     return {
-        "message": "Bienvenue sur l'API Expressions du Monde",
-        "expressions_chargees": len(EXPRESSIONS),
-        "usage": "GET /recherche?q=votre_mot",
+        "message": "Welcome to the Expressions du Monde API",
+        "expressions_loaded": len(EXPRESSIONS),
+        "usage": "GET /search?q=your_word",
     }
 
 
-@app.get("/recherche")
-def recherche(q: str = Query(..., min_length=2, description="Mot à rechercher")):
+@app.get("/search")
+def search_expressions(q: str = Query(..., min_length=2, description="Word to search")):
     """
-    Recherche des expressions liées à un mot.
-    Retourne les correspondances exactes d'abord, puis les correspondances sémantiques.
+    Search for expressions related to a word.
+    Returns exact matches first, then semantic matches.
     """
-    resultats = chercher(q)
+    results = search(q)
     return {
         "query": q,
-        "total": len(resultats),
-        "exacts": sum(1 for r in resultats if r["match_type"] == "exact"),
-        "semantiques": sum(1 for r in resultats if r["match_type"] == "semantique"),
-        "resultats": resultats,
+        "total": len(results),
+        "exact": sum(1 for r in results if r["match_type"] == "exact"),
+        "semantic": sum(1 for r in results if r["match_type"] == "semantic"),
+        "results": results,
     }
 
 
 @app.get("/expression/{expression_id}")
-def detail_expression(expression_id: str):
-    """Retourne le détail complet d'une expression par son identifiant."""
+def get_expression(expression_id: str):
+    """Return the full detail of an expression by its id."""
     for expr in EXPRESSIONS:
         if expr["id"] == expression_id:
             return expr
-    return {"erreur": f"Expression '{expression_id}' introuvable"}, 404
+    return {"error": f"Expression '{expression_id}' not found"}, 404

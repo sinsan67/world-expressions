@@ -1,93 +1,113 @@
-# Projet — Webapp Expressions du Monde
+# Project — Expressions du Monde Web App
 
-## Objectif
-Créer une application web ludique, intuitive et visuelle autour des expressions idiomatiques internationales : exploration et jeu.
+## Goal
+Build a fun, intuitive, and visual web application around French idiomatic expressions: exploration and play.
 
-## État
-V1 fonctionnelle en local (backend FastAPI + frontend HTML/CSS/JS). Phase de test et itération.
+## Status
+V1 functional locally (FastAPI backend + HTML/CSS/JS frontend). Testing and iteration phase.
 
-## Vision produit
-Un site web (futur PWA) où l'utilisateur tape un mot et découvre des expressions françaises qui y sont liées — soit parce qu'elles contiennent ce mot, soit parce qu'elles s'en rapprochent par le sens. Affichage sexy et informatif des résultats.
+## Product Vision
+A website (future PWA) where users type a word and discover French expressions related to it — either because they contain that word, or because they share its meaning. Results are displayed in a clear and visually appealing way.
 
-## Décisions prises
+## Decisions Made
 
-### Périmètre V1
-- Expressions **françaises uniquement**
-- Page d'accueil : barre de recherche + illustration
-- Résultats : liste d'expressions avec fiche détaillée
+### V1 Scope
+- **French expressions only**
+- Home page: search bar + illustration
+- Results: list of expressions with a detail card
 
-### Fiche d'une expression (V1)
-- Signification
-- Origine
-- Exemple d'utilisation en phrase
-- (V2+) Équivalent dans d'autres langues
+### Expression Card (V1)
+- Meaning
+- Origin
+- Usage example sentence
+- (V2+) Equivalent in other languages
 
-### Recherche
-- Par mot exact contenu dans l'expression
-- Par sens proche (ex : taper "énerver" trouve "casser les pieds")
-- Distinguer visuellement les deux types de résultats
+### Search
+- Exact: the word appears in the expression text
+- Semantic: the word appears in meaning, tags, example, or origin (e.g. searching "annoy" finds "casser les pieds")
+- Both match types are visually distinguished in results
 
-### Données
-- Base de ~500-1000 expressions françaises courantes
-- Constituée avec Claude à partir de sources publiques
-- Format V1 : fichier JSON structuré
+### Data
+- ~400 French expressions (built with Claude from public sources)
+- V1 format: structured JSON file
 
-### Stack technique (décidée)
-- **Backend** : Python + FastAPI
-- **Base de données** : JSON (V1) → SQLite → PostgreSQL
-- **Frontend** : HTML/CSS + JavaScript
-- **PWA** : ajouté en V2
+### Tech Stack
+- **Backend**: Python + FastAPI
+- **Database**: JSON (V1) → SQLite → PostgreSQL
+- **Frontend**: HTML/CSS + JavaScript
+- **PWA**: added in V2
 
-### Déploiement
-- V1 en local
-- V2 : déploiement sur Internet
+### JSON Field Names
+```json
+{
+  "id": "kebab-case-slug",
+  "expression": "The expression text",
+  "meaning": "What it means",
+  "origin": "Where it comes from",
+  "example": "Example sentence",
+  "register": "standard | informal | slang | vulgar | formal",
+  "tags": ["tag1", "tag2"],
+  "region": null,
+  "illustration": null
+}
+```
 
-## Principes directeurs UX
+### API Endpoints
+- `GET /` — server health + expression count
+- `GET /search?q=word` — search (exact + semantic)
+- `GET /expression/{id}` — full expression detail
 
-### Navigabilité (principe central)
-L'utilisateur doit pouvoir naviguer librement entre les concepts en cliquant sur des liens — pas seulement chercher. Concrètement :
-- Chaque expression a sa propre URL (ex: `/expression/casser-les-pieds`)
-- Chaque tag est cliquable → liste des expressions avec ce tag
-- Chaque registre est cliquable → navigation par niveau de langue
-- Les expressions doivent se relier entre elles (expressions proches, même famille...)
+### Deployment
+- V1: local only
+- V2: deploy to the internet
 
-Ce principe oriente l'architecture : il faut un **routeur** côté frontend (navigation sans rechargement de page) dès la V2.
+## UX Principles
 
-### Design V2
-Référence : [ethereum.org](https://ethereum.org) — clarté, illustrations, couleurs pastel.
+### Navigability (core principle)
+Users must be able to navigate freely between concepts by clicking — not just searching. Concretely:
+- Each expression has its own URL (e.g. `/expression/casser-les-pieds`)
+- Each tag is clickable → list of expressions with that tag
+- Each register is clickable → browse by language level
+- Expressions should link to each other (related expressions, same family...)
 
-**Logique visuelle par type de page :**
-- Fiches d'expression (pages simples) → **emojis** : légers, textuels, contextuels, pas besoin de fichier image
-- Pages d'exploration (tags, thèmes, accueil) → **illustrations SVG** : riches, designées, une par thème
+This shapes the architecture: a frontend **router** (no-reload navigation) is needed starting V2.
 
-## Historique des versions
+### V2 Design
+Reference: [ethereum.org](https://ethereum.org) — clarity, illustrations, pastel colors.
 
-### V1 (en cours — local)
-- Backend FastAPI + 122 expressions JSON
-- Frontend page unique : recherche + cartes résultats
-- Recherche exacte + sémantique
-- Tags cliquables
+**Visual logic by page type:**
+- Expression cards (simple pages) → **emojis**: lightweight, textual, contextual, no image file needed
+- Exploration pages (tags, themes, home) → **SVG illustrations**: rich, designed, one per theme
 
-### V2 (à venir)
-- Routeur frontend (pages par expression, par tag)
-- Refonte visuelle inspirée d'ethereum.org (pastel, illustrations SVG)
+## Version History
+
+### V1 (current — local)
+- FastAPI backend + 400 French expressions in JSON
+- Single-page frontend: search + result cards
+- Exact + semantic search
+- Clickable tags
+- Suggestion chips (pied, argent, animal, mentir, partir, peur, verlan)
+
+### V2 (upcoming)
+- Frontend router (pages per expression, per tag)
+- Visual redesign inspired by ethereum.org (pastel, SVG illustrations)
 - PWA
 
-### V3/V4 (vision long terme)
+### V3/V4 (long-term vision)
 
-**Carte de France interactive**
-- Enrichir la base de données avec l'origine régionale de chaque expression
-- Source retenue : **TLFi (Trésor de la Langue Française informatisé)** — CNRS + Université de Lorraine
-- Piste : les contacter pour un partenariat (projet pédagogique et culturel, institution publique)
-- Page "Carte" : SVG de France avec régions cliquables
-- Cliquer sur une région → liste des expressions qui y sont nées ou liées
-- Champ `region` déjà présent dans le JSON (null pour l'instant)
+**Interactive Map of France**
+- Enrich the database with the regional origin of each expression
+- Source: **TLFi (Trésor de la Langue Française informatisé)** — CNRS + University of Lorraine
+- Plan: contact them for a partnership (educational and cultural project, public institution)
+- "Map" page: SVG of France with clickable regions
+- Click a region → list of expressions born or rooted there
+- `region` field already in JSON (null for now)
 
-**Illustration par expression**
-- Une illustration SVG unique pour chaque expression
-- Mode de génération à définir : génération IA (Midjourney/DALL-E → vectorisation) ou SVG natif
-- Le champ `illustration` est déjà prévu dans la structure JSON pour accueillir l'URL ou le code SVG
-- Transforme chaque fiche en véritable carte visuelle
+**Per-expression Illustration**
+- A unique SVG illustration for each expression
+- Generation method TBD: AI-generated (Midjourney/DALL-E → vectorization) or native SVG
+- `illustration` field already in JSON to hold the URL or SVG code
+- Turns each card into a true visual artifact
 
-## Contexte
-Projet personnel de Sinan, première application web. Approche pédagogique privilégiée. Ambition de faire évoluer le produit version après version.
+## Context
+Personal project by Sinan — first web application. Open-source and collaborative. Pedagogical approach preferred. Goal is to evolve the product version by version.
