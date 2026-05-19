@@ -361,9 +361,19 @@
     /* ── COUNTRY FILTER ──────────────────────── */
     .country-filter {
       display: flex;
+      align-items: center;
       justify-content: center;
       gap: 8px;
       margin-top: 14px;
+    }
+
+    .filter-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-right: 2px;
     }
 
     .country-chip {
@@ -446,8 +456,11 @@
     </div>
 
     <div class="country-filter">
-      <button class="country-chip active" data-lang="en">🇬🇧 English</button>
-      <button class="country-chip active" data-lang="fr">🇫🇷 Français</button>
+      <span class="filter-label">From:</span>
+      <button class="country-chip active" data-region="fr">🇫🇷 France</button>
+      <button class="country-chip active" data-region="uk">🇬🇧 UK</button>
+      <button class="country-chip active" data-region="us">🇺🇸 USA</button>
+      <button class="country-chip active" data-region="au">🇦🇺 Australia</button>
     </div>
   </header>
 
@@ -462,19 +475,21 @@
     const output = document.getElementById('results');
     let timer = null;
 
-    // Both languages active by default
-    const selectedLangs = new Set(['en', 'fr']);
+    // All regions active by default
+    const selectedRegions = new Set(['fr', 'uk', 'us', 'au']);
 
-    const FLAG  = { en: '🇬🇧', fr: '🇫🇷' };
+    const FLAG  = { fr: '🇫🇷', uk: '🇬🇧', us: '🇺🇸', au: '🇦🇺' };
     const HINTS = {
-      en: ['luck', 'money', 'rain', 'fire', 'cake'],
       fr: ['pied', 'argent', 'animal', 'peur'],
+      uk: ['rain', 'luck', 'time'],
+      us: ['money', 'fire', 'cake'],
+      au: ['mate', 'fair', 'work'],
     };
 
     // ── Title & placeholder update ────────────────
 
     function updateHero() {
-      const onlyFr = selectedLangs.size === 1 && selectedLangs.has('fr');
+      const onlyFr = selectedRegions.size === 1 && selectedRegions.has('fr');
       document.getElementById('hero-title').innerHTML =
         onlyFr ? 'Expressions <em>du Monde</em>' : 'World <em>Expressions</em>';
       input.placeholder = onlyFr
@@ -486,15 +501,15 @@
 
     document.querySelectorAll('.country-chip').forEach(chip => {
       chip.addEventListener('click', () => {
-        const lang = chip.dataset.lang;
+        const region = chip.dataset.region;
         const willDeselect = chip.classList.contains('active');
         // Prevent deselecting the last active chip
-        if (willDeselect && selectedLangs.size === 1) return;
+        if (willDeselect && selectedRegions.size === 1) return;
         if (willDeselect) {
-          selectedLangs.delete(lang);
+          selectedRegions.delete(region);
           chip.classList.remove('active');
         } else {
-          selectedLangs.add(lang);
+          selectedRegions.add(region);
           chip.classList.add('active');
         }
         updateHero();
@@ -531,8 +546,8 @@
     async function fetchResults(q) {
       showLoading();
       try {
-        const langParam = [...selectedLangs].join(',');
-        const res  = await fetch(`${API}/search?q=${encodeURIComponent(q)}&lang=${langParam}`);
+        const regionParam = [...selectedRegions].join(',');
+        const res  = await fetch(`${API}/search?q=${encodeURIComponent(q)}&region=${regionParam}`);
         const data = await res.json();
         renderResults(data);
       } catch {
@@ -574,7 +589,7 @@
 
     function renderCard(expr, i) {
       const matchLabel = expr.match_type === 'exact' ? 'Exact' : 'Semantic';
-      const flag = FLAG[expr.language] || '';
+      const flag = FLAG[expr.region] || '';
       const tags = expr.tags.slice(0, 4).map(t => `<span class="tag-pill" data-query="${esc(t)}">${esc(t)}</span>`).join('');
 
       return `
@@ -619,8 +634,10 @@
 
     function showWelcome() {
       const words = [];
-      if (selectedLangs.has('en')) words.push(...HINTS.en);
-      if (selectedLangs.has('fr')) words.push(...HINTS.fr);
+      if (selectedRegions.has('fr')) words.push(...HINTS.fr);
+      if (selectedRegions.has('uk')) words.push(...HINTS.uk);
+      if (selectedRegions.has('us')) words.push(...HINTS.us);
+      if (selectedRegions.has('au')) words.push(...HINTS.au);
       const chips = words
         .map(w => `<span class="hint-chip" data-query="${esc(w)}">${esc(w)}</span>`)
         .join('');

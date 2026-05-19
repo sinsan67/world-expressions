@@ -24,10 +24,10 @@ def normalize(text: str) -> str:
     return text.lower().strip()
 
 
-def search(query: str, langs: set[str] | None = None) -> list[dict]:
+def search(query: str, regions: set[str] | None = None) -> list[dict]:
     """
-    Search expressions by keyword, optionally filtered by a set of languages.
-    If langs is None or empty, all languages are included.
+    Search expressions by keyword, optionally filtered by a set of regions.
+    If regions is None or empty, all regions are included.
 
     Two match types, in priority order:
     - "exact"    : the word appears in the expression text itself
@@ -41,7 +41,7 @@ def search(query: str, langs: set[str] | None = None) -> list[dict]:
     semantic_results = []
 
     for expr in EXPRESSIONS:
-        if langs and expr.get("language") not in langs:
+        if regions and expr.get("region") not in regions:
             continue
 
         in_expression = q in normalize(expr["expression"])
@@ -73,18 +73,18 @@ def home():
 @app.get("/search")
 def search_expressions(
     q: str = Query(..., min_length=2, description="Word to search"),
-    lang: str = Query("", description="Comma-separated languages to include, e.g. 'en,fr'. Empty = all."),
+    region: str = Query("", description="Comma-separated regions to include, e.g. 'fr,uk,us'. Empty = all."),
 ):
     """
     Search for expressions related to a word.
     Returns exact matches first, then semantic matches.
-    Pass lang=en,fr to filter by language; omit for all languages.
+    Pass region=fr,uk,us to filter by origin country; omit for all regions.
     """
-    langs = set(lang.split(",")) - {""} if lang else None
-    results = search(q, langs)
+    regions = set(region.split(",")) - {""} if region else None
+    results = search(q, regions)
     return {
         "query": q,
-        "langs": sorted(langs) if langs else "all",
+        "regions": sorted(regions) if regions else "all",
         "total": len(results),
         "exact": sum(1 for r in results if r["match_type"] == "exact"),
         "semantic": sum(1 for r in results if r["match_type"] == "semantic"),
