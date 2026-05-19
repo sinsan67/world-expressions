@@ -9,8 +9,8 @@ const FLAG: Record<string, string> = {
 };
 
 const REGISTER_LABEL: Record<string, string> = {
-  standard: "standard", informal: "informal", slang: "slang",
-  vulgar: "vulgar", formal: "formal",
+  standard: "courant", informal: "familier", slang: "argot",
+  vulgar: "vulgaire", formal: "soutenu",
 };
 
 type Props = {

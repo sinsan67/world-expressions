@@ -205,14 +205,14 @@ export default function Home() {
             className="px-5 py-3 rounded-xl text-sm font-semibold text-white transition-opacity disabled:opacity-50"
             style={{ background: "#7c3aed" }}
           >
-            {loading ? "…" : "Chercher"}
+            {loading ? "…" : "Rechercher"}
           </button>
         </div>
 
         {/* Filtres pays */}
         <div className="flex flex-wrap justify-center gap-2">
           <span className="text-xs self-center mr-1" style={{ color: "#9ca3af" }}>
-            Expressions depuis
+            Filtrer par pays
           </span>
           {REGIONS.map((r) => (
             <button
@@ -294,10 +294,10 @@ export default function Home() {
         {!searched && (
           <div className="text-center mt-10">
             <p className="text-base font-medium mb-1" style={{ color: "#6b7280" }}>
-              Tapez un mot pour explorer
+              Explorez par mot-clé
             </p>
             <p className="text-sm mb-6" style={{ color: "#9ca3af" }}>
-              Par exemple…
+              Quelques idées…
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               {hintWords.map((word) => {
