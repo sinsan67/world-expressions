@@ -160,20 +160,32 @@
     }
 
     .hint-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
       background: #fff;
       border: 1px solid var(--border);
-      border-radius: 100px;
-      padding: 6px 16px;
-      font-size: 0.82rem;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-size: 0.8rem;
+      font-weight: 500;
       color: var(--text-muted);
       cursor: pointer;
-      transition: border-color 0.15s, color 0.15s;
+      min-width: 70px;
+      transition: border-color 0.18s, color 0.18s, box-shadow 0.18s, background 0.18s;
+    }
+
+    .hint-icon {
+      font-size: 1.5rem;
+      line-height: 1;
     }
 
     .hint-chip:hover {
       border-color: var(--accent);
       color: var(--accent);
       background: var(--accent-light);
+      box-shadow: 0 3px 10px rgba(124,58,237,0.1);
     }
 
     /* ── RESULTS SUMMARY ──────────────────────── */
@@ -270,6 +282,9 @@
     .reg-formal   { background: #dcfce7; color: #166534; }
 
     .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
       font-size: 0.7rem;
       padding: 3px 9px;
       border-radius: 20px;
@@ -400,12 +415,83 @@
       opacity: 1;
     }
 
-    .country-chip:hover {
-      opacity: 0.8;
+    .country-chip:hover { opacity: 0.8; }
+    .country-chip.active:hover { opacity: 0.85; }
+
+    /* ── LANGUAGE SWITCHER ───────────────────── */
+    .lang-switcher {
+      position: fixed;
+      top: 18px;
+      right: 20px;
+      z-index: 200;
     }
 
-    .country-chip.active:hover {
-      opacity: 0.85;
+    .lang-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,0.88);
+      border: 1.5px solid rgba(196,181,253,0.5);
+      border-radius: 10px;
+      padding: 7px 12px;
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      color: var(--text-muted);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .lang-btn:hover {
+      border-color: var(--accent);
+      box-shadow: 0 2px 12px rgba(124,58,237,0.12);
+    }
+
+    .lang-btn svg { flex-shrink: 0; }
+
+    .lang-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.1);
+      padding: 6px;
+      min-width: 168px;
+    }
+
+    .lang-menu.hidden { display: none; }
+
+    .lang-menu-title {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #c4b9a8;
+      padding: 6px 8px 8px;
+    }
+
+    .lang-option {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.87rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    .lang-option:hover { background: var(--accent-light); }
+
+    .lang-option.active {
+      color: var(--accent);
+      font-weight: 600;
     }
 
     /* ── LOADING ──────────────────────────────── */
@@ -435,6 +521,23 @@
 </head>
 <body>
 
+  <!-- ── LANGUAGE SWITCHER (fixed top-right) ──── -->
+  <div id="lang-switcher" class="lang-switcher">
+    <button id="lang-btn" class="lang-btn" aria-label="Switch site language">
+      <span id="lang-flag">🇬🇧</span>
+      <svg width="17" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 17 13">
+        <line x1="0" y1="1.5" x2="17" y2="1.5"/>
+        <line x1="0" y1="6.5" x2="17" y2="6.5"/>
+        <line x1="0" y1="11.5" x2="17" y2="11.5"/>
+      </svg>
+    </button>
+    <div id="lang-menu" class="lang-menu hidden">
+      <div class="lang-menu-title" id="lang-menu-title">Site language</div>
+      <button class="lang-option active" data-lang="en">🇬🇧 English</button>
+      <button class="lang-option" data-lang="fr">🇫🇷 Français</button>
+    </div>
+  </div>
+
   <!-- ── HERO ──────────────────────────────────── -->
   <header class="hero">
     <span id="hero-label" class="hero-label">Language &amp; Culture</span>
@@ -456,7 +559,7 @@
     </div>
 
     <div class="country-filter">
-      <span class="filter-label">From:</span>
+      <span class="filter-label" id="filter-label">Expressions from</span>
       <button class="country-chip active" data-region="fr">🇫🇷 France</button>
       <button class="country-chip active" data-region="uk">🇬🇧 UK</button>
       <button class="country-chip active" data-region="us">🇺🇸 USA</button>
@@ -470,15 +573,123 @@
   </main>
 
   <script>
-    const API    = 'http://localhost:8000';
+    const API   = 'http://localhost:8000';
     const input  = document.getElementById('search-input');
     const output = document.getElementById('results');
     let timer = null;
+    let uiLang = 'en';
 
-    // All regions active by default
     const selectedRegions = new Set(['fr', 'uk', 'us', 'au']);
 
     const FLAG  = { fr: '🇫🇷', uk: '🇬🇧', us: '🇺🇸', au: '🇦🇺' };
+
+    // Semantic icons — same icon for cross-language synonyms (argent = money = 💰)
+    const TAG_ICONS = {
+      // Money
+      argent: '💰', money: '💰', richesse: '💰', wealth: '💰', finances: '💰',
+      pauvreté: '💰', poverty: '💰', prix: '💰', price: '💰', dépense: '💰',
+      // Animals
+      animal: '🐾', animals: '🐾',
+      chien: '🐕', dog: '🐕',
+      chat: '🐱', cat: '🐱',
+      cheval: '🐴', horse: '🐴',
+      oiseau: '🐦', bird: '🐦',
+      poisson: '🐟', fish: '🐟',
+      vache: '🐄', cow: '🐄',
+      cochon: '🐷', pig: '🐷',
+      serpent: '🐍', snake: '🐍',
+      loup: '🐺', wolf: '🐺',
+      ours: '🐻', bear: '🐻',
+      lapin: '🐰', rabbit: '🐰',
+      renard: '🦊', fox: '🦊',
+      singe: '🐒', monkey: '🐒',
+      mouton: '🐑', sheep: '🐑',
+      âne: '🫏', donkey: '🫏',
+      kangourou: '🦘', kangaroo: '🦘',
+      // Fire
+      feu: '🔥', fire: '🔥', flamme: '🔥', flame: '🔥',
+      // Water / Rain / Sea
+      eau: '💧', water: '💧',
+      pluie: '🌧️', rain: '🌧️',
+      mer: '🌊', sea: '🌊', ocean: '🌊', rivière: '🌊', river: '🌊',
+      // Fear
+      peur: '😱', fear: '😱', fright: '😱', crainte: '😱',
+      // Luck
+      chance: '🍀', luck: '🍀', malchance: '🍀',
+      // Body parts
+      pied: '🦶', foot: '🦶', feet: '🦶',
+      main: '✋', hand: '✋', hands: '✋',
+      tête: '🧠', head: '🧠',
+      oeil: '👁️', yeux: '👁️', eye: '👁️', eyes: '👁️',
+      bouche: '👄', mouth: '👄',
+      nez: '👃', nose: '👃',
+      bras: '💪', arm: '💪', arms: '💪',
+      ventre: '🫃', belly: '🫃', stomach: '🫃',
+      dos: '🧍', back: '🧍',
+      corps: '🫀', body: '🫀',
+      // Time
+      temps: '⏰', time: '⏰', heure: '⏰', hour: '⏰',
+      // Work
+      travail: '💼', work: '💼', job: '💼', boulot: '💼',
+      // Food & Drink
+      nourriture: '🍽️', food: '🍽️', manger: '🍽️', eat: '🍽️',
+      cake: '🎂', gâteau: '🎂',
+      pain: '🍞', bread: '🍞',
+      vin: '🍷', wine: '🍷',
+      bière: '🍺', beer: '🍺', pub: '🍺',
+      café: '☕', coffee: '☕', tea: '🫖',
+      alcool: '🥃', alcohol: '🥃', drink: '🥃',
+      // Love & Feelings
+      amour: '❤️', love: '❤️', romance: '❤️', coeur: '❤️', heart: '❤️',
+      joie: '😄', joy: '😄', happiness: '😄', bonheur: '😄',
+      tristesse: '😢', sadness: '😢', sad: '😢',
+      colère: '😠', anger: '😠', angry: '😠',
+      honte: '😳', shame: '😳',
+      // Lie / Deception
+      mensonge: '🤥', lie: '🤥', lying: '🤥', tromperie: '🤥', deception: '🤥',
+      // Intelligence / Stupidity
+      intelligence: '🧠', clever: '🧠', smart: '🧠',
+      stupidité: '🤪', idiot: '🤪', fool: '🤪', bête: '🤪', stupide: '🤪',
+      // Death
+      mort: '💀', death: '💀', dead: '💀',
+      // Home
+      maison: '🏠', home: '🏠', house: '🏠',
+      // Family
+      famille: '👨‍👩‍👧', family: '👨‍👩‍👧',
+      ami: '🤝', amitié: '🤝', friend: '🤝', friendship: '🤝', mate: '🤝',
+      // Travel / Movement
+      voyage: '✈️', travel: '✈️',
+      partir: '🚶', leaving: '🚶', fuir: '🚶',
+      // Weather
+      soleil: '☀️', sun: '☀️', sunshine: '☀️',
+      neige: '❄️', snow: '❄️', froid: '❄️', cold: '❄️',
+      vent: '💨', wind: '💨',
+      // Party / Fun
+      fête: '🎉', party: '🎉', celebration: '🎉', fun: '🎉',
+      // Sleep / Tired
+      sommeil: '😴', sleep: '😴', tired: '😴', fatigue: '😴',
+      // Game / Sport
+      jeu: '🎮', game: '🎮', sport: '⚽',
+      // Nature
+      nature: '🌿', arbre: '🌳', tree: '🌳', fleur: '🌸', flower: '🌸',
+      // Clothes
+      vêtements: '👗', clothes: '👗', clothing: '👗',
+      chapeau: '🎩', hat: '🎩',
+      // French cultural
+      verlan: '🔄', argot: '🗣️',
+      // Expressions about difficulty / problems
+      problème: '😤', problem: '😤', trouble: '😤', difficulté: '😤',
+      courage: '💪', brave: '💪',
+      // Misc
+      politique: '🏛️', politics: '🏛️',
+      argot: '🗣️', slang: '🗣️',
+      'fair dinkum': '🦘', outback: '🏜️',
+    };
+
+    function tagIcon(tag) {
+      return TAG_ICONS[tag.toLowerCase()] || TAG_ICONS[tag] || '';
+    }
+
     const HINTS = {
       fr: ['pied', 'argent', 'animal', 'peur'],
       uk: ['rain', 'luck', 'time'],
@@ -486,15 +697,85 @@
       au: ['mate', 'fair', 'work'],
     };
 
-    // ── Title & placeholder update ────────────────
+    const T = {
+      en: {
+        heroLabel:      'Language & Culture',
+        heroTitle:      'World <em>Expressions</em>',
+        heroSubtitle:   'Type a word, discover expressions from around the world — by text or by meaning.',
+        placeholder:    'Try: luck, money, rain, easy…',
+        filterLabel:    'Expressions from',
+        langMenuTitle:  'Site language',
+        welcomeTitle:   'Type a word to explore',
+        welcomeSub:     'For example…',
+        noResult:       'No expression found',
+        noResultSub:    'Try another word or a variant…',
+        serverError:    'Server unreachable',
+        serverErrorSub: 'Make sure the backend is running on localhost:8000',
+        originLabel:    'Origin',
+        exampleLabel:   'Example',
+        toggleBtn:      'Origin &amp; example',
+        exact:          'Exact',
+        semantic:       'Semantic',
+        summary: (n, q) => `<b>${n}</b> expression${n > 1 ? 's' : ''} for « <b>${q}</b> »`,
+      },
+      fr: {
+        heroLabel:      'Langue & Culture',
+        heroTitle:      'Expressions <em>du Monde</em>',
+        heroSubtitle:   'Tapez un mot, découvrez des expressions du monde entier — par le texte ou par le sens.',
+        placeholder:    'Essaie : pied, argent, animal, partir…',
+        filterLabel:    'Expressions depuis',
+        langMenuTitle:  'Langue du site',
+        welcomeTitle:   'Tapez un mot pour explorer',
+        welcomeSub:     'Par exemple…',
+        noResult:       'Aucune expression trouvée',
+        noResultSub:    'Essaie un autre mot ou une variante…',
+        serverError:    'Serveur inaccessible',
+        serverErrorSub: 'Vérifie que le backend tourne sur localhost:8000',
+        originLabel:    'Origine',
+        exampleLabel:   'Exemple',
+        toggleBtn:      'Origine &amp; exemple',
+        exact:          'Exact',
+        semantic:       'Sémantique',
+        summary: (n, q) => `<b>${n}</b> expression${n > 1 ? 's' : ''} pour « <b>${q}</b> »`,
+      },
+    };
 
-    function updateHero() {
-      const onlyFr = selectedRegions.size === 1 && selectedRegions.has('fr');
-      document.getElementById('hero-title').innerHTML =
-        onlyFr ? 'Expressions <em>du Monde</em>' : 'World <em>Expressions</em>';
-      input.placeholder = onlyFr
-        ? 'Essaie : pied, argent, animal, partir…'
-        : 'Try: luck, money, rain, easy…';
+    // ── Language switcher ─────────────────────────
+
+    const langBtn  = document.getElementById('lang-btn');
+    const langMenu = document.getElementById('lang-menu');
+
+    langBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      langMenu.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', () => langMenu.classList.add('hidden'));
+
+    document.querySelectorAll('.lang-option').forEach(opt => {
+      opt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        uiLang = opt.dataset.lang;
+        langMenu.classList.add('hidden');
+        applyTranslations();
+        const q = input.value.trim();
+        if (q.length >= 2) fetchResults(q);
+        else showWelcome();
+      });
+    });
+
+    function applyTranslations() {
+      const t = T[uiLang];
+      document.getElementById('hero-label').textContent      = t.heroLabel;
+      document.getElementById('hero-title').innerHTML        = t.heroTitle;
+      document.getElementById('hero-subtitle').textContent   = t.heroSubtitle;
+      document.getElementById('filter-label').textContent    = t.filterLabel;
+      document.getElementById('lang-menu-title').textContent = t.langMenuTitle;
+      document.getElementById('lang-flag').textContent = uiLang === 'fr' ? '🇫🇷' : '🇬🇧';
+      input.placeholder = t.placeholder;
+      document.querySelectorAll('.lang-option').forEach(opt => {
+        opt.classList.toggle('active', opt.dataset.lang === uiLang);
+      });
     }
 
     // ── Country filter ────────────────────────────
@@ -503,7 +784,6 @@
       chip.addEventListener('click', () => {
         const region = chip.dataset.region;
         const willDeselect = chip.classList.contains('active');
-        // Prevent deselecting the last active chip
         if (willDeselect && selectedRegions.size === 1) return;
         if (willDeselect) {
           selectedRegions.delete(region);
@@ -512,7 +792,6 @@
           selectedRegions.add(region);
           chip.classList.add('active');
         }
-        updateHero();
         const q = input.value.trim();
         if (q.length >= 2) fetchResults(q);
         else showWelcome();
@@ -529,8 +808,9 @@
     });
 
     document.addEventListener('click', (e) => {
-      if (e.target.classList.contains('hint-chip') || e.target.classList.contains('tag-pill')) {
-        input.value = e.target.dataset.query;
+      const chip = e.target.closest('.hint-chip, .tag-pill');
+      if (chip && chip.dataset.query) {
+        input.value = chip.dataset.query;
         input.focus();
         input.dispatchEvent(new Event('input'));
       }
@@ -558,6 +838,7 @@
     // ── Rendering ────────────────────────────────
 
     function renderResults(data) {
+      const t = T[uiLang];
       if (data.total === 0) {
         output.innerHTML = `
           <div class="state-msg">
@@ -566,20 +847,20 @@
                 <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
               </svg>
             </div>
-            <h3>No expression found</h3>
-            <p>Try another word or a variant...</p>
+            <h3>${t.noResult}</h3>
+            <p>${t.noResultSub}</p>
           </div>`;
         return;
       }
 
       const exactLabel = data.exact > 0
-        ? `<span class="stag stag-exact">${data.exact} exact</span>` : '';
+        ? `<span class="stag stag-exact">${data.exact} ${t.exact}</span>` : '';
       const semLabel = data.semantic > 0
-        ? `<span class="stag stag-sem">${data.semantic} semantic</span>` : '';
+        ? `<span class="stag stag-sem">${data.semantic} ${t.semantic}</span>` : '';
 
       const summary = `
         <div class="results-summary">
-          <b>${data.total}</b> expression${data.total > 1 ? 's' : ''} for «&nbsp;<b>${esc(data.query)}</b>&nbsp;»
+          ${t.summary(data.total, esc(data.query))}
           <span class="summary-tags">${exactLabel}${semLabel}</span>
         </div>`;
 
@@ -588,9 +869,13 @@
     }
 
     function renderCard(expr, i) {
-      const matchLabel = expr.match_type === 'exact' ? 'Exact' : 'Semantic';
+      const t = T[uiLang];
+      const matchLabel = expr.match_type === 'exact' ? t.exact : t.semantic;
       const flag = FLAG[expr.region] || '';
-      const tags = expr.tags.slice(0, 4).map(t => `<span class="tag-pill" data-query="${esc(t)}">${esc(t)}</span>`).join('');
+      const tags = expr.tags.slice(0, 4).map(tag => {
+        const icon = tagIcon(tag);
+        return `<span class="tag-pill" data-query="${esc(tag)}">${icon ? icon + ' ' : ''}${esc(tag)}</span>`;
+      }).join('');
 
       return `
         <article class="card">
@@ -607,18 +892,18 @@
           <div class="card-more" id="more-${i}">
             <div class="card-more-inner">
               <div class="more-block">
-                <div class="more-label">Origin</div>
+                <div class="more-label">${t.originLabel}</div>
                 <p class="more-text">${esc(expr.origin)}</p>
               </div>
               <div class="more-block">
-                <div class="more-label">Example</div>
+                <div class="more-label">${t.exampleLabel}</div>
                 <p class="more-text more-example">${esc(expr.example)}</p>
               </div>
             </div>
           </div>
 
           <button class="toggle-btn" data-id="${i}">
-            Origin &amp; example <span class="arrow">↓</span>
+            ${t.toggleBtn} <span class="arrow">&#8595;</span>
           </button>
         </article>`;
     }
@@ -633,13 +918,20 @@
     // ── States ───────────────────────────────────
 
     function showWelcome() {
+      const t = T[uiLang];
       const words = [];
       if (selectedRegions.has('fr')) words.push(...HINTS.fr);
       if (selectedRegions.has('uk')) words.push(...HINTS.uk);
       if (selectedRegions.has('us')) words.push(...HINTS.us);
       if (selectedRegions.has('au')) words.push(...HINTS.au);
       const chips = words
-        .map(w => `<span class="hint-chip" data-query="${esc(w)}">${esc(w)}</span>`)
+        .map(w => {
+          const icon = tagIcon(w) || '🔍';
+          return `<span class="hint-chip" data-query="${esc(w)}">
+            <span class="hint-icon">${icon}</span>
+            <span>${esc(w)}</span>
+          </span>`;
+        })
         .join('');
       output.innerHTML = `
         <div class="state-msg">
@@ -648,8 +940,8 @@
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
           </div>
-          <h3>Type a word to explore</h3>
-          <p>For example…</p>
+          <h3>${t.welcomeTitle}</h3>
+          <p>${t.welcomeSub}</p>
           <div class="hints">${chips}</div>
         </div>`;
     }
@@ -662,6 +954,7 @@
     }
 
     function showError() {
+      const t = T[uiLang];
       output.innerHTML = `
         <div class="state-msg">
           <div class="icon">
@@ -669,8 +962,8 @@
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
           </div>
-          <h3>Server unreachable</h3>
-          <p>Make sure the backend is running on localhost:8000</p>
+          <h3>${t.serverError}</h3>
+          <p>${t.serverErrorSub}</p>
         </div>`;
     }
 
@@ -680,7 +973,7 @@
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    updateHero();
+    applyTranslations();
     showWelcome();
   </script>
 </body>
