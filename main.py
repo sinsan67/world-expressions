@@ -73,6 +73,14 @@ def search_by_concept(
     }
 
 
+@app.get("/tags")
+def get_tags(
+    limit: int = Query(30, ge=1, le=100, description="Number of top tags to return"),
+):
+    """Return the most represented tags, excluding meta-tags (origin, register markers)."""
+    return database.get_top_tags(limit)
+
+
 @app.get("/expression/{expression_id}")
 def get_expression(expression_id: str):
     """Return the full detail of an expression by its id."""

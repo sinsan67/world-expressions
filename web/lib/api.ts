@@ -72,6 +72,14 @@ export async function searchByConcept(
   return res.json();
 }
 
+export type TagInfo = { slug: string; count: number };
+
+export async function getTopTags(limit = 30): Promise<TagInfo[]> {
+  const res = await fetch(`${API}/tags?limit=${limit}`);
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
 export async function getExpression(id: string): Promise<Expression> {
   const res = await fetch(`${API}/expression/${id}`);
   if (!res.ok) throw new Error("Expression not found");

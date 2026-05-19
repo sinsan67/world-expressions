@@ -51,6 +51,24 @@ def _region_clause(regions: Optional[set[str]]) -> tuple[str, dict]:
 
 # ── Requêtes ──────────────────────────────────────────────────────────────────
 
+META_TAGS = {"australian", "british", "argot", "slang", "proverbe", "communication"}
+
+def get_top_tags(limit: int = 30) -> list[dict]:
+    """Retourne les tags les plus représentés, hors méta-tags (origine, registre)."""
+    sql = """
+        SELECT t.slug, COUNT(et.expression_id) AS n
+        FROM tags t
+        JOIN expression_tags et ON et.tag_id = t.id
+        WHERE NOT (t.slug = ANY(:meta_tags))
+        GROUP BY t.slug
+        ORDER BY n DESC
+        LIMIT :limit
+    """
+    with engine.connect() as conn:
+        rows = conn.execute(text(sql), {"meta_tags": list(META_TAGS), "limit": limit}).fetchall()
+    return [{"slug": r.slug, "count": r.n} for r in rows]
+
+
 def count_expressions() -> dict[str, int]:
     """Retourne le nombre total d'expressions et le décompte par langue."""
     with engine.connect() as conn:

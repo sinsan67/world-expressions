@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import ExpressionCard from "@/components/ExpressionCard";
-import { searchExpressions, searchByConcept, Expression } from "@/lib/api";
+import { searchExpressions, searchByConcept, getTopTags, Expression } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 
 const LIMIT = 20;
@@ -15,13 +15,7 @@ const REGIONS = [
   { code: "es", label: "🇪🇸 España" },
 ];
 
-const HINTS: Record<string, string[]> = {
-  fr: ["pied", "argent", "animal", "peur"],
-  uk: ["rain", "luck", "time"],
-  us: ["money", "fire", "cake"],
-  au: ["mate", "fair", "work"],
-  es: ["dinero", "suerte", "agua", "trabajo"],
-};
+const HINT_COUNT = 10;
 
 export default function Home() {
   const [query, setQuery] = useState("");
@@ -36,6 +30,7 @@ export default function Home() {
   const [searched, setSearched] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [searchMode, setSearchMode] = useState<"text" | "concept">("text");
+  const [hintTags, setHintTags] = useState<string[]>([]);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const activeRegions = [...selectedRegions];
@@ -136,18 +131,15 @@ export default function Home() {
     const hash = window.location.hash;
     if (hash.startsWith("#q=")) {
       const initQ = decodeURIComponent(hash.slice(3));
-      if (initQ.trim().length >= 2) {
-        handleSearch(initQ);
-      }
+      if (initQ.trim().length >= 2) handleSearch(initQ);
     }
-    // run once on mount — handleSearch is stable at this point (all regions selected)
+    getTopTags(40).then((tags) => {
+      const withEmoji = tags.map((t) => t.slug).filter((s) => tagIcon(s));
+      const shuffled = withEmoji.sort(() => Math.random() - 0.5);
+      setHintTags(shuffled.slice(0, HINT_COUNT));
+    }).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Chips de suggestion affichées sur l'écran d'accueil
-  const hintWords = REGIONS.flatMap((r) =>
-    selectedRegions.has(r.code) ? HINTS[r.code] : []
-  );
 
   return (
     <main className="min-h-screen" style={{ background: "#f5f3ff" }}>
@@ -300,7 +292,7 @@ export default function Home() {
               Quelques idées…
             </p>
             <div className="flex flex-wrap justify-center gap-3">
-              {hintWords.map((word) => {
+              {hintTags.map((word) => {
                 const icon = tagIcon(word) || "🔍";
                 return (
                   <button
