@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import ExpressionCard from "@/components/ExpressionCard";
-import { searchExpressions, searchByConcept, getTopTags, getRandomExpression, Expression } from "@/lib/api";
+import { searchExpressions, searchByConcept, getTopTags, getRandomExpression, getAllTagNames, Expression } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 
 const LIMIT = 20;
@@ -154,6 +154,7 @@ export default function Home() {
   const [searchMode, setSearchMode] = useState<"text" | "concept">("text");
   const [hintTags, setHintTags] = useState<{ slug: string; name: string }[]>([]);
   const [hintTagsError, setHintTagsError] = useState(false);
+  const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [featured, setFeatured] = useState<(Expression & { meaning_locale: string }) | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const exploreRef = useRef<HTMLDivElement>(null);
@@ -287,6 +288,10 @@ export default function Home() {
 
   useEffect(() => {
     getRandomExpression(uiLang).then(setFeatured).catch(() => {});
+  }, [uiLang]);
+
+  useEffect(() => {
+    getAllTagNames(uiLang).then(setTagNames);
   }, [uiLang]);
 
   useEffect(() => {
@@ -620,6 +625,7 @@ export default function Home() {
                     expression={expr}
                     onTagClick={(tag) => runConceptSearch(tag, activeRegions)}
                     uiLang={uiLang}
+                    tagNames={tagNames}
                   />
                 </div>
               ))}

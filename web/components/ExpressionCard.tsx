@@ -31,9 +31,10 @@ type Props = {
   expression: Expression;
   onTagClick: (tag: string) => void;
   uiLang?: string;
+  tagNames?: Record<string, string>;
 };
 
-export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr" }: Props) {
+export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr", tagNames = {} }: Props) {
   const [showDetails, setShowDetails] = useState(false);
   const flag = FLAG[e.region] || "";
   const typeLabel = getTypeLabel(e.type ?? "expression", uiLang);
@@ -151,7 +152,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
                 }}
               >
                 {icon && <span>{icon}</span>}
-                {tag}
+                {tagNames[tag] || tag}
               </button>
             );
           })}

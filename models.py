@@ -46,6 +46,7 @@ class Expression(Base):
     register     = Column(String(20))                      # standard, informal, slang, vulgar, formal
     illustration = Column(Text)                            # URL ou code SVG
     type         = Column(String(20), nullable=False, server_default="expression")  # expression | word | proverb
+    source       = Column(Text)                                                     # URL vers la source (TDK, Treccani...)
 
     concept_id = Column(UUID(as_uuid=True), ForeignKey("concepts.id"), nullable=True)
 
@@ -102,3 +103,21 @@ class ExpressionTag(Base):
 
     expression_id = Column(String(120), ForeignKey("expressions.id", ondelete="CASCADE"), primary_key=True)
     tag_id        = Column(String(60),  ForeignKey("tags.id",        ondelete="CASCADE"), primary_key=True)
+
+
+class ContentTranslation(Base):
+    """
+    Traduction d'une expression dans une langue cible.
+    Différent de ExpressionContent (contenu natif) : ici on stocke aussi
+    la traduction littérale et l'équivalent idiomatique pour contextualiser
+    l'expression originale pour un lecteur qui ne la connaît pas.
+    """
+    __tablename__ = "content_translations"
+
+    expression_id = Column(String(120), ForeignKey("expressions.id", ondelete="CASCADE"), primary_key=True)
+    target_lang   = Column(String(10), primary_key=True)  # langue cible : en, fr, es, it, tr
+    meaning       = Column(Text)      # sens dans la langue cible
+    literal       = Column(Text)      # traduction mot à mot
+    idiomatic     = Column(Text)      # équivalent idiomatique dans la langue cible
+    origin        = Column(Text)      # origine expliquée dans la langue cible
+    example       = Column(Text)      # exemple d'usage dans la langue cible

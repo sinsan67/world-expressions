@@ -78,7 +78,7 @@ def search_by_concept(
 
 @app.get("/tags")
 def get_tags(
-    limit: int = Query(30, ge=1, le=100, description="Number of top tags to return"),
+    limit: int = Query(30, ge=1, le=500, description="Number of top tags to return"),
     language: str = Query("", description="Filter tags by expression language: fr, en, es, it, tr. Empty = all."),
     locale: str = Query("en", description="Locale for tag display names: fr, en, es, it, tr."),
 ):
@@ -100,9 +100,17 @@ def get_random(
 
 
 @app.get("/expression/{expression_id}")
-def get_expression(expression_id: str):
-    """Return the full detail of an expression by its id."""
+def get_expression(
+    expression_id: str,
+    lang: str = Query("", description="Target language for translation (en/fr/es/it/tr). Empty = no translation."),
+):
+    """Return the full detail of an expression by its id. Pass lang= to include a translation."""
     expr = database.get_expression_by_id(expression_id)
     if expr is None:
         raise HTTPException(status_code=404, detail=f"Expression '{expression_id}' not found")
+    target = lang.strip()
+    if target and target != expr["language"]:
+        expr["translation"] = database.get_translation(expression_id, target)
+    else:
+        expr["translation"] = None
     return expr

@@ -3,8 +3,7 @@
 import { use, useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { getExpression, Expression } from "@/lib/api";
-import { TRANSLATIONS } from "@/lib/translations-proto";
+import { getExpression, getAllTagNames, Expression } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 
 type UILang = "fr" | "en" | "es" | "tr" | "it";
@@ -106,13 +105,18 @@ function ExpressionPageContent({ id }: { id: string }) {
   const [showDetails, setShowDetails] = useState(false);
   const [showOriginal, setShowOriginal] = useState(false);
   const [showSource, setShowSource] = useState(false);
+  const [tagNames, setTagNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setShowDetails(false);
     setShowOriginal(false);
     setShowSource(false);
-    getExpression(id).then(setExpr).catch(() => setError(true));
-  }, [id]);
+    getExpression(id, lang).then(setExpr).catch(() => setError(true));
+  }, [id, lang]);
+
+  useEffect(() => {
+    getAllTagNames(lang).then(setTagNames);
+  }, [lang]);
 
   if (error) {
     return (
@@ -132,7 +136,7 @@ function ExpressionPageContent({ id }: { id: string }) {
   }
 
   const t = T[lang];
-  const translation = TRANSLATIONS[id]?.[lang];
+  const translation = expr.translation ?? null;
 
   // A translation is active when UI lang differs from the expression's language AND a translation exists.
   // When active, the UI-language content is PRIMARY. The original becomes secondary (opt-in).
@@ -263,7 +267,7 @@ function ExpressionPageContent({ id }: { id: string }) {
                       style={{ background: "#f5f3ff", color: "#7c3aed" }}
                     >
                       {icon && <span>{icon}</span>}
-                      {tag}
+                      {tagNames[tag] || tag}
                     </Link>
                   );
                 })}

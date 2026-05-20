@@ -261,6 +261,26 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, lim
     return all_results[offset:offset + limit], len(all_results)
 
 
+def get_translation(expression_id: str, target_lang: str) -> Optional[dict]:
+    """Retourne la traduction d'une expression dans target_lang, ou None si elle n'existe pas encore."""
+    sql = """
+        SELECT meaning, literal, idiomatic, origin, example
+        FROM content_translations
+        WHERE expression_id = :id AND target_lang = :lang
+    """
+    with engine.connect() as conn:
+        row = conn.execute(text(sql), {"id": expression_id, "lang": target_lang}).fetchone()
+    if not row:
+        return None
+    return {
+        "meaning":  row.meaning,
+        "literal":  row.literal,
+        "idiomatic": row.idiomatic,
+        "origin":   row.origin,
+        "example":  row.example,
+    }
+
+
 def get_expression_by_id(expression_id: str) -> Optional[dict]:
     """Retourne une expression par son id (avec contenu et tags), ou None si elle n'existe pas."""
     sql = """
