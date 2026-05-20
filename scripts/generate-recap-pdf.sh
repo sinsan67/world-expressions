@@ -25,8 +25,13 @@ fi
 # ─── Installation md-to-pdf si absent ───────────────────────────────────────
 
 if ! command -v md-to-pdf &> /dev/null; then
-  echo "Installation de md-to-pdf (première fois uniquement)..."
-  npm install -g md-to-pdf
+  if [ -f "$HOME/.npm-global/bin/md-to-pdf" ]; then
+    export PATH="$HOME/.npm-global/bin:$PATH"
+  else
+    echo "Installation de md-to-pdf (première fois uniquement)..."
+    npm install -g md-to-pdf --prefix ~/.npm-global
+    export PATH="$HOME/.npm-global/bin:$PATH"
+  fi
 fi
 
 # ─── Génération du PDF ───────────────────────────────────────────────────────
@@ -157,10 +162,12 @@ ENDCSS
 md-to-pdf "$RECAP" \
   --stylesheet "$CSS_TMP" \
   --highlight-style github \
-  --pdf-options '{"format":"A4","margin":{"top":"20mm","bottom":"20mm","left":"15mm","right":"15mm"}}' \
-  --dest "$OUTPUT"
+  --pdf-options '{"format":"A4","margin":{"top":"20mm","bottom":"20mm","left":"15mm","right":"15mm"}}'
 
 rm -f "$CSS_TMP"
+
+# Déplace le PDF généré (RECAP.pdf) vers le Bureau
+mv "$PROJECT_ROOT/RECAP.pdf" "$OUTPUT"
 
 # ─── Archive + reset ─────────────────────────────────────────────────────────
 
