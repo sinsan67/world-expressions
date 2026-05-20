@@ -16,6 +16,7 @@ export type Expression = {
   region: string;
   illustration: string | null;
   language: string;
+  type: "expression" | "word";
   match_type: "exact" | "semantic" | "tag" | "direct";
 };
 

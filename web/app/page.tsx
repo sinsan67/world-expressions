@@ -515,6 +515,7 @@ export default function Home() {
                   <ExpressionCard
                     expression={expr}
                     onTagClick={(tag) => runConceptSearch(tag, activeRegions)}
+                    uiLang={uiLang}
                   />
                 </div>
               ))}

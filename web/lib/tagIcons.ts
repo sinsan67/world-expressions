@@ -56,6 +56,13 @@ export const TAG_ICONS: Record<string, string> = {
   ironie: '🙃', irony: '🙃', sarcasme: '🙃', sarcasm: '🙃',
   secret: '🤫', mystère: '🤫', mystery: '🤫',
   maladresse: '🤦', clumsiness: '🤦', gaffe: '🤦',
+  // Linguistic type tags
+  proverb: '📜', proverbe: '📜', proverbio: '📜',
+  adage: '💡', adagio: '💡',
+  saying: '🗣️', dicton: '🗣️', dicho: '🗣️', detto: '🗣️',
+  maxim: '✍️', maxime: '✍️', máxima: '✍️', massima: '✍️',
+  locution: '🔤', locución: '🔤', locuzione: '🔤',
+  cliche: '🎭', cliché: '🎭', klişe: '🎭',
   // Espagnol
   dinero: '💰', trabajo: '💼', animales: '🐾',
   fuego: '🔥', agua: '💧', miedo: '😱', suerte: '🍀',

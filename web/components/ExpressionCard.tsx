@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Expression } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
+import { getTypeLabel } from "@/lib/typeLabels";
 
 const FLAG: Record<string, string> = {
   fr: "🇫🇷", us: "🇺🇸", uk: "🇬🇧", gb: "🇬🇧", au: "🇦🇺", es: "🇪🇸",
@@ -16,11 +17,13 @@ const REGISTER_LABEL: Record<string, string> = {
 type Props = {
   expression: Expression;
   onTagClick: (tag: string) => void;
+  uiLang?: string;
 };
 
-export default function ExpressionCard({ expression: e, onTagClick }: Props) {
+export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr" }: Props) {
   const [showDetails, setShowDetails] = useState(false);
   const flag = FLAG[e.region] || "";
+  const typeLabel = getTypeLabel(e.type ?? "expression", uiLang);
 
   return (
     <div
@@ -33,14 +36,24 @@ export default function ExpressionCard({ expression: e, onTagClick }: Props) {
           <h2 className="text-base font-semibold leading-snug" style={{ color: "#1a0a2e" }}>
             {e.expression}
           </h2>
-          {e.register && e.register !== "standard" && (
-            <span
-              className="text-xs px-1.5 py-0.5 rounded mt-0.5 inline-block"
-              style={{ background: "#f3f4f6", color: "#9ca3af" }}
-            >
-              {REGISTER_LABEL[e.register] || e.register}
-            </span>
-          )}
+          <div className="flex flex-wrap gap-1 mt-0.5">
+            {typeLabel && (
+              <span
+                className="text-xs px-1.5 py-0.5 rounded inline-block"
+                style={{ background: "#ede9fe", color: "#7c3aed", fontWeight: 500 }}
+              >
+                {typeLabel}
+              </span>
+            )}
+            {e.register && e.register !== "standard" && (
+              <span
+                className="text-xs px-1.5 py-0.5 rounded inline-block"
+                style={{ background: "#f3f4f6", color: "#9ca3af" }}
+              >
+                {REGISTER_LABEL[e.register] || e.register}
+              </span>
+            )}
+          </div>
         </div>
         <span className="text-xl shrink-0">{flag}</span>
       </div>
