@@ -55,7 +55,24 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
             )}
           </div>
         </div>
-        <span className="text-xl shrink-0">{flag}</span>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="text-xl">{flag}</span>
+          {e.source && (
+            <a
+              href={e.source}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Voir la source"
+              className="text-xs leading-none transition-colors"
+              style={{ color: "#c4b5fd" }}
+              onMouseEnter={(ev) => { (ev.currentTarget as HTMLElement).style.color = "#7c3aed"; }}
+              onMouseLeave={(ev) => { (ev.currentTarget as HTMLElement).style.color = "#c4b5fd"; }}
+              onClick={(ev) => ev.stopPropagation()}
+            >
+              ↗
+            </a>
+          )}
+        </div>
       </div>
 
       {/* Sens */}

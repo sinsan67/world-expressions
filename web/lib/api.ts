@@ -17,6 +17,7 @@ export type Expression = {
   illustration: string | null;
   language: string;
   type: "expression" | "word";
+  source: string | null;
   match_type: "exact" | "semantic" | "tag" | "direct";
 };
 

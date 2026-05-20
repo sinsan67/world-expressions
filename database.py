@@ -35,6 +35,8 @@ def _build_expression_dict(row, match_type: str) -> dict:
         "region":       row.region or "",
         "illustration": row.illustration,
         "language":     row.language or "",
+        "type":         getattr(row, "type", "expression") or "expression",
+        "source":       getattr(row, "source", None),
         "match_type":   match_type,
     }
 
@@ -95,6 +97,7 @@ def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
             e.region,
             e.register,
             e.illustration,
+            e.source,
             COALESCE(ec_pref.meaning, ec_orig.meaning)   AS meaning,
             COALESCE(ec_pref.origin,  ec_orig.origin)    AS origin,
             COALESCE(ec_pref.example, ec_orig.example)   AS example,
@@ -110,7 +113,7 @@ def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
         LEFT JOIN tags t ON t.id = et.tag_id
         WHERE e.type = 'expression'
         GROUP BY e.id, e.text, e.language, e.region, e.register,
-                 e.illustration,
+                 e.illustration, e.source,
                  ec_orig.meaning, ec_orig.origin, ec_orig.example,
                  ec_pref.meaning, ec_pref.origin, ec_pref.example
         ORDER BY RANDOM()
@@ -165,6 +168,7 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
                 e.register,
                 e.illustration,
                 e."type",
+                e.source,
                 ec.meaning,
                 ec.origin,
                 ec.example,
@@ -176,7 +180,7 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
             LEFT JOIN tags t ON t.id = et.tag_id
             WHERE 1=1 {region_clause}
             GROUP BY e.id, e.text, e.language, e.region, e.register,
-                     e.illustration, e."type", ec.meaning, ec.origin, ec.example
+                     e.illustration, e."type", e.source, ec.meaning, ec.origin, ec.example
         )
     """.format(region_clause=region_sql)
 
@@ -228,6 +232,7 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, lim
             e.register,
             e.illustration,
             e."type",
+            e.source,
             ec.meaning,
             ec.origin,
             ec.example,
@@ -240,7 +245,7 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, lim
         WHERE t.slug = ANY(:tag_set)
         {region_clause}
         GROUP BY e.id, e.text, e.language, e.region, e.register,
-                 e.illustration, e."type", ec.meaning, ec.origin, ec.example
+                 e.illustration, e."type", e.source, ec.meaning, ec.origin, ec.example
         ORDER BY e.language, CASE WHEN e."type" = 'word' THEN 1 ELSE 0 END, e.text
     """.format(region_clause=region_sql)
 
@@ -263,6 +268,7 @@ def get_expression_by_id(expression_id: str) -> Optional[dict]:
             e.region,
             e.register,
             e.illustration,
+            e.source,
             ec.meaning,
             ec.origin,
             ec.example,
@@ -274,7 +280,7 @@ def get_expression_by_id(expression_id: str) -> Optional[dict]:
         LEFT JOIN tags t ON t.id = et.tag_id
         WHERE e.id = :id
         GROUP BY e.id, e.text, e.language, e.region, e.register,
-                 e.illustration, ec.meaning, ec.origin, ec.example
+                 e.illustration, e.source, ec.meaning, ec.origin, ec.example
     """
 
     with engine.connect() as conn:
