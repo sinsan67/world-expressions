@@ -145,6 +145,24 @@ export default function Home() {
     });
   };
 
+  const handleMixToggle = useCallback(async () => {
+    setMixActive((v) => !v);
+    // When activating Mix, fetch a larger batch so round-robin has multi-region data
+    if (!mixActive && searched && query.trim().length >= 2) {
+      try {
+        const data =
+          searchMode === "concept"
+            ? await searchByConcept([query], activeRegions, 80, 0)
+            : await searchExpressions(query, activeRegions, 80, 0);
+        setRawResults(data.results);
+        setTotal(data.total);
+        setHasMore(data.results.length < data.total);
+      } catch {
+        // keep existing results
+      }
+    }
+  }, [mixActive, searched, query, searchMode, activeRegions]);
+
   const runConceptSearch = useCallback(
     async (tag: string, regions: string[]) => {
       setQuery(tag);
@@ -455,7 +473,7 @@ export default function Home() {
               </button>
             ))}
             <button
-              onClick={() => setMixActive((v) => !v)}
+              onClick={handleMixToggle}
               title={t.mixTitle}
               style={{
                 width: 28, height: 28, borderRadius: "50%", border: "1.5px solid",
@@ -548,7 +566,7 @@ export default function Home() {
               </button>
             ))}
             <button
-              onClick={() => setMixActive((v) => !v)}
+              onClick={handleMixToggle}
               title={t.mixTitle}
               style={{
                 width: 28, height: 28, borderRadius: "50%", border: "1.5px solid",
