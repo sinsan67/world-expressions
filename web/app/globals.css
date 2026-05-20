@@ -38,3 +38,7 @@ body {
 .hero-input::placeholder {
   color: rgba(255, 255, 255, 0.45);
 }
+
+.explore-input::placeholder {
+  color: #9ca3af;
+}

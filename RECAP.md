@@ -5,47 +5,51 @@
 
 ---
 
-## Session du 20 mai 2026
+## Session du 20 May 2026 (suite — refonte UX home page + images)
 
-### Ce qui a été fait
+### Images hero pays — 7 pays couverts
+- Copié et converti (avif → jpg) les images depuis le Bureau vers `web/public/images/`
+- fr.jpg, uk.jpg, us.jpg, au.jpg, es.jpg, tr.jpg, it.jpg
+- Script de conversion : `sips -s format jpeg source.avif --out dest.jpg`
 
-#### Taxonomie des types d'expressions
-- Décision : `type` = 2 valeurs structurelles uniquement (`expression` / `word`)
-- Badge "Mot" visible sur les cartes ExpressionCard, localisé via `uiLang`
-- `web/lib/typeLabels.ts` : table de référence multilingue FR/EN/ES + stubs IT/TR
-- Migration Alembic `cef545ad50be` : CHECK constraint `('expression', 'word')` appliquée sur Neon
+### Refonte lisibilité hero
+- Fonds des éléments hero (expression du moment, barre de recherche, chips) passés de `rgba(255,255,255,0.1)` à `rgba(10,4,28,0.62)` — violet très sombre semi-opaque
+- Nettement plus lisible sur fond image
 
-#### Tags linguistiques (navigables comme tous les autres tags)
-6 tags créés en base avec noms en 5 langues :
+### Refonte layout home page — deux sections distinctes
+- **Section 1 — Hero** : layout deux colonnes flex (titre + sous-titre à gauche, Expression du moment à droite)
+- Badge "Langue & Culture" supprimé
+- Titre plus compact, sous-titre descriptif
+- **Section 2 — Explorer** : fond #f5f3ff, barre de recherche sur fond blanc, filtres pays, chips concept
 
-| Tag | FR | EN | ES | IT | TR |
-|---|---|---|---|---|---|
-| `proverb` 📜 | Proverbe | Proverb | Proverbio | Proverbio | Atasözü |
-| `adage` 💡 | Adage | Adage | Adagio | Adagio | Özdeyiş |
-| `saying` 🗣️ | Dicton | Saying | Dicho | Detto | Söz |
-| `maxim` ✍️ | Maxime | Maxim | Máxima | Massima | Özdeyiş |
-| `locution` 🔤 | Locution | Set phrase | Locución | Locuzione | Deyim |
-| `cliche` 🎭 | Cliché | Cliché | Cliché | Cliché | Klişe |
+### Filtres pays redesignés
+- Remontés immédiatement sous la barre de recherche (étaient tout en bas du hero)
+- Style cohérent : fond blanc, bordure grise, actif violet
+- Label "Filtrer par pays" en uppercase comme les autres labels
 
-- **48 expressions taguées `proverb`** en base (6 existants + 42 via heuristique)
-- `scripts/add_type_tags.py` : insère les tags linguistiques (idempotent)
-- `scripts/identify_proverbs.py` : dry-run + `--apply` pour tagger les proverbes
+### Chips thématiques redesignées
+- Grille 3×3 → ligne de pills horizontales, même style que les filtres pays
+- Label "Quelques idées…" → "Filtrer par concept" (uppercase, même style que "Filtrer par pays")
+- 12 chips au lieu de 9
 
-#### Sources de référence identifiées pour enrichir la base
-FR : expressio.fr, Larousse, Le Robert, Lingolia
-EN : theidioms.com, Cambridge Dictionary, Oxford Learner's, BBC Learning English
-Enrichissement prévu : classification Claude API en batch + génération thématique
+### Bandeaux drapeaux sur les cartes résultats
+- Chaque carte a un bandeau de 5px en haut dans les couleurs du drapeau (dégradé à arrêts durs)
+- 🇫🇷 bleu|blanc|rouge / 🇬🇧 marine-rouge-marine diagonal / 🇺🇸 bleu-rouge-blanc
+- 🇦🇺 navy-blanc-rouge / 🇪🇸 rouge-**jaune**-rouge / 🇹🇷 rouge-blanc / 🇮🇹 vert-blanc-rouge
+- Chaque pays a une signature visuelle unique et reconnaissable
 
-#### Langues futures confirmées
-🇮🇹 Italien et 🇹🇷 Turc au moyen terme. Infrastructure déjà prête (tag_names + typeLabels.ts).
+### Filtres pays dupliqués sur la page résultats
+- Barre de filtres pays affichée au-dessus de la grille quand `searched === true`
+- Compte de résultats aligné à droite sur la même ligne
+- L'utilisateur peut filtrer sans remonter en haut de page
 
-### Commit
-`798aa34` — feat: type taxonomy + linguistic type tags (proverb, adage, saying…)
+### Scroll vers la barre de recherche au clic concept
+- `exploreRef` + `scrollIntoView` sur `runConceptSearch` — l'utilisateur voit le tag dans la barre
 
 ---
 
-## Chantiers ouverts (priorités début de prochaine session)
+## Priorités session suivante
 
-1. **Redesign hero** — image de fond Cappadoce + montgolfières, titre typographique en overlay, carte "Expression du moment" en frosted glass, filtres pays adjacent à la barre de recherche
-2. **Enrichissement base** — classifier les ~1 000 expressions existantes via Claude API batch
-3. **Déploiement** — backend sur Render, frontend sur Vercel
+1. **Bug bouton Mix ⇄** — ne fonctionne plus, à débugger
+2. **Refonte UX bouton Mix** — actuellement un petit bouton discret ; le rendre plus visible et invitant, l'intégrer comme une vraie feature de jeu/exploration (pas juste un toggle)
+3. **Déploiement** — backend Render, frontend Vercel (priorité #1 roadmap)
