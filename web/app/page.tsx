@@ -429,20 +429,35 @@ export default function Home() {
 
           {/* Barre de recherche */}
           <div className="flex gap-2 mb-4">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch(query)}
-              placeholder={t.placeholder}
-              className="explore-input flex-1 rounded-xl px-4 py-3 text-sm focus:outline-none"
-              style={{
-                background: "white",
-                border: "1.5px solid #e5e7eb",
-                color: "#1f2937",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-              }}
-            />
+            <div style={{ position: "relative", flex: 1, display: "flex", alignItems: "center" }}>
+              {tagIcon(query.trim()) && (
+                <span
+                  aria-hidden="true"
+                  style={{
+                    position: "absolute", left: 12, fontSize: 16,
+                    pointerEvents: "none", userSelect: "none",
+                  }}
+                >
+                  {tagIcon(query.trim())}
+                </span>
+              )}
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch(query)}
+                placeholder={t.placeholder}
+                className="explore-input w-full rounded-xl py-3 text-sm focus:outline-none"
+                style={{
+                  paddingLeft: tagIcon(query.trim()) ? "2.5rem" : "1rem",
+                  paddingRight: "1rem",
+                  background: "white",
+                  border: "1.5px solid #e5e7eb",
+                  color: "#1f2937",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+                }}
+              />
+            </div>
             <button
               onClick={() => handleSearch(query)}
               disabled={loading}
@@ -489,7 +504,7 @@ export default function Home() {
           </div>
 
           {/* Themes — ligne horizontale scrollable, même style que filtres pays */}
-          {!searched && hintTags.length > 0 && (
+          {hintTags.length > 0 && (
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.6rem" }}>
                 <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", flexShrink: 0 }}>
@@ -545,46 +560,10 @@ export default function Home() {
           <p className="text-red-500 text-center mb-6 text-sm">{t.serverError}</p>
         )}
 
-        {/* Filtres pays au-dessus des résultats */}
-        {searched && (
-          <div className="flex flex-wrap gap-2 items-center mb-5">
-            <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              {t.filterByCountry}
-            </span>
-            {REGIONS.map((r) => (
-              <button
-                key={r.code}
-                onClick={() => toggleRegion(r.code)}
-                className="px-3 py-1.5 rounded-full text-sm font-medium transition-all"
-                style={
-                  selectedRegions.has(r.code)
-                    ? { background: "#7c3aed", color: "#fff" }
-                    : { background: "white", color: "#6b7280", border: "1px solid #e5e7eb" }
-                }
-              >
-                {r.label}
-              </button>
-            ))}
-            <button
-              onClick={handleMixToggle}
-              title={t.mixTitle}
-              style={{
-                width: 28, height: 28, borderRadius: "50%", border: "1.5px solid",
-                borderColor: mixActive ? "#a78bfa" : "#e5e7eb",
-                background: mixActive ? "#7c3aed" : "white",
-                color: mixActive ? "#fff" : "#9ca3af",
-                fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer", flexShrink: 0,
-              }}
-            >
-              ⇄
-            </button>
-            {!loading && !hasError && displayResults.length > 0 && (
-              <span className="text-sm ml-auto" style={{ color: "#9ca3af" }}>
-                {t.results(total, query)}
-              </span>
-            )}
-          </div>
+        {searched && !loading && !hasError && displayResults.length > 0 && (
+          <p className="text-right text-sm mb-4" style={{ color: "#9ca3af" }}>
+            {t.results(total, query)}
+          </p>
         )}
 
 
