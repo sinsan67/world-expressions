@@ -15,6 +15,16 @@ const REGIONS = [
   { code: "es", label: "🇪🇸 España" },
 ];
 
+// Fallback background color per region (shown while image loads or if not yet placed)
+const REGION_COLORS: Record<string, string> = {
+  fr: "#00209F",
+  uk: "#012169",
+  us: "#002868",
+  au: "#00008B",
+  es: "#AA151B",
+  default: "#2d1b69",
+};
+
 const HINT_COUNT = 9;
 
 type UILang = "fr" | "en" | "es";
@@ -243,245 +253,259 @@ export default function Home() {
 
   return (
     <main className="min-h-screen" style={{ background: "#f5f3ff" }}>
-      {/* Hero */}
+      {/* Hero — dynamic background image per region */}
       <div
-        className="px-4 py-10 text-center border-b relative"
-        style={{ background: "#fff", borderColor: "#ede9fe" }}
+        className="relative overflow-hidden text-center"
+        style={{ minHeight: 480, borderBottom: "1px solid rgba(255,255,255,0.08)" }}
       >
-        {/* Language switcher — top right */}
-        <div style={{ position: "absolute", top: 16, right: 20, display: "flex", gap: 4 }}>
-          {(["fr", "en", "es"] as UILang[]).map((lang) => (
-            <button
-              key={lang}
-              onClick={() => { setUILang(lang); setHintKey((k) => k + 1); }}
+        {/* Background image layer — key triggers crossfade on region change */}
+        <div
+          key={featured?.region || "default"}
+          aria-hidden="true"
+          style={{
+            position: "absolute", inset: 0, zIndex: 0,
+            backgroundColor: REGION_COLORS[featured?.region || ""] || REGION_COLORS.default,
+            backgroundImage: featured?.region ? `url('/images/${featured.region}.jpg')` : "none",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            animation: "bgFadeIn 1.2s ease-out both",
+          }}
+        />
+        {/* Gradient overlay for text readability */}
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute", inset: 0, zIndex: 1,
+            background: "linear-gradient(to bottom, rgba(10,4,28,0.55) 0%, rgba(10,4,28,0.35) 45%, rgba(10,4,28,0.7) 100%)",
+          }}
+        />
+
+        {/* Hero content — above both layers */}
+        <div style={{ position: "relative", zIndex: 2, padding: "2.5rem 1rem 2rem" }}>
+
+          {/* Language switcher — top right */}
+          <div style={{ position: "absolute", top: 0, right: 20, display: "flex", gap: 4 }}>
+            {(["fr", "en", "es"] as UILang[]).map((lang) => (
+              <button
+                key={lang}
+                onClick={() => { setUILang(lang); setHintKey((k) => k + 1); }}
+                style={{
+                  fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
+                  border: "1.5px solid",
+                  borderColor: uiLang === lang ? "#a78bfa" : "rgba(255,255,255,0.25)",
+                  background: uiLang === lang ? "#7c3aed" : "rgba(255,255,255,0.08)",
+                  color: uiLang === lang ? "#fff" : "rgba(255,255,255,0.55)",
+                  cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.05em",
+                }}
+              >
+                {lang}
+              </button>
+            ))}
+          </div>
+
+          {/* Badge */}
+          <span
+            className="inline-block text-xs font-semibold uppercase tracking-widest mb-3 px-3 py-1 rounded-full"
+            style={{ background: "rgba(124,58,237,0.35)", color: "#e9d5ff", backdropFilter: "blur(8px)" }}
+          >
+            {t.badge}
+          </span>
+
+          {/* Title */}
+          <h1
+            className="text-4xl font-bold mb-4 cursor-pointer"
+            style={{ color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.4)" }}
+            onClick={() => {
+              setQuery("");
+              setSearched(false);
+              setRawResults([]);
+              setHasError(false);
+              window.history.replaceState(null, "", window.location.pathname);
+            }}
+          >
+            Expressions{" "}
+            <em className="not-italic" style={{ color: "#c4b5fd" }}>
+              du Monde
+            </em>
+          </h1>
+
+          {/* Featured expression — frosted glass card */}
+          {!searched && featured && (
+            <div
               style={{
-                fontSize: 11,
-                fontWeight: 700,
-                padding: "2px 8px",
-                borderRadius: 20,
-                border: "1.5px solid",
-                borderColor: uiLang === lang ? "#7c3aed" : "#e5e7eb",
-                background: uiLang === lang ? "#7c3aed" : "transparent",
-                color: uiLang === lang ? "#fff" : "#9ca3af",
-                cursor: "pointer",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
+                maxWidth: 520,
+                margin: "0 auto 1.75rem",
+                background: "rgba(255,255,255,0.1)",
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                borderRadius: 16,
+                padding: "1rem 1.25rem",
+                textAlign: "left",
+                animation: "fadeSlideUp 0.5s ease-out both",
               }}
             >
-              {lang}
-            </button>
-          ))}
-        </div>
-
-        {/* Badge */}
-        <span
-          className="inline-block text-xs font-semibold uppercase tracking-widest mb-3 px-3 py-1 rounded-full"
-          style={{ background: "#ede9fe", color: "#7c3aed" }}
-        >
-          {t.badge}
-        </span>
-
-        <h1
-          className="text-4xl font-bold mb-3 cursor-pointer"
-          style={{ color: "#1a0a2e" }}
-          onClick={() => {
-            setQuery("");
-            setSearched(false);
-            setRawResults([]);
-            setHasError(false);
-            window.history.replaceState(null, "", window.location.pathname);
-          }}
-        >
-          Expressions{" "}
-          <em className="not-italic" style={{ color: "#7c3aed" }}>
-            du Monde
-          </em>
-        </h1>
-        {/* Featured expression — home state, between title and search bar */}
-        {!searched && featured && (
-          <div
-            style={{
-              maxWidth: 560,
-              margin: "0 auto 1.5rem",
-              background: "#faf9ff",
-              border: "1.5px solid #ede9fe",
-              borderLeft: "4px solid #7c3aed",
-              borderRadius: 14,
-              padding: "1rem 1.25rem",
-              textAlign: "left",
-              animation: "fadeSlideUp 0.4s ease-out both",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-              <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#7c3aed" }}>
-                ✨ {t.expressionOfMoment}
-              </span>
-              <button
-                onClick={() => getRandomExpression(uiLang).then(setFeatured).catch(() => {})}
-                title="Nouvelle expression"
-                style={{
-                  background: "none", border: "1px solid #ede9fe", borderRadius: "50%",
-                  width: 26, height: 26, cursor: "pointer", fontSize: 13,
-                  display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af",
-                }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#7c3aed"; (e.currentTarget as HTMLElement).style.color = "#7c3aed"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#ede9fe"; (e.currentTarget as HTMLElement).style.color = "#9ca3af"; }}
-              >
-                🔀
-              </button>
-            </div>
-            <p style={{ fontSize: 18, fontWeight: 700, color: "#1a0a2e", marginBottom: "0.3rem" }}>
-              <span style={{ color: "#c4b5fd", marginRight: 3 }}>"</span>
-              {featured.expression}
-              <span style={{ color: "#c4b5fd", marginLeft: 3 }}>"</span>
-            </p>
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem" }}>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.5 }}>
-                  {featured.meaning}
-                </p>
-                {/* Badge langue si le sens n'est pas dans la langue UI — honnêteté sur la traduction */}
-                {featured.meaning_locale !== uiLang && (
-                  <span style={{
-                    display: "inline-block", marginTop: "0.3rem",
-                    fontSize: 10, color: "#a78bfa", fontStyle: "italic",
-                  }}>
-                    {featured.meaning_locale === "fr" ? "🇫🇷 sens en français" : featured.meaning_locale === "en" ? "🇬🇧 meaning in English" : featured.meaning_locale === "es" ? "🇪🇸 sentido en español" : ""}
-                  </span>
-                )}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#c4b5fd" }}>
+                  ✨ {t.expressionOfMoment}
+                </span>
+                <button
+                  onClick={() => getRandomExpression(uiLang).then(setFeatured).catch(() => {})}
+                  title="Nouvelle expression"
+                  style={{
+                    background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)",
+                    borderRadius: "50%", width: 26, height: 26, cursor: "pointer", fontSize: 13,
+                    display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.6)",
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.2)"; (e.currentTarget as HTMLElement).style.color = "#fff"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.6)"; }}
+                >
+                  🔀
+                </button>
               </div>
-              <span style={{ fontSize: 16, flexShrink: 0 }}>
-                {featured.region === "fr" ? "🇫🇷" : featured.region === "uk" ? "🇬🇧" : featured.region === "us" ? "🇺🇸" : featured.region === "au" ? "🇦🇺" : featured.region === "es" ? "🇪🇸" : "🌍"}
-              </span>
+              <p style={{ fontSize: 17, fontWeight: 700, color: "#fff", marginBottom: "0.35rem", textShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>
+                <span style={{ color: "#a78bfa", marginRight: 3 }}>"</span>
+                {featured.expression}
+                <span style={{ color: "#a78bfa", marginLeft: 3 }}>"</span>
+              </p>
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem" }}>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", lineHeight: 1.5 }}>
+                    {featured.meaning}
+                  </p>
+                  {featured.meaning_locale !== uiLang && (
+                    <span style={{ display: "inline-block", marginTop: "0.3rem", fontSize: 10, color: "#c4b5fd", fontStyle: "italic" }}>
+                      {featured.meaning_locale === "fr" ? "🇫🇷 sens en français" : featured.meaning_locale === "en" ? "🇬🇧 meaning in English" : featured.meaning_locale === "es" ? "🇪🇸 sentido en español" : ""}
+                    </span>
+                  )}
+                </div>
+                <span style={{ fontSize: 16, flexShrink: 0 }}>
+                  {featured.region === "fr" ? "🇫🇷" : featured.region === "uk" ? "🇬🇧" : featured.region === "us" ? "🇺🇸" : featured.region === "au" ? "🇦🇺" : featured.region === "es" ? "🇪🇸" : "🌍"}
+                </span>
+              </div>
+              {featured.tags.length > 0 && (
+                <button
+                  onClick={() => runConceptSearch(featured.tags[0], activeRegions)}
+                  style={{
+                    marginTop: "0.75rem", fontSize: 11, fontWeight: 600, color: "#e9d5ff",
+                    background: "rgba(124,58,237,0.35)", border: "none", borderRadius: 7,
+                    padding: "5px 12px", cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.55)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.35)"; }}
+                >
+                  → {t.exploreConcept}
+                </button>
+              )}
             </div>
-            {featured.tags.length > 0 && (
-              <button
-                onClick={() => runConceptSearch(featured.tags[0], activeRegions)}
-                style={{
-                  marginTop: "0.75rem", fontSize: 11, fontWeight: 600, color: "#7c3aed",
-                  background: "#f5f3ff", border: "none", borderRadius: 7, padding: "5px 12px", cursor: "pointer",
-                }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#ede9fe"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#f5f3ff"; }}
-              >
-                → {t.exploreConcept}
-              </button>
-            )}
-          </div>
-        )}
+          )}
 
-        {/* Search bar */}
-        <div className="max-w-xl mx-auto flex gap-2 mb-5">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch(query)}
-            placeholder={t.placeholder}
-            className="flex-1 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2"
-            style={{
-              border: "1.5px solid #ede9fe",
-              color: "#1a0a2e",
-              background: "#faf9ff",
-            }}
-          />
-          <button
-            onClick={() => handleSearch(query)}
-            disabled={loading}
-            className="px-5 py-3 rounded-xl text-sm font-semibold text-white transition-opacity disabled:opacity-50"
-            style={{ background: "#7c3aed" }}
-          >
-            {loading ? "…" : t.search}
-          </button>
-        </div>
-
-        {/* Hint chips — 3×3 grid, home state only, just below search bar */}
-        {!searched && hintTags.length > 0 && (
-          <div style={{ margin: "1.25rem auto 0.5rem", textAlign: "center" }}>
-            <p style={{ fontSize: 11, color: "#9ca3af", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 600 }}>
-              {t.someIdeas}
-            </p>
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: "0.6rem",
-              maxWidth: 340,
-              margin: "0 auto",
-            }}>
-              {hintTags.map((word) => {
-                const icon = tagIcon(word) || "🔍";
-                return (
-                  <button
-                    key={word}
-                    onClick={() => runConceptSearch(word, activeRegions)}
-                    style={{
-                      display: "flex", flexDirection: "column", alignItems: "center",
-                      gap: "0.35rem", borderRadius: 14, padding: "0.6rem 0.25rem",
-                      fontSize: 12, fontWeight: 500, cursor: "pointer",
-                      background: "#fff", border: "1px solid #ede9fe", color: "#6b7280",
-                      transition: "all 0.15s",
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.borderColor = "#7c3aed";
-                      (e.currentTarget as HTMLElement).style.color = "#7c3aed";
-                      (e.currentTarget as HTMLElement).style.background = "#faf7ff";
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.borderColor = "#ede9fe";
-                      (e.currentTarget as HTMLElement).style.color = "#6b7280";
-                      (e.currentTarget as HTMLElement).style.background = "#fff";
-                    }}
-                  >
-                    <span style={{ fontSize: 22 }}>{icon}</span>
-                    <span>{word}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Country filters + Mix toggle */}
-        <div className="flex flex-wrap justify-center gap-2 items-center">
-          <span className="text-xs self-center mr-1" style={{ color: "#9ca3af" }}>
-            {t.filterByCountry}
-          </span>
-          {REGIONS.map((r) => (
+          {/* Search bar */}
+          <div className="max-w-xl mx-auto flex gap-2 mb-5">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch(query)}
+              placeholder={t.placeholder}
+              className="hero-input flex-1 rounded-xl px-4 py-3 text-sm focus:outline-none"
+              style={{
+                background: "rgba(255,255,255,0.12)",
+                backdropFilter: "blur(10px)",
+                WebkitBackdropFilter: "blur(10px)",
+                border: "1.5px solid rgba(255,255,255,0.2)",
+                color: "#fff",
+              }}
+            />
             <button
-              key={r.code}
-              onClick={() => toggleRegion(r.code)}
-              className="px-3 py-1.5 rounded-full text-sm font-medium transition-all"
-              style={
-                selectedRegions.has(r.code)
-                  ? { background: "#7c3aed", color: "#fff" }
-                  : { background: "#f3f4f6", color: "#9ca3af" }
-              }
+              onClick={() => handleSearch(query)}
+              disabled={loading}
+              className="px-5 py-3 rounded-xl text-sm font-semibold text-white transition-opacity disabled:opacity-50"
+              style={{ background: "#7c3aed" }}
             >
-              {r.label}
+              {loading ? "…" : t.search}
             </button>
-          ))}
-          {/* Mix Countries circular toggle */}
-          <button
-            onClick={() => setMixActive((v) => !v)}
-            title={t.mixTitle}
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: "50%",
-              border: "1.5px solid",
-              borderColor: mixActive ? "#7c3aed" : "#d1d5db",
-              background: mixActive ? "#7c3aed" : "transparent",
-              color: mixActive ? "#fff" : "#9ca3af",
-              fontSize: 14,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              flexShrink: 0,
-            }}
-          >
-            ⇄
-          </button>
+          </div>
+
+          {/* Hint chips — 3×3 grid, home state only */}
+          {!searched && hintTags.length > 0 && (
+            <div style={{ margin: "0 auto 1.5rem", textAlign: "center" }}>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 600 }}>
+                {t.someIdeas}
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.6rem", maxWidth: 340, margin: "0 auto" }}>
+                {hintTags.map((word) => {
+                  const icon = tagIcon(word) || "🔍";
+                  return (
+                    <button
+                      key={word}
+                      onClick={() => runConceptSearch(word, activeRegions)}
+                      style={{
+                        display: "flex", flexDirection: "column", alignItems: "center",
+                        gap: "0.35rem", borderRadius: 14, padding: "0.6rem 0.25rem",
+                        fontSize: 12, fontWeight: 500, cursor: "pointer",
+                        background: "rgba(255,255,255,0.08)",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                        color: "rgba(255,255,255,0.75)",
+                        backdropFilter: "blur(8px)",
+                        transition: "all 0.15s",
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.18)";
+                        (e.currentTarget as HTMLElement).style.color = "#fff";
+                        (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.35)";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.08)";
+                        (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.75)";
+                        (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.15)";
+                      }}
+                    >
+                      <span style={{ fontSize: 22 }}>{icon}</span>
+                      <span>{word}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Country filters + Mix toggle */}
+          <div className="flex flex-wrap justify-center gap-2 items-center">
+            <span className="text-xs self-center mr-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+              {t.filterByCountry}
+            </span>
+            {REGIONS.map((r) => (
+              <button
+                key={r.code}
+                onClick={() => toggleRegion(r.code)}
+                className="px-3 py-1.5 rounded-full text-sm font-medium transition-all"
+                style={
+                  selectedRegions.has(r.code)
+                    ? { background: "#7c3aed", color: "#fff" }
+                    : { background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.15)" }
+                }
+              >
+                {r.label}
+              </button>
+            ))}
+            {/* Mix Countries circular toggle */}
+            <button
+              onClick={() => setMixActive((v) => !v)}
+              title={t.mixTitle}
+              style={{
+                width: 28, height: 28, borderRadius: "50%", border: "1.5px solid",
+                borderColor: mixActive ? "#a78bfa" : "rgba(255,255,255,0.25)",
+                background: mixActive ? "#7c3aed" : "rgba(255,255,255,0.08)",
+                color: mixActive ? "#fff" : "rgba(255,255,255,0.5)",
+                fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer", flexShrink: 0,
+              }}
+            >
+              ⇄
+            </button>
+          </div>
+
         </div>
       </div>
 
