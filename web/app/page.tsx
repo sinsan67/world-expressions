@@ -15,14 +15,17 @@ const REGIONS = [
   { code: "es", label: "🇪🇸 España" },
 ];
 
-// Fallback background color per region (shown while image loads or if not yet placed)
-const REGION_COLORS: Record<string, string> = {
-  fr: "#00209F",
-  uk: "#012169",
-  us: "#002868",
-  au: "#00008B",
-  es: "#AA151B",
-  default: "#2d1b69",
+// Fallback gradient per region — flag colors, muted/pastel, shown when image is not yet placed
+// CSS multiple backgrounds: image on top, gradient below. If image 404s, gradient shows.
+const REGION_GRADIENTS: Record<string, string> = {
+  fr: "linear-gradient(135deg, #8da7c4 0%, #c5cfe8 40%, #d4a0a8 100%)",   // bleu + blanc + rose poudré
+  uk: "linear-gradient(135deg, #7a8fb5 0%, #b5c0d8 45%, #c49090 100%)",   // indigo + gris-bleu + brique douce
+  us: "linear-gradient(135deg, #7a90b8 0%, #aabbd8 45%, #c49898 100%)",   // bleu acier + rouge mûre
+  au: "linear-gradient(135deg, #6e8ab5 0%, #9eb0d0 50%, #c09090 100%)",   // cobalt + bordeaux doux
+  es: "linear-gradient(135deg, #c49090 0%, #d8b8a0 40%, #d4c070 100%)",   // brique + sable + or pâle
+  tr: "linear-gradient(135deg, #c49090 0%, #d4a8a8 50%, #3a3a4a 100%)",   // rouge rosé + anthracite
+  it: "linear-gradient(135deg, #90b8a0 0%, #d8d8d8 45%, #c49090 100%)",   // sauge + blanc cassé + brique
+  default: "linear-gradient(135deg, #9090b8 0%, #b0a0c8 50%, #c8b0d8 100%)",
 };
 
 const HINT_COUNT = 9;
@@ -258,16 +261,17 @@ export default function Home() {
         className="relative overflow-hidden text-center"
         style={{ minHeight: 480, borderBottom: "1px solid rgba(255,255,255,0.08)" }}
       >
-        {/* Background image layer — key triggers crossfade on region change */}
+        {/* Background layer — key triggers crossfade on region change.
+            Multiple CSS backgrounds: image (top) + gradient (fallback below).
+            If image is not yet placed in public/images/, gradient shows automatically. */}
         <div
           key={featured?.region || "default"}
           aria-hidden="true"
           style={{
             position: "absolute", inset: 0, zIndex: 0,
-            backgroundColor: REGION_COLORS[featured?.region || ""] || REGION_COLORS.default,
-            backgroundImage: featured?.region ? `url('/images/${featured.region}.jpg')` : "none",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
+            background: featured?.region
+              ? `url('/images/${featured.region}.jpg') center/cover, ${REGION_GRADIENTS[featured.region] || REGION_GRADIENTS.default}`
+              : REGION_GRADIENTS.default,
             animation: "bgFadeIn 1.2s ease-out both",
           }}
         />
@@ -276,7 +280,7 @@ export default function Home() {
           aria-hidden="true"
           style={{
             position: "absolute", inset: 0, zIndex: 1,
-            background: "linear-gradient(to bottom, rgba(10,4,28,0.55) 0%, rgba(10,4,28,0.35) 45%, rgba(10,4,28,0.7) 100%)",
+            background: "linear-gradient(to bottom, rgba(10,4,28,0.42) 0%, rgba(10,4,28,0.25) 45%, rgba(10,4,28,0.58) 100%)",
           }}
         />
 
