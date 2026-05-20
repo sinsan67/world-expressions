@@ -7,7 +7,10 @@ app = FastAPI(title="Expressions du Monde API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://world-expressions.vercel.app",
+        "http://localhost:3000",  # local dev
+    ],
     allow_methods=["GET"],
     allow_headers=["*"],
 )
