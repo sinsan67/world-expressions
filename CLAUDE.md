@@ -72,6 +72,15 @@ Users must be able to navigate freely between concepts by clicking — not just 
 
 This shapes the architecture: a frontend **router** (no-reload navigation) is needed starting V2.
 
+### Playfulness & Delight (core principle)
+This app should feel alive, mischievous, and surprising — not just informative. Every interaction is an opportunity to delight the user:
+- Repeated clicks on the same element should do something new (e.g. re-shuffling hint chips)
+- Animations, micro-interactions, and randomness are welcome when they serve the experience
+- The unexpected is a feature: a different chip set on every visit, a card that flips, a result that surprises
+- Propose playful interaction ideas proactively — if a feature can be made more dynamic or fun without added complexity, do it
+
+This principle applies at every scale: a button behavior, a transition, a result ordering, a loading state.
+
 ### V2 Design
 Reference: [ethereum.org](https://ethereum.org) — clarity, illustrations, pastel colors.
 

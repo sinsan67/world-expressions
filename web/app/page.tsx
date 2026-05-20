@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import ExpressionCard from "@/components/ExpressionCard";
-import { searchExpressions, searchByConcept, getTopTags, Expression } from "@/lib/api";
+import { searchExpressions, searchByConcept, getTopTags, getRandomExpression, Expression } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 
 const LIMIT = 20;
@@ -15,12 +15,14 @@ const REGIONS = [
   { code: "es", label: "🇪🇸 España" },
 ];
 
-const HINT_COUNT = 10;
+const HINT_COUNT = 9;
 
 type UILang = "fr" | "en" | "es";
 
 const T = {
   fr: {
+    expressionOfMoment: "Expression du moment",
+    exploreConcept: "Explorer ce concept",
     badge: "Langue & Culture",
     subtitle: "Tapez un mot, découvrez des expressions du monde entier — par le texte ou par le sens.",
     placeholder: "Essaie : pied, argent, animal, partir…",
@@ -36,6 +38,8 @@ const T = {
     serverError: "Impossible de contacter le serveur. Vérifie que l'API tourne sur localhost:8000.",
   },
   en: {
+    expressionOfMoment: "Expression of the moment",
+    exploreConcept: "Explore this concept",
     badge: "Language & Culture",
     subtitle: "Type a word, discover expressions from around the world — by text or meaning.",
     placeholder: "Try: money, animal, leave, fear…",
@@ -51,6 +55,8 @@ const T = {
     serverError: "Could not reach the server. Make sure the API is running on localhost:8000.",
   },
   es: {
+    expressionOfMoment: "Expresión del momento",
+    exploreConcept: "Explorar este concepto",
     badge: "Lengua & Cultura",
     subtitle: "Escribe una palabra, descubre expresiones de todo el mundo — por texto o por sentido.",
     placeholder: "Prueba: dinero, animal, partir, miedo…",
@@ -94,6 +100,7 @@ function applyMix(items: Expression[]): Expression[] {
 
 export default function Home() {
   const [uiLang, setUILang] = useState<UILang>("fr");
+  const [hintKey, setHintKey] = useState(0);
   const [query, setQuery] = useState("");
   const [selectedRegions, setSelectedRegions] = useState<Set<string>>(
     new Set(REGIONS.map((r) => r.code))
@@ -108,6 +115,7 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(false);
   const [searchMode, setSearchMode] = useState<"text" | "concept">("text");
   const [hintTags, setHintTags] = useState<string[]>([]);
+  const [featured, setFeatured] = useState<(Expression & { meaning_locale: string }) | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const t = T[uiLang];
@@ -209,19 +217,29 @@ export default function Home() {
     return () => observer.disconnect();
   }, [hasMore, loadingMore, loadMore]);
 
+  // Hash init — runs once on mount
   useEffect(() => {
     const hash = window.location.hash;
     if (hash.startsWith("#q=")) {
       const initQ = decodeURIComponent(hash.slice(3));
       if (initQ.trim().length >= 2) handleSearch(initQ);
     }
-    getTopTags(40).then((tags) => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Featured expression — re-fetches when UI language changes (serves meaning in right locale)
+  useEffect(() => {
+    getRandomExpression(uiLang).then(setFeatured).catch(() => {});
+  }, [uiLang]);
+
+  // Hint chips — re-fetched on language change OR on repeated click (hintKey)
+  useEffect(() => {
+    getTopTags(uiLang, 40).then((tags) => {
       const withEmoji = tags.map((tag) => tag.slug).filter((s) => tagIcon(s));
       const shuffled = withEmoji.sort(() => Math.random() - 0.5);
       setHintTags(shuffled.slice(0, HINT_COUNT));
     }).catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [uiLang, hintKey]);
 
   return (
     <main className="min-h-screen" style={{ background: "#f5f3ff" }}>
@@ -235,7 +253,7 @@ export default function Home() {
           {(["fr", "en", "es"] as UILang[]).map((lang) => (
             <button
               key={lang}
-              onClick={() => setUILang(lang)}
+              onClick={() => { setUILang(lang); setHintKey((k) => k + 1); }}
               style={{
                 fontSize: 11,
                 fontWeight: 700,
@@ -279,9 +297,78 @@ export default function Home() {
             du Monde
           </em>
         </h1>
-        <p className="text-sm mb-8" style={{ color: "#6b7280" }}>
-          {t.subtitle}
-        </p>
+        {/* Featured expression — home state, between title and search bar */}
+        {!searched && featured && (
+          <div
+            style={{
+              maxWidth: 560,
+              margin: "0 auto 1.5rem",
+              background: "#faf9ff",
+              border: "1.5px solid #ede9fe",
+              borderLeft: "4px solid #7c3aed",
+              borderRadius: 14,
+              padding: "1rem 1.25rem",
+              textAlign: "left",
+              animation: "fadeSlideUp 0.4s ease-out both",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+              <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#7c3aed" }}>
+                ✨ {t.expressionOfMoment}
+              </span>
+              <button
+                onClick={() => getRandomExpression(uiLang).then(setFeatured).catch(() => {})}
+                title="Nouvelle expression"
+                style={{
+                  background: "none", border: "1px solid #ede9fe", borderRadius: "50%",
+                  width: 26, height: 26, cursor: "pointer", fontSize: 13,
+                  display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af",
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#7c3aed"; (e.currentTarget as HTMLElement).style.color = "#7c3aed"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#ede9fe"; (e.currentTarget as HTMLElement).style.color = "#9ca3af"; }}
+              >
+                🔀
+              </button>
+            </div>
+            <p style={{ fontSize: 18, fontWeight: 700, color: "#1a0a2e", marginBottom: "0.3rem" }}>
+              <span style={{ color: "#c4b5fd", marginRight: 3 }}>"</span>
+              {featured.expression}
+              <span style={{ color: "#c4b5fd", marginLeft: 3 }}>"</span>
+            </p>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem" }}>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.5 }}>
+                  {featured.meaning}
+                </p>
+                {/* Badge langue si le sens n'est pas dans la langue UI — honnêteté sur la traduction */}
+                {featured.meaning_locale !== uiLang && (
+                  <span style={{
+                    display: "inline-block", marginTop: "0.3rem",
+                    fontSize: 10, color: "#a78bfa", fontStyle: "italic",
+                  }}>
+                    {featured.meaning_locale === "fr" ? "🇫🇷 sens en français" : featured.meaning_locale === "en" ? "🇬🇧 meaning in English" : featured.meaning_locale === "es" ? "🇪🇸 sentido en español" : ""}
+                  </span>
+                )}
+              </div>
+              <span style={{ fontSize: 16, flexShrink: 0 }}>
+                {featured.region === "fr" ? "🇫🇷" : featured.region === "uk" ? "🇬🇧" : featured.region === "us" ? "🇺🇸" : featured.region === "au" ? "🇦🇺" : featured.region === "es" ? "🇪🇸" : "🌍"}
+              </span>
+            </div>
+            {featured.tags.length > 0 && (
+              <button
+                onClick={() => runConceptSearch(featured.tags[0], activeRegions)}
+                style={{
+                  marginTop: "0.75rem", fontSize: 11, fontWeight: 600, color: "#7c3aed",
+                  background: "#f5f3ff", border: "none", borderRadius: 7, padding: "5px 12px", cursor: "pointer",
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#ede9fe"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#f5f3ff"; }}
+              >
+                → {t.exploreConcept}
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Search bar */}
         <div className="max-w-xl mx-auto flex gap-2 mb-5">
@@ -307,6 +394,52 @@ export default function Home() {
             {loading ? "…" : t.search}
           </button>
         </div>
+
+        {/* Hint chips — 3×3 grid, home state only, just below search bar */}
+        {!searched && hintTags.length > 0 && (
+          <div style={{ margin: "1.25rem auto 0.5rem", textAlign: "center" }}>
+            <p style={{ fontSize: 11, color: "#9ca3af", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 600 }}>
+              {t.someIdeas}
+            </p>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "0.6rem",
+              maxWidth: 340,
+              margin: "0 auto",
+            }}>
+              {hintTags.map((word) => {
+                const icon = tagIcon(word) || "🔍";
+                return (
+                  <button
+                    key={word}
+                    onClick={() => runConceptSearch(word, activeRegions)}
+                    style={{
+                      display: "flex", flexDirection: "column", alignItems: "center",
+                      gap: "0.35rem", borderRadius: 14, padding: "0.6rem 0.25rem",
+                      fontSize: 12, fontWeight: 500, cursor: "pointer",
+                      background: "#fff", border: "1px solid #ede9fe", color: "#6b7280",
+                      transition: "all 0.15s",
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.borderColor = "#7c3aed";
+                      (e.currentTarget as HTMLElement).style.color = "#7c3aed";
+                      (e.currentTarget as HTMLElement).style.background = "#faf7ff";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.borderColor = "#ede9fe";
+                      (e.currentTarget as HTMLElement).style.color = "#6b7280";
+                      (e.currentTarget as HTMLElement).style.background = "#fff";
+                    }}
+                  >
+                    <span style={{ fontSize: 22 }}>{icon}</span>
+                    <span>{word}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Country filters + Mix toggle */}
         <div className="flex flex-wrap justify-center gap-2 items-center">
@@ -370,12 +503,20 @@ export default function Home() {
         {displayResults.length > 0 && (
           <>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
-              {displayResults.map((expr) => (
-                <ExpressionCard
+              {displayResults.map((expr, i) => (
+                <div
                   key={expr.id}
-                  expression={expr}
-                  onTagClick={(tag) => runConceptSearch(tag, activeRegions)}
-                />
+                  style={{
+                    animation: "fadeSlideUp 0.35s ease-out both",
+                    // Each batch of LIMIT cards staggers from 0; cards beyond index 8 appear together (below fold)
+                    animationDelay: `${Math.min(i % LIMIT, 8) * 45}ms`,
+                  }}
+                >
+                  <ExpressionCard
+                    expression={expr}
+                    onTagClick={(tag) => runConceptSearch(tag, activeRegions)}
+                  />
+                </div>
               ))}
             </div>
 
@@ -409,48 +550,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Home screen hint chips */}
-        {!searched && (
-          <div className="text-center mt-10">
-            <p className="text-base font-medium mb-1" style={{ color: "#6b7280" }}>
-              {t.exploreByKeyword}
-            </p>
-            <p className="text-sm mb-6" style={{ color: "#9ca3af" }}>
-              {t.someIdeas}
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              {hintTags.map((word) => {
-                const icon = tagIcon(word) || "🔍";
-                return (
-                  <button
-                    key={word}
-                    onClick={() => runConceptSearch(word, activeRegions)}
-                    className="flex flex-col items-center gap-1.5 rounded-2xl px-5 py-3 text-sm font-medium transition-all hover:shadow-md"
-                    style={{
-                      background: "#fff",
-                      border: "1px solid #ede9fe",
-                      color: "#6b7280",
-                      minWidth: "72px",
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.borderColor = "#7c3aed";
-                      (e.currentTarget as HTMLElement).style.color = "#7c3aed";
-                      (e.currentTarget as HTMLElement).style.background = "#faf7ff";
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.borderColor = "#ede9fe";
-                      (e.currentTarget as HTMLElement).style.color = "#6b7280";
-                      (e.currentTarget as HTMLElement).style.background = "#fff";
-                    }}
-                  >
-                    <span className="text-2xl">{icon}</span>
-                    <span>{word}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
     </main>
   );

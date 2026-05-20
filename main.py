@@ -76,9 +76,22 @@ def search_by_concept(
 @app.get("/tags")
 def get_tags(
     limit: int = Query(30, ge=1, le=100, description="Number of top tags to return"),
+    language: str = Query("", description="Filter tags by expression language: fr, en, or es. Empty = all."),
 ):
-    """Return the most represented tags, excluding meta-tags (origin, register markers)."""
-    return database.get_top_tags(limit)
+    """Return the most represented tags, excluding meta-tags. Pass language=fr/en/es to filter."""
+    lang = language.strip() or None
+    return database.get_top_tags(limit, lang)
+
+
+@app.get("/random")
+def get_random(
+    locale: str = Query("", description="Preferred locale for meaning (fr/en/es). Falls back to expression's language."),
+):
+    """Return a random expression. Pass locale=en to get the meaning in English if available."""
+    expr = database.get_random_expression(locale.strip() or None)
+    if expr is None:
+        raise HTTPException(status_code=404, detail="No expressions found")
+    return expr
 
 
 @app.get("/expression/{expression_id}")

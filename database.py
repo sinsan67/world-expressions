@@ -53,20 +53,78 @@ def _region_clause(regions: Optional[set[str]]) -> tuple[str, dict]:
 
 META_TAGS = {"australian", "british", "argot", "slang", "proverbe", "communication"}
 
-def get_top_tags(limit: int = 30) -> list[dict]:
-    """Retourne les tags les plus représentés, hors méta-tags (origine, registre)."""
-    sql = """
+def get_top_tags(limit: int = 30, language: Optional[str] = None) -> list[dict]:
+    """
+    Retourne les tags les plus représentés, hors méta-tags.
+    Si `language` est fourni (fr/en/es), filtre sur les expressions de cette langue.
+    """
+    lang_clause = "AND e.language = :language" if language else ""
+    sql = f"""
         SELECT t.slug, COUNT(et.expression_id) AS n
         FROM tags t
         JOIN expression_tags et ON et.tag_id = t.id
+        JOIN expressions e ON e.id = et.expression_id
         WHERE NOT (t.slug = ANY(:meta_tags))
+          {lang_clause}
         GROUP BY t.slug
         ORDER BY n DESC
         LIMIT :limit
     """
+    params: dict = {"meta_tags": list(META_TAGS), "limit": limit}
+    if language:
+        params["language"] = language
     with engine.connect() as conn:
-        rows = conn.execute(text(sql), {"meta_tags": list(META_TAGS), "limit": limit}).fetchall()
+        rows = conn.execute(text(sql), params).fetchall()
     return [{"slug": r.slug, "count": r.n} for r in rows]
+
+
+def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
+    """
+    Retourne une expression au hasard (toutes langues).
+    Si `locale` est fourni, essaie de servir le sens dans cette locale.
+    Retourne aussi `meaning_locale` pour que le frontend sache dans quelle langue est le sens.
+    """
+    # Double LEFT JOIN : ec_orig = contenu dans la langue de l'expression,
+    # ec_pref = contenu dans la locale demandée (peut être NULL si pas encore traduit).
+    # COALESCE prend ec_pref en priorité, sinon ec_orig.
+    sql = """
+        SELECT
+            e.id,
+            e.text,
+            e.language,
+            e.region,
+            e.register,
+            e.illustration,
+            COALESCE(ec_pref.meaning, ec_orig.meaning)   AS meaning,
+            COALESCE(ec_pref.origin,  ec_orig.origin)    AS origin,
+            COALESCE(ec_pref.example, ec_orig.example)   AS example,
+            CASE WHEN ec_pref.meaning IS NOT NULL
+                 THEN :locale ELSE e.language END         AS meaning_locale,
+            STRING_AGG(t.slug, ',') AS tags
+        FROM expressions e
+        LEFT JOIN expression_content ec_orig
+            ON ec_orig.expression_id = e.id AND ec_orig.locale = e.language
+        LEFT JOIN expression_content ec_pref
+            ON ec_pref.expression_id = e.id AND ec_pref.locale = :locale
+        LEFT JOIN expression_tags et ON et.expression_id = e.id
+        LEFT JOIN tags t ON t.id = et.tag_id
+        WHERE e.type = 'expression'
+        GROUP BY e.id, e.text, e.language, e.region, e.register,
+                 e.illustration,
+                 ec_orig.meaning, ec_orig.origin, ec_orig.example,
+                 ec_pref.meaning, ec_pref.origin, ec_pref.example
+        ORDER BY RANDOM()
+        LIMIT 1
+    """
+    # Si pas de locale demandée, on utilise la langue de l'expression comme fallback
+    effective_locale = locale or ""
+    with engine.connect() as conn:
+        row = conn.execute(text(sql), {"locale": effective_locale}).fetchone()
+    if not row:
+        return None
+    result = _build_expression_dict(row, "direct")
+    result["meaning_locale"] = row.meaning_locale
+    return result
 
 
 def count_expressions() -> dict[str, int]:

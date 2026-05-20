@@ -74,8 +74,17 @@ export async function searchByConcept(
 
 export type TagInfo = { slug: string; count: number };
 
-export async function getTopTags(limit = 30): Promise<TagInfo[]> {
-  const res = await fetch(`${API}/tags?limit=${limit}`);
+export async function getTopTags(language = "", limit = 30): Promise<TagInfo[]> {
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (language) params.set("language", language);
+  const res = await fetch(`${API}/tags?${params}`);
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
+export async function getRandomExpression(locale = ""): Promise<Expression & { meaning_locale: string }> {
+  const params = locale ? `?locale=${locale}` : "";
+  const res = await fetch(`${API}/random${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();
 }
