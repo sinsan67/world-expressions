@@ -13,6 +13,8 @@ const REGIONS = [
   { code: "us", label: "🇺🇸 USA" },
   { code: "au", label: "🇦🇺 Australia" },
   { code: "es", label: "🇪🇸 España" },
+  { code: "tr", label: "🇹🇷 Türkiye" },
+  { code: "it", label: "🇮🇹 Italia" },
 ];
 
 // Fallback gradient per region — flag colors, muted/pastel, shown when image is not yet placed
@@ -29,7 +31,7 @@ const REGION_GRADIENTS: Record<string, string> = {
 
 const HINT_COUNT = 12;
 
-type UILang = "fr" | "en" | "es";
+type UILang = "fr" | "en" | "es" | "tr" | "it";
 
 const T = {
   fr: {
@@ -76,6 +78,36 @@ const T = {
     noResults: "No se encontraron expresiones",
     noResultsHint: "Prueba otra palabra o una variante…",
     serverError: "No se pudo contactar el servidor. Verifica que la API esté en localhost:8000.",
+  },
+  tr: {
+    expressionOfMoment: "Günün deyimi",
+    exploreConcept: "Bu kavramı keşfet",
+    subtitle: "Bir kelime yazın, dünyanın dört bir yanından deyimleri keşfedin — metinle ya da anlamıyla.",
+    placeholder: "Deneyin: para, hayvan, korku, ayrılmak…",
+    search: "Ara",
+    filterByCountry: "Ülkeye göre filtrele",
+    mixTitle: "Ülkeleri karıştır",
+    filterByConcept: "Kavrama göre filtrele",
+    results: (n: number, q: string) => `"${q}" için ${n} deyim`,
+    allDisplayed: (n: number) => `${n} deyim gösteriliyor`,
+    noResults: "Deyim bulunamadı",
+    noResultsHint: "Başka bir kelime veya varyant deneyin…",
+    serverError: "Sunucuya bağlanılamıyor. API'nin localhost:8000 üzerinde çalıştığını kontrol edin.",
+  },
+  it: {
+    expressionOfMoment: "Espressione del momento",
+    exploreConcept: "Esplora questo concetto",
+    subtitle: "Digita una parola, scopri espressioni da tutto il mondo — per testo o per significato.",
+    placeholder: "Prova: soldi, animale, partire, paura…",
+    search: "Cerca",
+    filterByCountry: "Filtra per paese",
+    mixTitle: "Mescola i paesi",
+    filterByConcept: "Filtra per concetto",
+    results: (n: number, q: string) => `${n} espression${n > 1 ? "i" : "e"} per "${q}"`,
+    allDisplayed: (n: number) => `${n} espression${n > 1 ? "i" : "e"} visualizzat${n > 1 ? "e" : "a"}`,
+    noResults: "Nessuna espressione trovata",
+    noResultsHint: "Prova un'altra parola o una variante…",
+    serverError: "Impossibile contattare il server. Verifica che l'API sia in esecuzione su localhost:8000.",
   },
 };
 
@@ -298,7 +330,7 @@ export default function Home() {
 
           {/* Sélecteur de langue — coin haut droite */}
           <div style={{ position: "absolute", top: 16, right: 20, display: "flex", gap: 4 }}>
-            {(["fr", "en", "es"] as UILang[]).map((lang) => (
+            {(["fr", "en", "es", "tr", "it"] as UILang[]).map((lang) => (
               <button
                 key={lang}
                 onClick={() => { setUILang(lang); setHintKey((k) => k + 1); }}
@@ -394,12 +426,12 @@ export default function Home() {
                       </p>
                       {featured.meaning_locale !== uiLang && (
                         <span style={{ display: "inline-block", marginTop: "0.3rem", fontSize: 10, color: "#c4b5fd", fontStyle: "italic" }}>
-                          {featured.meaning_locale === "fr" ? "🇫🇷 sens en français" : featured.meaning_locale === "en" ? "🇬🇧 meaning in English" : featured.meaning_locale === "es" ? "🇪🇸 sentido en español" : ""}
+                          {featured.meaning_locale === "fr" ? "🇫🇷 sens en français" : featured.meaning_locale === "en" ? "🇬🇧 meaning in English" : featured.meaning_locale === "es" ? "🇪🇸 sentido en español" : featured.meaning_locale === "tr" ? "🇹🇷 Türkçe anlam" : featured.meaning_locale === "it" ? "🇮🇹 significato in italiano" : ""}
                         </span>
                       )}
                     </div>
                     <span style={{ fontSize: 16, flexShrink: 0 }}>
-                      {featured.region === "fr" ? "🇫🇷" : featured.region === "uk" ? "🇬🇧" : featured.region === "us" ? "🇺🇸" : featured.region === "au" ? "🇦🇺" : featured.region === "es" ? "🇪🇸" : "🌍"}
+                      {featured.region === "fr" ? "🇫🇷" : featured.region === "uk" ? "🇬🇧" : featured.region === "us" ? "🇺🇸" : featured.region === "au" ? "🇦🇺" : featured.region === "es" ? "🇪🇸" : featured.region === "tr" ? "🇹🇷" : featured.region === "it" ? "🇮🇹" : "🌍"}
                     </span>
                   </div>
                   {featured.tags.length > 0 && (
