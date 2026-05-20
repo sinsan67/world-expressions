@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Expression } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { getTypeLabel } from "@/lib/typeLabels";
@@ -49,9 +50,13 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
       {/* En-tête */}
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h2 className="text-base font-semibold leading-snug" style={{ color: "#1a0a2e" }}>
+          <Link
+            href={`/expression/${e.id}?lang=${uiLang}`}
+            className="text-base font-semibold leading-snug hover:underline"
+            style={{ color: "#1a0a2e" }}
+          >
             {e.expression}
-          </h2>
+          </Link>
           <div className="flex flex-wrap gap-1 mt-0.5">
             {typeLabel && (
               <span

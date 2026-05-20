@@ -74,7 +74,7 @@ export const TAG_ICONS: Record<string, string> = {
   mockery: '😏', criticism: '🗣️', acceptance: '🤗',
   consequences: '⚖️', exaggeration: '📢', resourcefulness: '🧩',
   ambition: '🚀', culture: '🌍', silence: '🤫',
-  movement: '🏃', conflict: '⚔️', patience: '🕐',
+  movement: '🏃', patience: '🕐',
   // Espagnol
   dinero: '💰', trabajo: '💼', animales: '🐾',
   fuego: '🔥', agua: '💧', miedo: '😱', suerte: '🍀',
