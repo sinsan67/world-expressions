@@ -153,6 +153,7 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(false);
   const [searchMode, setSearchMode] = useState<"text" | "concept">("text");
   const [hintTags, setHintTags] = useState<{ slug: string; name: string }[]>([]);
+  const [hintTagsError, setHintTagsError] = useState(false);
   const [featured, setFeatured] = useState<(Expression & { meaning_locale: string }) | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const exploreRef = useRef<HTMLDivElement>(null);
@@ -289,11 +290,12 @@ export default function Home() {
   }, [uiLang]);
 
   useEffect(() => {
+    setHintTagsError(false);
     getTopTags(uiLang, 40, uiLang).then((tags) => {
       const withEmoji = tags.filter((tag) => tagIcon(tag.slug));
       const shuffled = withEmoji.sort(() => Math.random() - 0.5);
       setHintTags(shuffled.slice(0, HINT_COUNT).map((tag) => ({ slug: tag.slug, name: tag.name })));
-    }).catch(() => {});
+    }).catch(() => { setHintTagsError(true); });
   }, [uiLang, hintKey]);
 
   return (
@@ -536,7 +538,11 @@ export default function Home() {
           </div>
 
           {/* Themes — ligne horizontale scrollable, même style que filtres pays */}
-          {hintTags.length > 0 && (
+          {hintTagsError ? (
+            <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", marginTop: "0.5rem" }}>
+              Concepts unavailable — try refreshing the page.
+            </p>
+          ) : hintTags.length > 0 && (
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.6rem" }}>
                 <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", flexShrink: 0 }}>
