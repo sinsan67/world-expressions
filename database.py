@@ -55,29 +55,32 @@ def _region_clause(regions: Optional[set[str]]) -> tuple[str, dict]:
 
 META_TAGS = {"australian", "british", "argot", "slang", "proverbe", "communication"}
 
-def get_top_tags(limit: int = 30, language: Optional[str] = None) -> list[dict]:
+def get_top_tags(limit: int = 30, language: Optional[str] = None, locale: Optional[str] = None) -> list[dict]:
     """
     Retourne les tags les plus représentés, hors méta-tags.
     Si `language` est fourni (fr/en/es), filtre sur les expressions de cette langue.
+    Si `locale` est fourni, retourne le nom localisé du tag (via tag_names) ; sinon retourne le slug.
     """
     lang_clause = "AND e.language = :language" if language else ""
     sql = f"""
-        SELECT t.slug, COUNT(et.expression_id) AS n
+        SELECT t.slug, COUNT(et.expression_id) AS n,
+               COALESCE(tn.name, t.slug) AS display_name
         FROM tags t
         JOIN expression_tags et ON et.tag_id = t.id
         JOIN expressions e ON e.id = et.expression_id
+        LEFT JOIN tag_names tn ON tn.tag_id = t.id AND tn.locale = :locale
         WHERE NOT (t.slug = ANY(:meta_tags))
           {lang_clause}
-        GROUP BY t.slug
+        GROUP BY t.slug, tn.name
         ORDER BY n DESC
         LIMIT :limit
     """
-    params: dict = {"meta_tags": list(META_TAGS), "limit": limit}
+    params: dict = {"meta_tags": list(META_TAGS), "limit": limit, "locale": locale or "en"}
     if language:
         params["language"] = language
     with engine.connect() as conn:
         rows = conn.execute(text(sql), params).fetchall()
-    return [{"slug": r.slug, "count": r.n} for r in rows]
+    return [{"slug": r.slug, "count": r.n, "name": r.display_name} for r in rows]
 
 
 def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:

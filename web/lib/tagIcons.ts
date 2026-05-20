@@ -63,6 +63,18 @@ export const TAG_ICONS: Record<string, string> = {
   maxim: '✍️', maxime: '✍️', máxima: '✍️', massima: '✍️',
   locution: '🔤', locución: '🔤', locuzione: '🔤',
   cliche: '🎭', cliché: '🎭', klişe: '🎭',
+  // Slugs anglais canoniques (post-normalisation V3A)
+  emotions: '🎭', relationships: '👥', lying: '🤥',
+  colors: '🎨', energy: '✨', laziness: '😴',
+  difficulty: '😤', honesty: '🫡', caution: '⚠️',
+  freedom: '🕊️', optimism: '🌟', wisdom: '🦉',
+  generosity: '🎁', betrayal: '🗡️', disappointment: '😞',
+  slang: '💬', politics: '🏛️', speed: '💨',
+  mistake: '😬', escape: '🏃', distrust: '🤨',
+  mockery: '😏', criticism: '🗣️', acceptance: '🤗',
+  consequences: '⚖️', exaggeration: '📢', resourcefulness: '🧩',
+  ambition: '🚀', culture: '🌍', silence: '🤫',
+  movement: '🏃', conflict: '⚔️', patience: '🕐',
   // Espagnol
   dinero: '💰', trabajo: '💼', animales: '🐾',
   fuego: '🔥', agua: '💧', miedo: '😱', suerte: '🍀',

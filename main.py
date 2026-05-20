@@ -79,11 +79,13 @@ def search_by_concept(
 @app.get("/tags")
 def get_tags(
     limit: int = Query(30, ge=1, le=100, description="Number of top tags to return"),
-    language: str = Query("", description="Filter tags by expression language: fr, en, or es. Empty = all."),
+    language: str = Query("", description="Filter tags by expression language: fr, en, es, it, tr. Empty = all."),
+    locale: str = Query("en", description="Locale for tag display names: fr, en, es, it, tr."),
 ):
-    """Return the most represented tags, excluding meta-tags. Pass language=fr/en/es to filter."""
+    """Return the most represented tags, excluding meta-tags. Pass language= to filter by expression language, locale= for display names."""
     lang = language.strip() or None
-    return database.get_top_tags(limit, lang)
+    loc = locale.strip() or "en"
+    return database.get_top_tags(limit, lang, loc)
 
 
 @app.get("/random")

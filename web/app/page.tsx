@@ -152,7 +152,7 @@ export default function Home() {
   const [searched, setSearched] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [searchMode, setSearchMode] = useState<"text" | "concept">("text");
-  const [hintTags, setHintTags] = useState<string[]>([]);
+  const [hintTags, setHintTags] = useState<{ slug: string; name: string }[]>([]);
   const [featured, setFeatured] = useState<(Expression & { meaning_locale: string }) | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const exploreRef = useRef<HTMLDivElement>(null);
@@ -289,10 +289,10 @@ export default function Home() {
   }, [uiLang]);
 
   useEffect(() => {
-    getTopTags(uiLang, 40).then((tags) => {
-      const withEmoji = tags.map((tag) => tag.slug).filter((s) => tagIcon(s));
+    getTopTags(uiLang, 40, uiLang).then((tags) => {
+      const withEmoji = tags.filter((tag) => tagIcon(tag.slug));
       const shuffled = withEmoji.sort(() => Math.random() - 0.5);
-      setHintTags(shuffled.slice(0, HINT_COUNT));
+      setHintTags(shuffled.slice(0, HINT_COUNT).map((tag) => ({ slug: tag.slug, name: tag.name })));
     }).catch(() => {});
   }, [uiLang, hintKey]);
 
@@ -549,12 +549,12 @@ export default function Home() {
                   display: "flex", gap: "0.5rem", flexWrap: "wrap", justifyContent: "center",
                 }}
               >
-                {hintTags.map((word) => {
-                  const icon = tagIcon(word) || "🔍";
+                {hintTags.map((tag) => {
+                  const icon = tagIcon(tag.slug) || "🔍";
                   return (
                     <button
-                      key={word}
-                      onClick={() => { runConceptSearch(word, activeRegions); setHintKey((k) => k + 1); }}
+                      key={tag.slug}
+                      onClick={() => { runConceptSearch(tag.slug, activeRegions); setHintKey((k) => k + 1); }}
                       className="px-3 py-1.5 rounded-full text-sm font-medium transition-all"
                       style={{
                         background: "white",
@@ -576,7 +576,7 @@ export default function Home() {
                       }}
                     >
                       <span>{icon}</span>
-                      <span>{word}</span>
+                      <span>{tag.name}</span>
                     </button>
                   );
                 })}
