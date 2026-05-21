@@ -11,6 +11,7 @@ pour que main.py et le frontend n'aient pas besoin de changer.
 
 from typing import Optional
 from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 from config import engine
 
 
@@ -357,3 +358,19 @@ def get_expression_by_id(expression_id: str) -> Optional[dict]:
         row = conn.execute(text(sql), {"id": expression_id}).fetchone()
 
     return _build_expression_dict(row, "direct") if row else None
+
+
+def subscribe_newsletter(email: str, language: str) -> dict:
+    """
+    Enregistre un abonné à la newsletter.
+    Retourne {"status": "created"} ou {"status": "already_subscribed"}.
+    """
+    sql_insert = text("""
+        INSERT INTO newsletter_subscribers (id, email, language, created_at)
+        VALUES (gen_random_uuid(), :email, :language, NOW())
+        ON CONFLICT (email) DO NOTHING
+        RETURNING id
+    """)
+    with engine.begin() as conn:
+        row = conn.execute(sql_insert, {"email": email, "language": language}).fetchone()
+    return {"status": "created" if row else "already_subscribed"}

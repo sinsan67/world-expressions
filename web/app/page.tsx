@@ -53,6 +53,14 @@ const T = {
     noResults: "Aucune expression trouvée",
     noResultsHint: "Essaie un autre mot ou une variante…",
     serverError: "Impossible de contacter le serveur. Vérifie que l'API tourne sur localhost:8000.",
+    newsletterHeadline: "Une expression par jour dans ta boîte mail.",
+    newsletterSub: "Reçois chaque matin une expression idiomatique du monde entier — dans ta langue.",
+    newsletterPlaceholder: "ton@email.com",
+    newsletterLangLabel: "Langue",
+    newsletterCta: "S'abonner",
+    newsletterSuccess: "C'est noté ! Une expression par jour arrive dans ta boîte.",
+    newsletterAlready: "Tu es déjà abonné(e) !",
+    newsletterError: "Une erreur s'est produite, réessaie.",
   },
   en: {
     expressionOfMoment: "Expression of the moment",
@@ -70,6 +78,14 @@ const T = {
     noResults: "No expressions found",
     noResultsHint: "Try another word or a variant…",
     serverError: "Could not reach the server. Make sure the API is running on localhost:8000.",
+    newsletterHeadline: "One expression a day, from the world to your inbox.",
+    newsletterSub: "Get a new idiomatic expression every morning — in your language.",
+    newsletterPlaceholder: "your@email.com",
+    newsletterLangLabel: "Language",
+    newsletterCta: "Subscribe",
+    newsletterSuccess: "You're in! One expression a day is on its way.",
+    newsletterAlready: "You're already subscribed!",
+    newsletterError: "Something went wrong, please try again.",
   },
   es: {
     expressionOfMoment: "Expresión del momento",
@@ -87,6 +103,14 @@ const T = {
     noResults: "No se encontraron expresiones",
     noResultsHint: "Prueba otra palabra o una variante…",
     serverError: "No se pudo contactar el servidor. Verifica que la API esté en localhost:8000.",
+    newsletterHeadline: "Una expresión al día, del mundo a tu bandeja.",
+    newsletterSub: "Recibe cada mañana una expresión idiomática del mundo — en tu idioma.",
+    newsletterPlaceholder: "tu@email.com",
+    newsletterLangLabel: "Idioma",
+    newsletterCta: "Suscribirse",
+    newsletterSuccess: "¡Apuntado! Una expresión al día te espera en tu bandeja.",
+    newsletterAlready: "¡Ya estás suscrito/a!",
+    newsletterError: "Algo salió mal, inténtalo de nuevo.",
   },
   tr: {
     expressionOfMoment: "Günün deyimi",
@@ -104,6 +128,14 @@ const T = {
     noResults: "Deyim bulunamadı",
     noResultsHint: "Başka bir kelime veya varyant deneyin…",
     serverError: "Sunucuya bağlanılamıyor. API'nin localhost:8000 üzerinde çalıştığını kontrol edin.",
+    newsletterHeadline: "Her gün bir deyim, dünyadan gelen kutuna.",
+    newsletterSub: "Her sabah dünyadan bir deyim al — kendi dilinde.",
+    newsletterPlaceholder: "sen@email.com",
+    newsletterLangLabel: "Dil",
+    newsletterCta: "Abone ol",
+    newsletterSuccess: "Kaydoldun! Her gün bir deyim gelen kutuna gelecek.",
+    newsletterAlready: "Zaten abonesin!",
+    newsletterError: "Bir şeyler ters gitti, tekrar dene.",
   },
   it: {
     expressionOfMoment: "Espressione del momento",
@@ -121,6 +153,14 @@ const T = {
     noResults: "Nessuna espressione trovata",
     noResultsHint: "Prova un'altra parola o una variante…",
     serverError: "Impossibile contattare il server. Verifica che l'API sia in esecuzione su localhost:8000.",
+    newsletterHeadline: "Un'espressione al giorno, dal mondo alla tua casella.",
+    newsletterSub: "Ricevi ogni mattina un'espressione idiomatica dal mondo — nella tua lingua.",
+    newsletterPlaceholder: "tua@email.com",
+    newsletterLangLabel: "Lingua",
+    newsletterCta: "Iscriviti",
+    newsletterSuccess: "Iscritto! Un'espressione al giorno ti aspetta in casella.",
+    newsletterAlready: "Sei già iscritto/a!",
+    newsletterError: "Qualcosa è andato storto, riprova.",
   },
 };
 
@@ -180,8 +220,30 @@ export default function Home() {
   const featuredConceptRef = useRef<HTMLDivElement>(null);
   const [featuredCountryOpen, setFeaturedCountryOpen] = useState(false);
   const [featuredConceptOpen, setFeaturedConceptOpen] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterLang, setNewsletterLang] = useState<UILang>("en");
+  const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
 
   const t = T[uiLang];
+
+  const handleNewsletterSubmit = useCallback(async () => {
+    if (!newsletterEmail.trim()) return;
+    setNewsletterStatus("loading");
+    try {
+      const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const res = await fetch(`${API}/newsletter/subscribe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newsletterEmail.trim(), language: newsletterLang }),
+      });
+      if (!res.ok) { setNewsletterStatus("error"); return; }
+      const data = await res.json();
+      setNewsletterStatus(data.status === "already_subscribed" ? "already" : "success");
+    } catch {
+      setNewsletterStatus("error");
+    }
+  }, [newsletterEmail, newsletterLang]);
+
   const activeRegions = [...selectedRegions];
   const displayResults = useMemo(
     () => (mixActive ? applyMix(rawResults) : rawResults),
@@ -994,6 +1056,73 @@ export default function Home() {
             </p>
           </div>
         )}
+      </div>
+
+      {/* ===== Newsletter ===== */}
+      <div style={{ background: "linear-gradient(135deg, #1e1b4b 0%, #2e1065 100%)", padding: "4rem 1rem" }}>
+        <div style={{ maxWidth: 480, margin: "0 auto", textAlign: "center" }}>
+          <p style={{ fontSize: 26, fontWeight: 700, color: "#f5f3ff", marginBottom: "0.5rem", lineHeight: 1.3 }}>
+            {t.newsletterHeadline}
+          </p>
+          <p style={{ fontSize: 15, color: "#c4b5fd", marginBottom: "2rem" }}>
+            {t.newsletterSub}
+          </p>
+
+          {newsletterStatus === "success" || newsletterStatus === "already" ? (
+            <p style={{ fontSize: 15, color: "#a7f3d0", fontWeight: 600, padding: "1rem", background: "rgba(16,185,129,0.15)", borderRadius: 12 }}>
+              {newsletterStatus === "success" ? t.newsletterSuccess : t.newsletterAlready}
+            </p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              <input
+                type="email"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleNewsletterSubmit()}
+                placeholder={t.newsletterPlaceholder}
+                style={{
+                  width: "100%", padding: "0.75rem 1rem", borderRadius: 10, border: "1px solid rgba(196,181,253,0.3)",
+                  background: "rgba(255,255,255,0.08)", color: "#f5f3ff", fontSize: 15,
+                  outline: "none", boxSizing: "border-box",
+                }}
+              />
+              <div style={{ display: "flex", gap: "0.75rem" }}>
+                <select
+                  value={newsletterLang}
+                  onChange={(e) => setNewsletterLang(e.target.value as UILang)}
+                  style={{
+                    flex: "0 0 auto", padding: "0.75rem 0.75rem", borderRadius: 10,
+                    border: "1px solid rgba(196,181,253,0.3)", background: "rgba(255,255,255,0.08)",
+                    color: "#f5f3ff", fontSize: 14, cursor: "pointer", outline: "none",
+                  }}
+                >
+                  <option value="fr" style={{ background: "#1e1b4b" }}>🇫🇷 FR</option>
+                  <option value="en" style={{ background: "#1e1b4b" }}>🇬🇧 EN</option>
+                  <option value="es" style={{ background: "#1e1b4b" }}>🇪🇸 ES</option>
+                  <option value="it" style={{ background: "#1e1b4b" }}>🇮🇹 IT</option>
+                  <option value="tr" style={{ background: "#1e1b4b" }}>🇹🇷 TR</option>
+                </select>
+                <button
+                  onClick={handleNewsletterSubmit}
+                  disabled={newsletterStatus === "loading"}
+                  style={{
+                    flex: 1, padding: "0.75rem 1.5rem", borderRadius: 10, border: "none",
+                    background: newsletterStatus === "loading" ? "rgba(124,58,237,0.5)" : "#7c3aed",
+                    color: "#fff", fontWeight: 600, fontSize: 15, cursor: newsletterStatus === "loading" ? "default" : "pointer",
+                    transition: "background 0.2s",
+                  }}
+                  onMouseEnter={(e) => { if (newsletterStatus !== "loading") (e.currentTarget as HTMLElement).style.background = "#6d28d9"; }}
+                  onMouseLeave={(e) => { if (newsletterStatus !== "loading") (e.currentTarget as HTMLElement).style.background = "#7c3aed"; }}
+                >
+                  {newsletterStatus === "loading" ? "…" : t.newsletterCta}
+                </button>
+              </div>
+              {newsletterStatus === "error" && (
+                <p style={{ fontSize: 13, color: "#fca5a5", marginTop: "0.25rem" }}>{t.newsletterError}</p>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );

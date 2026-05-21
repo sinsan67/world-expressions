@@ -6,8 +6,9 @@ Alembic lit ce fichier pour générer les migrations SQL.
 """
 
 import uuid
+from datetime import datetime, timezone
 from sqlalchemy import (
-    Column, String, Text, ForeignKey, UniqueConstraint, create_engine
+    Column, String, Text, ForeignKey, UniqueConstraint, create_engine, DateTime
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, relationship
@@ -121,3 +122,13 @@ class ContentTranslation(Base):
     idiomatic     = Column(Text)      # équivalent idiomatique dans la langue cible
     origin        = Column(Text)      # origine expliquée dans la langue cible
     example       = Column(Text)      # exemple d'usage dans la langue cible
+
+
+class NewsletterSubscriber(Base):
+    """Abonné à la newsletter — une expression par jour."""
+    __tablename__ = "newsletter_subscribers"
+
+    id         = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    email      = Column(String(255), unique=True, nullable=False)
+    language   = Column(String(10), nullable=False, server_default="en")  # langue préférée : fr, en, es, it, tr
+    created_at = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))

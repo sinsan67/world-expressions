@@ -1,6 +1,8 @@
 import os
+import re
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 import database
 
@@ -12,7 +14,7 @@ _cors_origins = os.getenv("CORS_ORIGINS", _default_origins).split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -139,3 +141,22 @@ def get_expression(
     else:
         expr["translation"] = None
     return expr
+
+
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+_VALID_LANGS = {"fr", "en", "es", "it", "tr"}
+
+
+class SubscribeRequest(BaseModel):
+    email: str
+    language: str = "en"
+
+
+@app.post("/newsletter/subscribe")
+def newsletter_subscribe(body: SubscribeRequest):
+    email = body.email.strip().lower()
+    if not _EMAIL_RE.match(email):
+        raise HTTPException(status_code=422, detail="Invalid email address")
+    lang = body.language if body.language in _VALID_LANGS else "en"
+    result = database.subscribe_newsletter(email, lang)
+    return result
