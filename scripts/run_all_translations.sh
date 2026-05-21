@@ -1,23 +1,17 @@
 #!/usr/bin/env bash
-# Lance la génération des traductions pour toutes les paires de langues manquantes.
+# Lance la génération des traductions pour toutes les paires de langues.
+# Matrice complète : fr / en / es / it / tr → chacune vers les 4 autres.
 #
-# Paires couvertes (hors FR→EN déjà fait) :
-#   FR→ES (399 restantes), EN→FR (499), EN→ES (499),
-#   ES→FR (120), ES→EN (120),
-#   IT→FR (40),  IT→EN (40),
-#   TR→FR (38),  TR→EN (38)
+# Le script est idempotent : il saute les traductions déjà en base.
+# Relancez-le librement si une exécution est interrompue.
 #
 # Usage :
 #   ./scripts/run_all_translations.sh
-#   ./scripts/run_all_translations.sh --delay 0.5   # plus lent, moins de risque rate-limit
-#
-# Le script est idempotent : relancez-le si une exécution est interrompue.
+#   ./scripts/run_all_translations.sh --delay 0.5
 
 set -e
-cd "$(dirname "$0")/.."  # se placer à la racine du projet
+cd "$(dirname "$0")/.."
 
-DELAY="${1:---delay}"; DELAY_VAL="${2:-0.3}"
-# Support simple du flag --delay N passé en argument
 if [[ "$1" == "--delay" ]]; then
   DELAY_FLAG="--delay $2"
 else
@@ -33,6 +27,8 @@ run_pair() {
   python3 scripts/populate_translations.py --source "$src" --target "$tgt" $DELAY_FLAG
 }
 
+# Vers FR et EN (partiellement déjà faites)
+run_pair fr en
 run_pair fr es
 run_pair en fr
 run_pair en es
@@ -43,7 +39,19 @@ run_pair it en
 run_pair tr fr
 run_pair tr en
 
+# Vers IT et TR (entièrement manquantes)
+run_pair fr it
+run_pair fr tr
+run_pair en it
+run_pair en tr
+run_pair es it
+run_pair es tr
+run_pair it es
+run_pair it tr
+run_pair tr es
+run_pair tr it
+
 echo ""
 echo "================================================"
-echo "  Toutes les traductions sont terminées."
+echo "  Matrice complète terminée."
 echo "================================================"

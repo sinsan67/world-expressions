@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate new expressions for a given language using Mistral API,
+Generate new expressions for a given language/region using Mistral API,
 then insert them into the Neon database.
 
 Idempotent: expressions whose ID already exists in the database are skipped.
@@ -11,7 +11,7 @@ Usage:
     python3 scripts/generate_expressions.py --language tr --count 62
     python3 scripts/generate_expressions.py --language it --count 5 --dry-run
 
-Supported languages: it, tr
+Supported languages: it, tr, es
 """
 
 import sys
@@ -256,10 +256,12 @@ def main():
 
     language = args.language
     config = LANGUAGE_CONFIG[language]
+    # For English regional variants, the DB language is "en", not the script key
+    db_language = config.get("db_language", language)
 
     print(f"Generating {args.count} {config['name']} expressions")
-    print(f"Fetching existing {language.upper()} expressions from database...")
-    existing_ids, existing_texts = get_existing(language)
+    print(f"Fetching existing {db_language.upper()} / region={config['region']} expressions from database...")
+    existing_ids, existing_texts = get_existing(db_language)
     print(f"  → {len(existing_ids)} already in database\n")
 
     api_key = os.environ.get("MISTRAL_API_KEY")
@@ -324,7 +326,7 @@ def main():
             print(f"  [dry-run] {json.dumps(expr, ensure_ascii=False, indent=2)}")
         else:
             try:
-                insert_expression(expr, language, config)
+                insert_expression(expr, db_language, config)
             except Exception as e:
                 print(f"  DB ERROR ({e})")
                 errors += 1
