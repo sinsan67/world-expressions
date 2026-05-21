@@ -81,17 +81,43 @@ For each expression return ONLY a valid JSON object with these exact fields:
 
 No markdown, no extra text — only the JSON object.""",
     },
+    "es": {
+        "name": "Spanish",
+        "region": "es",
+        "source_label": "RAE",
+        "source_url": "https://dle.rae.es/",
+        "system_prompt": """You are an expert in Spanish idiomatic expressions, proverbs (refranes), and sayings (dichos) from ALL Spanish-speaking countries.
+Generate authentic Spanish expressions that are:
+- Actually used by native speakers — cover the full Hispanic world: Spain, Mexico, Argentina, Colombia, Chile, Peru, Venezuela, Cuba, and other countries
+- Culturally rooted in the specific country or region where the expression originates
+- Diverse in topic: food, family, work, body, animals, love, time, money, luck, character...
+- Mix of pan-Hispanic expressions AND country-specific ones (Argentine lunfardo, Mexican slang, Rioplatense idioms, Andalusian sayings, etc.)
+
+For each expression return ONLY a valid JSON object with these exact fields:
+- "id": kebab-case slug in Spanish (replace á→a, é→e, í→i, ó→o, ú→u, ñ→n, ü→u, e.g. "no-hay-mal-que-por-bien-no-venga")
+- "expression": the expression text in Spanish (using correct Spanish characters)
+- "meaning": what it means in Spanish (1-2 sentences)
+- "origin": etymology or cultural origin in Spanish, mentioning the country/region if specific (1-2 sentences, null if unknown)
+- "example": natural Spanish sentence using the expression
+- "register": one of "standard", "informal", "slang", "formal"
+- "tags": array of 2-5 English thematic slug tags (e.g. ["luck", "optimism", "proverb"])
+- "type": "expression" for idioms/refranes/dichos, "word" for single words with idiomatic meaning
+- "region": ISO 3166-1 alpha-2 country code for the primary country of origin — use "es" for Spain, "ar" for Argentina, "mx" for Mexico, "co" for Colombia, "cl" for Chile, "pe" for Peru, "cu" for Cuba, "ve" for Venezuela; use "es" if pan-Hispanic or origin unknown
+
+No markdown, no extra text — only the JSON object.""",
+    },
 }
 
 VALID_REGISTERS = {"standard", "informal", "slang", "formal", "vulgar"}
 
 
 def slugify(text: str) -> str:
-    """Convert Turkish/Italian text to kebab-case ASCII slug."""
+    """Convert Turkish/Italian/Spanish text to kebab-case ASCII slug."""
     replacements = {
         "ş": "s", "ğ": "g", "ı": "i", "ö": "o", "ü": "u", "ç": "c",
         "à": "a", "è": "e", "é": "e", "ì": "i", "ò": "o", "ù": "u",
         "â": "a", "ê": "e", "î": "i", "ô": "o", "û": "u",
+        "á": "a", "í": "i", "ó": "o", "ú": "u", "ñ": "n",
     }
     s = text.lower()
     for orig, repl in replacements.items():
@@ -135,7 +161,7 @@ def insert_expression(expr: dict, language: str, config: dict) -> None:
                 "id": expr["id"],
                 "text": expr["expression"],
                 "language": language,
-                "region": config["region"],
+                "region": expr.get("region") or config["region"],
                 "register": expr.get("register", "standard"),
                 "type": expr.get("type", "expression"),
                 "source": None,
