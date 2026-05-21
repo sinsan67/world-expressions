@@ -26,10 +26,10 @@ from sqlalchemy import text
 # Charge .env depuis la racine du projet, indépendamment du répertoire courant
 load_dotenv(Path(__file__).parent.parent / ".env")
 
-import anthropic
+from mistralai.client import Mistral
 from config import engine  # import après load_dotenv
 
-MODEL = "claude-haiku-4-5"  # économique et rapide pour les traductions en masse
+MODEL = "mistral-small-latest"  # économique et rapide pour les traductions en masse
 
 SYSTEM_PROMPT = """You are a specialist in French idiomatic expressions and cultural linguistics.
 For each French expression provided, generate an English explanation for an English-speaking reader
@@ -80,21 +80,23 @@ def get_fr_without_en(limit: int | None = None) -> list[dict]:
     ]
 
 
-def call_claude(client: anthropic.Anthropic, expr: dict) -> dict:
-    """Appelle Claude pour générer la traduction EN d'une expression."""
+def call_mistral(client: Mistral, expr: dict) -> dict:
+    """Appelle Mistral pour générer la traduction EN d'une expression."""
     user_msg = USER_TEMPLATE.format(
         text=expr["text"],
         meaning=expr["meaning"],
         origin=expr["origin"],
         example=expr["example"],
     )
-    response = client.messages.create(
+    response = client.chat.complete(
         model=MODEL,
         max_tokens=600,
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": user_msg}],
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": user_msg},
+        ],
     )
-    raw = response.content[0].text.strip()
+    raw = response.choices[0].message.content.strip()
     # Nettoie les éventuels blocs markdown ```json ... ```
     if raw.startswith("```"):
         parts = raw.split("```")
@@ -154,38 +156,39 @@ def main():
             print(f"  [{i:3}/{total}] {e['id']}")
         return
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("MISTRAL_API_KEY")
     if not api_key:
-        print("Erreur : ANTHROPIC_API_KEY absent du .env")
+        print("Erreur : MISTRAL_API_KEY absent du .env")
         sys.exit(1)
 
-    client = anthropic.Anthropic(api_key=api_key)
+    client = Mistral(api_key=api_key)
     ok = errors = 0
 
     for i, expr in enumerate(expressions, 1):
         print(f"[{i:3}/{total}] {expr['id']} ... ", end="", flush=True)
         try:
-            translation = call_claude(client, expr)
+            translation = call_mistral(client, expr)
             insert_translation(expr["id"], translation)
             print("OK")
             ok += 1
         except json.JSONDecodeError as e:
             print(f"ERREUR JSON ({e})")
             errors += 1
-        except anthropic.RateLimitError:
-            print("RATE LIMIT — pause 60s")
-            time.sleep(60)
-            try:
-                translation = call_claude(client, expr)
-                insert_translation(expr["id"], translation)
-                print(f"[{i:3}/{total}] {expr['id']} ... OK (retry)")
-                ok += 1
-            except Exception as e2:
-                print(f"[{i:3}/{total}] {expr['id']} ... ERREUR retry ({e2})")
-                errors += 1
         except Exception as e:
-            print(f"ERREUR ({e})")
-            errors += 1
+            if "429" in str(e) or "rate" in str(e).lower():
+                print("RATE LIMIT — pause 60s")
+                time.sleep(60)
+                try:
+                    translation = call_mistral(client, expr)
+                    insert_translation(expr["id"], translation)
+                    print(f"[{i:3}/{total}] {expr['id']} ... OK (retry)")
+                    ok += 1
+                except Exception as e2:
+                    print(f"ERREUR retry ({e2})")
+                    errors += 1
+            else:
+                print(f"ERREUR ({e})")
+                errors += 1
 
         if i < total and args.delay > 0:
             time.sleep(args.delay)
