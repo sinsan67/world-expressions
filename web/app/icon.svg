@@ -1,7 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- App icon background -->
   <rect width="100" height="100" rx="22" fill="#4f46e5"/>
-  <path d="M25,12 Q15,12 15,22 L15,57 Q15,67 25,67 L26,67 L24,85 L42,67 L75,67 Q85,67 85,57 L85,22 Q85,12 75,12 Z" fill="white"/>
-  <circle cx="35" cy="39" r="5.5" fill="#4f46e5"/>
-  <circle cx="50" cy="39" r="5.5" fill="#4f46e5"/>
-  <circle cx="65" cy="39" r="5.5" fill="#4f46e5"/>
+
+  <!-- Globe: ocean -->
+  <circle cx="50" cy="50" r="34" fill="#1d4ed8"/>
+
+  <!-- Continents: Europe + Africa -->
+  <path d="M51,19 C54,20 57,23 56,28 C55,31 52,32 52,35 C52,38 54,40 53,44 C52,47 50,50 50,54 C50,58 51,63 50,67 C49,71 47,74 48,77 C45,78 43,76 43,72 C43,67 42,62 43,57 C44,53 42,49 43,45 C44,41 46,38 45,34 C44,30 46,26 49,22 Z" fill="#16a34a"/>
+
+  <!-- Continents: Americas -->
+  <path d="M31,28 C34,25 38,27 37,33 C36,37 33,39 34,44 C35,49 33,54 32,60 C31,65 33,70 31,73 C28,71 27,66 28,60 C29,54 30,48 29,43 C28,38 27,33 30,30 Z" fill="#16a34a"/>
+
+  <!-- Asia patch (top right) -->
+  <path d="M63,30 C67,31 70,35 67,40 C65,42 62,41 61,38 C60,35 61,31 63,30 Z" fill="#16a34a"/>
+
+  <!-- Latitude line (equator) -->
+  <ellipse cx="50" cy="50" rx="33.5" ry="9" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>
+
+  <!-- Meridian (central) -->
+  <ellipse cx="50" cy="50" rx="9" ry="33.5" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>
+
+  <!-- Globe outline -->
+  <circle cx="50" cy="50" r="34" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
 </svg>

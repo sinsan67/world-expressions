@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import ExpressionCard from "@/components/ExpressionCard";
 import WelcomeModal from "@/components/WelcomeModal";
 import { searchExpressions, searchByConcept, browseByRegion, getTopTags, getRandomExpression, getAllTagNames, getRegions, Expression } from "@/lib/api";
@@ -190,6 +191,7 @@ function applyMix(items: Expression[]): Expression[] {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [uiLang, setUILang] = useState<UILang>("en");
   const [showWelcome, setShowWelcome] = useState<boolean | null>(null); // null = not yet determined
   const [hintKey, setHintKey] = useState(0);
@@ -344,31 +346,6 @@ export default function Home() {
     [activeRegions]
   );
 
-  const handleBrowseRegion = useCallback(async (code: string) => {
-    setSearchLabel(`${FLAG[code] ?? "🌍"} ${COUNTRY_NAME[code] ?? code.toUpperCase()}`);
-    setSelectedRegions(new Set([code]));
-    setSearchMode("browse");
-    setLoading(true);
-    setHasError(false);
-    setSearched(true);
-    setQuery("");
-    setRawResults([]);
-    window.history.replaceState(null, "", "#region=" + code);
-    try {
-      const data = await browseByRegion([code], LIMIT, 0);
-      setRawResults(data.results);
-      setTotal(data.total);
-      setHasMore(data.results.length < data.total);
-    } catch {
-      setHasError(true);
-      setRawResults([]);
-      setHasMore(false);
-    } finally {
-      setLoading(false);
-    }
-    setFeaturedCountryOpen(false);
-    setTimeout(() => exploreRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
-  }, []);
 
   const loadMore = useCallback(async () => {
     if (!hasMore || loadingMore) return;
@@ -677,7 +654,7 @@ export default function Home() {
                             return featuredRegion ? (
                               <>
                                 <button
-                                  onClick={() => handleBrowseRegion(featuredRegion.code)}
+                                  onClick={() => router.push(`/country/${featuredRegion.code}`)}
                                   style={{
                                     display: "flex", width: "100%", textAlign: "left", alignItems: "center",
                                     justifyContent: "space-between",
@@ -699,7 +676,7 @@ export default function Home() {
                           {regions.filter((r) => r.code !== featured.region).map((r) => (
                             <button
                               key={r.code}
-                              onClick={() => handleBrowseRegion(r.code)}
+                              onClick={() => router.push(`/country/${r.code}`)}
                               style={{
                                 display: "block", width: "100%", textAlign: "left",
                                 padding: "6px 10px", borderRadius: 7, fontSize: 12, color: "#e9d5ff",
@@ -913,7 +890,7 @@ export default function Home() {
                     {discoveryFlags.map((r) => (
                       <button
                         key={r.code}
-                        onClick={() => handleBrowseRegion(r.code)}
+                        onClick={() => router.push(`/country/${r.code}`)}
                         title={r.label}
                         style={{
                           padding: "3px 9px", borderRadius: 8, fontSize: 18, lineHeight: 1,
