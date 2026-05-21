@@ -13,8 +13,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://world-expressions.vercel.app'),
   title: "World Expressions",
-  description: "Explore idiomatic expressions from around the world — French, English, Spanish, and more.",
+  description: "Every language has its own madness.",
+  openGraph: {
+    title: "World Expressions",
+    description: "Every language has its own madness.",
+    url: "https://world-expressions.vercel.app",
+    siteName: "World Expressions",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
