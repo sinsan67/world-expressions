@@ -146,6 +146,15 @@ def count_expressions() -> dict[str, int]:
     }
 
 
+def get_regions() -> list[dict]:
+    """Retourne toutes les régions présentes en base avec leur nombre d'expressions, triées par count desc."""
+    with engine.connect() as conn:
+        rows = conn.execute(
+            text("SELECT region, COUNT(*) AS n FROM expressions WHERE region IS NOT NULL GROUP BY region ORDER BY n DESC")
+        ).fetchall()
+    return [{"code": r.region, "count": r.n} for r in rows]
+
+
 def search_expressions(query: str, regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0) -> tuple[list[dict], int]:
     """
     Cherche des expressions par mot-clé dans le texte, le sens, les tags, l'exemple et l'origine.

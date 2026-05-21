@@ -3,20 +3,15 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import ExpressionCard from "@/components/ExpressionCard";
 import WelcomeModal from "@/components/WelcomeModal";
-import { searchExpressions, searchByConcept, getTopTags, getRandomExpression, getAllTagNames, Expression } from "@/lib/api";
+import { searchExpressions, searchByConcept, getTopTags, getRandomExpression, getAllTagNames, getRegions, Expression } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
+import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
 const LIMIT = 20;
 
-const REGIONS = [
-  { code: "fr", label: "🇫🇷 France" },
-  { code: "uk", label: "🇬🇧 UK" },
-  { code: "us", label: "🇺🇸 USA" },
-  { code: "au", label: "🇦🇺 Australia" },
-  { code: "es", label: "🇪🇸 España" },
-  { code: "tr", label: "🇹🇷 Türkiye" },
-  { code: "it", label: "🇮🇹 Italia" },
-];
+function regionLabel(code: string): string {
+  return `${FLAG[code] ?? "🌍"} ${COUNTRY_NAME[code] ?? code.toUpperCase()}`;
+}
 
 // Fallback gradient per region — flag colors, muted/pastel, shown when image is not yet placed
 const REGION_GRADIENTS: Record<string, string> = {
@@ -27,6 +22,13 @@ const REGION_GRADIENTS: Record<string, string> = {
   es: "linear-gradient(135deg, #c49090 0%, #d8b8a0 40%, #d4c070 100%)",
   tr: "linear-gradient(135deg, #c49090 0%, #d4a8a8 50%, #3a3a4a 100%)",
   it: "linear-gradient(135deg, #90b8a0 0%, #d8d8d8 45%, #c49090 100%)",
+  ar: "linear-gradient(135deg, #74acdf 0%, #e8f0f8 50%, #74acdf 100%)",
+  mx: "linear-gradient(135deg, #90b8a0 0%, #d8e8d8 45%, #c49090 100%)",
+  co: "linear-gradient(135deg, #d4c070 0%, #7a90b8 50%, #c49090 100%)",
+  cl: "linear-gradient(135deg, #7a90b8 0%, #d8d8d8 50%, #c49090 100%)",
+  pe: "linear-gradient(135deg, #c49090 0%, #e8d8d8 50%, #c49090 100%)",
+  cu: "linear-gradient(135deg, #7a8fb5 0%, #d8d8d8 50%, #c49090 100%)",
+  ve: "linear-gradient(135deg, #c49090 0%, #7a90b8 50%, #d4c070 100%)",
   default: "linear-gradient(135deg, #9090b8 0%, #b0a0c8 50%, #c8b0d8 100%)",
 };
 
@@ -142,9 +144,8 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState<boolean | null>(null); // null = not yet determined
   const [hintKey, setHintKey] = useState(0);
   const [query, setQuery] = useState("");
-  const [selectedRegions, setSelectedRegions] = useState<Set<string>>(
-    new Set(REGIONS.map((r) => r.code))
-  );
+  const [regions, setRegions] = useState<{ code: string; label: string }[]>([]);
+  const [selectedRegions, setSelectedRegions] = useState<Set<string>>(new Set());
   const [rawResults, setRawResults] = useState<Expression[]>([]);
   const [mixActive, setMixActive] = useState(false);
   const [total, setTotal] = useState(0);
@@ -267,6 +268,14 @@ export default function Home() {
       setLoadingMore(false);
     }
   }, [hasMore, loadingMore, searchMode, query, activeRegions, rawResults.length]);
+
+  useEffect(() => {
+    getRegions().then((data) => {
+      const built = data.map((r) => ({ code: r.code, label: regionLabel(r.code) }));
+      setRegions(built);
+      setSelectedRegions(new Set(built.map((r) => r.code)));
+    });
+  }, []);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -462,7 +471,7 @@ export default function Home() {
                       )}
                     </div>
                     <span style={{ fontSize: 16, flexShrink: 0 }}>
-                      {featured.region === "fr" ? "🇫🇷" : featured.region === "uk" ? "🇬🇧" : featured.region === "us" ? "🇺🇸" : featured.region === "au" ? "🇦🇺" : featured.region === "es" ? "🇪🇸" : featured.region === "tr" ? "🇹🇷" : featured.region === "it" ? "🇮🇹" : "🌍"}
+                      {FLAG[featured.region] ?? "🌍"}
                     </span>
                   </div>
                   {featured.tags.length > 0 && (
@@ -536,7 +545,7 @@ export default function Home() {
             <span className="text-xs self-center mr-1" style={{ color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>
               {t.filterByCountry}
             </span>
-            {REGIONS.map((r) => (
+            {regions.map((r) => (
               <button
                 key={r.code}
                 onClick={() => toggleRegion(r.code)}

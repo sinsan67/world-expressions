@@ -114,3 +114,11 @@ export async function getExpression(id: string, lang = ""): Promise<Expression> 
   if (!res.ok) throw new Error("Expression not found");
   return res.json();
 }
+
+export type RegionInfo = { code: string; count: number };
+
+export async function getRegions(): Promise<RegionInfo[]> {
+  const res = await fetch(`${API}/regions`);
+  if (!res.ok) return [];
+  return res.json();
+}

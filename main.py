@@ -28,6 +28,12 @@ def home():
     }
 
 
+@app.get("/regions")
+def get_regions():
+    """Return all regions present in the database with their expression counts."""
+    return database.get_regions()
+
+
 @app.get("/search")
 def search_expressions(
     q: str = Query(..., min_length=2, description="Word to search"),
