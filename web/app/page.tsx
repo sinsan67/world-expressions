@@ -40,6 +40,8 @@ const T = {
   fr: {
     expressionOfMoment: "Expression du moment",
     exploreConcept: "Explorer ce concept",
+    exploreCountry: "Explorer ce pays",
+    country: "Pays",
     subtitle: "Tapez un mot, découvrez des expressions du monde entier — par le texte ou par le sens.",
     placeholder: "Essaie : pied, argent, animal, partir…",
     search: "Rechercher",
@@ -55,6 +57,8 @@ const T = {
   en: {
     expressionOfMoment: "Expression of the moment",
     exploreConcept: "Explore this concept",
+    exploreCountry: "Explore this country",
+    country: "Countries",
     subtitle: "Type a word, discover expressions from around the world — by text or meaning.",
     placeholder: "Try: money, animal, leave, fear…",
     search: "Search",
@@ -70,6 +74,8 @@ const T = {
   es: {
     expressionOfMoment: "Expresión del momento",
     exploreConcept: "Explorar este concepto",
+    exploreCountry: "Explorar este país",
+    country: "Países",
     subtitle: "Escribe una palabra, descubre expresiones de todo el mundo — por texto o por sentido.",
     placeholder: "Prueba: dinero, animal, partir, miedo…",
     search: "Buscar",
@@ -85,6 +91,8 @@ const T = {
   tr: {
     expressionOfMoment: "Günün deyimi",
     exploreConcept: "Bu kavramı keşfet",
+    exploreCountry: "Bu ülkeyi keşfet",
+    country: "Ülkeler",
     subtitle: "Bir kelime yazın, dünyanın dört bir yanından deyimleri keşfedin — metinle ya da anlamıyla.",
     placeholder: "Deneyin: para, hayvan, korku, ayrılmak…",
     search: "Ara",
@@ -100,6 +108,8 @@ const T = {
   it: {
     expressionOfMoment: "Espressione del momento",
     exploreConcept: "Esplora questo concetto",
+    exploreCountry: "Esplora questo paese",
+    country: "Paesi",
     subtitle: "Digita una parola, scopri espressioni da tutto il mondo — per testo o per significato.",
     placeholder: "Prova: soldi, animale, partire, paura…",
     search: "Cerca",
@@ -161,6 +171,14 @@ export default function Home() {
   const [featured, setFeatured] = useState<(Expression & { meaning_locale: string }) | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const exploreRef = useRef<HTMLDivElement>(null);
+  const countryDropdownRef = useRef<HTMLDivElement>(null);
+  const conceptDropdownRef = useRef<HTMLDivElement>(null);
+  const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
+  const [conceptDropdownOpen, setConceptDropdownOpen] = useState(false);
+  const featuredCountryRef = useRef<HTMLDivElement>(null);
+  const featuredConceptRef = useRef<HTMLDivElement>(null);
+  const [featuredCountryOpen, setFeaturedCountryOpen] = useState(false);
+  const [featuredConceptOpen, setFeaturedConceptOpen] = useState(false);
 
   const t = T[uiLang];
   const activeRegions = [...selectedRegions];
@@ -326,6 +344,21 @@ export default function Home() {
     }).catch(() => { setHintTagsError(true); });
   }, [uiLang, hintKey]);
 
+  useEffect(() => {
+    function onMouseDown(e: MouseEvent) {
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(e.target as Node))
+        setCountryDropdownOpen(false);
+      if (conceptDropdownRef.current && !conceptDropdownRef.current.contains(e.target as Node))
+        setConceptDropdownOpen(false);
+      if (featuredCountryRef.current && !featuredCountryRef.current.contains(e.target as Node))
+        setFeaturedCountryOpen(false);
+      if (featuredConceptRef.current && !featuredConceptRef.current.contains(e.target as Node))
+        setFeaturedConceptOpen(false);
+    }
+    document.addEventListener("mousedown", onMouseDown);
+    return () => document.removeEventListener("mousedown", onMouseDown);
+  }, []);
+
   return (
     <main className="min-h-screen" style={{ background: "#f5f3ff" }}>
 
@@ -341,7 +374,7 @@ export default function Home() {
 
       {/* ===== SECTION 1 : HERO — identité du site + expression du moment ===== */}
       <div
-        className="relative overflow-hidden"
+        className="relative"
         style={{ minHeight: 320, borderBottom: "1px solid rgba(255,255,255,0.08)" }}
       >
         {/* Background — image pays + gradient fallback, crossfade au changement */}
@@ -409,8 +442,8 @@ export default function Home() {
                   window.history.replaceState(null, "", window.location.pathname);
                 }}
               >
-                Expressions{" "}
-                <em className="not-italic" style={{ color: "#c4b5fd" }}>du Monde</em>
+                World{" "}
+                <em className="not-italic" style={{ color: "#c4b5fd" }}>Expressions</em>
               </h1>
               <p style={{ color: "rgba(255,255,255,0.68)", marginTop: "0.75rem", fontSize: 15, lineHeight: 1.65, maxWidth: 340 }}>
                 {t.subtitle}
@@ -460,34 +493,109 @@ export default function Home() {
                     <span style={{ color: "#a78bfa", marginLeft: 3 }}>"</span>
                   </p>
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem" }}>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", lineHeight: 1.5 }}>
-                        {featured.meaning}
-                      </p>
-                      {featured.meaning_locale !== uiLang && (
-                        <span style={{ display: "inline-block", marginTop: "0.3rem", fontSize: 10, color: "#c4b5fd", fontStyle: "italic" }}>
-                          {featured.meaning_locale === "fr" ? "🇫🇷 sens en français" : featured.meaning_locale === "en" ? "🇬🇧 meaning in English" : featured.meaning_locale === "es" ? "🇪🇸 sentido en español" : featured.meaning_locale === "tr" ? "🇹🇷 Türkçe anlam" : featured.meaning_locale === "it" ? "🇮🇹 significato in italiano" : ""}
-                        </span>
-                      )}
-                    </div>
+                    <p style={{ flex: 1, fontSize: 12, color: "rgba(255,255,255,0.75)", lineHeight: 1.5 }}>
+                      {featured.meaning}
+                    </p>
                     <span style={{ fontSize: 16, flexShrink: 0 }}>
                       {FLAG[featured.region] ?? "🌍"}
                     </span>
                   </div>
-                  {featured.tags.length > 0 && (
-                    <button
-                      onClick={() => runConceptSearch(featured.tags[0], activeRegions)}
-                      style={{
-                        marginTop: "0.75rem", fontSize: 11, fontWeight: 600, color: "#e9d5ff",
-                        background: "rgba(124,58,237,0.35)", border: "none", borderRadius: 7,
-                        padding: "5px 12px", cursor: "pointer",
-                      }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.55)"; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.35)"; }}
-                    >
-                      → {t.exploreConcept}
-                    </button>
-                  )}
+                  <div style={{ marginTop: "0.75rem", display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                    {/* Country dropdown */}
+                    <div ref={featuredCountryRef} style={{ position: "relative" }}>
+                      <button
+                        onClick={() => { setFeaturedCountryOpen((v) => !v); setFeaturedConceptOpen(false); }}
+                        style={{
+                          fontSize: 11, fontWeight: 600, color: "#e9d5ff",
+                          background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 7,
+                          padding: "5px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem",
+                        }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.22)"; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.12)"; }}
+                      >
+                        🌍 {t.exploreCountry}
+                        <span style={{ fontSize: 8, opacity: 0.7 }}>{featuredCountryOpen ? "▴" : "▾"}</span>
+                      </button>
+                      {featuredCountryOpen && (
+                        <div style={{
+                          position: "absolute", top: "calc(100% + 4px)", left: 0, zIndex: 200,
+                          background: "rgba(15,8,36,0.97)", backdropFilter: "blur(12px)",
+                          borderRadius: 10, border: "1px solid rgba(255,255,255,0.18)",
+                          boxShadow: "0 4px 20px rgba(0,0,0,0.4)", padding: "0.35rem",
+                          minWidth: 165,
+                        }}>
+                          {regions.map((r) => (
+                            <button
+                              key={r.code}
+                              onClick={() => {
+                                const rc = [r.code];
+                                setSelectedRegions(new Set(rc));
+                                if (featured.tags.length > 0) runConceptSearch(featured.tags[0], rc);
+                                else exploreRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                                setFeaturedCountryOpen(false);
+                              }}
+                              style={{
+                                display: "block", width: "100%", textAlign: "left",
+                                padding: "6px 10px", borderRadius: 7, fontSize: 12, color: "#e9d5ff",
+                                background: "transparent", border: "none", cursor: "pointer", whiteSpace: "nowrap",
+                              }}
+                              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; }}
+                              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                            >
+                              {r.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {/* Concept dropdown */}
+                    {featured.tags.length > 0 && (
+                      <div ref={featuredConceptRef} style={{ position: "relative" }}>
+                        <button
+                          onClick={() => { setFeaturedConceptOpen((v) => !v); setFeaturedCountryOpen(false); }}
+                          style={{
+                            fontSize: 11, fontWeight: 600, color: "#e9d5ff",
+                            background: "rgba(124,58,237,0.35)", border: "none", borderRadius: 7,
+                            padding: "5px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem",
+                          }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.55)"; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.35)"; }}
+                        >
+                          🔍 {t.exploreConcept}
+                          <span style={{ fontSize: 8, opacity: 0.7 }}>{featuredConceptOpen ? "▴" : "▾"}</span>
+                        </button>
+                        {featuredConceptOpen && (
+                          <div style={{
+                            position: "absolute", top: "calc(100% + 4px)", left: 0, zIndex: 200,
+                            background: "rgba(15,8,36,0.97)", backdropFilter: "blur(12px)",
+                            borderRadius: 10, border: "1px solid rgba(255,255,255,0.18)",
+                            boxShadow: "0 4px 20px rgba(0,0,0,0.4)", padding: "0.35rem",
+                            minWidth: 165,
+                          }}>
+                            {featured.tags.slice(0, 4).map((tag) => {
+                              const icon = tagIcon(tag) || "🔍";
+                              const name = tagNames[tag] || tag;
+                              return (
+                                <button
+                                  key={tag}
+                                  onClick={() => { runConceptSearch(tag, activeRegions); setFeaturedConceptOpen(false); }}
+                                  style={{
+                                    display: "block", width: "100%", textAlign: "left",
+                                    padding: "6px 10px", borderRadius: 7, fontSize: 12, color: "#e9d5ff",
+                                    background: "transparent", border: "none", cursor: "pointer", whiteSpace: "nowrap",
+                                  }}
+                                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; }}
+                                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                                >
+                                  {icon} {name}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -540,93 +648,143 @@ export default function Home() {
             </button>
           </div>
 
-          {/* Filtres pays + Mix */}
-          <div className="flex flex-wrap justify-center gap-2 items-center mb-4">
-            <span className="text-xs self-center mr-1" style={{ color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              {t.filterByCountry}
-            </span>
-            {regions.map((r) => (
-              <button
-                key={r.code}
-                onClick={() => toggleRegion(r.code)}
-                className="px-3 py-1.5 rounded-full text-sm font-medium transition-all"
-                style={
-                  selectedRegions.has(r.code)
-                    ? { background: "#7c3aed", color: "#fff" }
-                    : { background: "white", color: "#6b7280", border: "1px solid #e5e7eb" }
-                }
-              >
-                {r.label}
-              </button>
-            ))}
-            <button
-              onClick={handleMixToggle}
-              title={t.mixTitle}
-              style={{
-                width: 28, height: 28, borderRadius: "50%", border: "1.5px solid",
-                borderColor: mixActive ? "#a78bfa" : "#e5e7eb",
-                background: mixActive ? "#7c3aed" : "white",
-                color: mixActive ? "#fff" : "#9ca3af",
-                fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer", flexShrink: 0,
-              }}
-            >
-              ⇄
-            </button>
-          </div>
+          {/* Filtres pays + concept — côte à côte */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem", gap: "0.5rem", flexWrap: "wrap" }}>
 
-          {/* Themes — ligne horizontale scrollable, même style que filtres pays */}
-          {hintTagsError ? (
-            <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", marginTop: "0.5rem" }}>
-              Concepts unavailable — try refreshing the page.
-            </p>
-          ) : hintTags.length > 0 && (
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.6rem" }}>
-                <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", flexShrink: 0 }}>
-                  {t.filterByConcept}
-                </span>
-                <div style={{ flex: 1, height: 1, background: "#e9d5ff" }} />
+            {/* Gauche : pays + mix */}
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start" }}>
+              <div ref={countryDropdownRef} style={{ position: "relative" }}>
+                <button
+                  onClick={() => { setCountryDropdownOpen((v) => !v); setConceptDropdownOpen(false); }}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "0.4rem",
+                    padding: "7px 14px", borderRadius: 10, fontSize: 13, fontWeight: 600,
+                    background: "white", border: "1.5px solid #e5e7eb", color: "#374151",
+                    cursor: "pointer", whiteSpace: "nowrap",
+                  }}
+                >
+                  🌍 {t.country}
+                  <span style={{ color: "#9ca3af", fontWeight: 400, fontSize: 12 }}>
+                    ({selectedRegions.size}/{regions.length})
+                  </span>
+                  <span style={{ fontSize: 9, color: "#9ca3af" }}>{countryDropdownOpen ? "▴" : "▾"}</span>
+                </button>
+                {countryDropdownOpen && (
+                  <div style={{
+                    position: "absolute", top: "calc(100% + 6px)", left: 0, zIndex: 100,
+                    background: "white", borderRadius: 12, border: "1px solid #e5e7eb",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.1)", padding: "0.5rem",
+                    minWidth: 200,
+                  }}>
+                    {regions.map((r) => (
+                      <label
+                        key={r.code}
+                        style={{
+                          display: "flex", alignItems: "center", gap: "0.5rem",
+                          padding: "7px 10px", borderRadius: 8, cursor: "pointer",
+                          fontSize: 13, color: "#374151",
+                          background: selectedRegions.has(r.code) ? "#f5f3ff" : "transparent",
+                        }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = selectedRegions.has(r.code) ? "#ede9fe" : "#f9fafb"; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = selectedRegions.has(r.code) ? "#f5f3ff" : "transparent"; }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedRegions.has(r.code)}
+                          onChange={() => toggleRegion(r.code)}
+                          style={{ accentColor: "#7c3aed", width: 14, height: 14, cursor: "pointer" }}
+                        />
+                        {r.label}
+                      </label>
+                    ))}
+                  </div>
+                )}
+                {selectedRegions.size < regions.length && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.3rem", marginTop: "0.4rem" }}>
+                    {[...selectedRegions].map((code) => (
+                      <span
+                        key={code}
+                        style={{
+                          fontSize: 11, padding: "2px 6px", borderRadius: 20,
+                          background: "#7c3aed", color: "#fff", fontWeight: 600,
+                          display: "inline-flex", alignItems: "center", gap: "0.25rem",
+                        }}
+                      >
+                        {FLAG[code] ?? "🌍"}
+                        <button
+                          onClick={() => toggleRegion(code)}
+                          style={{ background: "none", border: "none", color: "rgba(255,255,255,0.75)", fontSize: 11, cursor: "pointer", padding: 0, lineHeight: 1 }}
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div
+              <button
+                onClick={handleMixToggle}
+                title={t.mixTitle}
                 style={{
-                  display: "flex", gap: "0.5rem", flexWrap: "wrap", justifyContent: "center",
+                  width: 34, height: 34, borderRadius: 10, border: "1.5px solid",
+                  borderColor: mixActive ? "#a78bfa" : "#e5e7eb",
+                  background: mixActive ? "#7c3aed" : "white",
+                  color: mixActive ? "#fff" : "#9ca3af",
+                  fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center",
+                  cursor: "pointer", flexShrink: 0,
                 }}
               >
-                {hintTags.map((tag) => {
-                  const icon = tagIcon(tag.slug) || "🔍";
-                  return (
-                    <button
-                      key={tag.slug}
-                      onClick={() => { runConceptSearch(tag.slug, activeRegions); setHintKey((k) => k + 1); }}
-                      className="px-3 py-1.5 rounded-full text-sm font-medium transition-all"
-                      style={{
-                        background: "white",
-                        border: "1px solid #e5e7eb",
-                        color: "#6b7280",
-                        display: "flex", alignItems: "center", gap: "0.35rem",
-                        cursor: "pointer",
-                        whiteSpace: "nowrap",
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLElement).style.background = "#7c3aed";
-                        (e.currentTarget as HTMLElement).style.color = "#fff";
-                        (e.currentTarget as HTMLElement).style.borderColor = "#7c3aed";
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLElement).style.background = "white";
-                        (e.currentTarget as HTMLElement).style.color = "#6b7280";
-                        (e.currentTarget as HTMLElement).style.borderColor = "#e5e7eb";
-                      }}
-                    >
-                      <span>{icon}</span>
-                      <span>{tag.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
+                ⇄
+              </button>
             </div>
-          )}
+
+            {/* Droite : concept */}
+            <div ref={conceptDropdownRef} style={{ position: "relative" }}>
+              <button
+                onClick={() => { setConceptDropdownOpen((v) => !v); setCountryDropdownOpen(false); }}
+                style={{
+                  display: "flex", alignItems: "center", gap: "0.4rem",
+                  padding: "7px 14px", borderRadius: 10, fontSize: 13, fontWeight: 600,
+                  background: "white", border: "1.5px solid #e5e7eb", color: "#374151",
+                  cursor: "pointer", whiteSpace: "nowrap",
+                }}
+              >
+                🔍 {t.filterByConcept}
+                <span style={{ fontSize: 9, color: "#9ca3af" }}>{conceptDropdownOpen ? "▴" : "▾"}</span>
+              </button>
+              {conceptDropdownOpen && !hintTagsError && hintTags.length > 0 && (
+                <div style={{
+                  position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 100,
+                  background: "white", borderRadius: 14, border: "1px solid #e5e7eb",
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.1)", padding: "0.75rem",
+                  width: 320, maxHeight: 260, overflowY: "auto",
+                }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                    {hintTags.map((tag) => {
+                      const icon = tagIcon(tag.slug) || "🔍";
+                      return (
+                        <button
+                          key={tag.slug}
+                          onClick={() => { runConceptSearch(tag.slug, activeRegions); setConceptDropdownOpen(false); setHintKey((k) => k + 1); }}
+                          style={{
+                            fontSize: 12, padding: "5px 12px", borderRadius: 20,
+                            background: "#f5f3ff", border: "1px solid #e9d5ff", color: "#7c3aed",
+                            cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem",
+                            fontWeight: 500, whiteSpace: "nowrap",
+                          }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#7c3aed"; (e.currentTarget as HTMLElement).style.color = "#fff"; (e.currentTarget as HTMLElement).style.borderColor = "#7c3aed"; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#f5f3ff"; (e.currentTarget as HTMLElement).style.color = "#7c3aed"; (e.currentTarget as HTMLElement).style.borderColor = "#e9d5ff"; }}
+                        >
+                          {icon} {tag.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+          </div>
         </div>
       </div>
 

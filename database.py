@@ -101,10 +101,10 @@ def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
             e.register,
             e.illustration,
             e.source,
-            COALESCE(ec_pref.meaning, ec_orig.meaning)   AS meaning,
-            COALESCE(ec_pref.origin,  ec_orig.origin)    AS origin,
-            COALESCE(ec_pref.example, ec_orig.example)   AS example,
-            CASE WHEN ec_pref.meaning IS NOT NULL
+            COALESCE(ec_pref.meaning, ct_pref.meaning, ec_orig.meaning)   AS meaning,
+            COALESCE(ec_pref.origin,  ct_pref.origin,  ec_orig.origin)    AS origin,
+            COALESCE(ec_pref.example, ct_pref.example, ec_orig.example)   AS example,
+            CASE WHEN ec_pref.meaning IS NOT NULL OR ct_pref.meaning IS NOT NULL
                  THEN :locale ELSE e.language END         AS meaning_locale,
             STRING_AGG(t.slug, ',') AS tags
         FROM expressions e
@@ -112,13 +112,16 @@ def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
             ON ec_orig.expression_id = e.id AND ec_orig.locale = e.language
         LEFT JOIN expression_content ec_pref
             ON ec_pref.expression_id = e.id AND ec_pref.locale = :locale
+        LEFT JOIN content_translations ct_pref
+            ON ct_pref.expression_id = e.id AND ct_pref.target_lang = :locale
         LEFT JOIN expression_tags et ON et.expression_id = e.id
         LEFT JOIN tags t ON t.id = et.tag_id
         WHERE e.type = 'expression'
         GROUP BY e.id, e.text, e.language, e.region, e.register,
                  e.illustration, e.source,
                  ec_orig.meaning, ec_orig.origin, ec_orig.example,
-                 ec_pref.meaning, ec_pref.origin, ec_pref.example
+                 ec_pref.meaning, ec_pref.origin, ec_pref.example,
+                 ct_pref.meaning, ct_pref.origin, ct_pref.example
         ORDER BY RANDOM()
         LIMIT 1
     """
