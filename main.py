@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -5,12 +6,12 @@ import database
 
 app = FastAPI(title="Expressions du Monde API")
 
+_default_origins = "https://world-expressions.vercel.app,http://localhost:3000"
+_cors_origins = os.getenv("CORS_ORIGINS", _default_origins).split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://world-expressions.vercel.app",
-        "http://localhost:3000",  # local dev
-    ],
+    allow_origins=_cors_origins,
     allow_methods=["GET"],
     allow_headers=["*"],
 )
