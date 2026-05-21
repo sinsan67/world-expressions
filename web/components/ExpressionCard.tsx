@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Expression } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { getTypeLabel } from "@/lib/typeLabels";
@@ -24,6 +24,7 @@ type Props = {
 
 export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr", tagNames = {} }: Props) {
   const [showDetails, setShowDetails] = useState(false);
+  const router = useRouter();
   const flag = FLAG[e.region] || "";
   const typeLabel = getTypeLabel(e.type ?? "expression", uiLang);
   const accentGradient = COUNTRY_GRADIENT[e.region] || "linear-gradient(90deg, #7c3aed, #a78bfa)";
@@ -31,7 +32,8 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
   return (
     <div
       className="rounded-2xl flex flex-col gap-3 transition-shadow hover:shadow-md overflow-hidden"
-      style={{ background: "#fff", border: "1px solid #ede9fe" }}
+      style={{ background: "#fff", border: "1px solid #ede9fe", cursor: "pointer" }}
+      onClick={() => router.push(`/expression/${e.id}?lang=${uiLang}`)}
     >
       {/* Bandeau drapeau */}
       <div style={{ height: 5, background: accentGradient }} />
@@ -39,13 +41,12 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
       {/* En-tête */}
       <div className="flex items-start justify-between gap-2">
         <div>
-          <Link
-            href={`/expression/${e.id}?lang=${uiLang}`}
-            className="text-base font-semibold leading-snug hover:underline"
+          <span
+            className="text-base font-semibold leading-snug"
             style={{ color: "#1a0a2e" }}
           >
             {e.expression}
-          </Link>
+          </span>
           <div className="flex flex-wrap gap-1 mt-0.5">
             {typeLabel && (
               <span
@@ -92,7 +93,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
       {(e.origin || e.example) && (
         <>
           <button
-            onClick={() => setShowDetails((v) => !v)}
+            onClick={(ev) => { ev.stopPropagation(); setShowDetails((v) => !v); }}
             className="text-xs font-medium text-left transition-colors"
             style={{ color: showDetails ? "#7c3aed" : "#9ca3af" }}
           >
@@ -126,7 +127,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
             return (
               <button
                 key={tag}
-                onClick={() => onTagClick(tag)}
+                onClick={(ev) => { ev.stopPropagation(); onTagClick(tag); }}
                 className="flex items-center gap-1 text-xs rounded-full px-2.5 py-1 transition-colors"
                 style={{
                   background: "#f5f3ff",

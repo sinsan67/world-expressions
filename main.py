@@ -83,6 +83,24 @@ def search_by_concept(
     }
 
 
+@app.get("/browse")
+def browse_expressions(
+    region: str = Query("", description="Comma-separated regions. Empty = all."),
+    limit: int = Query(20, ge=1, le=100, description="Number of results per page"),
+    offset: int = Query(0, ge=0, description="Number of results to skip"),
+):
+    """Return all expressions for given regions, sorted alphabetically. No query needed."""
+    regions = set(region.split(",")) - {""} if region else None
+    results, total = database.browse_by_region(regions, limit, offset)
+    return {
+        "regions": sorted(regions) if regions else "all",
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "results": results,
+    }
+
+
 @app.get("/tags")
 def get_tags(
     limit: int = Query(30, ge=1, le=500, description="Number of top tags to return"),

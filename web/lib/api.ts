@@ -83,6 +83,21 @@ export async function searchByConcept(
   return res.json();
 }
 
+export async function browseByRegion(
+  regions: string[],
+  limit = 20,
+  offset = 0
+): Promise<SearchResponse> {
+  const params = new URLSearchParams({
+    region: regions.join(","),
+    limit: String(limit),
+    offset: String(offset),
+  });
+  const res = await fetch(`${API}/browse?${params}`);
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
 export type TagInfo = { slug: string; count: number; name: string };
 
 export async function getAllTagNames(locale = "en"): Promise<Record<string, string>> {

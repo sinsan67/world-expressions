@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import ExpressionCard from "@/components/ExpressionCard";
 import WelcomeModal from "@/components/WelcomeModal";
-import { searchExpressions, searchByConcept, getTopTags, getRandomExpression, getAllTagNames, getRegions, Expression } from "@/lib/api";
+import { searchExpressions, searchByConcept, browseByRegion, getTopTags, getRandomExpression, getAllTagNames, getRegions, Expression } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
@@ -164,7 +164,8 @@ export default function Home() {
   const [hasError, setHasError] = useState(false);
   const [searched, setSearched] = useState(false);
   const [hasMore, setHasMore] = useState(false);
-  const [searchMode, setSearchMode] = useState<"text" | "concept">("text");
+  const [searchMode, setSearchMode] = useState<"text" | "concept" | "browse">("text");
+  const [searchLabel, setSearchLabel] = useState<string>("");
   const [hintTags, setHintTags] = useState<{ slug: string; name: string }[]>([]);
   const [hintTagsError, setHintTagsError] = useState(false);
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
@@ -185,6 +186,16 @@ export default function Home() {
   const displayResults = useMemo(
     () => (mixActive ? applyMix(rawResults) : rawResults),
     [rawResults, mixActive]
+  );
+
+  const discoveryFlags = useMemo(() => {
+    if (regions.length === 0) return [];
+    return [...regions].sort(() => Math.random() - 0.5).slice(0, 3);
+  }, [regions, hintKey]);
+
+  const discoveryConcepts = useMemo(
+    () => [...hintTags].sort(() => Math.random() - 0.5).slice(0, 3),
+    [hintTags]
   );
 
   const toggleRegion = (code: string) => {
@@ -247,6 +258,7 @@ export default function Home() {
   const handleSearch = useCallback(
     async (q: string) => {
       if (q.trim().length < 2) return;
+      setSearchLabel("");
       setSearchMode("text");
       setLoading(true);
       setHasError(false);
@@ -269,13 +281,41 @@ export default function Home() {
     [activeRegions]
   );
 
+  const handleBrowseRegion = useCallback(async (code: string) => {
+    setSearchLabel(`${FLAG[code] ?? "🌍"} ${COUNTRY_NAME[code] ?? code.toUpperCase()}`);
+    setSelectedRegions(new Set([code]));
+    setSearchMode("browse");
+    setLoading(true);
+    setHasError(false);
+    setSearched(true);
+    setQuery("");
+    setRawResults([]);
+    window.history.replaceState(null, "", "#region=" + code);
+    try {
+      const data = await browseByRegion([code], LIMIT, 0);
+      setRawResults(data.results);
+      setTotal(data.total);
+      setHasMore(data.results.length < data.total);
+    } catch {
+      setHasError(true);
+      setRawResults([]);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+    setFeaturedCountryOpen(false);
+    setTimeout(() => exploreRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+  }, []);
+
   const loadMore = useCallback(async () => {
     if (!hasMore || loadingMore) return;
     setLoadingMore(true);
     const currentOffset = rawResults.length;
     try {
       const data =
-        searchMode === "concept"
+        searchMode === "browse"
+          ? await browseByRegion(activeRegions, LIMIT, currentOffset)
+          : searchMode === "concept"
           ? await searchByConcept([query], activeRegions, LIMIT, currentOffset)
           : await searchExpressions(query, activeRegions, LIMIT, currentOffset);
       setRawResults((prev) => [...prev, ...data.results]);
@@ -401,6 +441,31 @@ export default function Home() {
         {/* Contenu hero */}
         <div style={{ position: "relative", zIndex: 2, padding: "1.75rem 2rem 2rem" }}>
 
+          {/* Icônes contact — coin haut gauche */}
+          <div style={{ position: "absolute", top: 18, left: 20, display: "flex", gap: 10, alignItems: "center" }}>
+            <a
+              href="mailto:worldsexpressions@proton.me"
+              title="Contact"
+              style={{ color: "rgba(255,255,255,0.55)", display: "flex", alignItems: "center" }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <polyline points="2,4 12,13 22,4"/>
+              </svg>
+            </a>
+            <a
+              href="/instagram"
+              title="Instagram"
+              style={{ color: "rgba(255,255,255,0.55)", display: "flex", alignItems: "center" }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5"/>
+                <circle cx="12" cy="12" r="5"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+              </svg>
+            </a>
+          </div>
+
           {/* Sélecteur de langue — coin haut droite */}
           <div style={{ position: "absolute", top: 16, right: 20, display: "flex", gap: 4 }}>
             {(["fr", "en", "es", "tr", "it"] as UILang[]).map((lang) => (
@@ -522,18 +587,37 @@ export default function Home() {
                           background: "rgba(15,8,36,0.97)", backdropFilter: "blur(12px)",
                           borderRadius: 10, border: "1px solid rgba(255,255,255,0.18)",
                           boxShadow: "0 4px 20px rgba(0,0,0,0.4)", padding: "0.35rem",
-                          minWidth: 165,
+                          minWidth: 175,
                         }}>
-                          {regions.map((r) => (
+                          {/* Pays de l'expression du moment — en tête, mis en avant */}
+                          {(() => {
+                            const featuredRegion = regions.find((r) => r.code === featured.region);
+                            return featuredRegion ? (
+                              <>
+                                <button
+                                  onClick={() => handleBrowseRegion(featuredRegion.code)}
+                                  style={{
+                                    display: "flex", width: "100%", textAlign: "left", alignItems: "center",
+                                    justifyContent: "space-between",
+                                    padding: "7px 10px", borderRadius: 7, fontSize: 12,
+                                    color: "#fff", background: "rgba(167,139,250,0.18)",
+                                    border: "none", cursor: "pointer", whiteSpace: "nowrap", gap: "0.5rem",
+                                  }}
+                                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(167,139,250,0.32)"; }}
+                                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(167,139,250,0.18)"; }}
+                                >
+                                  <span>{FLAG[featuredRegion.code]} {featuredRegion.label}</span>
+                                  <span style={{ fontSize: 10, color: "#a78bfa", fontWeight: 500 }}>ce pays</span>
+                                </button>
+                                <div style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", margin: "0.3rem 0.25rem" }} />
+                              </>
+                            ) : null;
+                          })()}
+                          {/* Tous les autres pays */}
+                          {regions.filter((r) => r.code !== featured.region).map((r) => (
                             <button
                               key={r.code}
-                              onClick={() => {
-                                const rc = [r.code];
-                                setSelectedRegions(new Set(rc));
-                                if (featured.tags.length > 0) runConceptSearch(featured.tags[0], rc);
-                                else exploreRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                                setFeaturedCountryOpen(false);
-                              }}
+                              onClick={() => handleBrowseRegion(r.code)}
                               style={{
                                 display: "block", width: "100%", textAlign: "left",
                                 padding: "6px 10px", borderRadius: 7, fontSize: 12, color: "#e9d5ff",
@@ -542,7 +626,7 @@ export default function Home() {
                               onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; }}
                               onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                             >
-                              {r.label}
+                              {FLAG[r.code]} {r.label}
                             </button>
                           ))}
                         </div>
@@ -641,8 +725,8 @@ export default function Home() {
             <button
               onClick={() => handleSearch(query)}
               disabled={loading}
-              className="px-5 py-3 rounded-xl text-sm font-semibold text-white transition-opacity disabled:opacity-50"
-              style={{ background: "#7c3aed" }}
+              className="rounded-xl font-semibold text-white transition-opacity disabled:opacity-50"
+              style={{ background: "#7c3aed", padding: "0.75rem 1.75rem", fontSize: 15, minWidth: 115 }}
             >
               {loading ? "…" : t.search}
             </button>
@@ -663,7 +747,7 @@ export default function Home() {
                     cursor: "pointer", whiteSpace: "nowrap",
                   }}
                 >
-                  🌍 {t.country}
+                  🌍 {t.filterByCountry}
                   <span style={{ color: "#9ca3af", fontWeight: 400, fontSize: 12 }}>
                     ({selectedRegions.size}/{regions.length})
                   </span>
@@ -676,6 +760,26 @@ export default function Home() {
                     boxShadow: "0 4px 20px rgba(0,0,0,0.1)", padding: "0.5rem",
                     minWidth: 200,
                   }}>
+                    {/* Tout sélectionner / désélectionner */}
+                    <label
+                      style={{
+                        display: "flex", alignItems: "center", gap: "0.5rem",
+                        padding: "7px 10px", borderRadius: 8, cursor: "pointer",
+                        fontSize: 13, color: "#6b7280", fontWeight: 600,
+                        borderBottom: "1px solid #f3f4f6", marginBottom: "0.25rem",
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedRegions.size === regions.length}
+                        onChange={() => {
+                          if (selectedRegions.size === regions.length) setSelectedRegions(new Set());
+                          else setSelectedRegions(new Set(regions.map((r) => r.code)));
+                        }}
+                        style={{ accentColor: "#7c3aed", width: 14, height: 14, cursor: "pointer" }}
+                      />
+                      {selectedRegions.size === regions.length ? "Tout désélectionner" : "Tout sélectionner"}
+                    </label>
                     {regions.map((r) => (
                       <label
                         key={r.code}
@@ -718,6 +822,25 @@ export default function Home() {
                           ×
                         </button>
                       </span>
+                    ))}
+                  </div>
+                )}
+                {/* Discovery flags — emoji only, aléatoires à chaque visite */}
+                {discoveryFlags.length > 0 && (
+                  <div style={{ display: "flex", gap: "0.3rem", marginTop: "0.4rem" }}>
+                    {discoveryFlags.map((r) => (
+                      <button
+                        key={r.code}
+                        onClick={() => handleBrowseRegion(r.code)}
+                        title={r.label}
+                        style={{
+                          padding: "3px 9px", borderRadius: 8, fontSize: 18, lineHeight: 1,
+                          background: "white", border: "1.5px solid #e5e7eb",
+                          cursor: "pointer", boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+                        }}
+                      >
+                        {FLAG[r.code]}
+                      </button>
                     ))}
                   </div>
                 )}
@@ -782,6 +905,26 @@ export default function Home() {
                   </div>
                 </div>
               )}
+              {/* Discovery concepts — aléatoires à chaque visite */}
+              {discoveryConcepts.length > 0 && (
+                <div style={{ display: "flex", gap: "0.3rem", marginTop: "0.4rem", flexWrap: "wrap" }}>
+                  {discoveryConcepts.map((tag) => (
+                    <button
+                      key={tag.slug}
+                      onClick={() => { setSearchLabel(`${tagIcon(tag.slug) ? tagIcon(tag.slug) + " " : ""}${tag.name}`); runConceptSearch(tag.slug, activeRegions); setConceptDropdownOpen(false); }}
+                      style={{
+                        fontSize: 12, padding: "4px 11px", borderRadius: 20,
+                        background: "#f5f3ff", border: "1px solid #e9d5ff", color: "#7c3aed",
+                        cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {tagIcon(tag.slug) && <span>{tagIcon(tag.slug)}</span>}
+                      {tag.name}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
           </div>
@@ -796,7 +939,9 @@ export default function Home() {
 
         {searched && !loading && !hasError && displayResults.length > 0 && (
           <p className="text-right text-sm mb-4" style={{ color: "#9ca3af" }}>
-            {t.results(total, query)}
+            {searchLabel
+              ? `${total} expression${total > 1 ? "s" : ""} — ${searchLabel}`
+              : t.results(total, query)}
           </p>
         )}
 

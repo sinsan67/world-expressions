@@ -273,6 +273,41 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, lim
     return all_results[offset:offset + limit], len(all_results)
 
 
+def browse_by_region(regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0) -> tuple[list[dict], int]:
+    """Retourne toutes les expressions d'une ou plusieurs régions, triées alphabétiquement."""
+    region_sql, region_params = _region_clause(regions)
+
+    sql = """
+        SELECT
+            e.id, e.text, e.language, e.region, e.register,
+            e.illustration, e."type", e.source,
+            ec.meaning, ec.origin, ec.example,
+            STRING_AGG(t.slug, ',') AS tags
+        FROM expressions e
+        LEFT JOIN expression_content ec ON ec.expression_id = e.id AND ec.locale = e.language
+        LEFT JOIN expression_tags et ON et.expression_id = e.id
+        LEFT JOIN tags t ON t.id = et.tag_id
+        WHERE 1=1 {region_clause}
+        GROUP BY e.id, e.text, e.language, e.region, e.register,
+                 e.illustration, e."type", e.source, ec.meaning, ec.origin, ec.example
+        ORDER BY CASE WHEN e."type" = 'word' THEN 1 ELSE 0 END, lower(e.text)
+        LIMIT :limit OFFSET :offset
+    """.format(region_clause=region_sql)
+
+    count_sql = """
+        SELECT COUNT(*) FROM expressions e WHERE 1=1 {region_clause}
+    """.format(region_clause=region_sql)
+
+    params = {**region_params, "limit": limit, "offset": offset}
+
+    with engine.connect() as conn:
+        rows = conn.execute(text(sql), params).fetchall()
+        total = conn.execute(text(count_sql), region_params).scalar() or 0
+
+    results = [_build_expression_dict(r, "browse") for r in rows]
+    return results, total
+
+
 def get_translation(expression_id: str, target_lang: str) -> Optional[dict]:
     """Retourne la traduction d'une expression dans target_lang, ou None si elle n'existe pas encore."""
     sql = """

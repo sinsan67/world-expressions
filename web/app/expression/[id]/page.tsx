@@ -219,7 +219,7 @@ function ExpressionPageContent({ id }: { id: string }) {
             ← {t.back}
           </button>
           <Link href="/" className="text-sm font-bold" style={{ color: "#7c3aed" }}>
-            Expressions <em className="not-italic" style={{ color: "#c4b5fd" }}>du Monde</em>
+            World <em className="not-italic" style={{ color: "#c4b5fd" }}>Expressions</em>
           </Link>
         </div>
         <div className="flex gap-1">
