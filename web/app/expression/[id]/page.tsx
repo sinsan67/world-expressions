@@ -10,7 +10,6 @@ import { FLAG, COUNTRY_GRADIENT } from "@/lib/constants";
 type UILang = "fr" | "en" | "es" | "tr" | "it";
 
 const T: Record<UILang, {
-  back: string;
   wordForWord: string;
   equivalent: string;
   original: string;
@@ -22,7 +21,6 @@ const T: Record<UILang, {
   register: Record<string, string>;
 }> = {
   fr: {
-    back: "← Accueil",
     wordForWord: "Mot à mot",
     equivalent: "Équivalent",
     original: "Version originale",
@@ -34,7 +32,6 @@ const T: Record<UILang, {
     register: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" },
   },
   en: {
-    back: "← Home",
     wordForWord: "Word for word",
     equivalent: "Equivalent",
     original: "Original version",
@@ -46,7 +43,6 @@ const T: Record<UILang, {
     register: { standard: "standard", informal: "informal", slang: "slang", vulgar: "vulgar", formal: "formal" },
   },
   es: {
-    back: "← Inicio",
     wordForWord: "Literalmente",
     equivalent: "Equivalente",
     original: "Versión original",
@@ -58,7 +54,6 @@ const T: Record<UILang, {
     register: { standard: "estándar", informal: "informal", slang: "argot", vulgar: "vulgar", formal: "formal" },
   },
   tr: {
-    back: "← Ana Sayfa",
     wordForWord: "Kelimesi kelimesine",
     equivalent: "Karşılığı",
     original: "Orijinal versiyon",
@@ -70,7 +65,6 @@ const T: Record<UILang, {
     register: { standard: "standart", informal: "günlük", slang: "argo", vulgar: "kaba", formal: "resmi" },
   },
   it: {
-    back: "← Home",
     wordForWord: "Letteralmente",
     equivalent: "Equivalente",
     original: "Versione originale",
@@ -142,8 +136,8 @@ function ExpressionPageContent({ id }: { id: string }) {
         className="px-6 py-4 flex items-center justify-between"
         style={{ background: "#fff", borderBottom: "1px solid #ede9fe" }}
       >
-        <Link href="/" className="text-sm font-medium" style={{ color: "#7c3aed" }}>
-          {t.back}
+        <Link href="/" className="text-sm font-bold" style={{ color: "#7c3aed" }}>
+          Expressions <em className="not-italic" style={{ color: "#c4b5fd" }}>du Monde</em>
         </Link>
         <div className="flex gap-1">
           {(["fr", "en", "es", "tr", "it"] as UILang[]).map((l) => (
