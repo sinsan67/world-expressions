@@ -1,0 +1,321 @@
+#!/usr/bin/env python3
+"""
+Generate new expressions for a given language using Mistral API,
+then insert them into the Neon database.
+
+Idempotent: expressions whose ID already exists in the database are skipped.
+Restart freely if interrupted.
+
+Usage:
+    python3 scripts/generate_expressions.py --language it --count 60
+    python3 scripts/generate_expressions.py --language tr --count 62
+    python3 scripts/generate_expressions.py --language it --count 5 --dry-run
+
+Supported languages: it, tr
+"""
+
+import sys
+import json
+import time
+import re
+import argparse
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+import os
+from dotenv import load_dotenv
+from sqlalchemy import text
+
+load_dotenv(Path(__file__).parent.parent / ".env")
+
+from mistralai.client import Mistral
+from config import engine
+
+MODEL = "mistral-small-latest"
+
+LANGUAGE_CONFIG = {
+    "it": {
+        "name": "Italian",
+        "region": "it",
+        "source_label": "Treccani",
+        "source_url": "https://www.treccani.it/vocabolario/",
+        "system_prompt": """You are an expert in Italian idiomatic expressions, proverbs, and sayings.
+Generate authentic Italian expressions (idiomatic phrases, proverbs, locutions) that are:
+- Actually used by native Italian speakers
+- Culturally rooted in Italian life and history
+- Diverse in topic: food, family, work, body, animals, love, time, money, luck, character...
+
+For each expression return ONLY a valid JSON object with these exact fields:
+- "id": kebab-case slug in Italian (e.g. "avere-il-cuore-in-gola")
+- "expression": the expression text in Italian
+- "meaning": what it means in Italian (1-2 sentences)
+- "origin": etymology or cultural origin in Italian (1-2 sentences, null if unknown)
+- "example": natural Italian sentence using the expression
+- "register": one of "standard", "informal", "slang", "formal"
+- "tags": array of 2-5 English thematic slug tags (e.g. ["body", "fear", "surprise"])
+- "type": "expression" for idioms/locutions, "word" for single words with idiomatic meaning
+
+No markdown, no extra text — only the JSON object.""",
+    },
+    "tr": {
+        "name": "Turkish",
+        "region": "tr",
+        "source_label": "TDK",
+        "source_url": "https://sozluk.gov.tr/",
+        "system_prompt": """You are an expert in Turkish idiomatic expressions, proverbs (atasözü), and sayings (deyim).
+Generate authentic Turkish expressions that are:
+- Actually used by native Turkish speakers
+- Culturally rooted in Turkish life, history, and Anatolian traditions
+- Diverse in topic: food, family, work, body, animals, love, time, money, luck, character...
+
+For each expression return ONLY a valid JSON object with these exact fields:
+- "id": kebab-case romanized Turkish slug (replace ş→s, ğ→g, ı→i, ö→o, ü→u, ç→c, e.g. "ayagini-yorganina-gore-uzat")
+- "expression": the expression text in Turkish (using Turkish characters)
+- "meaning": what it means in Turkish (1-2 sentences)
+- "origin": etymology or cultural origin in Turkish (1-2 sentences, null if unknown)
+- "example": natural Turkish sentence using the expression
+- "register": one of "standard", "informal", "slang", "formal"
+- "tags": array of 2-5 English thematic slug tags (e.g. ["money", "frugality", "advice"])
+- "type": "expression" for idioms/deyim/atasözü, "word" for single words with idiomatic meaning
+
+No markdown, no extra text — only the JSON object.""",
+    },
+}
+
+VALID_REGISTERS = {"standard", "informal", "slang", "formal", "vulgar"}
+
+
+def slugify(text: str) -> str:
+    """Convert Turkish/Italian text to kebab-case ASCII slug."""
+    replacements = {
+        "ş": "s", "ğ": "g", "ı": "i", "ö": "o", "ü": "u", "ç": "c",
+        "à": "a", "è": "e", "é": "e", "ì": "i", "ò": "o", "ù": "u",
+        "â": "a", "ê": "e", "î": "i", "ô": "o", "û": "u",
+    }
+    s = text.lower()
+    for orig, repl in replacements.items():
+        s = s.replace(orig, repl)
+    s = re.sub(r"[^a-z0-9\s-]", "", s)
+    s = re.sub(r"[\s]+", "-", s.strip())
+    s = re.sub(r"-+", "-", s)
+    return s
+
+
+def get_existing(language: str) -> tuple[set[str], list[str]]:
+    """Fetch existing expression IDs and texts from the database for this language."""
+    sql = "SELECT id, text FROM expressions WHERE language = :lang"
+    with engine.connect() as conn:
+        rows = conn.execute(text(sql), {"lang": language}).fetchall()
+    ids = {r.id for r in rows}
+    texts = [r.text for r in rows]
+    return ids, texts
+
+
+def get_or_create_tag(conn, slug: str) -> str:
+    """Ensure a tag exists in the tags table, return its slug (used as id)."""
+    conn.execute(
+        text("INSERT INTO tags (id, slug) VALUES (:id, :slug) ON CONFLICT (id) DO NOTHING"),
+        {"id": slug, "slug": slug},
+    )
+    return slug
+
+
+def insert_expression(expr: dict, language: str, config: dict) -> None:
+    """Insert one expression into expressions + expression_content + expression_tags."""
+    with engine.begin() as conn:
+        # expressions table
+        conn.execute(
+            text("""
+                INSERT INTO expressions (id, text, language, region, register, type, source)
+                VALUES (:id, :text, :language, :region, :register, :type, :source)
+                ON CONFLICT (id) DO NOTHING
+            """),
+            {
+                "id": expr["id"],
+                "text": expr["expression"],
+                "language": language,
+                "region": config["region"],
+                "register": expr.get("register", "standard"),
+                "type": expr.get("type", "expression"),
+                "source": None,
+            },
+        )
+
+        # expression_content table
+        conn.execute(
+            text("""
+                INSERT INTO expression_content (expression_id, locale, meaning, origin, example)
+                VALUES (:id, :locale, :meaning, :origin, :example)
+                ON CONFLICT (expression_id, locale) DO NOTHING
+            """),
+            {
+                "id": expr["id"],
+                "locale": language,
+                "meaning": expr.get("meaning", ""),
+                "origin": expr.get("origin"),
+                "example": expr.get("example", ""),
+            },
+        )
+
+        # tags
+        for tag_slug in expr.get("tags", []):
+            slug = slugify(tag_slug)
+            if not slug:
+                continue
+            get_or_create_tag(conn, slug)
+            conn.execute(
+                text("""
+                    INSERT INTO expression_tags (expression_id, tag_id)
+                    VALUES (:expr_id, :tag_id)
+                    ON CONFLICT DO NOTHING
+                """),
+                {"expr_id": expr["id"], "tag_id": slug},
+            )
+
+
+def build_user_message(batch_num: int, existing_expressions: list[str], language: str) -> str:
+    """Build a prompt asking Mistral to generate one new expression."""
+    avoid = "\n".join(f"- {e}" for e in existing_expressions[-30:]) if existing_expressions else "(none yet)"
+    return f"""Generate 1 authentic {LANGUAGE_CONFIG[language]['name']} idiomatic expression or proverb.
+
+Already generated in this session (avoid duplicates):
+{avoid}
+
+Return a single JSON object for one new expression."""
+
+
+def call_mistral(client: Mistral, language: str, existing_in_session: list[str]) -> dict:
+    config = LANGUAGE_CONFIG[language]
+    response = client.chat.complete(
+        model=MODEL,
+        max_tokens=600,
+        messages=[
+            {"role": "system", "content": config["system_prompt"]},
+            {"role": "user", "content": build_user_message(len(existing_in_session), existing_in_session, language)},
+        ],
+    )
+    raw = response.choices[0].message.content.strip()
+    if raw.startswith("```"):
+        parts = raw.split("```")
+        raw = parts[1].lstrip("json").strip() if len(parts) > 1 else raw
+    return json.loads(raw)
+
+
+def validate_expression(expr: dict, language: str) -> tuple[bool, str]:
+    """Basic validation of a generated expression."""
+    required = ["id", "expression", "meaning", "example", "register", "tags", "type"]
+    for field in required:
+        if field not in expr:
+            return False, f"missing field '{field}'"
+    if expr["register"] not in VALID_REGISTERS:
+        expr["register"] = "standard"
+    if not isinstance(expr["tags"], list) or len(expr["tags"]) == 0:
+        return False, "tags must be a non-empty list"
+    if expr["type"] not in ("expression", "word"):
+        expr["type"] = "expression"
+    # Ensure id is properly slugified
+    expr["id"] = slugify(expr.get("id") or expr["expression"])
+    return True, "ok"
+
+
+def main():
+    supported = list(LANGUAGE_CONFIG.keys())
+    parser = argparse.ArgumentParser(description="Generate new expressions via Mistral and insert into Neon")
+    parser.add_argument("--language", required=True, choices=supported, help=f"Target language: {supported}")
+    parser.add_argument("--count", type=int, default=60, help="Number of expressions to generate (default: 60)")
+    parser.add_argument("--dry-run", action="store_true", help="Print generated JSON without inserting into DB")
+    parser.add_argument("--delay", type=float, default=0.5, help="Delay between API calls in seconds (default: 0.5)")
+    args = parser.parse_args()
+
+    language = args.language
+    config = LANGUAGE_CONFIG[language]
+
+    print(f"Generating {args.count} {config['name']} expressions")
+    print(f"Fetching existing {language.upper()} expressions from database...")
+    existing_ids, existing_texts = get_existing(language)
+    print(f"  → {len(existing_ids)} already in database\n")
+
+    api_key = os.environ.get("MISTRAL_API_KEY")
+    if not api_key:
+        print("ERROR: MISTRAL_API_KEY not set in .env")
+        sys.exit(1)
+
+    client = Mistral(api_key=api_key)
+
+    # Pre-load existing texts so Mistral knows to avoid them from the first call
+    generated_this_session: list[str] = list(existing_texts)
+    ok = skipped = errors = 0
+    attempts = 0
+    max_attempts = args.count * 3  # allow retries for duplicates/errors
+
+    while ok < args.count and attempts < max_attempts:
+        attempts += 1
+        print(f"[{ok+1:3}/{args.count}] Calling Mistral... ", end="", flush=True)
+
+        try:
+            expr = call_mistral(client, language, generated_this_session)
+        except json.JSONDecodeError as e:
+            print(f"JSON ERROR ({e})")
+            errors += 1
+            time.sleep(args.delay)
+            continue
+        except Exception as e:
+            if "429" in str(e) or "rate" in str(e).lower():
+                print("RATE LIMIT — waiting 60s")
+                time.sleep(60)
+            else:
+                print(f"API ERROR ({e})")
+                errors += 1
+                time.sleep(args.delay)
+            continue
+
+        valid, reason = validate_expression(expr, language)
+        if not valid:
+            print(f"INVALID ({reason})")
+            errors += 1
+            time.sleep(args.delay)
+            continue
+
+        expr_id = expr["id"]
+        expr_text = expr["expression"]
+
+        if expr_id in existing_ids:
+            print(f"SKIP (already in DB: {expr_id})")
+            skipped += 1
+            time.sleep(args.delay)
+            continue
+
+        if expr_text in generated_this_session:
+            print(f"SKIP (duplicate in session)")
+            skipped += 1
+            time.sleep(args.delay)
+            continue
+
+        print(f"{expr_text}")
+
+        if args.dry_run:
+            print(f"  [dry-run] {json.dumps(expr, ensure_ascii=False, indent=2)}")
+        else:
+            try:
+                insert_expression(expr, language, config)
+            except Exception as e:
+                print(f"  DB ERROR ({e})")
+                errors += 1
+                time.sleep(args.delay)
+                continue
+
+        existing_ids.add(expr_id)
+        generated_this_session.append(expr_text)
+        ok += 1
+
+        if ok < args.count:
+            time.sleep(args.delay)
+
+    print(f"\nDone: {ok} inserted, {skipped} skipped (duplicates), {errors} errors.")
+    if errors:
+        print("Re-run the script to retry — it is idempotent.")
+
+
+if __name__ == "__main__":
+    main()

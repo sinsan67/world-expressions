@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>World Expressions — Product Map</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0f0a1e;
+    color: #e2e0f0;
+    width: 1400px;
+    min-height: 900px;
+    padding: 32px 40px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+  }
+  .header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .header h1 span { color: #a78bfa; }
+  .tagline {
+    font-size: 13px;
+    color: #7c6aab;
+    margin-top: 4px;
+    font-style: italic;
+  }
+  .stats-bar {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .stat {
+    text-align: center;
+    background: #1a1130;
+    border: 1px solid #2d1f5e;
+    border-radius: 10px;
+    padding: 10px 18px;
+  }
+  .stat-n { font-size: 22px; font-weight: 800; color: #a78bfa; }
+  .stat-label { font-size: 11px; color: #7c6aab; margin-top: 1px; }
+
+  /* ── TIMELINE ── */
+  .timeline {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 22px;
+    align-items: stretch;
+  }
+  .phase {
+    flex: 1;
+    border-radius: 12px;
+    padding: 14px 16px;
+    position: relative;
+    border: 1px solid transparent;
+  }
+  .phase.done {
+    background: #0d1f0d;
+    border-color: #1a4a1a;
+  }
+  .phase.current {
+    background: #160d2e;
+    border-color: #4c1d95;
+    box-shadow: 0 0 0 1px #7c3aed40, 0 4px 24px #7c3aed20;
+  }
+  .phase.next { background: #141020; border-color: #2a1f50; }
+  .phase.future { background: #0e0e18; border-color: #1e1e3a; }
+  .phase.ideas { background: #100a1a; border-color: #2a1040; }
+
+  .phase-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .done .phase-label { color: #4ade80; }
+  .current .phase-label { color: #a78bfa; }
+  .next .phase-label { color: #60a5fa; }
+  .future .phase-label { color: #f59e0b; }
+  .ideas .phase-label { color: #f472b6; }
+
+  .phase-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .phase-badge {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .done .phase-badge { background: #14532d; color: #4ade80; }
+  .current .phase-badge { background: #3b0764; color: #c4b5fd; }
+  .next .phase-badge { background: #1e3a5f; color: #93c5fd; }
+  .future .phase-badge { background: #451a03; color: #fcd34d; }
+  .ideas .phase-badge { background: #3b0764; color: #f9a8d4; }
+
+  .phase ul { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .phase ul li {
+    font-size: 12px;
+    color: #b0a8d0;
+    padding-left: 14px;
+    position: relative;
+    line-height: 1.4;
+  }
+  .phase ul li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: #5b4a8a;
+  }
+  .done ul li::before { color: #4ade80; }
+  .current ul li::before { color: #a78bfa; }
+  .next ul li::before { color: #60a5fa; }
+  .future ul li::before { color: #f59e0b; }
+
+  /* ── ARROW between phases ── */
+  .arrow {
+    display: flex;
+    align-items: center;
+    color: #3d2e6e;
+    font-size: 20px;
+    flex-shrink: 0;
+    padding-top: 40px;
+  }
+
+  /* ── BOTTOM SECTION ── */
+  .bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+  }
+
+  .panel {
+    background: #12101e;
+    border: 1px solid #221a40;
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .panel-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5b4a8a;
+    margin-bottom: 12px;
+  }
+
+  /* DATA panel */
+  .lang-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 7px;
+  }
+  .lang-flag { font-size: 16px; }
+  .lang-name { font-size: 12px; color: #c4b5fd; width: 90px; }
+  .lang-bar-wrap { flex: 1; background: #1a1430; border-radius: 4px; height: 6px; }
+  .lang-bar { height: 6px; border-radius: 4px; background: #7c3aed; }
+  .lang-count { font-size: 11px; color: #7c6aab; width: 32px; text-align: right; }
+
+  /* PILLARS */
+  .pillars { display: flex; flex-direction: column; gap: 8px; }
+  .pillar {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    background: #0f0a1e;
+    border-radius: 8px;
+    border: 1px solid #1e1840;
+  }
+  .pillar-icon { font-size: 18px; flex-shrink: 0; }
+  .pillar-name { font-size: 12px; font-weight: 600; color: #c4b5fd; }
+  .pillar-desc { font-size: 11px; color: #7c6aab; margin-top: 1px; line-height: 1.3; }
+
+  /* DATA SOURCES */
+  .sources { display: flex; flex-direction: column; gap: 6px; }
+  .source-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    background: #0f0a1e;
+    border-radius: 6px;
+    border: 1px solid #1e1840;
+  }
+  .source-name { font-size: 12px; color: #c4b5fd; }
+  .source-tag {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .tag-easy { background: #14532d; color: #4ade80; }
+  .tag-medium { background: #1e3a5f; color: #93c5fd; }
+  .tag-contact { background: #451a03; color: #fcd34d; }
+  .tag-wip { background: #3b0764; color: #c4b5fd; }
+
+  .section-note {
+    font-size: 10px;
+    color: #4a3a6e;
+    margin-top: 10px;
+    font-style: italic;
+  }
+
+  /* LIVE badge */
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #14532d;
+    border: 1px solid #4ade80;
+    color: #4ade80;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    background: #4ade80;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .url { font-size: 11px; color: #5b4a8a; margin-top: 4px; }
+  .url a { color: #7c6aab; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <h1>World <span>Expressions</span></h1>
+    <div class="tagline">Every language has its own madness. — Carte produit · Mai 2026</div>
+  </div>
+  <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+    <div style="display:flex; gap:8px; align-items:center;">
+      <span class="live-badge"><span class="live-dot"></span> LIVE</span>
+      <div>
+        <div class="url"><a href="https://world-expressions.vercel.app">world-expressions.vercel.app</a></div>
+        <div class="url"><a href="https://world-expression-api.onrender.com">world-expression-api.onrender.com</a></div>
+      </div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-n">~1 200</div><div class="stat-label">expressions</div></div>
+      <div class="stat"><div class="stat-n">5</div><div class="stat-label">langues</div></div>
+      <div class="stat"><div class="stat-n">25+</div><div class="stat-label">paires traduc.</div></div>
+      <div class="stat"><div class="stat-n">1 050</div><div class="stat-label">tags normalisés</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TIMELINE -->
+<div class="timeline">
+
+  <div class="phase done">
+    <div class="phase-label">Terminé</div>
+    <div class="phase-title">V1 — Prototype local</div>
+    <span class="phase-badge">mai 2026</span>
+    <ul>
+      <li>FastAPI + JSON + HTML/CSS/JS</li>
+      <li>400 expressions FR</li>
+      <li>Recherche exacte + sémantique</li>
+      <li>Filtres pays + hint chips</li>
+      <li>Fonctionnel en local uniquement</li>
+    </ul>
+  </div>
+
+  <div class="arrow">→</div>
+
+  <div class="phase done">
+    <div class="phase-label">Terminé</div>
+    <div class="phase-title">V2 — Déploiement</div>
+    <span class="phase-badge">mai 2026</span>
+    <ul>
+      <li>Next.js + PostgreSQL Neon</li>
+      <li>5 langues (FR/EN/ES/IT/TR)</li>
+      <li>5 tables normalisées + 1 050 tags</li>
+      <li>Traductions IA : 25+ paires</li>
+      <li>Hero redesign, modal bienvenue</li>
+      <li>Vercel (front) + Render (API)</li>
+    </ul>
+  </div>
+
+  <div class="arrow">→</div>
+
+  <div class="phase current">
+    <div class="phase-label">En cours</div>
+    <div class="phase-title">V3 — Navigabilité</div>
+    <span class="phase-badge">sprint actuel</span>
+    <ul>
+      <li>Page /expression/[id] — livré ✓</li>
+      <li>Tags localisés sur toutes les cartes ✓</li>
+      <li>Enrichissement IT + TR → 100 chacune</li>
+      <li>Qualité traductions — métriques à définir</li>
+      <li>Sources de données françaises (kaikki.org…)</li>
+    </ul>
+  </div>
+
+  <div class="arrow">→</div>
+
+  <div class="phase next">
+    <div class="phase-label">Prochain sprint</div>
+    <div class="phase-title">V3+ — Pages & Exploration</div>
+    <span class="phase-badge">à planifier</span>
+    <ul>
+      <li>Page /country/[code] — expressions par pays</li>
+      <li>Import kaikki.org — enrichissement massif FR</li>
+      <li>Métriques usage (analytics)</li>
+      <li>Refonte filtres pays + Mix en un seul mécanisme</li>
+      <li>SEO — metadata par expression</li>
+    </ul>
+  </div>
+
+  <div class="arrow">→</div>
+
+  <div class="phase future">
+    <div class="phase-label">Vision V4</div>
+    <div class="phase-title">Carte & Régions</div>
+    <span class="phase-badge">long terme</span>
+    <ul>
+      <li>Carte SVG France cliquable</li>
+      <li>Champ `region` → origine locale</li>
+      <li>Partenariat CNRTL/TLFi (CNRS)</li>
+      <li>Carte monde — extension naturelle</li>
+      <li>Illustrations SVG par expression</li>
+    </ul>
+  </div>
+
+  <div class="arrow">→</div>
+
+  <div class="phase ideas">
+    <div class="phase-label">Vision V5</div>
+    <div class="phase-title">Mode Jeu & PWA</div>
+    <span class="phase-badge">exploratoire</span>
+    <ul>
+      <li>Quiz emojis → deviner l'expression</li>
+      <li>Choix de langue cible + score</li>
+      <li>PWA — installation mobile, offline</li>
+      <li>Contenu collaboratif (modéré)</li>
+      <li>Bibliothèque styles visuels (Twemoji…)</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- BOTTOM -->
+<div class="bottom">
+
+  <!-- DATA -->
+  <div class="panel">
+    <div class="panel-title">Base de données — état actuel</div>
+    <div class="lang-row">
+      <span class="lang-flag">🇬🇧</span>
+      <span class="lang-name">English</span>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:100%"></div></div>
+      <span class="lang-count">499</span>
+    </div>
+    <div class="lang-row">
+      <span class="lang-flag">🇫🇷</span>
+      <span class="lang-name">Français</span>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:80%"></div></div>
+      <span class="lang-count">400</span>
+    </div>
+    <div class="lang-row">
+      <span class="lang-flag">🇪🇸</span>
+      <span class="lang-name">Español</span>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:24%"></div></div>
+      <span class="lang-count">120</span>
+    </div>
+    <div class="lang-row">
+      <span class="lang-flag">🇮🇹</span>
+      <span class="lang-name">Italiano</span>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:20%"></div></div>
+      <span class="lang-count">~100</span>
+    </div>
+    <div class="lang-row">
+      <span class="lang-flag">🇹🇷</span>
+      <span class="lang-name">Türkçe</span>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:20%"></div></div>
+      <span class="lang-count">~100</span>
+    </div>
+    <div class="section-note">Objectif : 200+ expressions par langue, sources vérifiées</div>
+  </div>
+
+  <!-- PILLARS -->
+  <div class="panel">
+    <div class="panel-title">Principes produit</div>
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pillar-icon">🗺️</div>
+        <div>
+          <div class="pillar-name">Navigabilité</div>
+          <div class="pillar-desc">Chaque expression a une URL. Chaque tag est cliquable. On explore, on ne cherche pas.</div>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">🌍</div>
+        <div>
+          <div class="pillar-name">Multi-langue au cœur</div>
+          <div class="pillar-desc">La comparaison culturelle est le propos. Traductions disponibles dans toutes les langues du contenu.</div>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">🎭</div>
+        <div>
+          <div class="pillar-name">Espièglerie & dynamisme</div>
+          <div class="pillar-desc">L'app se sent vivante. Surprises, micro-interactions, aléatoire bienvenu.</div>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">📐</div>
+        <div>
+          <div class="pillar-name">Données avant features</div>
+          <div class="pillar-desc">Une base riche et fiable prime sur les nouvelles fonctionnalités.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOURCES -->
+  <div class="panel">
+    <div class="panel-title">Sources de données — roadmap</div>
+    <div class="sources">
+      <div class="source-row">
+        <span class="source-name">Mistral Small (génération IA)</span>
+        <span class="source-tag tag-wip">en cours</span>
+      </div>
+      <div class="source-row">
+        <span class="source-name">kaikki.org — Wiktionnaire JSON</span>
+        <span class="source-tag tag-easy">facile · CC-BY-SA</span>
+      </div>
+      <div class="source-row">
+        <span class="source-name">Dataset LN-fr (3 127 expressions FR)</span>
+        <span class="source-tag tag-easy">facile · académique</span>
+      </div>
+      <div class="source-row">
+        <span class="source-name">Littré — SQLite CC-BY-SA</span>
+        <span class="source-tag tag-medium">moyen · historique</span>
+      </div>
+      <div class="source-row">
+        <span class="source-name">Expressio.fr (Reverso)</span>
+        <span class="source-tag tag-contact">partenariat</span>
+      </div>
+      <div class="source-row">
+        <span class="source-name">CNRTL / TLFi (CNRS)</span>
+        <span class="source-tag tag-contact">V4 · institutionnel</span>
+      </div>
+    </div>
+    <div class="section-note">Priorité : sources françaises vérifiées avec URL cliquable par expression</div>
+  </div>
+
+</div>
+
+</body>
+</html>
