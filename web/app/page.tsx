@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import ExpressionCard from "@/components/ExpressionCard";
+import WelcomeModal from "@/components/WelcomeModal";
 import { searchExpressions, searchByConcept, getTopTags, getRandomExpression, getAllTagNames, Expression } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 
@@ -137,7 +138,8 @@ function applyMix(items: Expression[]): Expression[] {
 }
 
 export default function Home() {
-  const [uiLang, setUILang] = useState<UILang>("fr");
+  const [uiLang, setUILang] = useState<UILang>("en");
+  const [showWelcome, setShowWelcome] = useState<boolean | null>(null); // null = not yet determined
   const [hintKey, setHintKey] = useState(0);
   const [query, setQuery] = useState("");
   const [selectedRegions, setSelectedRegions] = useState<Set<string>>(
@@ -277,6 +279,18 @@ export default function Home() {
     return () => observer.disconnect();
   }, [hasMore, loadingMore, loadMore]);
 
+  // Init language + welcome modal from localStorage on first mount
+  useEffect(() => {
+    const stored = localStorage.getItem("wex_lang") as UILang | null;
+    const valid: UILang[] = ["fr", "en", "es", "it", "tr"];
+    if (stored && valid.includes(stored)) {
+      setUILang(stored);
+      setShowWelcome(false);
+    } else {
+      setShowWelcome(true);
+    }
+  }, []);
+
   useEffect(() => {
     const hash = window.location.hash;
     if (hash.startsWith("#q=")) {
@@ -305,6 +319,16 @@ export default function Home() {
 
   return (
     <main className="min-h-screen" style={{ background: "#f5f3ff" }}>
+
+      {showWelcome && (
+        <WelcomeModal
+          onSelect={(lang) => {
+            setUILang(lang);
+            setHintKey((k) => k + 1);
+            setShowWelcome(false);
+          }}
+        />
+      )}
 
       {/* ===== SECTION 1 : HERO — identité du site + expression du moment ===== */}
       <div
@@ -340,7 +364,7 @@ export default function Home() {
             {(["fr", "en", "es", "tr", "it"] as UILang[]).map((lang) => (
               <button
                 key={lang}
-                onClick={() => { setUILang(lang); setHintKey((k) => k + 1); }}
+                onClick={() => { setUILang(lang); setHintKey((k) => k + 1); localStorage.setItem("wex_lang", lang); }}
                 style={{
                   fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
                   border: "1.5px solid",
