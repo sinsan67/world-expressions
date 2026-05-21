@@ -107,6 +107,7 @@ def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
             COALESCE(ec_pref.example, ct_pref.example, ec_orig.example)   AS example,
             CASE WHEN ec_pref.meaning IS NOT NULL OR ct_pref.meaning IS NOT NULL
                  THEN :locale ELSE e.language END         AS meaning_locale,
+            ct_pref.literal                              AS literal,
             STRING_AGG(t.slug, ',') AS tags
         FROM expressions e
         LEFT JOIN expression_content ec_orig
@@ -122,7 +123,7 @@ def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
                  e.illustration, e.source,
                  ec_orig.meaning, ec_orig.origin, ec_orig.example,
                  ec_pref.meaning, ec_pref.origin, ec_pref.example,
-                 ct_pref.meaning, ct_pref.origin, ct_pref.example
+                 ct_pref.meaning, ct_pref.origin, ct_pref.example, ct_pref.literal
         ORDER BY RANDOM()
         LIMIT 1
     """
@@ -134,6 +135,7 @@ def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
         return None
     result = _build_expression_dict(row, "direct")
     result["meaning_locale"] = row.meaning_locale
+    result["literal"] = getattr(row, "literal", None)
     return result
 
 

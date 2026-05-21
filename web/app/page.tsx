@@ -209,7 +209,7 @@ export default function Home() {
   const [hintTags, setHintTags] = useState<{ slug: string; name: string }[]>([]);
   const [hintTagsError, setHintTagsError] = useState(false);
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
-  const [featured, setFeatured] = useState<(Expression & { meaning_locale: string }) | null>(null);
+  const [featured, setFeatured] = useState<(Expression & { meaning_locale: string; literal: string | null }) | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const exploreRef = useRef<HTMLDivElement>(null);
   const countryDropdownRef = useRef<HTMLDivElement>(null);
@@ -220,6 +220,7 @@ export default function Home() {
   const featuredConceptRef = useRef<HTMLDivElement>(null);
   const [featuredCountryOpen, setFeaturedCountryOpen] = useState(false);
   const [featuredConceptOpen, setFeaturedConceptOpen] = useState(false);
+  const [newsletterOpen, setNewsletterOpen] = useState(false);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterLang, setNewsletterLang] = useState<UILang>("en");
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
@@ -515,6 +516,18 @@ export default function Home() {
                 <polyline points="2,4 12,13 22,4"/>
               </svg>
             </a>
+            <button
+              onClick={() => setNewsletterOpen(true)}
+              style={{
+                color: "rgba(255,255,255,0.55)", background: "none", border: "1px solid rgba(255,255,255,0.25)",
+                borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600, cursor: "pointer",
+                letterSpacing: "0.03em",
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.9)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.5)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.55)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.25)"; }}
+            >
+              Subscribe
+            </button>
             <a
               href="/instagram"
               title="Instagram"
@@ -620,9 +633,16 @@ export default function Home() {
                     <span style={{ color: "#a78bfa", marginLeft: 3 }}>"</span>
                   </p>
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem" }}>
-                    <p style={{ flex: 1, fontSize: 12, color: "rgba(255,255,255,0.75)", lineHeight: 1.5 }}>
-                      {featured.meaning}
-                    </p>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", lineHeight: 1.5, margin: 0 }}>
+                        {featured.meaning}
+                      </p>
+                      {featured.literal && featured.language !== uiLang && (
+                        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.4, marginTop: "0.25rem", fontStyle: "italic", margin: "0.25rem 0 0" }}>
+                          {featured.literal}
+                        </p>
+                      )}
+                    </div>
                     <span style={{ fontSize: 16, flexShrink: 0 }}>
                       {FLAG[featured.region] ?? "🌍"}
                     </span>
@@ -1058,72 +1078,97 @@ export default function Home() {
         )}
       </div>
 
-      {/* ===== Newsletter ===== */}
-      <div style={{ background: "linear-gradient(135deg, #1e1b4b 0%, #2e1065 100%)", padding: "4rem 1rem" }}>
-        <div style={{ maxWidth: 480, margin: "0 auto", textAlign: "center" }}>
-          <p style={{ fontSize: 26, fontWeight: 700, color: "#f5f3ff", marginBottom: "0.5rem", lineHeight: 1.3 }}>
-            {t.newsletterHeadline}
-          </p>
-          <p style={{ fontSize: 15, color: "#c4b5fd", marginBottom: "2rem" }}>
-            {t.newsletterSub}
-          </p>
-
-          {newsletterStatus === "success" || newsletterStatus === "already" ? (
-            <p style={{ fontSize: 15, color: "#a7f3d0", fontWeight: 600, padding: "1rem", background: "rgba(16,185,129,0.15)", borderRadius: 12 }}>
-              {newsletterStatus === "success" ? t.newsletterSuccess : t.newsletterAlready}
-            </p>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              <input
-                type="email"
-                value={newsletterEmail}
-                onChange={(e) => setNewsletterEmail(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleNewsletterSubmit()}
-                placeholder={t.newsletterPlaceholder}
-                style={{
-                  width: "100%", padding: "0.75rem 1rem", borderRadius: 10, border: "1px solid rgba(196,181,253,0.3)",
-                  background: "rgba(255,255,255,0.08)", color: "#f5f3ff", fontSize: 15,
-                  outline: "none", boxSizing: "border-box",
-                }}
-              />
-              <div style={{ display: "flex", gap: "0.75rem" }}>
-                <select
-                  value={newsletterLang}
-                  onChange={(e) => setNewsletterLang(e.target.value as UILang)}
-                  style={{
-                    flex: "0 0 auto", padding: "0.75rem 0.75rem", borderRadius: 10,
-                    border: "1px solid rgba(196,181,253,0.3)", background: "rgba(255,255,255,0.08)",
-                    color: "#f5f3ff", fontSize: 14, cursor: "pointer", outline: "none",
-                  }}
-                >
-                  <option value="fr" style={{ background: "#1e1b4b" }}>🇫🇷 FR</option>
-                  <option value="en" style={{ background: "#1e1b4b" }}>🇬🇧 EN</option>
-                  <option value="es" style={{ background: "#1e1b4b" }}>🇪🇸 ES</option>
-                  <option value="it" style={{ background: "#1e1b4b" }}>🇮🇹 IT</option>
-                  <option value="tr" style={{ background: "#1e1b4b" }}>🇹🇷 TR</option>
-                </select>
-                <button
-                  onClick={handleNewsletterSubmit}
-                  disabled={newsletterStatus === "loading"}
-                  style={{
-                    flex: 1, padding: "0.75rem 1.5rem", borderRadius: 10, border: "none",
-                    background: newsletterStatus === "loading" ? "rgba(124,58,237,0.5)" : "#7c3aed",
-                    color: "#fff", fontWeight: 600, fontSize: 15, cursor: newsletterStatus === "loading" ? "default" : "pointer",
-                    transition: "background 0.2s",
-                  }}
-                  onMouseEnter={(e) => { if (newsletterStatus !== "loading") (e.currentTarget as HTMLElement).style.background = "#6d28d9"; }}
-                  onMouseLeave={(e) => { if (newsletterStatus !== "loading") (e.currentTarget as HTMLElement).style.background = "#7c3aed"; }}
-                >
-                  {newsletterStatus === "loading" ? "…" : t.newsletterCta}
-                </button>
-              </div>
-              {newsletterStatus === "error" && (
-                <p style={{ fontSize: 13, color: "#fca5a5", marginTop: "0.25rem" }}>{t.newsletterError}</p>
-              )}
+      {/* ===== Newsletter modal ===== */}
+      {newsletterOpen && (
+        <div
+          onClick={() => setNewsletterOpen(false)}
+          style={{
+            position: "fixed", inset: 0, zIndex: 1000,
+            background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)",
+            display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "linear-gradient(135deg, #1e1b4b 0%, #2e1065 100%)",
+              borderRadius: 16, padding: "2rem", width: "100%", maxWidth: 420,
+              border: "1px solid rgba(196,181,253,0.2)", boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.25rem" }}>
+              <p style={{ fontSize: 20, fontWeight: 700, color: "#f5f3ff", lineHeight: 1.3, margin: 0, maxWidth: "85%" }}>
+                {t.newsletterHeadline}
+              </p>
+              <button
+                onClick={() => setNewsletterOpen(false)}
+                style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 20, cursor: "pointer", padding: 0, lineHeight: 1 }}
+              >
+                ✕
+              </button>
             </div>
-          )}
+            <p style={{ fontSize: 13, color: "#c4b5fd", marginBottom: "1.5rem" }}>
+              {t.newsletterSub}
+            </p>
+
+            {newsletterStatus === "success" || newsletterStatus === "already" ? (
+              <p style={{ fontSize: 14, color: "#a7f3d0", fontWeight: 600, padding: "0.875rem", background: "rgba(16,185,129,0.15)", borderRadius: 10, textAlign: "center" }}>
+                {newsletterStatus === "success" ? t.newsletterSuccess : t.newsletterAlready}
+              </p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
+                <input
+                  type="email"
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleNewsletterSubmit()}
+                  placeholder={t.newsletterPlaceholder}
+                  autoFocus
+                  style={{
+                    width: "100%", padding: "0.7rem 1rem", borderRadius: 9, border: "1px solid rgba(196,181,253,0.3)",
+                    background: "rgba(255,255,255,0.08)", color: "#f5f3ff", fontSize: 14,
+                    outline: "none", boxSizing: "border-box",
+                  }}
+                />
+                <div style={{ display: "flex", gap: "0.625rem" }}>
+                  <select
+                    value={newsletterLang}
+                    onChange={(e) => setNewsletterLang(e.target.value as UILang)}
+                    style={{
+                      flex: "0 0 auto", padding: "0.7rem 0.625rem", borderRadius: 9,
+                      border: "1px solid rgba(196,181,253,0.3)", background: "rgba(255,255,255,0.08)",
+                      color: "#f5f3ff", fontSize: 13, cursor: "pointer", outline: "none",
+                    }}
+                  >
+                    <option value="fr" style={{ background: "#1e1b4b" }}>🇫🇷 FR</option>
+                    <option value="en" style={{ background: "#1e1b4b" }}>🇬🇧 EN</option>
+                    <option value="es" style={{ background: "#1e1b4b" }}>🇪🇸 ES</option>
+                    <option value="it" style={{ background: "#1e1b4b" }}>🇮🇹 IT</option>
+                    <option value="tr" style={{ background: "#1e1b4b" }}>🇹🇷 TR</option>
+                  </select>
+                  <button
+                    onClick={handleNewsletterSubmit}
+                    disabled={newsletterStatus === "loading"}
+                    style={{
+                      flex: 1, padding: "0.7rem 1.25rem", borderRadius: 9, border: "none",
+                      background: newsletterStatus === "loading" ? "rgba(124,58,237,0.5)" : "#7c3aed",
+                      color: "#fff", fontWeight: 600, fontSize: 14, cursor: newsletterStatus === "loading" ? "default" : "pointer",
+                      transition: "background 0.2s",
+                    }}
+                    onMouseEnter={(e) => { if (newsletterStatus !== "loading") (e.currentTarget as HTMLElement).style.background = "#6d28d9"; }}
+                    onMouseLeave={(e) => { if (newsletterStatus !== "loading") (e.currentTarget as HTMLElement).style.background = "#7c3aed"; }}
+                  >
+                    {newsletterStatus === "loading" ? "…" : t.newsletterCta}
+                  </button>
+                </div>
+                {newsletterStatus === "error" && (
+                  <p style={{ fontSize: 12, color: "#fca5a5", marginTop: "0.125rem" }}>{t.newsletterError}</p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </main>
   );
 }

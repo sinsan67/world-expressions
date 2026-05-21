@@ -116,7 +116,7 @@ export async function getTopTags(language = "", limit = 30, locale = "en"): Prom
   return res.json();
 }
 
-export async function getRandomExpression(locale = ""): Promise<Expression & { meaning_locale: string }> {
+export async function getRandomExpression(locale = ""): Promise<Expression & { meaning_locale: string; literal: string | null }> {
   const params = locale ? `?locale=${locale}` : "";
   const res = await fetch(`${API}/random${params}`);
   if (!res.ok) throw new Error("API error");
