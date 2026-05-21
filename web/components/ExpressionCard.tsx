@@ -5,26 +5,14 @@ import Link from "next/link";
 import { Expression } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { getTypeLabel } from "@/lib/typeLabels";
+import { FLAG, COUNTRY_GRADIENT } from "@/lib/constants";
 
-const FLAG: Record<string, string> = {
-  fr: "🇫🇷", us: "🇺🇸", uk: "🇬🇧", gb: "🇬🇧", au: "🇦🇺", es: "🇪🇸",
-  tr: "🇹🇷", it: "🇮🇹",
-};
-
-// Dégradé drapeau en arrêts durs — bandeau unique et reconnaissable par pays
-const COUNTRY_GRADIENT: Record<string, string> = {
-  fr: "linear-gradient(90deg, #0055a4 33%, #fff 33% 67%, #ef4135 67%)",
-  uk: "linear-gradient(135deg, #012169 40%, #c8102e 40% 60%, #012169 60%)",
-  us: "linear-gradient(90deg, #3c3b6e 38%, #b22234 38% 75%, #fff 75%)",
-  au: "linear-gradient(90deg, #00008b 50%, #fff 50% 62%, #cc0000 62%)",
-  es: "linear-gradient(90deg, #c60b1e 25%, #f1bf00 25% 75%, #c60b1e 75%)",
-  tr: "linear-gradient(90deg, #e30a17 80%, #fff 80%)",
-  it: "linear-gradient(90deg, #009246 33%, #fff 33% 67%, #ce2b37 67%)",
-};
-
-const REGISTER_LABEL: Record<string, string> = {
-  standard: "courant", informal: "familier", slang: "argot",
-  vulgar: "vulgaire", formal: "soutenu",
+const REGISTER_LABEL: Record<string, Record<string, string>> = {
+  fr: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" },
+  en: { standard: "standard", informal: "informal", slang: "slang", vulgar: "vulgar", formal: "formal" },
+  es: { standard: "estándar", informal: "informal", slang: "argot", vulgar: "vulgar", formal: "formal" },
+  tr: { standard: "standart", informal: "günlük", slang: "argo", vulgar: "kaba", formal: "resmi" },
+  it: { standard: "standard", informal: "informale", slang: "slang", vulgar: "volgare", formal: "formale" },
 };
 
 type Props = {
@@ -72,7 +60,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
                 className="text-xs px-1.5 py-0.5 rounded inline-block"
                 style={{ background: "#f3f4f6", color: "#9ca3af" }}
               >
-                {REGISTER_LABEL[e.register] || e.register}
+                {(REGISTER_LABEL[uiLang] ?? REGISTER_LABEL.en)[e.register] || e.register}
               </span>
             )}
           </div>

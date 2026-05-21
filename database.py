@@ -53,7 +53,7 @@ def _region_clause(regions: Optional[set[str]]) -> tuple[str, dict]:
 
 # ── Requêtes ──────────────────────────────────────────────────────────────────
 
-META_TAGS = {"australian", "british", "argot", "slang", "proverbe", "communication"}
+META_TAGS = {"australian", "british", "slang", "proverb", "communication"}
 
 def get_top_tags(limit: int = 30, language: Optional[str] = None, locale: Optional[str] = None) -> list[dict]:
     """
