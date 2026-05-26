@@ -8,6 +8,7 @@ __pycache__/
 *.pyc
 *.pyo
 .env
+.env.staging
 venv/
 .venv/
 
@@ -19,6 +20,9 @@ node_modules/
 
 # Database (fichier généré — source de vérité = data/expressions.json)
 data/*.db
+
+# Raw data (fichiers sources lourds, non versionnés)
+data/raw/
 
 # Logs
 *.log
