@@ -1,9 +1,13 @@
 "use client";
 
 import { use, useCallback, useEffect, useRef, useState, Suspense } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ExpressionCard from "@/components/ExpressionCard";
-import { browseByRegion, searchByConcept, getTopTags, getAllTagNames, Expression } from "@/lib/api";
+import {
+  browseByRegion, searchExpressions, searchByConcept,
+  getTopTags, getAllTagNames, Expression,
+} from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
@@ -37,67 +41,91 @@ const T: Record<UILang, {
   countryOnly: (name: string) => string;
   exploreAll: string;
   topConcepts: string;
-  selectConcept: string;
-  selectConceptSub: string;
+  searchPlaceholder: (name: string) => string;
+  searchPlaceholderExplore: string;
+  noResults: string;
   expressions: (n: number) => string;
   conceptLabel: (name: string) => string;
+  searchLabel: (q: string) => string;
+  otherCountry: string;
 }> = {
   fr: {
     backHome: "← World Expressions",
     countryOnly: (name) => `${name} uniquement`,
     exploreAll: "Explorer toutes les langues",
     topConcepts: "Concepts populaires",
-    selectConcept: "Comment le monde exprime les mêmes idées ?",
-    selectConceptSub: "Choisissez un concept ci-dessus pour voir comment différentes cultures l'expriment.",
+    searchPlaceholder: (name) => `Chercher dans ${name}…`,
+    searchPlaceholderExplore: "Chercher dans toutes les langues…",
+    noResults: "Aucun résultat.",
     expressions: (n) => `${n} expression${n > 1 ? "s" : ""}`,
     conceptLabel: (name) => `"${name}" — toutes les langues`,
+    searchLabel: (q) => `Résultats pour "${q}"`,
+    otherCountry: "Autre pays",
   },
   en: {
     backHome: "← World Expressions",
     countryOnly: (name) => `${name} only`,
     exploreAll: "Explore all languages",
     topConcepts: "Top concepts",
-    selectConcept: "How does the world say the same thing?",
-    selectConceptSub: "Pick a concept above to see how different cultures express it.",
+    searchPlaceholder: (name) => `Search in ${name}…`,
+    searchPlaceholderExplore: "Search all languages…",
+    noResults: "No results.",
     expressions: (n) => `${n} expression${n > 1 ? "s" : ""}`,
     conceptLabel: (name) => `"${name}" — all languages`,
+    searchLabel: (q) => `Results for "${q}"`,
+    otherCountry: "Another country",
   },
   es: {
     backHome: "← World Expressions",
     countryOnly: (name) => `Solo ${name}`,
     exploreAll: "Explorar todos los idiomas",
     topConcepts: "Conceptos populares",
-    selectConcept: "¿Cómo expresa el mundo las mismas ideas?",
-    selectConceptSub: "Elige un concepto arriba para ver cómo distintas culturas lo expresan.",
+    searchPlaceholder: (name) => `Buscar en ${name}…`,
+    searchPlaceholderExplore: "Buscar en todos los idiomas…",
+    noResults: "Sin resultados.",
     expressions: (n) => `${n} expresión${n > 1 ? "es" : ""}`,
     conceptLabel: (name) => `"${name}" — todos los idiomas`,
+    searchLabel: (q) => `Resultados para "${q}"`,
+    otherCountry: "Otro país",
   },
   tr: {
     backHome: "← World Expressions",
     countryOnly: (name) => `Yalnızca ${name}`,
     exploreAll: "Tüm dilleri keşfet",
     topConcepts: "Popüler kavramlar",
-    selectConcept: "Dünya aynı şeyi nasıl söylüyor?",
-    selectConceptSub: "Farklı kültürlerin bunu nasıl ifade ettiğini görmek için yukarıdan bir kavram seçin.",
+    searchPlaceholder: (name) => `${name}'de ara…`,
+    searchPlaceholderExplore: "Tüm dillerde ara…",
+    noResults: "Sonuç yok.",
     expressions: (n) => `${n} deyim`,
     conceptLabel: (name) => `"${name}" — tüm diller`,
+    searchLabel: (q) => `"${q}" için sonuçlar`,
+    otherCountry: "Başka ülke",
   },
   it: {
     backHome: "← World Expressions",
     countryOnly: (name) => `Solo ${name}`,
     exploreAll: "Esplora tutte le lingue",
     topConcepts: "Concetti popolari",
-    selectConcept: "Come il mondo esprime le stesse idee?",
-    selectConceptSub: "Scegli un concetto qui sopra per vedere come culture diverse lo esprimono.",
+    searchPlaceholder: (name) => `Cerca in ${name}…`,
+    searchPlaceholderExplore: "Cerca in tutte le lingue…",
+    noResults: "Nessun risultato.",
     expressions: (n) => `${n} espression${n > 1 ? "i" : "e"}`,
     conceptLabel: (name) => `"${name}" — tutte le lingue`,
+    searchLabel: (q) => `Risultati per "${q}"`,
+    otherCountry: "Altro paese",
   },
 };
 
+// All known countries for the country picker dropdown
+const ALL_COUNTRIES = Object.entries(COUNTRY_NAME) as [string, string][];
+
 function CountryPageContent({ code }: { code: string }) {
+  const router = useRouter();
   const [uiLang, setUILang] = useState<UILang>("en");
   const [mode, setMode] = useState<Mode>("country");
   const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const [expressions, setExpressions] = useState<Expression[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -105,8 +133,10 @@ function CountryPageContent({ code }: { code: string }) {
   const [hasMore, setHasMore] = useState(false);
   const [topTags, setTopTags] = useState<{ slug: string; name: string }[]>([]);
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const countryPickerRef = useRef<HTMLDivElement>(null);
 
   const lang = REGION_LANG[code] || "en";
   const flag = FLAG[code] || "🌍";
@@ -118,7 +148,6 @@ function CountryPageContent({ code }: { code: string }) {
     ? `url('/images/${code}.jpg') center/cover, ${REGION_GRADIENTS[code] || REGION_GRADIENTS.default}`
     : REGION_GRADIENTS[code] || REGION_GRADIENTS.default;
 
-  // Restore uiLang from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
     const valid: UILang[] = ["fr", "en", "es", "it", "tr"];
@@ -138,15 +167,30 @@ function CountryPageContent({ code }: { code: string }) {
       .catch(() => {});
   }, [lang, uiLang]);
 
+  // Close country picker when clicking outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (countryPickerRef.current && !countryPickerRef.current.contains(e.target as Node)) {
+        setShowCountryPicker(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
   const doFetch = useCallback(
-    async (currentMode: Mode, tag: string | null, offset: number) => {
+    async (currentMode: Mode, tag: string | null, query: string | null, offset: number) => {
+      if (query && query.trim()) {
+        const regions = currentMode === "country" ? [code] : [];
+        const r = await searchExpressions(query.trim(), regions, LIMIT, offset);
+        return { results: r.results, total: r.total };
+      }
       if (tag) {
         const regions = currentMode === "country" ? [code] : [];
         const r = await searchByConcept([tag], regions, LIMIT, offset);
         return { results: r.results, total: r.total };
       }
       if (currentMode === "explore") {
-        // Empty regions array → backend returns all regions
         const r = await browseByRegion([], LIMIT, offset);
         return { results: r.results, total: r.total };
       }
@@ -157,19 +201,11 @@ function CountryPageContent({ code }: { code: string }) {
   );
 
   const load = useCallback(
-    async (currentMode: Mode, tag: string | null) => {
-      // In explore mode without a tag, wait for user to pick a concept
-      if (currentMode === "explore" && !tag) {
-        setExpressions([]);
-        setTotal(0);
-        setHasMore(false);
-        setLoading(false);
-        return;
-      }
+    async (currentMode: Mode, tag: string | null, query: string | null) => {
       setLoading(true);
       setExpressions([]);
       try {
-        const data = await doFetch(currentMode, tag, 0);
+        const data = await doFetch(currentMode, tag, query, 0);
         setExpressions(data.results);
         setTotal(data.total);
         setHasMore(data.results.length < data.total);
@@ -189,7 +225,7 @@ function CountryPageContent({ code }: { code: string }) {
     setLoadingMore(true);
     const offset = expressions.length;
     try {
-      const data = await doFetch(mode, activeTag, offset);
+      const data = await doFetch(mode, activeTag, searchQuery, offset);
       setExpressions((prev) => [...prev, ...data.results]);
       setHasMore(offset + data.results.length < data.total);
     } catch {
@@ -197,15 +233,13 @@ function CountryPageContent({ code }: { code: string }) {
     } finally {
       setLoadingMore(false);
     }
-  }, [hasMore, loadingMore, expressions.length, mode, activeTag, doFetch]);
+  }, [hasMore, loadingMore, expressions.length, mode, activeTag, searchQuery, doFetch]);
 
-  // Initial load in country mode
   useEffect(() => {
-    load("country", null);
+    load("country", null, null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Infinite scroll
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el || !hasMore || loadingMore) return;
@@ -220,14 +254,38 @@ function CountryPageContent({ code }: { code: string }) {
   const switchMode = (newMode: Mode) => {
     setMode(newMode);
     setActiveTag(null);
-    load(newMode, null);
+    setSearchInput("");
+    setSearchQuery(null);
+    load(newMode, null, null);
   };
 
   const selectTag = (slug: string) => {
     const newTag = activeTag === slug ? null : slug;
     setActiveTag(newTag);
-    load(mode, newTag);
+    setSearchInput("");
+    setSearchQuery(null);
+    load(mode, newTag, null);
     setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchInput.trim();
+    if (!q) {
+      setSearchQuery(null);
+      load(mode, activeTag, null);
+      return;
+    }
+    setActiveTag(null);
+    setSearchQuery(q);
+    load(mode, null, q);
+    setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+  };
+
+  const clearSearch = () => {
+    setSearchInput("");
+    setSearchQuery(null);
+    load(mode, activeTag, null);
   };
 
   return (
@@ -251,13 +309,58 @@ function CountryPageContent({ code }: { code: string }) {
         />
         <div style={{ position: "relative", zIndex: 2, padding: "1.5rem 2rem 2rem" }}>
           {/* Top bar */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem" }}>
             <Link
               href="/"
-              style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", textDecoration: "none", fontWeight: 500 }}
+              style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", textDecoration: "none", fontWeight: 500, flexShrink: 0 }}
             >
               {t.backHome}
             </Link>
+
+            {/* Country picker */}
+            <div ref={countryPickerRef} style={{ position: "relative" }}>
+              <button
+                onClick={() => setShowCountryPicker((v) => !v)}
+                style={{
+                  fontSize: 12, fontWeight: 600, padding: "4px 10px", borderRadius: 20,
+                  border: "1.5px solid rgba(255,255,255,0.3)",
+                  background: showCountryPicker ? "rgba(124,58,237,0.5)" : "rgba(255,255,255,0.1)",
+                  color: "rgba(255,255,255,0.85)", cursor: "pointer",
+                  display: "flex", alignItems: "center", gap: "0.3rem",
+                }}
+              >
+                🌍 {t.otherCountry} ▾
+              </button>
+              {showCountryPicker && (
+                <div style={{
+                  position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 50,
+                  background: "#1e1535", border: "1px solid rgba(167,139,250,0.25)",
+                  borderRadius: 12, padding: "0.4rem 0",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+                  minWidth: 180, maxHeight: 280, overflowY: "auto",
+                }}>
+                  {ALL_COUNTRIES.filter(([c]) => c !== code).map(([c, name]) => (
+                    <button
+                      key={c}
+                      onClick={() => { setShowCountryPicker(false); router.push(`/country/${c}`); }}
+                      style={{
+                        display: "flex", alignItems: "center", gap: "0.5rem",
+                        width: "100%", padding: "8px 16px", border: "none",
+                        background: "transparent", color: "rgba(255,255,255,0.8)",
+                        cursor: "pointer", fontSize: 13, textAlign: "left",
+                        transition: "background 0.1s",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(167,139,250,0.12)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                    >
+                      {FLAG[c] || "🌍"} {name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Language pills */}
             <div style={{ display: "flex", gap: 4 }}>
               {(["fr", "en", "es", "tr", "it"] as UILang[]).map((l) => (
                 <button
@@ -287,7 +390,7 @@ function CountryPageContent({ code }: { code: string }) {
             }}>
               {countryName}
             </h1>
-            {mode === "country" && total > 0 && !loading && (
+            {mode === "country" && total > 0 && !loading && !searchQuery && !activeTag && (
               <p style={{ color: "rgba(255,255,255,0.58)", fontSize: 13, marginTop: "0.3rem" }}>
                 {t.expressions(total)}
               </p>
@@ -296,12 +399,12 @@ function CountryPageContent({ code }: { code: string }) {
         </div>
       </div>
 
-      {/* ===== MODE TOGGLE + CONCEPT CHIPS ===== */}
+      {/* ===== FILTERS ===== */}
       <div style={{ background: "#f5f3ff", padding: "1.5rem 1rem 1.25rem", borderBottom: "1px solid #ede9fe" }}>
         <div style={{ maxWidth: 680, margin: "0 auto" }}>
 
-          {/* Toggle */}
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.5rem" }}>
+          {/* Mode toggle */}
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.25rem" }}>
             <div style={{
               display: "inline-flex", borderRadius: 14,
               background: "#ede9fe", padding: 4, gap: 2,
@@ -331,8 +434,52 @@ function CountryPageContent({ code }: { code: string }) {
             </div>
           </div>
 
+          {/* Search bar */}
+          <form onSubmit={handleSearch} style={{ marginBottom: "1.25rem", position: "relative" }}>
+            <input
+              type="search"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder={mode === "country" ? t.searchPlaceholder(countryName) : t.searchPlaceholderExplore}
+              style={{
+                width: "100%", padding: "10px 44px 10px 16px",
+                borderRadius: 24, border: "1.5px solid #e9d5ff",
+                background: "#fff", fontSize: 14, color: "#1e1535",
+                outline: "none", boxSizing: "border-box",
+                boxShadow: searchQuery ? "0 0 0 2px rgba(124,58,237,0.2)" : "none",
+                transition: "box-shadow 0.15s",
+              }}
+              onFocus={(e) => { e.currentTarget.style.boxShadow = "0 0 0 2px rgba(124,58,237,0.2)"; }}
+              onBlur={(e) => { if (!searchQuery) e.currentTarget.style.boxShadow = "none"; }}
+            />
+            {searchInput ? (
+              <button
+                type="button"
+                onClick={clearSearch}
+                style={{
+                  position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
+                  background: "none", border: "none", cursor: "pointer",
+                  fontSize: 16, color: "#9ca3af", padding: 4,
+                }}
+              >
+                ×
+              </button>
+            ) : (
+              <button
+                type="submit"
+                style={{
+                  position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)",
+                  background: "none", border: "none", cursor: "pointer",
+                  fontSize: 14, color: "#a78bfa", padding: 4,
+                }}
+              >
+                🔍
+              </button>
+            )}
+          </form>
+
           {/* Concept chips */}
-          {topTags.length > 0 && (
+          {topTags.length > 0 && !searchQuery && (
             <div>
               <p style={{
                 fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const,
@@ -376,30 +523,15 @@ function CountryPageContent({ code }: { code: string }) {
       {/* ===== RESULTS ===== */}
       <div ref={resultsRef} style={{ maxWidth: 1100, margin: "0 auto", padding: "2rem 1rem 3rem" }}>
 
-        {/* Explore mode: empty state */}
-        {mode === "explore" && !activeTag && !loading && (
-          <div style={{ textAlign: "center", marginTop: "4rem" }}>
-            <div style={{ fontSize: 40, marginBottom: "1rem" }}>🌍</div>
-            <p style={{ fontSize: 18, fontWeight: 600, color: "#4b5563", marginBottom: "0.4rem" }}>
-              {t.selectConcept}
-            </p>
-            <p style={{ fontSize: 14, color: "#9ca3af" }}>
-              {t.selectConceptSub}
-            </p>
-          </div>
-        )}
-
-        {/* Explore mode with concept: context label */}
-        {mode === "explore" && activeTag && !loading && total > 0 && (
+        {/* Context label */}
+        {!loading && total > 0 && (searchQuery || activeTag) && (
           <p style={{ textAlign: "right", fontSize: 13, color: "#9ca3af", marginBottom: "1rem" }}>
-            {total} expression{total > 1 ? "s" : ""} — {t.conceptLabel(tagNames[activeTag] || activeTag)}
-          </p>
-        )}
-
-        {/* Country mode: context label */}
-        {mode === "country" && !loading && total > 0 && activeTag && (
-          <p style={{ textAlign: "right", fontSize: 13, color: "#9ca3af", marginBottom: "1rem" }}>
-            {total} expression{total > 1 ? "s" : ""} — {flag} {countryName} · {tagNames[activeTag] || activeTag}
+            {searchQuery
+              ? `${total} expression${total > 1 ? "s" : ""} — ${t.searchLabel(searchQuery)}`
+              : mode === "explore"
+                ? `${total} expression${total > 1 ? "s" : ""} — ${t.conceptLabel(tagNames[activeTag!] || activeTag!)}`
+                : `${total} expression${total > 1 ? "s" : ""} — ${flag} ${countryName} · ${tagNames[activeTag!] || activeTag!}`
+            }
           </p>
         )}
 
@@ -410,6 +542,14 @@ function CountryPageContent({ code }: { code: string }) {
               className="w-7 h-7 rounded-full border-2 border-t-transparent animate-spin"
               style={{ borderColor: "#ede9fe", borderTopColor: "#7c3aed" }}
             />
+          </div>
+        )}
+
+        {/* No results */}
+        {!loading && expressions.length === 0 && (searchQuery || activeTag) && (
+          <div style={{ textAlign: "center", marginTop: "4rem", color: "#9ca3af" }}>
+            <div style={{ fontSize: 36, marginBottom: "0.75rem" }}>🔍</div>
+            <p style={{ fontSize: 16 }}>{t.noResults}</p>
           </div>
         )}
 
