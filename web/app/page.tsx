@@ -13,7 +13,7 @@ import SearchBar from "@/components/ui/SearchBar";
 import Eyebrow from "@/components/home/Eyebrow";
 import {
   searchExpressions, searchByConcept, browseByRegion, getTopTags,
-  getRandomExpression, getAllTagNames, getRegions, Expression,
+  getRandomExpression, getExpression, getAllTagNames, getRegions, Expression,
 } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
@@ -341,6 +341,32 @@ export default function Home() {
     };
     tryFetch();
     return () => { cancelled = true; };
+  }, [uiLang]);
+
+  // When UI language changes on an already-loaded expression, re-fetch translation
+  // (the expression stays the same, only the meaning/literal update)
+  useEffect(() => {
+    if (!featuredLoadedRef.current || !featured) return;
+    const fetchId = featured.id;
+    let cancelled = false;
+    getExpression(fetchId, uiLang).then((data) => {
+      if (cancelled) return;
+      const displayMeaning =
+        uiLang !== data.language && data.translation?.meaning
+          ? data.translation.meaning
+          : data.meaning;
+      const displayLiteral =
+        uiLang !== data.language && data.translation?.literal
+          ? data.translation.literal
+          : null;
+      setFeatured((prev) =>
+        prev && prev.id === fetchId
+          ? { ...prev, meaning: displayMeaning, literal: displayLiteral }
+          : prev
+      );
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uiLang]);
 
   useEffect(() => {

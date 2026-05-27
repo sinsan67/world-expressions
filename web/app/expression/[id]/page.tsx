@@ -11,8 +11,10 @@ import {
   Expression,
 } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
-import { FLAG, COUNTRY_NAME, COUNTRY_GRADIENT } from "@/lib/constants";
+import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { cap } from "@/lib/utils";
+import CountryPhotoBackdrop from "@/components/home/CountryPhotoBackdrop";
+import Eyebrow from "@/components/home/Eyebrow";
 
 type UILang = "fr" | "en" | "es" | "tr" | "it";
 
@@ -107,23 +109,63 @@ const LANGUAGE_NAME: Record<string, string> = {
 };
 
 function MiniCard({ expr, lang }: { expr: Expression; lang: string }) {
-  const gradient = COUNTRY_GRADIENT[expr.region] || "linear-gradient(90deg, #7c3aed, #a78bfa)";
   return (
     <Link
       href={`/expression/${expr.id}?lang=${lang}`}
-      className="block rounded-xl overflow-hidden transition-shadow hover:shadow-md"
-      style={{ background: "#fff", border: "1px solid #ede9fe" }}
+      style={{
+        display: "block",
+        background: "var(--paper)",
+        border: "1px solid var(--paper-edge)",
+        borderRadius: "var(--r-md)",
+        overflow: "hidden",
+        transition: "box-shadow 150ms ease",
+        textDecoration: "none",
+      }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-card)"; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
     >
-      <div style={{ height: 4, background: gradient }} />
-      <div className="p-3">
-        <p className="text-sm font-semibold leading-snug" style={{ color: "#1a0a2e" }}>
+      <div style={{ height: 3, background: "var(--terra)" }} />
+      <div style={{ padding: "0.75rem" }}>
+        <p style={{
+          fontSize: 13,
+          fontFamily: "var(--font-display)",
+          fontStyle: "italic",
+          fontWeight: 500,
+          color: "var(--ink)",
+          lineHeight: 1.3,
+          marginBottom: "0.3rem",
+        }}>
           {FLAG[expr.region] || ""} {cap(expr.expression)}
         </p>
-        <p className="text-xs mt-1 line-clamp-2" style={{ color: "#6b7280" }}>
+        <p style={{
+          fontSize: 12,
+          color: "var(--ink-softer)",
+          lineHeight: 1.4,
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+        }}>
           {expr.meaning}
         </p>
       </div>
     </Link>
+  );
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p style={{
+      fontSize: 10,
+      fontWeight: 700,
+      textTransform: "uppercase",
+      letterSpacing: "0.1em",
+      color: "var(--ink-softer)",
+      fontFamily: "var(--font-body)",
+      marginBottom: "0.5rem",
+    }}>
+      {children}
+    </p>
   );
 }
 
@@ -173,17 +215,22 @@ function ExpressionPageContent({ id }: { id: string }) {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: "#f5f3ff" }}>
-        <p style={{ color: "#7c3aed" }}>Expression not found.</p>
-        <Link href="/" className="text-sm" style={{ color: "#9ca3af" }}>← Back</Link>
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, background: "var(--paper)" }}>
+        <p style={{ color: "var(--terra)" }}>Expression not found.</p>
+        <Link href="/" style={{ fontSize: 13, color: "var(--ink-faint)", textDecoration: "none" }}>← Back</Link>
       </div>
     );
   }
 
   if (!expr) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#f5f3ff" }}>
-        <div style={{ color: "#c4b5fd", fontSize: "2rem" }}>…</div>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--paper)" }}>
+        <div className="wex-skeleton" style={{
+          width: 320, height: 200,
+          background: "var(--paper-deep)",
+          borderRadius: "var(--r-lg)",
+          border: "1px solid var(--paper-edge)",
+        }} />
       </div>
     );
   }
@@ -196,44 +243,67 @@ function ExpressionPageContent({ id }: { id: string }) {
   const primaryOrigin = translation?.origin ?? expr.origin;
   const primaryExample = translation?.example ?? expr.example;
 
-  const accentGradient = COUNTRY_GRADIENT[expr.region] || "linear-gradient(90deg, #7c3aed, #a78bfa)";
+  const photo = `/images/${expr.region}.jpg`;
   const flag = FLAG[expr.region] || "";
   const countryName = COUNTRY_NAME[expr.region] || expr.region.toUpperCase();
   const langName = LANGUAGE_NAME[expr.language] || expr.language.toUpperCase();
 
   return (
-    <div className="min-h-screen" style={{ background: "#f5f3ff" }}>
-      {/* Navbar */}
-      <nav
-        className="px-6 py-3 flex items-center justify-between sticky top-0 z-10"
-        style={{ background: "#fff", borderBottom: "1px solid #ede9fe" }}
-      >
-        <div className="flex items-center gap-4">
+    <div style={{ minHeight: "100vh", background: "var(--paper)" }}>
+
+      {/* Sticky navbar */}
+      <nav style={{
+        padding: "0.6rem 1.25rem",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        position: "sticky",
+        top: 0,
+        zIndex: 10,
+        background: "var(--paper)",
+        borderBottom: "1px solid var(--paper-edge)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <button
             onClick={() => {
               if (window.history.length > 1) router.back();
               else router.push("/");
             }}
-            className="text-sm flex items-center gap-1"
-            style={{ color: "#9ca3af" }}
+            style={{
+              fontSize: 13,
+              color: "var(--ink-softer)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+              fontFamily: "var(--font-body)",
+            }}
           >
             ← {t.back}
           </button>
-          <Link href="/" className="text-sm font-bold" style={{ color: "#7c3aed" }}>
-            World <em className="not-italic" style={{ color: "#c4b5fd" }}>Expressions</em>
+          <Link href="/" style={{ textDecoration: "none", fontFamily: "var(--font-display)" }}>
+            <span style={{ color: "var(--ink)", fontWeight: 500, fontStyle: "italic", fontSize: 16 }}>World </span>
+            <em style={{ color: "var(--terra)", fontStyle: "italic", fontSize: 16 }}>Expressions</em>
           </Link>
         </div>
-        <div className="flex gap-1">
+
+        {/* Language switcher */}
+        <div style={{ display: "flex", gap: 4 }}>
           {(["fr", "en", "es", "tr", "it"] as UILang[]).map((l) => (
             <Link
               key={l}
               href={`/expression/${id}?lang=${l}`}
-              className="text-xs px-2 py-1 rounded-full font-medium"
               style={{
-                background: lang === l ? "#7c3aed" : "transparent",
-                color: lang === l ? "#fff" : "#9ca3af",
-                border: "1px solid",
-                borderColor: lang === l ? "#7c3aed" : "#e5e7eb",
+                fontSize: 11,
+                padding: "3px 9px",
+                borderRadius: "var(--r-pill)",
+                fontWeight: 600,
+                fontFamily: "var(--font-body)",
+                background: lang === l ? "var(--plum)" : "transparent",
+                color: lang === l ? "var(--paper)" : "var(--ink-faint)",
+                border: `1px solid ${lang === l ? "var(--plum)" : "var(--paper-edge)"}`,
+                textDecoration: "none",
+                transition: "all 120ms ease",
               }}
             >
               {l}
@@ -242,131 +312,206 @@ function ExpressionPageContent({ id }: { id: string }) {
         </div>
       </nav>
 
-      <main className="max-w-2xl mx-auto px-4 py-8 flex flex-col gap-5">
+      {/* Hero — country photo backdrop */}
+      <CountryPhotoBackdrop photo={photo} fadeBottom>
+        <div style={{ padding: "2rem 1.5rem 5rem", maxWidth: 720, margin: "0 auto" }}>
+          <Eyebrow tone="on-photo">
+            <Link
+              href={`/country/${expr.region}`}
+              style={{ color: "inherit", textDecoration: "none", fontWeight: 700 }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.75"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+            >
+              {flag} {countryName}
+            </Link>
+            {" · "}{langName}
+            {expr.register && expr.register !== "standard" && (
+              <> · <span style={{ textTransform: "none", letterSpacing: 0 }}>{t.register[expr.register] || expr.register}</span></>
+            )}
+          </Eyebrow>
 
-        {/* Header — flag + expression title */}
-        <div className="rounded-2xl overflow-hidden" style={{ background: "#fff", border: "1px solid #ede9fe" }}>
-          <div style={{ height: 6, background: accentGradient }} />
-          <div className="p-6">
-            <div className="flex items-center gap-2 mb-3 flex-wrap">
-              <span className="text-2xl">{flag}</span>
-              <span className="text-sm font-medium" style={{ color: "#7c3aed" }}>{countryName}</span>
-              <span style={{ color: "#d1d5db" }}>·</span>
-              <span className="text-sm" style={{ color: "#9ca3af" }}>{langName}</span>
-              {expr.register && expr.register !== "standard" && (
-                <>
-                  <span style={{ color: "#d1d5db" }}>·</span>
-                  <span
-                    className="text-xs px-1.5 py-0.5 rounded"
-                    style={{ background: "#f3f4f6", color: "#9ca3af" }}
-                  >
-                    {t.register[expr.register] || expr.register}
-                  </span>
-                </>
+          <h1 style={{
+            fontFamily: "var(--font-display)",
+            fontStyle: "italic",
+            fontSize: "clamp(28px, 6vw, 52px)",
+            fontWeight: 500,
+            color: "#fff",
+            lineHeight: 1.15,
+            marginTop: "0.75rem",
+            marginBottom: 0,
+            textShadow: "0 2px 12px rgba(28,20,16,0.4)",
+          }}>
+            {cap(expr.expression)}
+          </h1>
+
+          {/* Literal translation on photo, in hand font */}
+          {translationActive && translation?.literal && (
+            <p style={{
+              fontFamily: "var(--font-hand)",
+              fontSize: 22,
+              color: "rgba(255,255,255,0.8)",
+              marginTop: "0.5rem",
+              lineHeight: 1.3,
+            }}>
+              « {translation.literal} »
+            </p>
+          )}
+        </div>
+      </CountryPhotoBackdrop>
+
+      {/* Content */}
+      <main style={{ maxWidth: 720, margin: "0 auto", padding: "0 1.25rem 4rem" }}>
+
+        {/* Main content card */}
+        <div style={{
+          background: "var(--paper)",
+          border: "1px solid var(--paper-edge)",
+          borderRadius: "var(--r-lg)",
+          boxShadow: "var(--shadow-card)",
+          padding: "1.75rem",
+          marginTop: "-2.5rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "1.5rem",
+          position: "relative",
+          zIndex: 1,
+          animation: "fadeSlideUp 0.4s ease-out both",
+        }}>
+
+          {/* Meaning */}
+          <div>
+            <SectionLabel>{t.meaning}</SectionLabel>
+            <p style={{ fontSize: 15, color: "var(--ink-soft)", lineHeight: 1.7 }}>{primaryMeaning}</p>
+          </div>
+
+          {/* Literal + idiomatic translation block */}
+          {translationActive && translation?.literal && (
+            <div style={{
+              background: "var(--plum-bg)",
+              borderRadius: "var(--r-md)",
+              padding: "0.875rem 1rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.4rem",
+            }}>
+              <p style={{ fontSize: 13, color: "var(--plum)", lineHeight: 1.6 }}>
+                <span style={{ fontWeight: 600 }}>{t.wordForWord} : </span>
+                <em>« {translation.literal} »</em>
+              </p>
+              {translation.idiomatic && (
+                <p style={{ fontSize: 13, color: "var(--plum-deep)", lineHeight: 1.6 }}>
+                  <span style={{ fontWeight: 600 }}>→ {t.equivalent} : </span>
+                  {translation.idiomatic}
+                </p>
               )}
             </div>
-            <h1 className="text-3xl font-bold leading-tight" style={{ color: "#1a0a2e" }}>
-              {cap(expr.expression)}
-            </h1>
-          </div>
-        </div>
+          )}
 
-        {/* Content — all visible, no toggles */}
-        <div className="rounded-2xl" style={{ background: "#fff", border: "1px solid #ede9fe" }}>
-          <div className="p-6 flex flex-col gap-5">
-
-            {/* Meaning */}
+          {/* Example */}
+          {primaryExample && (
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: "#c4b5fd" }}>
-                {t.meaning}
+              <SectionLabel>{t.example}</SectionLabel>
+              <p style={{
+                fontSize: 13,
+                fontStyle: "italic",
+                color: "var(--ink-softer)",
+                borderLeft: "2px solid var(--terra-soft)",
+                paddingLeft: "0.75rem",
+                lineHeight: 1.65,
+              }}>
+                {primaryExample}
               </p>
-              <p className="text-base" style={{ color: "#374151" }}>{primaryMeaning}</p>
             </div>
+          )}
 
-            {/* Word-for-word + equivalent */}
-            {translationActive && translation?.literal && (
-              <div className="rounded-xl px-4 py-3 flex flex-col gap-1.5 text-sm" style={{ background: "#f5f3ff" }}>
-                <span style={{ color: "#6b21a8" }}>
-                  <span className="font-medium" style={{ color: "#7c3aed" }}>{t.wordForWord} : </span>
-                  <span className="italic">&ldquo;{translation.literal}&rdquo;</span>
-                </span>
-                {translation.idiomatic && (
-                  <span style={{ color: "#6b21a8" }}>
-                    <span className="font-medium" style={{ color: "#7c3aed" }}>→ {t.equivalent} : </span>
-                    {translation.idiomatic}
-                  </span>
-                )}
-              </div>
-            )}
+          {/* Separator */}
+          <hr style={{ border: "none", borderTop: "1px dashed var(--paper-edge)", margin: 0 }} />
 
-            {/* Example */}
-            {primaryExample && (
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: "#c4b5fd" }}>
-                  {t.example}
+          {/* Origin */}
+          {primaryOrigin && (
+            <div>
+              <SectionLabel>{t.origin}</SectionLabel>
+              <p style={{ fontSize: 13, color: "var(--ink-softer)", lineHeight: 1.65 }}>{primaryOrigin}</p>
+            </div>
+          )}
+
+          {/* Original version (when translation active) */}
+          {translationActive && (
+            <div style={{
+              background: "var(--paper-deep)",
+              borderRadius: "var(--r-md)",
+              padding: "0.875rem 1rem",
+              border: "1px solid var(--paper-edge)",
+            }}>
+              <SectionLabel>{flag} {t.original}</SectionLabel>
+              <p style={{ fontSize: 13, color: "var(--ink-soft)", lineHeight: 1.65 }}>{expr.meaning}</p>
+              {expr.example && (
+                <p style={{
+                  fontSize: 12,
+                  fontStyle: "italic",
+                  color: "var(--ink-softer)",
+                  marginTop: "0.5rem",
+                  borderLeft: "2px solid var(--paper-fold)",
+                  paddingLeft: "0.5rem",
+                  lineHeight: 1.5,
+                }}>
+                  {expr.example}
                 </p>
-                <p className="text-sm italic border-l-2 pl-3" style={{ color: "#6b7280", borderColor: "#ede9fe" }}>
-                  {primaryExample}
-                </p>
-              </div>
-            )}
+              )}
+            </div>
+          )}
 
-            {/* Origin */}
-            {primaryOrigin && (
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: "#c4b5fd" }}>
-                  {t.origin}
-                </p>
-                <p className="text-sm" style={{ color: "#6b7280" }}>{primaryOrigin}</p>
-              </div>
-            )}
+          {/* Source */}
+          {expr.source && (
+            <a
+              href={expr.source}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                fontSize: 12,
+                color: "var(--ink-faint)",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                textDecoration: "none",
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-softer)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-faint)"; }}
+            >
+              📎 {t.source} ↗
+            </a>
+          )}
 
-            {/* Original version (when translation active) */}
-            {translationActive && (
-              <div className="rounded-xl px-4 py-3 border" style={{ borderColor: "#ede9fe" }}>
-                <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "#c4b5fd" }}>
-                  {flag} {t.original}
-                </p>
-                <p className="text-sm" style={{ color: "#374151" }}>{expr.meaning}</p>
-                {expr.example && (
-                  <p className="text-xs italic mt-2 border-l-2 pl-2" style={{ color: "#6b7280", borderColor: "#ede9fe" }}>
-                    {expr.example}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {/* Source */}
-            {expr.source && (
-              <a
-                href={expr.source}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs flex items-center gap-1"
-                style={{ color: "#c4b5fd" }}
-              >
-                📎 {t.source} ↗
-              </a>
-            )}
-
-          </div>
         </div>
 
         {/* Tags */}
         {expr.tags.length > 0 && (
-          <div className="rounded-2xl p-4" style={{ background: "#fff", border: "1px solid #ede9fe" }}>
-            <p className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: "#c4b5fd" }}>
-              {t.tags}
-            </p>
-            <div className="flex flex-wrap gap-1.5">
+          <div style={{ marginTop: "1.25rem" }}>
+            <SectionLabel>{t.tags}</SectionLabel>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {expr.tags.map((tag) => {
                 const icon = tagIcon(tag);
+                const localLabel = tagNames[tag] || tag;
                 return (
                   <Link
                     key={tag}
-                    href={`/#q=${tag}`}
-                    className="flex items-center gap-1 text-xs rounded-full px-2.5 py-1 transition-colors"
-                    style={{ background: "#f5f3ff", color: "#7c3aed" }}
+                    href={`/#q=${encodeURIComponent(localLabel)}`}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                      fontSize: 12,
+                      padding: "4px 12px",
+                      borderRadius: "var(--r-pill)",
+                      border: "1.5px solid var(--plum-soft)",
+                      background: "var(--plum-bg)",
+                      color: "var(--plum)",
+                      textDecoration: "none",
+                      fontFamily: "var(--font-body)",
+                      transition: "border-color 120ms ease",
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--plum)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--plum-soft)"; }}
                   >
                     {icon && <span>{icon}</span>}
                     {tagNames[tag] || tag}
@@ -379,11 +524,9 @@ function ExpressionPageContent({ id }: { id: string }) {
 
         {/* Related expressions */}
         {related.length > 0 && (
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide mb-3 px-1" style={{ color: "#9ca3af" }}>
-              {t.related}
-            </p>
-            <div className="grid grid-cols-2 gap-3">
+          <div style={{ marginTop: "1.75rem" }}>
+            <SectionLabel>{t.related}</SectionLabel>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
               {related.map((r) => (
                 <MiniCard key={r.id} expr={r} lang={lang} />
               ))}
@@ -392,16 +535,24 @@ function ExpressionPageContent({ id }: { id: string }) {
         )}
 
         {/* Random button */}
-        <div className="flex justify-center py-4">
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "2.5rem" }}>
           <button
             onClick={goRandom}
             disabled={loadingRandom}
-            className="px-6 py-3 rounded-full font-medium text-sm"
             style={{
-              background: loadingRandom ? "#ede9fe" : "#7c3aed",
-              color: loadingRandom ? "#9ca3af" : "#fff",
+              padding: "0.65rem 1.75rem",
+              borderRadius: "var(--r-pill)",
+              border: "none",
+              background: loadingRandom ? "var(--paper-deep)" : "var(--plum)",
+              color: loadingRandom ? "var(--ink-faint)" : "var(--paper)",
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: "var(--font-body)",
               cursor: loadingRandom ? "not-allowed" : "pointer",
+              transition: "background 150ms ease",
             }}
+            onMouseEnter={(e) => { if (!loadingRandom) (e.currentTarget as HTMLElement).style.background = "var(--plum-deep)"; }}
+            onMouseLeave={(e) => { if (!loadingRandom) (e.currentTarget as HTMLElement).style.background = "var(--plum)"; }}
           >
             🎲 {loadingRandom ? "…" : t.randomBtn}
           </button>
@@ -421,8 +572,13 @@ export default function ExpressionPage({
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center" style={{ background: "#f5f3ff" }}>
-          <div style={{ color: "#c4b5fd", fontSize: "2rem" }}>…</div>
+        <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--paper)" }}>
+          <div className="wex-skeleton" style={{
+            width: 320, height: 200,
+            background: "var(--paper-deep)",
+            borderRadius: "var(--r-lg)",
+            border: "1px solid var(--paper-edge)",
+          }} />
         </div>
       }
     >
