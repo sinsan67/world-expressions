@@ -24,6 +24,8 @@ type Props = {
     anotherOne: string;
     readFile: string;
     atlasTitle: string;
+    atlasEyebrow: string;
+    moreCountries: string;
   };
 };
 
@@ -186,7 +188,7 @@ export default function HeroSection({ featured, uiLang, regions, tagNames, onRef
             </div>
           ) : (
             /* Loading skeleton */
-            <div style={{ flex: "1 1 320px", maxWidth: 520, height: 280, background: "rgba(253,248,238,0.5)", borderRadius: "var(--r-lg)", border: "1px solid var(--paper-edge)" }} />
+            <div className="wex-skeleton" style={{ flex: "1 1 320px", maxWidth: 520, height: 280, background: "rgba(253,248,238,0.5)", borderRadius: "var(--r-lg)", border: "1px solid var(--paper-edge)" }} />
           )}
 
           {/* RIGHT: Atlas card — desktop only */}
@@ -200,7 +202,7 @@ export default function HeroSection({ featured, uiLang, regions, tagNames, onRef
               boxShadow: "var(--shadow-postcard)",
               padding: "1.25rem",
             }}>
-              <Eyebrow tone="plum">L&rsquo;atlas</Eyebrow>
+              <Eyebrow tone="plum">{t.atlasEyebrow}</Eyebrow>
               <h3 style={{
                 fontFamily: "var(--font-display)",
                 fontSize: 20,
@@ -227,7 +229,7 @@ export default function HeroSection({ featured, uiLang, regions, tagNames, onRef
                 <>
                   <hr style={{ border: "none", borderTop: "1px dashed var(--paper-edge)", margin: "0.75rem 0 0.5rem" }} />
                   <p style={{ fontFamily: "var(--font-hand)", fontSize: 15, color: "var(--ink-softer)" }}>
-                    + {regions.length - 6} autres pays
+                    + {regions.length - 6} {t.moreCountries}
                   </p>
                 </>
               )}

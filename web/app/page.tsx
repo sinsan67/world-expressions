@@ -28,7 +28,7 @@ const T = {
     expressionOfDay: "Expression du jour",
     anotherOne: "Une autre",
     readFile: "Lire la fiche →",
-    atlasTitle: "14 pays, à toi",
+    atlasTitle: (n: number) => `${n} pays, à toi`,
     conceptsEyebrow: "Au fil des thèmes",
     conceptsTitle: "Les mots qui voyagent",
     atlasEyebrow: "L'atlas",
@@ -52,7 +52,7 @@ const T = {
     expressionOfDay: "Expression of the day",
     anotherOne: "Another one",
     readFile: "Read the card →",
-    atlasTitle: "14 countries, yours to explore",
+    atlasTitle: (n: number) => `${n} countries, yours to explore`,
     conceptsEyebrow: "Through the themes",
     conceptsTitle: "Words that travel",
     atlasEyebrow: "The atlas",
@@ -76,7 +76,7 @@ const T = {
     expressionOfDay: "Expresión del día",
     anotherOne: "Otra",
     readFile: "Ver la ficha →",
-    atlasTitle: "14 países, para ti",
+    atlasTitle: (n: number) => `${n} países, para ti`,
     conceptsEyebrow: "A través de los temas",
     conceptsTitle: "Las palabras que viajan",
     atlasEyebrow: "El atlas",
@@ -100,7 +100,7 @@ const T = {
     expressionOfDay: "Günün deyimi",
     anotherOne: "Başka biri",
     readFile: "Kartı oku →",
-    atlasTitle: "14 ülke, senin için",
+    atlasTitle: (n: number) => `${n} ülke, senin için`,
     conceptsEyebrow: "Temalar arasında",
     conceptsTitle: "Seyahat eden kelimeler",
     atlasEyebrow: "Atlas",
@@ -124,7 +124,7 @@ const T = {
     expressionOfDay: "Espressione del giorno",
     anotherOne: "Un'altra",
     readFile: "Leggi la scheda →",
-    atlasTitle: "14 paesi, tuoi da esplorare",
+    atlasTitle: (n: number) => `${n} paesi, tuoi da esplorare`,
     conceptsEyebrow: "Tra i temi",
     conceptsTitle: "Le parole che viaggiano",
     atlasEyebrow: "L'atlante",
@@ -306,13 +306,25 @@ export default function Home() {
     const storedLang = sessionStorage.getItem("featured_lang");
     if (stored && storedLang === uiLang) {
       setFeatured(JSON.parse(stored));
-    } else {
+      return;
+    }
+    let cancelled = false;
+    let attempt = 0;
+    const tryFetch = () => {
       getRandomExpression(uiLang).then((expr) => {
+        if (cancelled) return;
         setFeatured(expr);
         sessionStorage.setItem("featured_expression", JSON.stringify(expr));
         sessionStorage.setItem("featured_lang", uiLang);
-      }).catch(() => {});
-    }
+      }).catch(() => {
+        if (!cancelled && attempt < 5) {
+          attempt++;
+          setTimeout(tryFetch, 8000);
+        }
+      });
+    };
+    tryFetch();
+    return () => { cancelled = true; };
   }, [uiLang]);
 
   useEffect(() => {
@@ -366,7 +378,7 @@ export default function Home() {
           tagNames={tagNames}
           onRefresh={refreshFeatured}
           onConceptClick={(tag) => { const icon = tagIcon(tag) ?? ""; const name = tagNames[tag] ?? tag; setSearchLabel(`${icon ? icon + " " : ""}${name}`); runConceptSearch(tag); }}
-          t={{ expressionOfDay: t.expressionOfDay, anotherOne: t.anotherOne, readFile: t.readFile, atlasTitle: t.atlasTitle }}
+          t={{ expressionOfDay: t.expressionOfDay, anotherOne: t.anotherOne, readFile: t.readFile, atlasTitle: t.atlasTitle(regions.length), atlasEyebrow: t.atlasEyebrow, moreCountries: t.moreCountries }}
         />
 
         {/* Mobile header — lang switcher, shown only on mobile */}
@@ -487,7 +499,7 @@ export default function Home() {
           <section className="wex-mobile-header" style={{ flexDirection: "column", padding: "2rem 1.5rem", borderTop: "1px solid var(--paper-edge)" }}>
             <Eyebrow tone="softer">{t.atlasEyebrow}</Eyebrow>
             <h2 style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--ink)", margin: "0.4rem 0 1.25rem", fontWeight: 500 }}>
-              {t.atlasTitle}
+              {t.atlasTitle(regions.length)}
             </h2>
             <div style={{ display: "flex", gap: "0.75rem", overflowX: "auto", paddingBottom: "0.5rem" }}>
               {regions.map((r, i) => (
