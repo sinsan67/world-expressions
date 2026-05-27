@@ -439,6 +439,13 @@ def get_type_counts(regions: Optional[set[str]] = None, tag_set: Optional[set[st
     }
 
 
+def get_all_slugs() -> list[str]:
+    """Retourne tous les IDs d'expressions (sauf les mots) — pour le sitemap."""
+    sql = text("SELECT id FROM expressions WHERE type != 'word' ORDER BY id")
+    with engine.connect() as conn:
+        return [row.id for row in conn.execute(sql)]
+
+
 def subscribe_newsletter(email: str, language: str) -> dict:
     """
     Enregistre un abonné à la newsletter.

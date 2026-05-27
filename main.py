@@ -171,6 +171,12 @@ class SubscribeRequest(BaseModel):
     language: str = "en"
 
 
+@app.get("/slugs")
+def get_slugs():
+    """Return all expression IDs — used for sitemap generation only."""
+    return {"slugs": database.get_all_slugs()}
+
+
 @app.post("/newsletter/subscribe")
 def newsletter_subscribe(body: SubscribeRequest):
     email = body.email.strip().lower()
