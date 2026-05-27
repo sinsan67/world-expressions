@@ -27,7 +27,12 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import text
 
-load_dotenv(Path(__file__).parent.parent / ".env")
+import argparse as _argparse_early
+_early = _argparse_early.ArgumentParser(add_help=False)
+_early.add_argument("--staging", action="store_true")
+_early_args, _ = _early.parse_known_args()
+_env_file = ".env.staging" if _early_args.staging else ".env"
+load_dotenv(Path(__file__).parent.parent / _env_file)
 
 from mistralai.client import Mistral
 from config import engine
@@ -166,6 +171,8 @@ def main():
                         help="Affiche les expressions sans appeler l'API ni écrire en base")
     parser.add_argument("--delay", type=float, default=0.3,
                         help="Délai entre appels API en secondes (défaut: 0.3)")
+    parser.add_argument("--staging", action="store_true",
+                        help="Utilise la base staging (.env.staging)")
     args = parser.parse_args()
 
     if args.source == args.target:

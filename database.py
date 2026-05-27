@@ -346,6 +346,11 @@ def get_translation(expression_id: str, target_lang: str) -> Optional[dict]:
 
 def get_expression_by_id(expression_id: str) -> Optional[dict]:
     """Retourne une expression par son id (avec contenu et tags), ou None si elle n'existe pas."""
+    # Triple LEFT JOIN :
+    # ec_orig   = expression_content dans la langue de l'expression (source primaire)
+    # ct_native = content_translations avec target_lang = langue de l'expression
+    #             (ex. expressions kaikki dont le contenu FR a été généré par Mistral)
+    # ec_en     = expression_content EN en dernier recours (ex. kaikki sans contenu FR généré)
     sql = """
         SELECT
             e.id,
@@ -355,18 +360,26 @@ def get_expression_by_id(expression_id: str) -> Optional[dict]:
             e.register,
             e.illustration,
             e.source,
-            ec.meaning,
-            ec.origin,
-            ec.example,
+            e."type",
+            COALESCE(ec_orig.meaning, ct_native.meaning, ec_en.meaning) AS meaning,
+            COALESCE(ec_orig.origin,  ct_native.origin,  ec_en.origin)  AS origin,
+            COALESCE(ec_orig.example, ct_native.example, ec_en.example) AS example,
             STRING_AGG(t.slug, ',') AS tags
         FROM expressions e
-        LEFT JOIN expression_content ec
-            ON ec.expression_id = e.id AND ec.locale = e.language
+        LEFT JOIN expression_content ec_orig
+            ON ec_orig.expression_id = e.id AND ec_orig.locale = e.language
+        LEFT JOIN content_translations ct_native
+            ON ct_native.expression_id = e.id AND ct_native.target_lang = e.language
+        LEFT JOIN expression_content ec_en
+            ON ec_en.expression_id = e.id AND ec_en.locale = 'en'
         LEFT JOIN expression_tags et ON et.expression_id = e.id
         LEFT JOIN tags t ON t.id = et.tag_id
         WHERE e.id = :id
         GROUP BY e.id, e.text, e.language, e.region, e.register,
-                 e.illustration, e.source, ec.meaning, ec.origin, ec.example
+                 e.illustration, e.source, e."type",
+                 ec_orig.meaning, ec_orig.origin, ec_orig.example,
+                 ct_native.meaning, ct_native.origin, ct_native.example,
+                 ec_en.meaning, ec_en.origin, ec_en.example
     """
 
     with engine.connect() as conn:
