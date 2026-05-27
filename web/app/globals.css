@@ -1,30 +1,136 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* PAPER & INK */
+  --paper:        #fdf8ee;
+  --paper-deep:   #f3e8d4;
+  --paper-edge:   #e8dcc4;
+  --paper-fold:   #ddd0b5;
+  --ink:          #1c1410;
+  --ink-soft:     #5c4f47;
+  --ink-softer:   #8b7d72;
+  --ink-faint:    #b8aa9b;
+
+  /* BRAND — softened purple */
+  --plum:         #6b4d8f;
+  --plum-deep:    #4a3565;
+  --plum-soft:    #c9b8d9;
+  --plum-bg:      #ebe3f1;
+
+  /* ACCENT — terracotta stamp */
+  --terra:        #c1543a;
+  --terra-deep:   #92341f;
+  --terra-soft:   #f0c8b8;
+  --terra-bg:     #f7e3d8;
+
+  /* HIGHLIGHT — ochre */
+  --ochre:        #d4a83a;
+  --ochre-deep:   #8b6b1c;
+  --ochre-soft:   #f1e1a8;
+  --ochre-bg:     #faf2cf;
+
+  /* TYPOGRAPHY */
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-hand:    "Caveat", "Comic Sans MS", cursive;
+
+  /* SHADOWS — warm, never gray */
+  --shadow-postcard: 3px 6px 0 rgba(28,20,16,0.08), 1px 2px 4px rgba(28,20,16,0.06);
+  --shadow-stamp:    1px 2px 0 rgba(28,20,16,0.12);
+  --shadow-card:     0 1px 2px rgba(28,20,16,0.05), 0 4px 12px rgba(28,20,16,0.06);
+  --shadow-deep:     0 8px 28px rgba(28,20,16,0.18);
+
+  /* RADIUS */
+  --r-sm:   6px;
+  --r-md:   10px;
+  --r-lg:   18px;
+  --r-pill: 999px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
 }
 
+/* ─── Country photo backdrop ─── */
+.country-photo {
+  position: relative;
+  background-color: var(--paper-deep);
+  isolation: isolate;
+}
+.country-photo::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: var(--photo);
+  background-size: cover;
+  background-position: center;
+  filter: sepia(0.42) saturate(0.7) contrast(0.96) brightness(0.92);
+  z-index: 0;
+}
+.country-photo::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(193,84,58,0.32) 0%,
+    rgba(107,77,143,0.22) 100%
+  );
+  mix-blend-mode: multiply;
+  z-index: 1;
+}
+.country-photo > * { position: relative; z-index: 2; }
+
+.country-photo.fade-bottom::after {
+  background:
+    linear-gradient(135deg, rgba(193,84,58,0.30) 0%, rgba(107,77,143,0.20) 100%),
+    linear-gradient(to bottom, transparent 50%, var(--paper) 100%);
+  mix-blend-mode: normal;
+  opacity: 0.95;
+}
+
+/* ─── Country stamp perforation ─── */
+.country-stamp {
+  background-color: var(--stamp-tint, var(--paper-deep));
+  border-radius: 4px;
+  position: relative;
+  box-shadow: var(--shadow-stamp), inset 0 0 0 1px rgba(28,20,16,0.06);
+  background-image:
+    radial-gradient(circle at 0 0, var(--paper) 5px, transparent 5.5px),
+    radial-gradient(circle at 100% 0, var(--paper) 5px, transparent 5.5px),
+    radial-gradient(circle at 0 100%, var(--paper) 5px, transparent 5.5px),
+    radial-gradient(circle at 100% 100%, var(--paper) 5px, transparent 5.5px);
+  background-repeat: no-repeat;
+}
+.country-stamp__inner {
+  position: absolute; inset: 6px;
+  border: 1px solid rgba(28,20,16,0.18);
+  border-radius: 2px;
+  padding: 8px;
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+}
+
+/* ─── Responsive layout helpers ─── */
+.wex-sidebar { display: none; }
+.wex-bottom-nav { display: flex; }
+.wex-main { flex: 1; min-width: 0; }
+.wex-atlas-card { display: none; }
+.wex-mobile-header { display: flex; }
+
+@media (min-width: 1024px) {
+  .wex-sidebar { display: flex; flex-direction: column; }
+  .wex-bottom-nav { display: none !important; }
+  .wex-main { margin-left: 220px; }
+  .wex-atlas-card { display: block; }
+  .wex-mobile-header { display: none; }
+}
+
+/* ─── Keyframes ─── */
 @keyframes fadeSlideUp {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -40,10 +146,6 @@ body {
   to   { opacity: 1; }
 }
 
-.hero-input::placeholder {
-  color: rgba(255, 255, 255, 0.45);
-}
-
-.explore-input::placeholder {
-  color: #9ca3af;
-}
+/* ─── Form inputs ─── */
+.wex-input::placeholder { color: var(--ink-faint); }
+.wex-input:focus { outline: none; }

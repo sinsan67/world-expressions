@@ -50,13 +50,11 @@ type Props = { onSelect: (lang: UILang) => void };
 
 export default function WelcomeModal({ onSelect }: Props) {
   const [selected, setSelected] = useState<UILang>(detectBrowserLang());
-  // Preloaded previews for each language: { fr: [...], en: [...], ... }
   const [previewsByLang, setPreviewsByLang] = useState<Partial<Record<UILang, PreviewItem[]>>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const init = async () => {
-      // Fetch 5 random expressions to find 2-3 diverse ones (different languages)
       const randoms = await Promise.allSettled(
         Array.from({ length: 5 }, () => getRandomExpression("en"))
       );
@@ -64,7 +62,6 @@ export default function WelcomeModal({ onSelect }: Props) {
         .filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled")
         .map((r) => r.value);
 
-      // Pick 3, preferring different source languages
       const seenIds = new Set<string>();
       const seenLangs = new Set<string>();
       const chosen: any[] = [];
@@ -81,7 +78,6 @@ export default function WelcomeModal({ onSelect }: Props) {
       const ids = chosen.slice(0, 3).map((e: any) => e.id);
       if (ids.length === 0) { setLoading(false); return; }
 
-      // Pre-fetch each expression in all 5 languages in parallel
       const byLang: Partial<Record<UILang, PreviewItem[]>> = {};
       await Promise.all(
         ALL_LANGS.map(async (lang) => {
@@ -122,7 +118,7 @@ export default function WelcomeModal({ onSelect }: Props) {
     <div
       style={{
         position: "fixed", inset: 0, zIndex: 1000,
-        background: "rgba(10,4,28,0.78)",
+        background: "rgba(28,20,16,0.72)",
         display: "flex", alignItems: "center", justifyContent: "center",
         padding: "1rem",
         animation: "fadeIn 0.25s ease-out both",
@@ -130,20 +126,22 @@ export default function WelcomeModal({ onSelect }: Props) {
     >
       <div
         style={{
-          background: "#fff", borderRadius: 20,
+          background: "var(--paper)",
+          borderRadius: "var(--r-lg)",
           padding: "2rem 2rem 1.75rem",
           maxWidth: 460, width: "100%",
-          boxShadow: "0 24px 60px rgba(0,0,0,0.4)",
+          border: "1px solid var(--paper-edge)",
+          boxShadow: "var(--shadow-deep)",
           animation: "fadeSlideUp 0.3s ease-out both",
         }}
       >
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: "1.25rem" }}>
           <div style={{ fontSize: 34, marginBottom: "0.4rem" }}>🌍</div>
-          <h2 style={{ fontSize: 21, fontWeight: 800, color: "#1f2937", marginBottom: "0.4rem" }}>
-            World Expressions
+          <h2 style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 500, color: "var(--ink)", marginBottom: "0.4rem" }}>
+            World <em style={{ color: "var(--terra)" }}>Expressions</em>
           </h2>
-          <p style={{ fontSize: 14, color: "#7c3aed", fontStyle: "italic", fontWeight: 500, minHeight: 22 }}>
+          <p style={{ fontFamily: "var(--font-hand)", fontSize: 16, color: "var(--plum)", minHeight: 22 }}>
             {TAGLINES[selected]}
           </p>
         </div>
@@ -151,36 +149,41 @@ export default function WelcomeModal({ onSelect }: Props) {
         {/* Expression previews */}
         <div
           style={{
-            background: "#f5f3ff", borderRadius: 12,
-            padding: "0.85rem 1rem", marginBottom: "1.25rem",
+            background: "var(--paper-deep)",
+            borderRadius: "var(--r-md)",
+            padding: "0.85rem 1rem",
+            marginBottom: "1.25rem",
             minHeight: 100,
+            border: "1px solid var(--paper-edge)",
             display: "flex", flexDirection: "column", gap: "0.75rem",
           }}
         >
           {loading || previews.length === 0 ? (
             [0, 1, 2].map((i) => (
               <div key={i} style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
-                <div style={{ width: 20, height: 16, borderRadius: 3, background: "#e5e7eb", flexShrink: 0, marginTop: 2 }} />
+                <div style={{ width: 20, height: 16, borderRadius: 3, background: "var(--paper-fold)", flexShrink: 0, marginTop: 2 }} />
                 <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 5 }}>
-                  <div style={{ height: 12, width: "60%", borderRadius: 6, background: "#e5e7eb" }} />
-                  <div style={{ height: 10, width: "80%", borderRadius: 6, background: "#ede9fe" }} />
+                  <div style={{ height: 12, width: "60%", borderRadius: 6, background: "var(--paper-fold)" }} />
+                  <div style={{ height: 10, width: "80%", borderRadius: 6, background: "var(--paper-edge)" }} />
                 </div>
               </div>
             ))
           ) : previews.map((e) => (
             <div key={e.id} style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
               <span style={{ fontSize: 15, flexShrink: 0, marginTop: 2 }}>{e.flag}</span>
-              <div style={{ fontSize: 12, lineHeight: 1.55 }}>
-                <div style={{ fontWeight: 700, color: "#4c1d95" }}>"{e.expression}"</div>
+              <div style={{ fontSize: 12, lineHeight: 1.55, fontFamily: "var(--font-body)" }}>
+                <div style={{ fontWeight: 700, color: "var(--ink)", fontFamily: "var(--font-display)", fontStyle: "italic" }}>
+                  &ldquo;{e.expression}&rdquo;
+                </div>
                 {e.meaning && (
-                  <div style={{ color: "#374151" }}>{truncate(e.meaning)}</div>
+                  <div style={{ color: "var(--ink-soft)" }}>{truncate(e.meaning)}</div>
                 )}
                 {e.literal && (
-                  <div style={{ color: "#9ca3af", fontSize: 11 }}>
+                  <div style={{ color: "var(--ink-faint)", fontSize: 11 }}>
                     Lit: <em>{truncate(e.literal, 60)}</em>
                     {e.idiomatic && (
-                      <span style={{ marginLeft: "0.5rem", color: "#7c3aed" }}>
-                        · "{truncate(e.idiomatic, 40)}"
+                      <span style={{ marginLeft: "0.5rem", color: "var(--plum)" }}>
+                        · &ldquo;{truncate(e.idiomatic, 40)}&rdquo;
                       </span>
                     )}
                   </div>
@@ -193,8 +196,8 @@ export default function WelcomeModal({ onSelect }: Props) {
         {/* Language selector */}
         <p style={{
           fontSize: 11, fontWeight: 700, textTransform: "uppercase",
-          letterSpacing: "0.07em", color: "#9ca3af",
-          marginBottom: "0.6rem", textAlign: "center",
+          letterSpacing: "0.07em", color: "var(--ink-faint)",
+          marginBottom: "0.6rem", textAlign: "center", fontFamily: "var(--font-body)",
         }}>
           How should we explain things to you?
         </p>
@@ -204,12 +207,13 @@ export default function WelcomeModal({ onSelect }: Props) {
               key={lang}
               onClick={() => setSelected(lang)}
               style={{
-                padding: "0.45rem 1rem", borderRadius: 20, fontSize: 13, fontWeight: 700,
+                padding: "0.45rem 1rem", borderRadius: "var(--r-pill)", fontSize: 13, fontWeight: 700,
                 border: "2px solid",
-                borderColor: selected === lang ? "#7c3aed" : "#e5e7eb",
-                background: selected === lang ? "#7c3aed" : "#fff",
-                color: selected === lang ? "#fff" : "#6b7280",
+                borderColor: selected === lang ? "var(--plum)" : "var(--paper-edge)",
+                background: selected === lang ? "var(--plum)" : "var(--paper)",
+                color: selected === lang ? "var(--paper)" : "var(--ink-soft)",
                 cursor: "pointer", transition: "all 0.15s",
+                fontFamily: "var(--font-body)",
               }}
             >
               {LANG_FLAGS[lang]} {lang.toUpperCase()}
@@ -221,15 +225,17 @@ export default function WelcomeModal({ onSelect }: Props) {
         <button
           onClick={() => handleSelect(selected)}
           style={{
-            width: "100%", padding: "0.85rem", borderRadius: 12,
+            width: "100%", padding: "0.85rem",
+            borderRadius: "var(--r-md)",
             fontSize: 16, fontWeight: 700,
-            background: "#7c3aed", color: "#fff",
+            background: "var(--plum)", color: "var(--paper)",
             border: "none", cursor: "pointer",
-            boxShadow: "0 4px 14px rgba(124,58,237,0.3)",
+            boxShadow: "0 4px 14px rgba(107,77,143,0.3)",
             transition: "background 0.15s",
+            fontFamily: "var(--font-body)",
           }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#6d28d9"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#7c3aed"; }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--plum-deep)"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--plum)"; }}
         >
           {CTA[selected]}
         </button>
