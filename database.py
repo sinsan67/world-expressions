@@ -399,6 +399,46 @@ def get_expression_by_id(expression_id: str) -> Optional[dict]:
     return _build_expression_dict(row, "direct") if row else None
 
 
+def get_type_counts(regions: Optional[set[str]] = None, tag_set: Optional[set[str]] = None, query: Optional[str] = None) -> dict:
+    """Retourne le nombre d'expressions par type (idiom/proverb/locution/word), avec filtres optionnels."""
+    region_sql, region_params = _region_clause(regions)
+    params: dict = {**region_params}
+
+    tag_join = ""
+    tag_where = ""
+    if tag_set:
+        tag_join = """
+            JOIN expression_tags et_f ON et_f.expression_id = e.id
+            JOIN tags t_f ON t_f.id = et_f.tag_id"""
+        tag_where = " AND t_f.slug = ANY(:tag_set_f)"
+        params["tag_set_f"] = list(tag_set)
+
+    query_join = ""
+    query_where = ""
+    if query:
+        query_join = "\n            LEFT JOIN expression_content ec_tc ON ec_tc.expression_id = e.id AND ec_tc.locale = e.language"
+        query_where = " AND (lower(e.text) LIKE :q_tc OR lower(ec_tc.meaning) LIKE :q_tc OR lower(ec_tc.example) LIKE :q_tc OR lower(ec_tc.origin) LIKE :q_tc)"
+        params["q_tc"] = f"%{query.lower().strip()}%"
+
+    sql = f"""
+        SELECT e."type", COUNT(DISTINCT e.id) AS n
+        FROM expressions e
+        {tag_join}
+        {query_join}
+        WHERE 1=1 {region_sql}{_EXCLUDE_PHRASEBOOK}{tag_where}{query_where}
+        GROUP BY e."type"
+    """
+    with engine.connect() as conn:
+        rows = conn.execute(text(sql), params).fetchall()
+    counts = {r.type: r.n for r in rows}
+    return {
+        "idiom":    counts.get("idiom", 0),
+        "proverb":  counts.get("proverb", 0),
+        "locution": counts.get("locution", 0),
+        "word":     counts.get("word", 0),
+    }
+
+
 def subscribe_newsletter(email: str, language: str) -> dict:
     """
     Enregistre un abonné à la newsletter.

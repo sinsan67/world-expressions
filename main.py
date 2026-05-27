@@ -149,6 +149,19 @@ def get_expression(
     return expr
 
 
+@app.get("/type-counts")
+def get_type_counts(
+    region: str = Query("", description="Comma-separated regions. Empty = all."),
+    tag: str = Query("", description="Comma-separated tag slugs for concept filter."),
+    q: str = Query("", description="Text search query."),
+):
+    """Return count of expressions per type, given optional region/concept/search filters."""
+    regions = set(region.split(",")) - {""} if region else None
+    tag_set = {t.lower().strip() for t in tag.split(",") if t.strip()} if tag else None
+    query = q.strip() or None
+    return database.get_type_counts(regions, tag_set, query)
+
+
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 _VALID_LANGS = {"fr", "en", "es", "it", "tr"}
 

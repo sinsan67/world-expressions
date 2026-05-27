@@ -4,10 +4,11 @@ import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import ExpressionCard from "@/components/ExpressionCard";
 import WelcomeModal from "@/components/WelcomeModal";
-import { searchExpressions, searchByConcept, browseByRegion, getTopTags, getRandomExpression, getAllTagNames, getRegions, Expression } from "@/lib/api";
+import { searchExpressions, searchByConcept, browseByRegion, getTopTags, getRandomExpression, getAllTagNames, getRegions, getTypeCounts, Expression, TypeCounts } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { cap } from "@/lib/utils";
+import { TYPE_LABELS } from "@/lib/typeLabels";
 
 const LIMIT = 20;
 
@@ -40,7 +41,9 @@ type UILang = "fr" | "en" | "es" | "tr" | "it";
 
 const T = {
   fr: {
-    expressionOfMoment: "Expression du moment",
+    expressionOfMoment: "Expression aléatoire",
+    filterByType: "Filtrer par type",
+    allTypes: "Tous",
     exploreConcept: "Explorer ce concept",
     exploreCountry: "Explorer ce pays",
     country: "Pays",
@@ -65,7 +68,9 @@ const T = {
     newsletterError: "Une erreur s'est produite, réessaie.",
   },
   en: {
-    expressionOfMoment: "Expression of the moment",
+    expressionOfMoment: "Random expression",
+    filterByType: "Filter by type",
+    allTypes: "All",
     exploreConcept: "Explore this concept",
     exploreCountry: "Explore this country",
     country: "Countries",
@@ -90,7 +95,9 @@ const T = {
     newsletterError: "Something went wrong, please try again.",
   },
   es: {
-    expressionOfMoment: "Expresión del momento",
+    expressionOfMoment: "Expresión aleatoria",
+    filterByType: "Filtrar por tipo",
+    allTypes: "Todos",
     exploreConcept: "Explorar este concepto",
     exploreCountry: "Explorar este país",
     country: "Países",
@@ -115,7 +122,9 @@ const T = {
     newsletterError: "Algo salió mal, inténtalo de nuevo.",
   },
   tr: {
-    expressionOfMoment: "Günün deyimi",
+    expressionOfMoment: "Rastgele deyim",
+    filterByType: "Türe göre filtrele",
+    allTypes: "Tümü",
     exploreConcept: "Bu kavramı keşfet",
     exploreCountry: "Bu ülkeyi keşfet",
     country: "Ülkeler",
@@ -140,7 +149,9 @@ const T = {
     newsletterError: "Bir şeyler ters gitti, tekrar dene.",
   },
   it: {
-    expressionOfMoment: "Espressione del momento",
+    expressionOfMoment: "Espressione casuale",
+    filterByType: "Filtra per tipo",
+    allTypes: "Tutti",
     exploreConcept: "Esplora questo concetto",
     exploreCountry: "Esplora questo paese",
     country: "Paesi",
@@ -223,6 +234,8 @@ export default function Home() {
   const featuredConceptRef = useRef<HTMLDivElement>(null);
   const [featuredCountryOpen, setFeaturedCountryOpen] = useState(false);
   const [featuredConceptOpen, setFeaturedConceptOpen] = useState(false);
+  const [typeFilter, setTypeFilter] = useState<string | null>(null);
+  const [typeCounts, setTypeCounts] = useState<TypeCounts>({ idiom: 0, proverb: 0, locution: 0, word: 0 });
   const [newsletterOpen, setNewsletterOpen] = useState(false);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterLang, setNewsletterLang] = useState<UILang>("en");
@@ -296,8 +309,9 @@ export default function Home() {
   }, [mixActive, searched, query, searchMode, activeRegions]);
 
   const runConceptSearch = useCallback(
-    async (tag: string, regions: string[]) => {
+    async (tag: string, regions: string[], tf: string | null = null) => {
       setQuery(tag);
+      setTypeFilter(tf);
       setSearchMode("concept");
       setLoading(true);
       setHasError(false);
@@ -306,10 +320,14 @@ export default function Home() {
       window.history.replaceState(null, "", "#q=" + encodeURIComponent(tag));
       exploreRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       try {
-        const data = await searchByConcept([tag], regions, LIMIT, 0);
+        const [data, counts] = await Promise.all([
+          searchByConcept([tag], regions, LIMIT, 0, tf ?? undefined),
+          getTypeCounts(regions, [tag]),
+        ]);
         setRawResults(data.results);
         setTotal(data.total);
         setHasMore(data.results.length < data.total);
+        setTypeCounts(counts);
       } catch {
         setHasError(true);
         setRawResults([]);
@@ -322,9 +340,10 @@ export default function Home() {
   );
 
   const handleSearch = useCallback(
-    async (q: string) => {
+    async (q: string, tf: string | null = null) => {
       if (q.trim().length < 2) return;
       setSearchLabel("");
+      setTypeFilter(tf);
       setSearchMode("text");
       setLoading(true);
       setHasError(false);
@@ -332,10 +351,14 @@ export default function Home() {
       setRawResults([]);
       window.history.replaceState(null, "", "#q=" + encodeURIComponent(q));
       try {
-        const data = await searchExpressions(q, activeRegions, LIMIT, 0);
+        const [data, counts] = await Promise.all([
+          searchExpressions(q, activeRegions, LIMIT, 0, tf ?? undefined),
+          getTypeCounts(activeRegions, [], q),
+        ]);
         setRawResults(data.results);
         setTotal(data.total);
         setHasMore(data.results.length < data.total);
+        setTypeCounts(counts);
       } catch {
         setHasError(true);
         setRawResults([]);
@@ -355,10 +378,10 @@ export default function Home() {
     try {
       const data =
         searchMode === "browse"
-          ? await browseByRegion(activeRegions, LIMIT, currentOffset)
+          ? await browseByRegion(activeRegions, LIMIT, currentOffset, typeFilter ?? undefined)
           : searchMode === "concept"
-          ? await searchByConcept([query], activeRegions, LIMIT, currentOffset)
-          : await searchExpressions(query, activeRegions, LIMIT, currentOffset);
+          ? await searchByConcept([query], activeRegions, LIMIT, currentOffset, typeFilter ?? undefined)
+          : await searchExpressions(query, activeRegions, LIMIT, currentOffset, typeFilter ?? undefined);
       setRawResults((prev) => [...prev, ...data.results]);
       setHasMore(currentOffset + data.results.length < data.total);
     } catch {
@@ -366,7 +389,7 @@ export default function Home() {
     } finally {
       setLoadingMore(false);
     }
-  }, [hasMore, loadingMore, searchMode, query, activeRegions, rawResults.length]);
+  }, [hasMore, loadingMore, searchMode, query, activeRegions, rawResults.length, typeFilter]);
 
   useEffect(() => {
     getRegions().then((data) => {
@@ -602,10 +625,19 @@ export default function Home() {
                       onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.2)"; (e.currentTarget as HTMLElement).style.color = "#fff"; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.6)"; }}
                     >
-                      🔀
+                      🎲
                     </button>
                   </div>
-                  <p style={{ fontSize: 17, fontWeight: 700, color: "#fff", marginBottom: "0.35rem", textShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>
+                  <p
+                    onClick={() => router.push(`/expression/${featured.id}`)}
+                    style={{
+                      fontSize: 17, fontWeight: 700, color: "#fff", marginBottom: "0.35rem",
+                      textShadow: "0 1px 4px rgba(0,0,0,0.3)", cursor: "pointer",
+                      textDecoration: "none", transition: "opacity 0.15s",
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.8"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+                  >
                     <span style={{ color: "#a78bfa", marginRight: 3 }}>"</span>
                     {cap(featured.expression)}
                     <span style={{ color: "#a78bfa", marginLeft: 3 }}>"</span>
@@ -988,6 +1020,50 @@ export default function Home() {
             </div>
 
           </div>
+
+          {/* Filtrer par type */}
+          {searched && (
+            <div style={{ marginTop: "0.75rem" }}>
+              <p style={{
+                fontSize: 11, fontWeight: 700, textTransform: "uppercase",
+                letterSpacing: "0.07em", color: "#9ca3af", marginBottom: "0.5rem", textAlign: "left",
+              }}>
+                {t.filterByType}
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                {([null, "idiom", "proverb", "locution", "word"] as const).map((type) => {
+                  const isActive = typeFilter === type;
+                  const baseLabel = type === null
+                    ? t.allTypes
+                    : (TYPE_LABELS[type]?.[uiLang] ?? TYPE_LABELS[type]?.["en"] ?? type);
+                  const count = type !== null ? typeCounts[type] : null;
+                  const label = count !== null && count > 0 ? `${baseLabel} (${count})` : baseLabel;
+                  return (
+                    <button
+                      key={type ?? "all"}
+                      onClick={() => {
+                        const newTf = isActive ? null : type;
+                        setTypeFilter(newTf);
+                        if (searchMode === "concept") runConceptSearch(query, activeRegions, newTf);
+                        else handleSearch(query, newTf);
+                      }}
+                      style={{
+                        fontSize: 13, padding: "6px 14px", borderRadius: 20,
+                        background: isActive ? "#4f46e5" : "#fff",
+                        border: `1.5px solid ${isActive ? "#4f46e5" : "#e5e7eb"}`,
+                        color: isActive ? "#fff" : "#4f46e5",
+                        cursor: "pointer", fontWeight: 500,
+                        boxShadow: isActive ? "0 2px 8px rgba(79,70,229,0.3)" : "none",
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

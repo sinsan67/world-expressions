@@ -143,3 +143,24 @@ export async function getRegions(): Promise<RegionInfo[]> {
   if (!res.ok) return [];
   return res.json();
 }
+
+export type TypeCounts = {
+  idiom: number;
+  proverb: number;
+  locution: number;
+  word: number;
+};
+
+export async function getTypeCounts(
+  regions: string[] = [],
+  tags: string[] = [],
+  query = ""
+): Promise<TypeCounts> {
+  const params = new URLSearchParams();
+  if (regions.length) params.set("region", regions.join(","));
+  if (tags.length) params.set("tag", tags.join(","));
+  if (query) params.set("q", query);
+  const res = await fetch(`${API}/type-counts?${params}`);
+  if (!res.ok) return { idiom: 0, proverb: 0, locution: 0, word: 0 };
+  return res.json();
+}

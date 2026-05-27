@@ -6,7 +6,7 @@ import Link from "next/link";
 import ExpressionCard from "@/components/ExpressionCard";
 import {
   browseByRegion, searchExpressions, searchByConcept,
-  getTopTags, getAllTagNames, Expression,
+  getTopTags, getAllTagNames, getTypeCounts, Expression, TypeCounts,
 } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
@@ -43,7 +43,8 @@ const T: Record<UILang, {
   exploreCountry: string;
   exploreAll: string;
   selectCountry: string;
-  topConcepts: string;
+  filterByConcept: string;
+  filterByType: string;
   allTypes: string;
   searchPlaceholder: (name: string) => string;
   searchPlaceholderExplore: string;
@@ -56,10 +57,11 @@ const T: Record<UILang, {
   fr: {
     backHome: "← World Expressions",
     countryOnly: (name) => `${name} uniquement`,
-    exploreCountry: "Explorer un pays",
+    exploreCountry: "Explorer un autre pays",
     exploreAll: "Explorer toutes les langues",
     selectCountry: "Choisir un pays…",
-    topConcepts: "Concepts populaires",
+    filterByConcept: "Filtrer par concept",
+    filterByType: "Filtrer par type",
     allTypes: "Tous",
     searchPlaceholder: (name) => `Chercher dans ${name}…`,
     searchPlaceholderExplore: "Chercher dans toutes les langues…",
@@ -72,10 +74,11 @@ const T: Record<UILang, {
   en: {
     backHome: "← World Expressions",
     countryOnly: (name) => `${name} only`,
-    exploreCountry: "Explore a country",
+    exploreCountry: "Explore another country",
     exploreAll: "Explore all languages",
     selectCountry: "Choose a country…",
-    topConcepts: "Top concepts",
+    filterByConcept: "Filter by concept",
+    filterByType: "Filter by type",
     allTypes: "All",
     searchPlaceholder: (name) => `Search in ${name}…`,
     searchPlaceholderExplore: "Search all languages…",
@@ -88,10 +91,11 @@ const T: Record<UILang, {
   es: {
     backHome: "← World Expressions",
     countryOnly: (name) => `Solo ${name}`,
-    exploreCountry: "Explorar un país",
+    exploreCountry: "Explorar otro país",
     exploreAll: "Explorar todos los idiomas",
     selectCountry: "Elegir un país…",
-    topConcepts: "Conceptos populares",
+    filterByConcept: "Filtrar por concepto",
+    filterByType: "Filtrar por tipo",
     allTypes: "Todos",
     searchPlaceholder: (name) => `Buscar en ${name}…`,
     searchPlaceholderExplore: "Buscar en todos los idiomas…",
@@ -104,10 +108,11 @@ const T: Record<UILang, {
   tr: {
     backHome: "← World Expressions",
     countryOnly: (name) => `Yalnızca ${name}`,
-    exploreCountry: "Bir ülkeyi keşfet",
+    exploreCountry: "Başka bir ülkeyi keşfet",
     exploreAll: "Tüm dilleri keşfet",
     selectCountry: "Ülke seç…",
-    topConcepts: "Popüler kavramlar",
+    filterByConcept: "Kavrama göre filtrele",
+    filterByType: "Türe göre filtrele",
     allTypes: "Tümü",
     searchPlaceholder: (name) => `${name}'de ara…`,
     searchPlaceholderExplore: "Tüm dillerde ara…",
@@ -120,10 +125,11 @@ const T: Record<UILang, {
   it: {
     backHome: "← World Expressions",
     countryOnly: (name) => `Solo ${name}`,
-    exploreCountry: "Esplora un paese",
+    exploreCountry: "Esplora un altro paese",
     exploreAll: "Esplora tutte le lingue",
     selectCountry: "Scegli un paese…",
-    topConcepts: "Concetti popolari",
+    filterByConcept: "Filtra per concetto",
+    filterByType: "Filtra per tipo",
     allTypes: "Tutti",
     searchPlaceholder: (name) => `Cerca in ${name}…`,
     searchPlaceholderExplore: "Cerca in tutte le lingue…",
@@ -154,6 +160,7 @@ function CountryPageContent({ code }: { code: string }) {
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
+  const [typeCounts, setTypeCounts] = useState<TypeCounts>({ idiom: 0, proverb: 0, locution: 0, word: 0 });
   const [showPickDropdown, setShowPickDropdown] = useState(false);
   const pickDropdownRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -188,6 +195,19 @@ function CountryPageContent({ code }: { code: string }) {
       })
       .catch(() => {});
   }, [lang, uiLang]);
+
+  const fetchTypeCounts = useCallback(
+    async (currentMode: Mode, tag: string | null, query: string | null) => {
+      const regions = currentMode === "country" || currentMode === "pick" ? [code] : [];
+      const counts = await getTypeCounts(regions, tag ? [tag] : [], query ?? "").catch(() => null);
+      if (counts) setTypeCounts(counts);
+    },
+    [code]
+  );
+
+  useEffect(() => {
+    fetchTypeCounts(mode, activeTag, searchQuery);
+  }, [mode, activeTag, searchQuery, fetchTypeCounts]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -576,13 +596,13 @@ function CountryPageContent({ code }: { code: string }) {
           </form>
 
           {/* Concept chips */}
-          {topTags.length > 0 && !searchQuery && (
+          {topTags.length > 0 && (
             <div style={{ marginBottom: "1rem" }}>
               <p style={{
                 fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const,
                 letterSpacing: "0.07em", color: "#9ca3af", marginBottom: "0.6rem",
               }}>
-                {t.topConcepts}
+                {t.filterByConcept}
               </p>
               <div style={{ display: "flex", flexWrap: "wrap" as const, gap: "0.4rem" }}>
                 {topTags.map((tag) => {
@@ -621,14 +641,16 @@ function CountryPageContent({ code }: { code: string }) {
               fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const,
               letterSpacing: "0.07em", color: "#9ca3af", marginBottom: "0.6rem",
             }}>
-              Type
+              {t.filterByType}
             </p>
             <div style={{ display: "flex", flexWrap: "wrap" as const, gap: "0.4rem" }}>
               {([null, "idiom", "proverb", "locution", "word"] as const).map((type) => {
                 const isActive = typeFilter === type;
-                const label = type === null
+                const baseLabel = type === null
                   ? t.allTypes
                   : (TYPE_LABELS[type]?.[uiLang] ?? TYPE_LABELS[type]?.["en"] ?? type);
+                const count = type !== null ? typeCounts[type] : null;
+                const label = count !== null && count > 0 ? `${baseLabel} (${count})` : baseLabel;
                 return (
                   <button
                     key={type ?? "all"}
