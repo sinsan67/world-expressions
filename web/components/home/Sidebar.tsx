@@ -1,13 +1,15 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
+import { getCarnet } from "@/lib/carnet";
 
-const NAV_ITEMS = [
-  { icon: "🏠", label: "Accueil",  href: "/",  count: undefined },
-  { icon: "🌍", label: "Atlas",    href: "#",   count: 14 },
-  { icon: "💡", label: "Concepts", href: "#",   count: 1050 },
-  { icon: "🎲", label: "Au hasard",href: "#",   count: undefined },
-  { icon: "♡",  label: "Favoris",  href: "/carnet", count: undefined },
+const BASE_NAV_ITEMS = [
+  { icon: "🏠", label: "Accueil",  href: "/",       count: undefined as number | undefined },
+  { icon: "🌍", label: "Atlas",    href: "#",        count: 14 },
+  { icon: "💡", label: "Concepts", href: "#",        count: 1050 },
+  { icon: "🎲", label: "Au hasard",href: "#",        count: undefined as number | undefined },
+  { icon: "♡",  label: "Favoris",  href: "/carnet",  count: undefined as number | undefined },
 ];
 
 const LANGS = ["fr", "en", "es", "it", "tr"] as const;
@@ -20,6 +22,17 @@ type Props = {
 
 export default function Sidebar({ uiLang, onLangChange }: Props) {
   const pathname = usePathname();
+  const [favCount, setFavCount] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const carnet = getCarnet();
+    const n = carnet.favorites.length;
+    setFavCount(n > 0 ? n : undefined);
+  }, []);
+
+  const navItems = BASE_NAV_ITEMS.map((item) =>
+    item.label === "Favoris" ? { ...item, count: favCount } : item
+  );
 
   return (
     <aside
@@ -51,7 +64,7 @@ export default function Sidebar({ uiLang, onLangChange }: Props) {
 
       {/* Nav */}
       <nav style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
-        {NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const isActive = item.href !== "#" && pathname === item.href;
           return (
             <Link
