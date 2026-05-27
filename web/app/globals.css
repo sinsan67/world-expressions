@@ -124,6 +124,16 @@ body {
   .wex-main { margin-left: 220px; }
   .wex-atlas-card { display: block; }
   .wex-mobile-header { display: none; }
+
+  /* Hero photo bleeds full viewport width — extends 220px behind the fixed sidebar */
+  .wex-main .country-photo::before {
+    left: -220px;
+    background-size: cover;
+    background-position: center 30%;
+  }
+  .wex-main .country-photo::after {
+    left: -220px;
+  }
 }
 
 /* ─── Keyframes ─── */

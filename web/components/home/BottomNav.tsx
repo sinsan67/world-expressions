@@ -6,7 +6,7 @@ const NAV_ITEMS = [
   { icon: "🏠", label: "Accueil", href: "/" },
   { icon: "🌍", label: "Atlas",   href: "#" },
   { icon: "💡", label: "Concepts", href: "#" },
-  { icon: "♡",  label: "Favoris", href: "#" },
+  { icon: "♡",  label: "Favoris", href: "/carnet" },
 ];
 
 export default function BottomNav() {

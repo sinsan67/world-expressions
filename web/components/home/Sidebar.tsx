@@ -7,7 +7,7 @@ const NAV_ITEMS = [
   { icon: "🌍", label: "Atlas",    href: "#",   count: 14 },
   { icon: "💡", label: "Concepts", href: "#",   count: 1050 },
   { icon: "🎲", label: "Au hasard",href: "#",   count: undefined },
-  { icon: "♡",  label: "Favoris",  href: "#",   count: undefined },
+  { icon: "♡",  label: "Favoris",  href: "/carnet", count: undefined },
 ];
 
 const LANGS = ["fr", "en", "es", "it", "tr"] as const;
