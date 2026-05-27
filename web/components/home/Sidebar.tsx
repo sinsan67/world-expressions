@@ -6,7 +6,7 @@ import { getCarnet } from "@/lib/carnet";
 
 const BASE_NAV_ITEMS = [
   { icon: "🏠", label: "Accueil",  href: "/",       count: undefined as number | undefined },
-  { icon: "🌍", label: "Atlas",    href: "#",        count: 14 },
+  { icon: "🌍", label: "Atlas",    href: "/atlas",   count: 14 },
   { icon: "💡", label: "Concepts", href: "#",        count: 1050 },
   { icon: "🎲", label: "Au hasard",href: "#",        count: undefined as number | undefined },
   { icon: "♡",  label: "Favoris",  href: "/carnet",  count: undefined as number | undefined },
