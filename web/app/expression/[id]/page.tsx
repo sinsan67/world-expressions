@@ -12,6 +12,7 @@ import {
 } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME, COUNTRY_GRADIENT } from "@/lib/constants";
+import { cap } from "@/lib/utils";
 
 type UILang = "fr" | "en" | "es" | "tr" | "it";
 
@@ -116,7 +117,7 @@ function MiniCard({ expr, lang }: { expr: Expression; lang: string }) {
       <div style={{ height: 4, background: gradient }} />
       <div className="p-3">
         <p className="text-sm font-semibold leading-snug" style={{ color: "#1a0a2e" }}>
-          {FLAG[expr.region] || ""} {expr.expression}
+          {FLAG[expr.region] || ""} {cap(expr.expression)}
         </p>
         <p className="text-xs mt-1 line-clamp-2" style={{ color: "#6b7280" }}>
           {expr.meaning}
@@ -265,7 +266,7 @@ function ExpressionPageContent({ id }: { id: string }) {
               )}
             </div>
             <h1 className="text-3xl font-bold leading-tight" style={{ color: "#1a0a2e" }}>
-              {expr.expression}
+              {cap(expr.expression)}
             </h1>
           </div>
         </div>

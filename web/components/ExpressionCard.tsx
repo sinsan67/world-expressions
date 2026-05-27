@@ -6,6 +6,7 @@ import { Expression } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { getTypeLabel } from "@/lib/typeLabels";
 import { FLAG, COUNTRY_GRADIENT } from "@/lib/constants";
+import { cap } from "@/lib/utils";
 
 const REGISTER_LABEL: Record<string, Record<string, string>> = {
   fr: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" },
@@ -45,7 +46,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
             className="text-base font-semibold leading-snug"
             style={{ color: "#1a0a2e" }}
           >
-            {e.expression}
+            {cap(e.expression)}
           </span>
           <div className="flex flex-wrap gap-1 mt-0.5">
             {typeLabel && (

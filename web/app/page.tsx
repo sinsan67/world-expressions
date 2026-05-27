@@ -7,6 +7,7 @@ import WelcomeModal from "@/components/WelcomeModal";
 import { searchExpressions, searchByConcept, browseByRegion, getTopTags, getRandomExpression, getAllTagNames, getRegions, Expression } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
+import { cap } from "@/lib/utils";
 
 const LIMIT = 20;
 
@@ -606,7 +607,7 @@ export default function Home() {
                   </div>
                   <p style={{ fontSize: 17, fontWeight: 700, color: "#fff", marginBottom: "0.35rem", textShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>
                     <span style={{ color: "#a78bfa", marginRight: 3 }}>"</span>
-                    {featured.expression}
+                    {cap(featured.expression)}
                     <span style={{ color: "#a78bfa", marginLeft: 3 }}>"</span>
                   </p>
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem" }}>

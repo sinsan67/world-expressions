@@ -290,7 +290,7 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, lim
 
 
 def browse_by_region(regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0) -> tuple[list[dict], int]:
-    """Retourne toutes les expressions d'une ou plusieurs régions, triées alphabétiquement."""
+    """Retourne toutes les expressions d'une ou plusieurs régions, dans un ordre aléatoire."""
     region_sql, region_params = _region_clause(regions)
 
     sql = """
@@ -306,7 +306,7 @@ def browse_by_region(regions: Optional[set[str]] = None, limit: int = 20, offset
         WHERE 1=1 {region_clause}{exclude_phrasebook}
         GROUP BY e.id, e.text, e.language, e.region, e.register,
                  e.illustration, e."type", e.source, ec.meaning, ec.origin, ec.example
-        ORDER BY CASE WHEN e."type" = 'word' THEN 1 ELSE 0 END, lower(e.text)
+        ORDER BY RANDOM()
         LIMIT :limit OFFSET :offset
     """.format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK)
 
