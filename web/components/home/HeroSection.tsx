@@ -116,7 +116,7 @@ export default function HeroSection({ featured, uiLang, regions, tagNames, onRef
 
                 {/* Meaning */}
                 <p style={{ fontSize: 14, color: "var(--ink-soft)", lineHeight: 1.65, marginBottom: "1.25rem", fontFamily: "var(--font-body)" }}>
-                  {featured.meaning_locale || featured.meaning}
+                  {featured.meaning}
                 </p>
 
                 {/* Tags + actions row */}
