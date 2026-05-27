@@ -6,6 +6,7 @@ type Carnet = {
     pseudo: string | null;
     createdAt: string;
     syncedAccountId: string | null;
+    bannerDismissed?: boolean;
   };
   favorites: Array<{
     expressionId: string;
@@ -155,6 +156,19 @@ export function getProgressByCountry(): CountryProgress[] {
   return Object.entries(counts)
     .map(([region, seen]) => ({ region, seen }))
     .sort((a, b) => b.seen - a.seen);
+}
+
+export function dismissBanner(): void {
+  const c = getCarnet();
+  c.user.bannerDismissed = true;
+  saveCarnet(c);
+}
+
+export function isBannerDismissed(): boolean {
+  if (typeof window === "undefined") return false;
+  // Migrate from old key
+  if (localStorage.getItem("wex_banner_dismissed")) return true;
+  return getCarnet().user.bannerDismissed === true;
 }
 
 export function exportJSON(): Blob {

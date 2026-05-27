@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { Expression } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
@@ -19,6 +22,8 @@ function fmtDate(iso: string): string {
 }
 
 export default function FavoriteRow({ expressionId, expression, savedAt, onRemove, uiLang }: Props) {
+  const [removing, setRemoving] = useState(false);
+
   const flag = expression ? (FLAG[expression.region] ?? "🌍") : "🌍";
   const country = expression ? (COUNTRY_NAME[expression.region] ?? expression.region.toUpperCase()) : "";
   const meaning = expression
@@ -26,6 +31,11 @@ export default function FavoriteRow({ expressionId, expression, savedAt, onRemov
         ? expression.translation.meaning
         : expression.meaning)
     : null;
+
+  function handleRemove() {
+    setRemoving(true);
+    setTimeout(onRemove, 250);
+  }
 
   return (
     <div
@@ -38,6 +48,8 @@ export default function FavoriteRow({ expressionId, expression, savedAt, onRemov
         borderRadius: "var(--r-md)",
         border: "1px solid var(--paper-edge)",
         boxShadow: "var(--shadow-card)",
+        animation: removing ? "fadeSlideOut 250ms ease-out forwards" : undefined,
+        overflow: "hidden",
       }}
     >
       {/* Flag */}
@@ -87,20 +99,22 @@ export default function FavoriteRow({ expressionId, expression, savedAt, onRemov
 
       {/* Remove button */}
       <button
-        onClick={onRemove}
+        onClick={handleRemove}
+        disabled={removing}
         style={{
           background: "none",
           border: "none",
-          cursor: "pointer",
+          cursor: removing ? "default" : "pointer",
           fontSize: 18,
           color: "var(--terra)",
           padding: "0.2rem",
           flexShrink: 0,
           lineHeight: 1,
           transition: "opacity 150ms ease",
+          opacity: removing ? 0.4 : 1,
         }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.6"; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+        onMouseEnter={(e) => { if (!removing) (e.currentTarget as HTMLElement).style.opacity = "0.6"; }}
+        onMouseLeave={(e) => { if (!removing) (e.currentTarget as HTMLElement).style.opacity = "1"; }}
         title="Retirer des favoris"
       >
         ♥

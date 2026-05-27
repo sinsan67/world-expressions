@@ -15,7 +15,7 @@ import HistoryRow from "@/components/carnet/HistoryRow";
 import NoteCard from "@/components/carnet/NoteCard";
 import AccountBanner from "@/components/carnet/AccountBanner";
 import ExportCard from "@/components/carnet/ExportCard";
-import { getCarnet, getStats, getProgressByCountry, toggleFavorite } from "@/lib/carnet";
+import { getCarnet, getStats, getProgressByCountry, toggleFavorite, dismissBanner, isBannerDismissed } from "@/lib/carnet";
 import { getExpression, getRegions, getAllTagNames, Expression, RegionInfo } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { tagIcon } from "@/lib/tagIcons";
@@ -35,6 +35,7 @@ const T: Record<UILang, {
   tabHistory: string;
   tabNotes: string;
   filterFav: string;
+  allCountries: string;
   clearHistory: string;
   last50: string;
   emptyFav: string;
@@ -63,6 +64,7 @@ const T: Record<UILang, {
     tabHistory: "Historique",
     tabNotes: "Notes",
     filterFav: "filtrer mes favoris…",
+    allCountries: "tous",
     clearHistory: "effacer l'historique",
     last50: "Tes 50 dernières lectures",
     emptyFav: "Pas encore de favoris — clique sur ♡ pour sauvegarder une expression",
@@ -91,6 +93,7 @@ const T: Record<UILang, {
     tabHistory: "History",
     tabNotes: "Notes",
     filterFav: "filter favorites…",
+    allCountries: "all",
     clearHistory: "clear history",
     last50: "Your last 50 reads",
     emptyFav: "No favorites yet — tap ♡ to save an expression",
@@ -119,6 +122,7 @@ const T: Record<UILang, {
     tabHistory: "Historial",
     tabNotes: "Notas",
     filterFav: "filtrar favoritos…",
+    allCountries: "todos",
     clearHistory: "borrar historial",
     last50: "Tus últimas 50 lecturas",
     emptyFav: "Sin favoritos aún — toca ♡ para guardar una expresión",
@@ -147,6 +151,7 @@ const T: Record<UILang, {
     tabHistory: "Cronologia",
     tabNotes: "Note",
     filterFav: "filtra preferiti…",
+    allCountries: "tutti",
     clearHistory: "cancella cronologia",
     last50: "Le tue ultime 50 letture",
     emptyFav: "Nessun preferito ancora — tocca ♡ per salvare",
@@ -175,6 +180,7 @@ const T: Record<UILang, {
     tabHistory: "Geçmiş",
     tabNotes: "Notlar",
     filterFav: "favorileri filtrele…",
+    allCountries: "tümü",
     clearHistory: "geçmişi temizle",
     last50: "Son 50 okumanız",
     emptyFav: "Henüz favori yok — ♡ tıkla",
@@ -215,6 +221,7 @@ export default function CarnetPage() {
   const [expressionMap, setExpressionMap] = useState<Record<string, Expression>>({});
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [filterQuery, setFilterQuery] = useState("");
+  const [countryFilter, setCountryFilter] = useState<string | null>(null);
 
   // Load carnet from localStorage on mount
   useEffect(() => {
@@ -231,8 +238,7 @@ export default function CarnetPage() {
     const d = new Date(c.user.createdAt);
     setMemberSince(d.toLocaleDateString(undefined, { month: "long", year: "numeric" }));
 
-    const dismissed = localStorage.getItem("wex_banner_dismissed");
-    if (dismissed) setBannerDismissed(true);
+    if (isBannerDismissed()) setBannerDismissed(true);
   }, []);
 
   // Fetch regions for progress totals
@@ -298,18 +304,35 @@ export default function CarnetPage() {
       .map(([slug]) => ({ slug, name: tagNames[slug] ?? slug }));
   })();
 
+  // Country chips computed from favorites × expressionMap
+  const favoriteCountries: Array<{ region: string; count: number; flag: string }> = (() => {
+    const counts: Record<string, number> = {};
+    favorites.forEach((f) => {
+      const region = expressionMap[f.expressionId]?.region;
+      if (region) counts[region] = (counts[region] ?? 0) + 1;
+    });
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([region, count]) => ({ region, count, flag: FLAG[region] ?? "🌍" }));
+  })();
+
   // Filtered favorites
-  const filteredFavorites = filterQuery.trim()
-    ? favorites.filter((f) => {
-        const expr = expressionMap[f.expressionId];
-        const q = filterQuery.toLowerCase();
-        return (
-          f.expressionId.toLowerCase().includes(q) ||
-          expr?.expression.toLowerCase().includes(q) ||
-          expr?.meaning.toLowerCase().includes(q)
-        );
-      })
-    : favorites;
+  const filteredFavorites = favorites.filter((f) => {
+    if (countryFilter) {
+      const region = expressionMap[f.expressionId]?.region;
+      if (region !== countryFilter) return false;
+    }
+    if (filterQuery.trim()) {
+      const expr = expressionMap[f.expressionId];
+      const q = filterQuery.toLowerCase();
+      return (
+        f.expressionId.toLowerCase().includes(q) ||
+        expr?.expression.toLowerCase().includes(q) ||
+        expr?.meaning.toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
 
   // Progress data: merge carnet history with API total counts
   const progressData = progressByCountry
@@ -474,29 +497,73 @@ export default function CarnetPage() {
                 }}
               />
 
-              <div style={{ marginTop: "1rem", opacity: 1, transition: "opacity 200ms ease" }}>
+              <div
+                key={activeTab}
+                style={{ marginTop: "1rem", animation: "fadeIn 200ms ease both" }}
+              >
                 {/* ── FAVORIS ── */}
                 {activeTab === "favoris" && (
                   <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                     {favorites.length > 0 && (
-                      <input
-                        type="search"
-                        placeholder={t.filterFav}
-                        value={filterQuery}
-                        onChange={(e) => setFilterQuery(e.target.value)}
-                        className="wex-input"
-                        style={{
-                          width: "100%",
-                          padding: "0.5rem 0.75rem",
-                          borderRadius: "var(--r-md)",
-                          border: "1.5px solid var(--paper-edge)",
-                          background: "var(--paper)",
-                          fontFamily: "var(--font-body)",
-                          fontSize: 13,
-                          color: "var(--ink)",
-                          boxSizing: "border-box",
-                        }}
-                      />
+                      <>
+                        <input
+                          type="search"
+                          placeholder={t.filterFav}
+                          value={filterQuery}
+                          onChange={(e) => setFilterQuery(e.target.value)}
+                          className="wex-input"
+                          style={{
+                            width: "100%",
+                            padding: "0.5rem 0.75rem",
+                            borderRadius: "var(--r-md)",
+                            border: "1.5px solid var(--paper-edge)",
+                            background: "var(--paper)",
+                            fontFamily: "var(--font-body)",
+                            fontSize: 13,
+                            color: "var(--ink)",
+                            boxSizing: "border-box",
+                          }}
+                        />
+
+                        {/* Country filter chips */}
+                        {favoriteCountries.length > 1 && (
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
+                            <button
+                              onClick={() => setCountryFilter(null)}
+                              style={{
+                                padding: "3px 10px",
+                                borderRadius: "var(--r-pill)",
+                                border: `1.5px solid ${countryFilter === null ? "var(--ink)" : "var(--paper-edge)"}`,
+                                background: countryFilter === null ? "var(--ink)" : "transparent",
+                                color: countryFilter === null ? "var(--paper)" : "var(--ink-soft)",
+                                fontSize: 12,
+                                fontFamily: "var(--font-body)",
+                                cursor: "pointer",
+                              }}
+                            >
+                              {t.allCountries} ({favorites.length})
+                            </button>
+                            {favoriteCountries.map(({ region, count, flag }) => (
+                              <button
+                                key={region}
+                                onClick={() => setCountryFilter(countryFilter === region ? null : region)}
+                                style={{
+                                  padding: "3px 10px",
+                                  borderRadius: "var(--r-pill)",
+                                  border: `1.5px solid ${countryFilter === region ? "var(--plum)" : "var(--paper-edge)"}`,
+                                  background: countryFilter === region ? "var(--plum-bg)" : "transparent",
+                                  color: countryFilter === region ? "var(--plum)" : "var(--ink-soft)",
+                                  fontSize: 12,
+                                  fontFamily: "var(--font-body)",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                {flag} {count}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </>
                     )}
 
                     {filteredFavorites.length === 0 ? (
@@ -628,7 +695,7 @@ export default function CarnetPage() {
                   cta={t.createAccount}
                   onDismiss={() => {
                     setBannerDismissed(true);
-                    localStorage.setItem("wex_banner_dismissed", "1");
+                    dismissBanner();
                   }}
                 />
               )}
