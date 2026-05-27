@@ -47,6 +47,8 @@ const T = {
     newsletterSuccess: "C'est noté ! Une expression par jour arrive dans ta boîte.",
     newsletterAlready: "Tu es déjà abonné(e) !",
     newsletterError: "Une erreur s'est produite, réessaie.",
+    types: { idiom: "expression", proverb: "proverbe", locution: "locution", word: "mot", expression: "expression" } as Record<string, string>,
+    registers: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" } as Record<string, string>,
   },
   en: {
     expressionOfDay: "Expression of the day",
@@ -71,6 +73,8 @@ const T = {
     newsletterSuccess: "You're in! One expression a day is on its way.",
     newsletterAlready: "You're already subscribed!",
     newsletterError: "Something went wrong, please try again.",
+    types: { idiom: "idiom", proverb: "proverb", locution: "locution", word: "word", expression: "expression" } as Record<string, string>,
+    registers: { standard: "standard", informal: "informal", slang: "slang", vulgar: "vulgar", formal: "formal" } as Record<string, string>,
   },
   es: {
     expressionOfDay: "Expresión del día",
@@ -95,6 +99,8 @@ const T = {
     newsletterSuccess: "¡Apuntado! Una expresión al día te espera.",
     newsletterAlready: "¡Ya estás suscrito/a!",
     newsletterError: "Algo salió mal, inténtalo de nuevo.",
+    types: { idiom: "modismo", proverb: "proverbio", locution: "locución", word: "palabra", expression: "expresión" } as Record<string, string>,
+    registers: { standard: "estándar", informal: "coloquial", slang: "argot", vulgar: "vulgar", formal: "formal" } as Record<string, string>,
   },
   tr: {
     expressionOfDay: "Günün deyimi",
@@ -119,6 +125,8 @@ const T = {
     newsletterSuccess: "Kaydoldun! Her gün bir deyim gelen kutuna gelecek.",
     newsletterAlready: "Zaten abonesin!",
     newsletterError: "Bir şeyler ters gitti, tekrar dene.",
+    types: { idiom: "deyim", proverb: "atasözü", locution: "deyiş", word: "kelime", expression: "ifade" } as Record<string, string>,
+    registers: { standard: "standart", informal: "gündelik", slang: "argo", vulgar: "kaba", formal: "resmi" } as Record<string, string>,
   },
   it: {
     expressionOfDay: "Espressione del giorno",
@@ -143,6 +151,8 @@ const T = {
     newsletterSuccess: "Iscritto! Un'espressione al giorno ti aspetta.",
     newsletterAlready: "Sei già iscritto/a!",
     newsletterError: "Qualcosa è andato storto, riprova.",
+    types: { idiom: "espressione", proverb: "proverbio", locution: "locuzione", word: "parola", expression: "espressione" } as Record<string, string>,
+    registers: { standard: "standard", informal: "informale", slang: "gergone", vulgar: "volgare", formal: "formale" } as Record<string, string>,
   },
 };
 
@@ -171,6 +181,7 @@ export default function Home() {
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
   const sentinelRef = useRef<HTMLDivElement>(null);
   const exploreRef = useRef<HTMLDivElement>(null);
+  const featuredLoadedRef = useRef(false);
 
   const t = T[uiLang];
   const allRegionCodes = regions.map((r) => r.code);
@@ -302,10 +313,14 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    // Don't reload the expression when the UI language changes — only labels translate.
+    // The expression is fetched once on mount and when the user explicitly clicks "another one".
+    if (featuredLoadedRef.current) return;
+
     const stored = sessionStorage.getItem("featured_expression");
-    const storedLang = sessionStorage.getItem("featured_lang");
-    if (stored && storedLang === uiLang) {
+    if (stored) {
       setFeatured(JSON.parse(stored));
+      featuredLoadedRef.current = true;
       return;
     }
     let cancelled = false;
@@ -314,6 +329,7 @@ export default function Home() {
       getRandomExpression(uiLang).then((expr) => {
         if (cancelled) return;
         setFeatured(expr);
+        featuredLoadedRef.current = true;
         sessionStorage.setItem("featured_expression", JSON.stringify(expr));
         sessionStorage.setItem("featured_lang", uiLang);
       }).catch(() => {
@@ -378,7 +394,7 @@ export default function Home() {
           tagNames={tagNames}
           onRefresh={refreshFeatured}
           onConceptClick={(tag) => { const icon = tagIcon(tag) ?? ""; const name = tagNames[tag] ?? tag; setSearchLabel(`${icon ? icon + " " : ""}${name}`); runConceptSearch(tag); }}
-          t={{ expressionOfDay: t.expressionOfDay, anotherOne: t.anotherOne, readFile: t.readFile, atlasTitle: t.atlasTitle(regions.length), atlasEyebrow: t.atlasEyebrow, moreCountries: t.moreCountries }}
+          t={{ expressionOfDay: t.expressionOfDay, anotherOne: t.anotherOne, readFile: t.readFile, atlasTitle: t.atlasTitle(regions.length), atlasEyebrow: t.atlasEyebrow, moreCountries: t.moreCountries, types: t.types, registers: t.registers }}
         />
 
         {/* Mobile header — lang switcher, shown only on mobile */}

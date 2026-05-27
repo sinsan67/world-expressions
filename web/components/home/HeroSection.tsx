@@ -26,6 +26,8 @@ type Props = {
     atlasTitle: string;
     atlasEyebrow: string;
     moreCountries: string;
+    types: Record<string, string>;
+    registers: Record<string, string>;
   };
 };
 
@@ -77,13 +79,15 @@ export default function HeroSection({ featured, uiLang, regions, tagNames, onRef
                 {/* Meta */}
                 <div style={{ marginBottom: "0.5rem", marginRight: 88 }}>
                   <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-softer)", fontFamily: "var(--font-body)" }}>
-                    {featured.type ?? "expression"} · {featured.register ?? "standard"}
+                    {t.types[featured.type] ?? featured.type} · {t.registers[featured.register] ?? featured.register}
                   </span>
                 </div>
 
                 {/* Expression title */}
                 <h2
                   onClick={() => router.push(`/expression/${featured.id}`)}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--plum)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink)"; }}
                   style={{
                     fontFamily: "var(--font-display)",
                     fontStyle: "italic",
