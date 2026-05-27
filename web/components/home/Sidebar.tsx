@@ -37,7 +37,7 @@ export default function Sidebar({ uiLang, onLangChange }: Props) {
       }}
     >
       {/* Wordmark */}
-      <div style={{ marginBottom: "2rem" }}>
+      <a href="/" style={{ textDecoration: "none", display: "block", marginBottom: "2rem" }}>
         <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--ink)", lineHeight: 1.2 }}>
           World
         </div>
@@ -47,7 +47,7 @@ export default function Sidebar({ uiLang, onLangChange }: Props) {
         <p style={{ fontFamily: "var(--font-hand)", fontSize: 13, color: "var(--ink-softer)", marginTop: "0.4rem", lineHeight: 1.4 }}>
           Every language has its own madness.
         </p>
-      </div>
+      </a>
 
       {/* Nav */}
       <nav style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
@@ -78,7 +78,7 @@ export default function Sidebar({ uiLang, onLangChange }: Props) {
               <span style={{ flex: 1 }}>{item.label}</span>
               {item.count !== undefined && (
                 <span style={{ fontSize: 11, color: "var(--ink-faint)" }}>
-                  {item.count.toLocaleString()}
+                  {item.count}
                 </span>
               )}
             </Link>

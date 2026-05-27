@@ -48,10 +48,10 @@ export default function HeroSection({ featured, uiLang, regions, tagNames, onRef
 
         {/* Mobile header — wordmark + title, hidden on desktop */}
         <div className="wex-mobile-header" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
-          <div style={{ fontFamily: "var(--font-display)" }}>
+          <a href="/" style={{ textDecoration: "none", fontFamily: "var(--font-display)" }}>
             <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 18, fontWeight: 500 }}>World </span>
             <em style={{ color: "var(--terra-soft)", fontSize: 18, fontStyle: "italic" }}>Expressions</em>
-          </div>
+          </a>
         </div>
 
         {/* Eyebrow */}
