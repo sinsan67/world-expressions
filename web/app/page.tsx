@@ -232,10 +232,6 @@ export default function Home() {
   const [conceptDropdownOpen, setConceptDropdownOpen] = useState(false);
   const [exploreCountryOpen, setExploreCountryOpen] = useState(true);
   const [exploreConceptOpen, setExploreConceptOpen] = useState(true);
-  const featuredCountryRef = useRef<HTMLDivElement>(null);
-  const featuredConceptRef = useRef<HTMLDivElement>(null);
-  const [featuredCountryOpen, setFeaturedCountryOpen] = useState(false);
-  const [featuredConceptOpen, setFeaturedConceptOpen] = useState(false);
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [typeCounts, setTypeCounts] = useState<TypeCounts>({ idiom: 0, proverb: 0, locution: 0, word: 0 });
   const [newsletterOpen, setNewsletterOpen] = useState(false);
@@ -457,10 +453,6 @@ export default function Home() {
         setCountryDropdownOpen(false);
       if (conceptDropdownRef.current && !conceptDropdownRef.current.contains(e.target as Node))
         setConceptDropdownOpen(false);
-      if (featuredCountryRef.current && !featuredCountryRef.current.contains(e.target as Node))
-        setFeaturedCountryOpen(false);
-      if (featuredConceptRef.current && !featuredConceptRef.current.contains(e.target as Node))
-        setFeaturedConceptOpen(false);
     }
     document.addEventListener("mousedown", onMouseDown);
     return () => document.removeEventListener("mousedown", onMouseDown);
@@ -664,121 +656,43 @@ export default function Home() {
                       {FLAG[featured.region] ?? "🌍"}
                     </span>
                   </div>
-                  <div style={{ marginTop: "0.75rem", display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                    {/* Country dropdown */}
-                    <div ref={featuredCountryRef} style={{ position: "relative" }}>
+                </div>
+
+                {/* Chips suggestion sous l'encart */}
+                <div style={{ marginTop: "0.6rem", display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+                  <button
+                    onClick={() => router.push(`/country/${featured.region}`)}
+                    style={{
+                      fontSize: 12, padding: "4px 12px", borderRadius: 20,
+                      background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.28)",
+                      color: "rgba(255,255,255,0.82)", cursor: "pointer",
+                      display: "flex", alignItems: "center", gap: "0.3rem",
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.25)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.15)"; }}
+                  >
+                    {FLAG[featured.region] ?? "🌍"} {COUNTRY_NAME[featured.region] ?? featured.region.toUpperCase()}
+                  </button>
+                  {featured.tags.slice(0, 2).map((tag) => {
+                    const icon = tagIcon(tag) || "🔍";
+                    const name = tagNames[tag] || tag;
+                    return (
                       <button
-                        onClick={() => { setFeaturedCountryOpen((v) => !v); setFeaturedConceptOpen(false); }}
+                        key={tag}
+                        onClick={() => { setSearchLabel(`${icon} ${name}`); runConceptSearch(tag, activeRegions); }}
                         style={{
-                          fontSize: 11, fontWeight: 600, color: "#e9d5ff",
-                          background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 7,
-                          padding: "5px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem",
+                          fontSize: 12, padding: "4px 12px", borderRadius: 20,
+                          background: "rgba(124,58,237,0.35)", border: "1px solid rgba(167,139,250,0.3)",
+                          color: "rgba(255,255,255,0.82)", cursor: "pointer",
+                          display: "flex", alignItems: "center", gap: "0.3rem",
                         }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.22)"; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.12)"; }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.55)"; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.35)"; }}
                       >
-                        🌍 {t.exploreCountry}
-                        <span style={{ fontSize: 8, opacity: 0.7 }}>{featuredCountryOpen ? "▴" : "▾"}</span>
+                        {icon} {name}
                       </button>
-                      {featuredCountryOpen && (
-                        <div style={{
-                          position: "absolute", top: "calc(100% + 4px)", left: 0, zIndex: 200,
-                          background: "rgba(15,8,36,0.97)", backdropFilter: "blur(12px)",
-                          borderRadius: 10, border: "1px solid rgba(255,255,255,0.18)",
-                          boxShadow: "0 4px 20px rgba(0,0,0,0.4)", padding: "0.35rem",
-                          minWidth: 175,
-                        }}>
-                          {/* Pays de l'expression du moment — en tête, mis en avant */}
-                          {(() => {
-                            const featuredRegion = regions.find((r) => r.code === featured.region);
-                            return featuredRegion ? (
-                              <>
-                                <button
-                                  onClick={() => router.push(`/country/${featuredRegion.code}`)}
-                                  style={{
-                                    display: "flex", width: "100%", textAlign: "left", alignItems: "center",
-                                    justifyContent: "space-between",
-                                    padding: "7px 10px", borderRadius: 7, fontSize: 12,
-                                    color: "#fff", background: "rgba(167,139,250,0.18)",
-                                    border: "none", cursor: "pointer", whiteSpace: "nowrap", gap: "0.5rem",
-                                  }}
-                                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(167,139,250,0.32)"; }}
-                                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(167,139,250,0.18)"; }}
-                                >
-                                  <span>{FLAG[featuredRegion.code]} {featuredRegion.label}</span>
-                                  <span style={{ fontSize: 10, color: "#a78bfa", fontWeight: 500 }}>ce pays</span>
-                                </button>
-                                <div style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", margin: "0.3rem 0.25rem" }} />
-                              </>
-                            ) : null;
-                          })()}
-                          {/* Tous les autres pays */}
-                          {regions.filter((r) => r.code !== featured.region).map((r) => (
-                            <button
-                              key={r.code}
-                              onClick={() => router.push(`/country/${r.code}`)}
-                              style={{
-                                display: "block", width: "100%", textAlign: "left",
-                                padding: "6px 10px", borderRadius: 7, fontSize: 12, color: "#e9d5ff",
-                                background: "transparent", border: "none", cursor: "pointer", whiteSpace: "nowrap",
-                              }}
-                              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; }}
-                              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-                            >
-                              {FLAG[r.code]} {r.label}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    {/* Concept dropdown */}
-                    {featured.tags.length > 0 && (
-                      <div ref={featuredConceptRef} style={{ position: "relative" }}>
-                        <button
-                          onClick={() => { setFeaturedConceptOpen((v) => !v); setFeaturedCountryOpen(false); }}
-                          style={{
-                            fontSize: 11, fontWeight: 600, color: "#e9d5ff",
-                            background: "rgba(124,58,237,0.35)", border: "none", borderRadius: 7,
-                            padding: "5px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem",
-                          }}
-                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.55)"; }}
-                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.35)"; }}
-                        >
-                          🔍 {t.exploreConcept}
-                          <span style={{ fontSize: 8, opacity: 0.7 }}>{featuredConceptOpen ? "▴" : "▾"}</span>
-                        </button>
-                        {featuredConceptOpen && (
-                          <div style={{
-                            position: "absolute", top: "calc(100% + 4px)", left: 0, zIndex: 200,
-                            background: "rgba(15,8,36,0.97)", backdropFilter: "blur(12px)",
-                            borderRadius: 10, border: "1px solid rgba(255,255,255,0.18)",
-                            boxShadow: "0 4px 20px rgba(0,0,0,0.4)", padding: "0.35rem",
-                            minWidth: 165,
-                          }}>
-                            {featured.tags.slice(0, 4).map((tag) => {
-                              const icon = tagIcon(tag) || "🔍";
-                              const name = tagNames[tag] || tag;
-                              return (
-                                <button
-                                  key={tag}
-                                  onClick={() => { runConceptSearch(tag, activeRegions); setFeaturedConceptOpen(false); }}
-                                  style={{
-                                    display: "block", width: "100%", textAlign: "left",
-                                    padding: "6px 10px", borderRadius: 7, fontSize: 12, color: "#e9d5ff",
-                                    background: "transparent", border: "none", cursor: "pointer", whiteSpace: "nowrap",
-                                  }}
-                                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; }}
-                                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-                                >
-                                  {icon} {name}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
