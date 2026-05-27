@@ -24,7 +24,7 @@ export type Expression = {
   region: string;
   illustration: string | null;
   language: string;
-  type: "expression" | "word";
+  type: string;
   source: string | null;
   match_type: "exact" | "semantic" | "tag" | "direct";
   translation: ExpressionTranslation | null;
@@ -53,7 +53,8 @@ export async function searchExpressions(
   query: string,
   regions: string[],
   limit = 20,
-  offset = 0
+  offset = 0,
+  typeFilter?: string
 ): Promise<SearchResponse> {
   const params = new URLSearchParams({
     q: query,
@@ -61,6 +62,7 @@ export async function searchExpressions(
     limit: String(limit),
     offset: String(offset),
   });
+  if (typeFilter) params.set("type_filter", typeFilter);
   const res = await fetch(`${API}/search?${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();
@@ -70,7 +72,8 @@ export async function searchByConcept(
   tags: string[],
   regions: string[],
   limit = 20,
-  offset = 0
+  offset = 0,
+  typeFilter?: string
 ): Promise<ConceptResponse> {
   const params = new URLSearchParams({
     tags: tags.join(","),
@@ -78,6 +81,7 @@ export async function searchByConcept(
     limit: String(limit),
     offset: String(offset),
   });
+  if (typeFilter) params.set("type_filter", typeFilter);
   const res = await fetch(`${API}/concept?${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();
@@ -86,13 +90,15 @@ export async function searchByConcept(
 export async function browseByRegion(
   regions: string[],
   limit = 20,
-  offset = 0
+  offset = 0,
+  typeFilter?: string
 ): Promise<SearchResponse> {
   const params = new URLSearchParams({
     region: regions.join(","),
     limit: String(limit),
     offset: String(offset),
   });
+  if (typeFilter) params.set("type_filter", typeFilter);
   const res = await fetch(`${API}/browse?${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();

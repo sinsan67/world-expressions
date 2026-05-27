@@ -10,6 +10,7 @@ import {
 } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
+import { TYPE_LABELS } from "@/lib/typeLabels";
 
 const LIMIT = 20;
 const HERO_IMAGES = new Set(["fr", "uk", "us", "au", "es", "tr", "it"]);
@@ -34,13 +35,16 @@ const REGION_GRADIENTS: Record<string, string> = {
 };
 
 type UILang = "fr" | "en" | "es" | "tr" | "it";
-type Mode = "country" | "explore";
+type Mode = "country" | "pick" | "explore";
 
 const T: Record<UILang, {
   backHome: string;
   countryOnly: (name: string) => string;
+  exploreCountry: string;
   exploreAll: string;
+  selectCountry: string;
   topConcepts: string;
+  allTypes: string;
   searchPlaceholder: (name: string) => string;
   searchPlaceholderExplore: string;
   noResults: string;
@@ -52,8 +56,11 @@ const T: Record<UILang, {
   fr: {
     backHome: "← World Expressions",
     countryOnly: (name) => `${name} uniquement`,
+    exploreCountry: "Explorer un pays",
     exploreAll: "Explorer toutes les langues",
+    selectCountry: "Choisir un pays…",
     topConcepts: "Concepts populaires",
+    allTypes: "Tous",
     searchPlaceholder: (name) => `Chercher dans ${name}…`,
     searchPlaceholderExplore: "Chercher dans toutes les langues…",
     noResults: "Aucun résultat.",
@@ -65,8 +72,11 @@ const T: Record<UILang, {
   en: {
     backHome: "← World Expressions",
     countryOnly: (name) => `${name} only`,
+    exploreCountry: "Explore a country",
     exploreAll: "Explore all languages",
+    selectCountry: "Choose a country…",
     topConcepts: "Top concepts",
+    allTypes: "All",
     searchPlaceholder: (name) => `Search in ${name}…`,
     searchPlaceholderExplore: "Search all languages…",
     noResults: "No results.",
@@ -78,8 +88,11 @@ const T: Record<UILang, {
   es: {
     backHome: "← World Expressions",
     countryOnly: (name) => `Solo ${name}`,
+    exploreCountry: "Explorar un país",
     exploreAll: "Explorar todos los idiomas",
+    selectCountry: "Elegir un país…",
     topConcepts: "Conceptos populares",
+    allTypes: "Todos",
     searchPlaceholder: (name) => `Buscar en ${name}…`,
     searchPlaceholderExplore: "Buscar en todos los idiomas…",
     noResults: "Sin resultados.",
@@ -91,8 +104,11 @@ const T: Record<UILang, {
   tr: {
     backHome: "← World Expressions",
     countryOnly: (name) => `Yalnızca ${name}`,
+    exploreCountry: "Bir ülkeyi keşfet",
     exploreAll: "Tüm dilleri keşfet",
+    selectCountry: "Ülke seç…",
     topConcepts: "Popüler kavramlar",
+    allTypes: "Tümü",
     searchPlaceholder: (name) => `${name}'de ara…`,
     searchPlaceholderExplore: "Tüm dillerde ara…",
     noResults: "Sonuç yok.",
@@ -104,8 +120,11 @@ const T: Record<UILang, {
   it: {
     backHome: "← World Expressions",
     countryOnly: (name) => `Solo ${name}`,
+    exploreCountry: "Esplora un paese",
     exploreAll: "Esplora tutte le lingue",
+    selectCountry: "Scegli un paese…",
     topConcepts: "Concetti popolari",
+    allTypes: "Tutti",
     searchPlaceholder: (name) => `Cerca in ${name}…`,
     searchPlaceholderExplore: "Cerca in tutte le lingue…",
     noResults: "Nessun risultato.",
@@ -134,6 +153,9 @@ function CountryPageContent({ code }: { code: string }) {
   const [topTags, setTopTags] = useState<{ slug: string; name: string }[]>([]);
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [typeFilter, setTypeFilter] = useState<string | null>(null);
+  const [showPickDropdown, setShowPickDropdown] = useState(false);
+  const pickDropdownRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const countryPickerRef = useRef<HTMLDivElement>(null);
@@ -167,11 +189,14 @@ function CountryPageContent({ code }: { code: string }) {
       .catch(() => {});
   }, [lang, uiLang]);
 
-  // Close country picker when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (countryPickerRef.current && !countryPickerRef.current.contains(e.target as Node)) {
         setShowCountryPicker(false);
+      }
+      if (pickDropdownRef.current && !pickDropdownRef.current.contains(e.target as Node)) {
+        setShowPickDropdown(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -179,33 +204,34 @@ function CountryPageContent({ code }: { code: string }) {
   }, []);
 
   const doFetch = useCallback(
-    async (currentMode: Mode, tag: string | null, query: string | null, offset: number) => {
+    async (currentMode: Mode, tag: string | null, query: string | null, offset: number, tf: string | null = null) => {
+      const typeParam = tf || undefined;
       if (query && query.trim()) {
-        const regions = currentMode === "country" ? [code] : [];
-        const r = await searchExpressions(query.trim(), regions, LIMIT, offset);
+        const regions = currentMode === "country" || currentMode === "pick" ? [code] : [];
+        const r = await searchExpressions(query.trim(), regions, LIMIT, offset, typeParam);
         return { results: r.results, total: r.total };
       }
       if (tag) {
-        const regions = currentMode === "country" ? [code] : [];
-        const r = await searchByConcept([tag], regions, LIMIT, offset);
+        const regions = currentMode === "country" || currentMode === "pick" ? [code] : [];
+        const r = await searchByConcept([tag], regions, LIMIT, offset, typeParam);
         return { results: r.results, total: r.total };
       }
       if (currentMode === "explore") {
-        const r = await browseByRegion([], LIMIT, offset);
+        const r = await browseByRegion([], LIMIT, offset, typeParam);
         return { results: r.results, total: r.total };
       }
-      const r = await browseByRegion([code], LIMIT, offset);
+      const r = await browseByRegion([code], LIMIT, offset, typeParam);
       return { results: r.results, total: r.total };
     },
     [code]
   );
 
   const load = useCallback(
-    async (currentMode: Mode, tag: string | null, query: string | null) => {
+    async (currentMode: Mode, tag: string | null, query: string | null, tf: string | null = null) => {
       setLoading(true);
       setExpressions([]);
       try {
-        const data = await doFetch(currentMode, tag, query, 0);
+        const data = await doFetch(currentMode, tag, query, 0, tf);
         setExpressions(data.results);
         setTotal(data.total);
         setHasMore(data.results.length < data.total);
@@ -225,7 +251,7 @@ function CountryPageContent({ code }: { code: string }) {
     setLoadingMore(true);
     const offset = expressions.length;
     try {
-      const data = await doFetch(mode, activeTag, searchQuery, offset);
+      const data = await doFetch(mode, activeTag, searchQuery, offset, typeFilter);
       setExpressions((prev) => [...prev, ...data.results]);
       setHasMore(offset + data.results.length < data.total);
     } catch {
@@ -233,7 +259,7 @@ function CountryPageContent({ code }: { code: string }) {
     } finally {
       setLoadingMore(false);
     }
-  }, [hasMore, loadingMore, expressions.length, mode, activeTag, searchQuery, doFetch]);
+  }, [hasMore, loadingMore, expressions.length, mode, activeTag, searchQuery, typeFilter, doFetch]);
 
   useEffect(() => {
     load("country", null, null);
@@ -256,7 +282,8 @@ function CountryPageContent({ code }: { code: string }) {
     setActiveTag(null);
     setSearchInput("");
     setSearchQuery(null);
-    load(newMode, null, null);
+    setTypeFilter(null);
+    load(newMode, null, null, null);
   };
 
   const selectTag = (slug: string) => {
@@ -264,7 +291,7 @@ function CountryPageContent({ code }: { code: string }) {
     setActiveTag(newTag);
     setSearchInput("");
     setSearchQuery(null);
-    load(mode, newTag, null);
+    load(mode, newTag, null, typeFilter);
     setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
   };
 
@@ -273,19 +300,24 @@ function CountryPageContent({ code }: { code: string }) {
     const q = searchInput.trim();
     if (!q) {
       setSearchQuery(null);
-      load(mode, activeTag, null);
+      load(mode, activeTag, null, typeFilter);
       return;
     }
     setActiveTag(null);
     setSearchQuery(q);
-    load(mode, null, q);
+    load(mode, null, q, typeFilter);
     setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
   };
 
   const clearSearch = () => {
     setSearchInput("");
     setSearchQuery(null);
-    load(mode, activeTag, null);
+    load(mode, activeTag, null, typeFilter);
+  };
+
+  const selectTypeFilter = (newType: string | null) => {
+    setTypeFilter(newType);
+    load(mode, activeTag, searchQuery, newType);
   };
 
   return (
@@ -404,7 +436,7 @@ function CountryPageContent({ code }: { code: string }) {
         <div style={{ maxWidth: 680, margin: "0 auto" }}>
 
           {/* Mode toggle */}
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.25rem" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.25rem", flexWrap: "wrap", gap: "0.5rem" }}>
             <div style={{
               display: "inline-flex", borderRadius: 14,
               background: "#ede9fe", padding: 4, gap: 2,
@@ -412,7 +444,7 @@ function CountryPageContent({ code }: { code: string }) {
               <button
                 onClick={() => switchMode("country")}
                 style={{
-                  padding: "8px 20px", borderRadius: 10, fontSize: 13, fontWeight: 600,
+                  padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 600,
                   border: "none", cursor: "pointer", transition: "all 0.15s",
                   background: mode === "country" ? "#7c3aed" : "transparent",
                   color: mode === "country" ? "#fff" : "#7c3aed",
@@ -421,9 +453,20 @@ function CountryPageContent({ code }: { code: string }) {
                 {flag} {t.countryOnly(countryName)}
               </button>
               <button
+                onClick={() => switchMode("pick")}
+                style={{
+                  padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 600,
+                  border: "none", cursor: "pointer", transition: "all 0.15s",
+                  background: mode === "pick" ? "#7c3aed" : "transparent",
+                  color: mode === "pick" ? "#fff" : "#7c3aed",
+                }}
+              >
+                🗺️ {t.exploreCountry}
+              </button>
+              <button
                 onClick={() => switchMode("explore")}
                 style={{
-                  padding: "8px 20px", borderRadius: 10, fontSize: 13, fontWeight: 600,
+                  padding: "8px 16px", borderRadius: 10, fontSize: 13, fontWeight: 600,
                   border: "none", cursor: "pointer", transition: "all 0.15s",
                   background: mode === "explore" ? "#7c3aed" : "transparent",
                   color: mode === "explore" ? "#fff" : "#7c3aed",
@@ -433,6 +476,60 @@ function CountryPageContent({ code }: { code: string }) {
               </button>
             </div>
           </div>
+
+          {/* Country picker (mode pick) */}
+          {mode === "pick" && (
+            <div ref={pickDropdownRef} style={{ position: "relative", marginBottom: "1.25rem", display: "flex", justifyContent: "center" }}>
+              <button
+                onClick={() => setShowPickDropdown((v) => !v)}
+                style={{
+                  display: "flex", alignItems: "center", gap: "0.5rem",
+                  padding: "10px 20px", borderRadius: 12,
+                  border: "1.5px solid #e9d5ff",
+                  background: showPickDropdown ? "#ede9fe" : "#fff",
+                  color: "#7c3aed", fontWeight: 600, fontSize: 14,
+                  cursor: "pointer", minWidth: 220, justifyContent: "space-between",
+                  boxShadow: "0 1px 4px rgba(124,58,237,0.08)",
+                }}
+              >
+                <span>{flag} {countryName}</span>
+                <span style={{ opacity: 0.5 }}>▾</span>
+              </button>
+              {showPickDropdown && (
+                <div style={{
+                  position: "absolute", top: "calc(100% + 6px)", left: "50%",
+                  transform: "translateX(-50%)", zIndex: 50,
+                  background: "#fff", border: "1.5px solid #e9d5ff",
+                  borderRadius: 12, padding: "0.4rem 0",
+                  boxShadow: "0 8px 32px rgba(124,58,237,0.12)",
+                  minWidth: 220, maxHeight: 300, overflowY: "auto",
+                }}>
+                  {ALL_COUNTRIES.map(([c, name]) => (
+                    <button
+                      key={c}
+                      onClick={() => {
+                        setShowPickDropdown(false);
+                        if (c !== code) router.push(`/country/${c}`);
+                      }}
+                      style={{
+                        display: "flex", alignItems: "center", gap: "0.5rem",
+                        width: "100%", padding: "9px 16px", border: "none",
+                        background: c === code ? "#f5f3ff" : "transparent",
+                        color: c === code ? "#7c3aed" : "#1e1535",
+                        cursor: c === code ? "default" : "pointer",
+                        fontSize: 13, textAlign: "left", fontWeight: c === code ? 700 : 400,
+                      }}
+                      onMouseEnter={(e) => { if (c !== code) e.currentTarget.style.background = "#f5f3ff"; }}
+                      onMouseLeave={(e) => { if (c !== code) e.currentTarget.style.background = "transparent"; }}
+                    >
+                      {FLAG[c] || "🌍"} {name}
+                      {c === code && <span style={{ marginLeft: "auto", fontSize: 11, color: "#a78bfa" }}>✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Search bar */}
           <form onSubmit={handleSearch} style={{ marginBottom: "1.25rem", position: "relative" }}>
@@ -480,7 +577,7 @@ function CountryPageContent({ code }: { code: string }) {
 
           {/* Concept chips */}
           {topTags.length > 0 && !searchQuery && (
-            <div>
+            <div style={{ marginBottom: "1rem" }}>
               <p style={{
                 fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const,
                 letterSpacing: "0.07em", color: "#9ca3af", marginBottom: "0.6rem",
@@ -517,6 +614,41 @@ function CountryPageContent({ code }: { code: string }) {
               </div>
             </div>
           )}
+
+          {/* Type filter pills */}
+          <div>
+            <p style={{
+              fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const,
+              letterSpacing: "0.07em", color: "#9ca3af", marginBottom: "0.6rem",
+            }}>
+              Type
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: "0.4rem" }}>
+              {([null, "idiom", "proverb", "locution", "word"] as const).map((type) => {
+                const isActive = typeFilter === type;
+                const label = type === null
+                  ? t.allTypes
+                  : (TYPE_LABELS[type]?.[uiLang] ?? TYPE_LABELS[type]?.["en"] ?? type);
+                return (
+                  <button
+                    key={type ?? "all"}
+                    onClick={() => selectTypeFilter(type)}
+                    style={{
+                      fontSize: 13, padding: "6px 14px", borderRadius: 20,
+                      background: isActive ? "#4f46e5" : "#fff",
+                      border: `1.5px solid ${isActive ? "#4f46e5" : "#e9d5ff"}`,
+                      color: isActive ? "#fff" : "#4f46e5",
+                      cursor: "pointer", fontWeight: 500,
+                      boxShadow: isActive ? "0 2px 8px rgba(79,70,229,0.3)" : "none",
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
 

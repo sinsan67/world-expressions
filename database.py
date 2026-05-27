@@ -52,6 +52,13 @@ def _region_clause(regions: Optional[set[str]]) -> tuple[str, dict]:
     return "", {}
 
 
+def _type_clause(type_filter: Optional[str]) -> tuple[str, dict]:
+    """Retourne un fragment SQL pour filtrer par type d'expression (idiom, proverb, locution, word)."""
+    if type_filter:
+        return ' AND e."type" = :type_filter', {"type_filter": type_filter}
+    return "", {}
+
+
 _EXCLUDE_PHRASEBOOK = """
     AND NOT EXISTS (
         SELECT 1 FROM expression_tags et_pb
@@ -174,7 +181,7 @@ def get_regions() -> list[dict]:
     return [{"code": r.region, "count": r.n} for r in rows]
 
 
-def search_expressions(query: str, regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0) -> tuple[list[dict], int]:
+def search_expressions(query: str, regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0, type_filter: Optional[str] = None) -> tuple[list[dict], int]:
     """
     Cherche des expressions par mot-clé dans le texte, le sens, les tags, l'exemple et l'origine.
 
@@ -187,6 +194,7 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
     """
     q = f"%{query.lower().strip()}%"
     region_sql, region_params = _region_clause(regions)
+    type_sql, type_params = _type_clause(type_filter)
 
     # Sous-requête réutilisée : jointure expressions + contenu + tags agrégés
     base_cte = """
@@ -209,11 +217,11 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
                 ON ec.expression_id = e.id AND ec.locale = e.language
             LEFT JOIN expression_tags et ON et.expression_id = e.id
             LEFT JOIN tags t ON t.id = et.tag_id
-            WHERE 1=1 {region_clause}{exclude_phrasebook}
+            WHERE 1=1 {region_clause}{exclude_phrasebook}{type_clause}
             GROUP BY e.id, e.text, e.language, e.region, e.register,
                      e.illustration, e."type", e.source, ec.meaning, ec.origin, ec.example
         )
-    """.format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK)
+    """.format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK, type_clause=type_sql)
 
     exact_sql = base_cte + """
         SELECT * FROM expr_full
@@ -233,7 +241,7 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
         ORDER BY CASE WHEN "type" = 'word' THEN 1 ELSE 0 END, text
     """
 
-    params = {"q": q, **region_params}
+    params = {"q": q, **region_params, **type_params}
 
     with engine.connect() as conn:
         exact_rows    = conn.execute(text(exact_sql),    params).fetchall()
@@ -246,13 +254,14 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
     return all_results[offset:offset + limit], len(all_results)
 
 
-def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0) -> tuple[list[dict], int]:
+def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0, type_filter: Optional[str] = None) -> tuple[list[dict], int]:
     """
     Retourne toutes les expressions ayant au moins un tag parmi tag_set (logique OR).
     Utilisé pour la recherche cross-lingue par concept (argent + money + wealth...).
     Le filtrage se fait en SQL via expression_tags.
     """
     region_sql, region_params = _region_clause(regions)
+    type_sql, type_params = _type_clause(type_filter)
 
     sql = """
         SELECT
@@ -274,13 +283,13 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, lim
         JOIN expression_tags et ON et.expression_id = e.id
         JOIN tags t ON t.id = et.tag_id
         WHERE t.slug = ANY(:tag_set)
-        {region_clause}{exclude_phrasebook}
+        {region_clause}{exclude_phrasebook}{type_clause}
         GROUP BY e.id, e.text, e.language, e.region, e.register,
                  e.illustration, e."type", e.source, ec.meaning, ec.origin, ec.example
         ORDER BY e.language, CASE WHEN e."type" = 'word' THEN 1 ELSE 0 END, e.text
-    """.format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK)
+    """.format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK, type_clause=type_sql)
 
-    params = {"tag_set": list(tag_set), **region_params}
+    params = {"tag_set": list(tag_set), **region_params, **type_params}
 
     with engine.connect() as conn:
         rows = conn.execute(text(sql), params).fetchall()
@@ -289,9 +298,10 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, lim
     return all_results[offset:offset + limit], len(all_results)
 
 
-def browse_by_region(regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0) -> tuple[list[dict], int]:
+def browse_by_region(regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0, type_filter: Optional[str] = None) -> tuple[list[dict], int]:
     """Retourne toutes les expressions d'une ou plusieurs régions, dans un ordre aléatoire."""
     region_sql, region_params = _region_clause(regions)
+    type_sql, type_params = _type_clause(type_filter)
 
     sql = """
         SELECT
@@ -303,22 +313,23 @@ def browse_by_region(regions: Optional[set[str]] = None, limit: int = 20, offset
         LEFT JOIN expression_content ec ON ec.expression_id = e.id AND ec.locale = e.language
         LEFT JOIN expression_tags et ON et.expression_id = e.id
         LEFT JOIN tags t ON t.id = et.tag_id
-        WHERE 1=1 {region_clause}{exclude_phrasebook}
+        WHERE 1=1 {region_clause}{exclude_phrasebook}{type_clause}
         GROUP BY e.id, e.text, e.language, e.region, e.register,
                  e.illustration, e."type", e.source, ec.meaning, ec.origin, ec.example
         ORDER BY RANDOM()
         LIMIT :limit OFFSET :offset
-    """.format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK)
+    """.format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK, type_clause=type_sql)
 
     count_sql = """
-        SELECT COUNT(*) FROM expressions e WHERE 1=1 {region_clause}{exclude_phrasebook}
-    """.format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK)
+        SELECT COUNT(*) FROM expressions e WHERE 1=1 {region_clause}{exclude_phrasebook}{type_clause}
+    """.format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK, type_clause=type_sql)
 
-    params = {**region_params, "limit": limit, "offset": offset}
+    params = {**region_params, **type_params, "limit": limit, "offset": offset}
+    count_params = {**region_params, **type_params}
 
     with engine.connect() as conn:
         rows = conn.execute(text(sql), params).fetchall()
-        total = conn.execute(text(count_sql), region_params).scalar() or 0
+        total = conn.execute(text(count_sql), count_params).scalar() or 0
 
     results = [_build_expression_dict(r, "browse") for r in rows]
     return results, total
