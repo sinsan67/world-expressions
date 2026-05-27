@@ -133,7 +133,7 @@ def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
             ON ct_pref.expression_id = e.id AND ct_pref.target_lang = :locale
         LEFT JOIN expression_tags et ON et.expression_id = e.id
         LEFT JOIN tags t ON t.id = et.tag_id
-        WHERE e.type = 'expression'
+        WHERE e.type != 'word'
           AND NOT EXISTS (
               SELECT 1 FROM expression_tags et_pb
               JOIN tags t_pb ON t_pb.id = et_pb.tag_id
