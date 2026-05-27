@@ -984,31 +984,35 @@ export default function Home() {
               {conceptDropdownOpen && !hintTagsError && hintTags.length > 0 && (
                 <div style={{
                   position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 100,
-                  background: "white", borderRadius: 14, border: "1px solid #e5e7eb",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.1)", padding: "0.75rem",
-                  width: 320, maxHeight: 260, overflowY: "auto",
+                  background: "white", borderRadius: 12, border: "1px solid #e5e7eb",
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.1)", padding: "0.5rem",
+                  minWidth: 220, maxHeight: 280, overflowY: "auto",
                 }}>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-                    {hintTags.map((tag) => {
-                      const icon = tagIcon(tag.slug) || "🔍";
-                      return (
-                        <button
-                          key={tag.slug}
-                          onClick={() => { runConceptSearch(tag.slug, activeRegions); setConceptDropdownOpen(false); setHintKey((k) => k + 1); }}
-                          style={{
-                            fontSize: 12, padding: "5px 12px", borderRadius: 20,
-                            background: "#f5f3ff", border: "1px solid #e9d5ff", color: "#7c3aed",
-                            cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem",
-                            fontWeight: 500, whiteSpace: "nowrap",
-                          }}
-                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#7c3aed"; (e.currentTarget as HTMLElement).style.color = "#fff"; (e.currentTarget as HTMLElement).style.borderColor = "#7c3aed"; }}
-                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#f5f3ff"; (e.currentTarget as HTMLElement).style.color = "#7c3aed"; (e.currentTarget as HTMLElement).style.borderColor = "#e9d5ff"; }}
-                        >
-                          {icon} {tag.name}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  {hintTags.map((tag) => {
+                    const icon = tagIcon(tag.slug) || "";
+                    return (
+                      <button
+                        key={tag.slug}
+                        onClick={() => {
+                          setSearchLabel(`${icon ? icon + " " : ""}${tag.name}`);
+                          runConceptSearch(tag.slug, activeRegions);
+                          setConceptDropdownOpen(false);
+                          setHintKey((k) => k + 1);
+                        }}
+                        style={{
+                          display: "flex", alignItems: "center", gap: "0.5rem",
+                          width: "100%", padding: "7px 10px", borderRadius: 8,
+                          fontSize: 13, color: "#374151", background: "transparent",
+                          cursor: "pointer", textAlign: "left", border: "none",
+                        }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#f5f3ff"; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                      >
+                        {icon && <span>{icon}</span>}
+                        {tag.name}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
               {/* Discovery concepts — aléatoires à chaque visite */}
