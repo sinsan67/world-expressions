@@ -44,8 +44,8 @@ const T = {
     expressionOfMoment: "Expression aléatoire",
     filterByType: "Filtrer par type",
     allTypes: "Tous",
-    exploreConcept: "Explorer ce concept",
-    exploreCountry: "Explorer ce pays",
+    exploreConcept: "Explorer un concept",
+    exploreCountry: "Explorer un pays",
     country: "Pays",
     subtitle: "Tapez un mot, découvrez des expressions du monde entier — par le texte ou par le sens.",
     placeholder: "Essaie : pied, argent, animal, partir…",
@@ -71,8 +71,8 @@ const T = {
     expressionOfMoment: "Random expression",
     filterByType: "Filter by type",
     allTypes: "All",
-    exploreConcept: "Explore this concept",
-    exploreCountry: "Explore this country",
+    exploreConcept: "Explore a concept",
+    exploreCountry: "Explore a country",
     country: "Countries",
     subtitle: "Type a word, discover expressions from around the world — by text or meaning.",
     placeholder: "Try: money, animal, leave, fear…",
@@ -98,8 +98,8 @@ const T = {
     expressionOfMoment: "Expresión aleatoria",
     filterByType: "Filtrar por tipo",
     allTypes: "Todos",
-    exploreConcept: "Explorar este concepto",
-    exploreCountry: "Explorar este país",
+    exploreConcept: "Explorar un concepto",
+    exploreCountry: "Explorar un país",
     country: "Países",
     subtitle: "Escribe una palabra, descubre expresiones de todo el mundo — por texto o por sentido.",
     placeholder: "Prueba: dinero, animal, partir, miedo…",
@@ -125,8 +125,8 @@ const T = {
     expressionOfMoment: "Rastgele deyim",
     filterByType: "Türe göre filtrele",
     allTypes: "Tümü",
-    exploreConcept: "Bu kavramı keşfet",
-    exploreCountry: "Bu ülkeyi keşfet",
+    exploreConcept: "Bir kavramı keşfet",
+    exploreCountry: "Bir ülkeyi keşfet",
     country: "Ülkeler",
     subtitle: "Bir kelime yazın, dünyanın dört bir yanından deyimleri keşfedin — metinle ya da anlamıyla.",
     placeholder: "Deneyin: para, hayvan, korku, ayrılmak…",
@@ -152,8 +152,8 @@ const T = {
     expressionOfMoment: "Espressione casuale",
     filterByType: "Filtra per tipo",
     allTypes: "Tutti",
-    exploreConcept: "Esplora questo concetto",
-    exploreCountry: "Esplora questo paese",
+    exploreConcept: "Esplora un concetto",
+    exploreCountry: "Esplora un paese",
     country: "Paesi",
     subtitle: "Digita una parola, scopri espressioni da tutto il mondo — per testo o per significato.",
     placeholder: "Prova: soldi, animale, partire, paura…",
@@ -432,7 +432,17 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    getRandomExpression(uiLang).then(setFeatured).catch(() => {});
+    const stored = sessionStorage.getItem("featured_expression");
+    const storedLang = sessionStorage.getItem("featured_lang");
+    if (stored && storedLang === uiLang) {
+      setFeatured(JSON.parse(stored));
+    } else {
+      getRandomExpression(uiLang).then((expr) => {
+        setFeatured(expr);
+        sessionStorage.setItem("featured_expression", JSON.stringify(expr));
+        sessionStorage.setItem("featured_lang", uiLang);
+      }).catch(() => {});
+    }
   }, [uiLang]);
 
   useEffect(() => {
@@ -615,7 +625,11 @@ export default function Home() {
                       ✨ {t.expressionOfMoment}
                     </span>
                     <button
-                      onClick={() => getRandomExpression(uiLang).then(setFeatured).catch(() => {})}
+                      onClick={() => getRandomExpression(uiLang).then((expr) => {
+                        setFeatured(expr);
+                        sessionStorage.setItem("featured_expression", JSON.stringify(expr));
+                        sessionStorage.setItem("featured_lang", uiLang);
+                      }).catch(() => {})}
                       title="Nouvelle expression"
                       style={{
                         background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)",
