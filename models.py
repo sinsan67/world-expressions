@@ -46,7 +46,7 @@ class Expression(Base):
     region       = Column(String(10))                      # ISO 3166-1 : fr, gb, us, au...
     register     = Column(String(20))                      # standard, informal, slang, vulgar, formal
     illustration = Column(Text)                            # URL ou code SVG
-    type         = Column(String(20), nullable=False, server_default="expression")  # expression | word | proverb
+    type         = Column(String(20), nullable=False, server_default="idiom")  # idiom | word | proverb | locution
     source       = Column(Text)                                                     # URL vers la source (TDK, Treccani...)
 
     concept_id = Column(UUID(as_uuid=True), ForeignKey("concepts.id"), nullable=True)
