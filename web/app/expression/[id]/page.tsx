@@ -15,6 +15,7 @@ import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { cap } from "@/lib/utils";
 import CountryPhotoBackdrop from "@/components/home/CountryPhotoBackdrop";
 import Eyebrow from "@/components/home/Eyebrow";
+import { recordView, toggleFavorite, isFavorite } from "@/lib/carnet";
 
 type UILang = "fr" | "en" | "es" | "tr" | "it";
 
@@ -179,6 +180,10 @@ function ExpressionPageContent({ id }: { id: string }) {
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [error, setError] = useState(false);
   const [loadingRandom, setLoadingRandom] = useState(false);
+  const [fav, setFav] = useState(false);
+
+  // Sync fav state from localStorage on client
+  useEffect(() => { setFav(isFavorite(id)); }, [id]);
 
   useEffect(() => {
     setExpr(null);
@@ -190,6 +195,7 @@ function ExpressionPageContent({ id }: { id: string }) {
       .then(([exprData, tags]) => {
         setExpr(exprData);
         setTagNames(tags);
+        recordView(id, exprData.region, exprData.language);
         if (exprData.tags.length > 0) {
           searchByConcept(exprData.tags.slice(0, 3), [], 5)
             .then((data) => {
@@ -200,6 +206,11 @@ function ExpressionPageContent({ id }: { id: string }) {
       })
       .catch(() => setError(true));
   }, [id, lang]);
+
+  function handleFav() {
+    toggleFavorite(id);
+    setFav((v) => !v);
+  }
 
   async function goRandom() {
     setLoadingRandom(true);
@@ -287,7 +298,26 @@ function ExpressionPageContent({ id }: { id: string }) {
           </Link>
         </div>
 
-        {/* Language switcher */}
+        {/* Favorite + language switcher */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <button
+            onClick={handleFav}
+            title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "4px 6px",
+              fontSize: 20,
+              lineHeight: 1,
+              color: fav ? "var(--terra)" : "var(--ink-faint)",
+              transition: "color 150ms ease, transform 150ms ease",
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.2)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
+          >
+            {fav ? "♥" : "♡"}
+          </button>
         <div style={{ display: "flex", gap: 4 }}>
           {(["fr", "en", "es", "tr", "it"] as UILang[]).map((l) => (
             <Link
@@ -309,6 +339,7 @@ function ExpressionPageContent({ id }: { id: string }) {
               {l}
             </Link>
           ))}
+        </div>
         </div>
       </nav>
 

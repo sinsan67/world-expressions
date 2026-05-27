@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Expression } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { getTypeLabel } from "@/lib/typeLabels";
 import { FLAG } from "@/lib/constants";
 import { cap } from "@/lib/utils";
+import { toggleFavorite, isFavorite } from "@/lib/carnet";
 
 const REGISTER_LABEL: Record<string, Record<string, string>> = {
   fr: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" },
@@ -25,9 +26,19 @@ type Props = {
 
 export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr", tagNames = {} }: Props) {
   const [showDetails, setShowDetails] = useState(false);
+  const [fav, setFav] = useState(false);
   const router = useRouter();
   const flag = FLAG[e.region] || "";
   const typeLabel = getTypeLabel(e.type ?? "expression", uiLang);
+
+  // Read from localStorage only on the client (avoids SSR/hydration mismatch)
+  useEffect(() => { setFav(isFavorite(e.id)); }, [e.id]);
+
+  function handleFav(ev: React.MouseEvent) {
+    ev.stopPropagation();
+    toggleFavorite(e.id);
+    setFav((v) => !v);
+  }
 
   return (
     <div
@@ -87,6 +98,24 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
                 ↗
               </a>
             )}
+            <button
+              onClick={handleFav}
+              title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: "2px 0",
+                fontSize: 17,
+                lineHeight: 1,
+                color: fav ? "var(--terra)" : "var(--ink-faint)",
+                transition: "color 150ms ease, transform 150ms ease",
+              }}
+              onMouseEnter={(ev) => { (ev.currentTarget as HTMLElement).style.transform = "scale(1.2)"; }}
+              onMouseLeave={(ev) => { (ev.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
+            >
+              {fav ? "♥" : "♡"}
+            </button>
           </div>
         </div>
 
