@@ -36,7 +36,7 @@ def _build_expression_dict(row, match_type: str) -> dict:
         "region":       row.region or "",
         "illustration": row.illustration,
         "language":     row.language or "",
-        "type":         getattr(row, "type", "expression") or "expression",
+        "type":         getattr(row, "kind", "expression") or "expression",
         "source":       getattr(row, "source", None),
         "match_type":   match_type,
     }
@@ -55,7 +55,7 @@ def _region_clause(regions: Optional[set[str]]) -> tuple[str, dict]:
 def _type_clause(type_filter: Optional[str]) -> tuple[str, dict]:
     """Retourne un fragment SQL pour filtrer par type d'expression (idiom, proverb, locution, word)."""
     if type_filter:
-        return ' AND e."type" = :type_filter', {"type_filter": type_filter}
+        return ' AND e.kind = :type_filter', {"type_filter": type_filter}
     return "", {}
 
 
@@ -133,7 +133,7 @@ def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
             ON ct_pref.expression_id = e.id AND ct_pref.target_lang = :locale
         LEFT JOIN expression_tags et ON et.expression_id = e.id
         LEFT JOIN tags t ON t.id = et.tag_id
-        WHERE e.type != 'word'
+        WHERE e.kind != 'word'
           AND NOT EXISTS (
               SELECT 1 FROM expression_tags et_pb
               JOIN tags t_pb ON t_pb.id = et_pb.tag_id
@@ -206,7 +206,7 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
                 e.region,
                 e.register,
                 e.illustration,
-                e."type",
+                e.kind,
                 e.source,
                 ec.meaning,
                 ec.origin,
@@ -219,14 +219,14 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
             LEFT JOIN tags t ON t.id = et.tag_id
             WHERE 1=1 {region_clause}{exclude_phrasebook}{type_clause}
             GROUP BY e.id, e.text, e.language, e.region, e.register,
-                     e.illustration, e."type", e.source, ec.meaning, ec.origin, ec.example
+                     e.illustration, e.kind, e.source, ec.meaning, ec.origin, ec.example
         )
     """.format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK, type_clause=type_sql)
 
     exact_sql = base_cte + """
         SELECT * FROM expr_full
         WHERE lower(text) LIKE :q
-        ORDER BY CASE WHEN "type" = 'word' THEN 1 ELSE 0 END, text
+        ORDER BY CASE WHEN kind = 'word' THEN 1 ELSE 0 END, text
     """
 
     semantic_sql = base_cte + """
@@ -238,7 +238,7 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
            OR lower(example) LIKE :q
            OR lower(origin)  LIKE :q
           )
-        ORDER BY CASE WHEN "type" = 'word' THEN 1 ELSE 0 END, text
+        ORDER BY CASE WHEN kind = 'word' THEN 1 ELSE 0 END, text
     """
 
     params = {"q": q, **region_params, **type_params}
@@ -271,7 +271,7 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, lim
             e.region,
             e.register,
             e.illustration,
-            e."type",
+            e.kind,
             e.source,
             ec.meaning,
             ec.origin,
@@ -285,8 +285,8 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, lim
         WHERE t.slug = ANY(:tag_set)
         {region_clause}{exclude_phrasebook}{type_clause}
         GROUP BY e.id, e.text, e.language, e.region, e.register,
-                 e.illustration, e."type", e.source, ec.meaning, ec.origin, ec.example
-        ORDER BY e.language, CASE WHEN e."type" = 'word' THEN 1 ELSE 0 END, e.text
+                 e.illustration, e.kind, e.source, ec.meaning, ec.origin, ec.example
+        ORDER BY e.language, CASE WHEN e.kind = 'word' THEN 1 ELSE 0 END, e.text
     """.format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK, type_clause=type_sql)
 
     params = {"tag_set": list(tag_set), **region_params, **type_params}
@@ -306,7 +306,7 @@ def browse_by_region(regions: Optional[set[str]] = None, limit: int = 20, offset
     sql = """
         SELECT
             e.id, e.text, e.language, e.region, e.register,
-            e.illustration, e."type", e.source,
+            e.illustration, e.kind, e.source,
             ec.meaning, ec.origin, ec.example,
             STRING_AGG(t.slug, ',') AS tags
         FROM expressions e
@@ -315,7 +315,7 @@ def browse_by_region(regions: Optional[set[str]] = None, limit: int = 20, offset
         LEFT JOIN tags t ON t.id = et.tag_id
         WHERE 1=1 {region_clause}{exclude_phrasebook}{type_clause}
         GROUP BY e.id, e.text, e.language, e.region, e.register,
-                 e.illustration, e."type", e.source, ec.meaning, ec.origin, ec.example
+                 e.illustration, e.kind, e.source, ec.meaning, ec.origin, ec.example
         ORDER BY RANDOM()
         LIMIT :limit OFFSET :offset
     """.format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK, type_clause=type_sql)
@@ -371,7 +371,7 @@ def get_expression_by_id(expression_id: str) -> Optional[dict]:
             e.register,
             e.illustration,
             e.source,
-            e."type",
+            e.kind,
             COALESCE(ec_orig.meaning, ct_native.meaning, ec_en.meaning) AS meaning,
             COALESCE(ec_orig.origin,  ct_native.origin,  ec_en.origin)  AS origin,
             COALESCE(ec_orig.example, ct_native.example, ec_en.example) AS example,
@@ -387,7 +387,7 @@ def get_expression_by_id(expression_id: str) -> Optional[dict]:
         LEFT JOIN tags t ON t.id = et.tag_id
         WHERE e.id = :id
         GROUP BY e.id, e.text, e.language, e.region, e.register,
-                 e.illustration, e.source, e."type",
+                 e.illustration, e.source, e.kind,
                  ec_orig.meaning, ec_orig.origin, ec_orig.example,
                  ct_native.meaning, ct_native.origin, ct_native.example,
                  ec_en.meaning, ec_en.origin, ec_en.example
@@ -421,16 +421,16 @@ def get_type_counts(regions: Optional[set[str]] = None, tag_set: Optional[set[st
         params["q_tc"] = f"%{query.lower().strip()}%"
 
     sql = f"""
-        SELECT e."type", COUNT(DISTINCT e.id) AS n
+        SELECT e.kind, COUNT(DISTINCT e.id) AS n
         FROM expressions e
         {tag_join}
         {query_join}
         WHERE 1=1 {region_sql}{_EXCLUDE_PHRASEBOOK}{tag_where}{query_where}
-        GROUP BY e."type"
+        GROUP BY e.kind
     """
     with engine.connect() as conn:
         rows = conn.execute(text(sql), params).fetchall()
-    counts = {r.type: r.n for r in rows}
+    counts = {r.kind: r.n for r in rows}
     return {
         "idiom":    counts.get("idiom", 0),
         "proverb":  counts.get("proverb", 0),
@@ -441,7 +441,7 @@ def get_type_counts(regions: Optional[set[str]] = None, tag_set: Optional[set[st
 
 def get_all_slugs() -> list[str]:
     """Retourne tous les IDs d'expressions (sauf les mots) — pour le sitemap."""
-    sql = text("SELECT id FROM expressions WHERE type != 'word' ORDER BY id")
+    sql = text("SELECT id FROM expressions WHERE kind != 'word' ORDER BY id")
     with engine.connect() as conn:
         return [row.id for row in conn.execute(sql)]
 
