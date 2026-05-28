@@ -1,12 +1,13 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Home, Globe, Lightbulb, Heart } from "lucide-react";
 
 const NAV_ITEMS = [
-  { icon: "🏠", label: "Accueil", href: "/" },
-  { icon: "🌍", label: "Atlas",   href: "/atlas" },
-  { icon: "💡", label: "Concepts", href: "/concepts" },
-  { icon: "♡",  label: "Favoris", href: "/carnet" },
+  { icon: Home,      label: "Accueil",  href: "/" },
+  { icon: Globe,     label: "Atlas",    href: "/atlas" },
+  { icon: Lightbulb, label: "Concepts", href: "/concepts" },
+  { icon: Heart,     label: "Favoris",  href: "/carnet" },
 ];
 
 export default function BottomNav() {
@@ -43,7 +44,14 @@ export default function BottomNav() {
               transition: "color 120ms ease",
             }}
           >
-            <span style={{ fontSize: 20 }}>{item.icon}</span>
+            <item.icon
+              size={21}
+              strokeWidth={1.5}
+              color={isActive
+                ? (item.label === "Favoris" ? "var(--terra)" : "var(--plum)")
+                : "var(--ink-faint)"}
+              fill={isActive && item.label === "Favoris" ? "var(--terra)" : "none"}
+            />
             <span style={{ fontSize: 10, fontWeight: 600, fontFamily: "var(--font-body)" }}>
               {item.label}
             </span>

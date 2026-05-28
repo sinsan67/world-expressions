@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Expression } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
+import { Heart } from "lucide-react";
 
 type Props = {
   expressionId: string;
@@ -117,7 +118,7 @@ export default function FavoriteRow({ expressionId, expression, savedAt, onRemov
         onMouseLeave={(e) => { if (!removing) (e.currentTarget as HTMLElement).style.opacity = "1"; }}
         title="Retirer des favoris"
       >
-        ♥
+        <Heart size={15} strokeWidth={1.5} fill="var(--terra)" color="var(--terra)" />
       </button>
     </div>
   );

@@ -2,14 +2,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Home, Globe, Lightbulb, Dice5, Heart } from "lucide-react";
 import { getCarnet } from "@/lib/carnet";
 
 const BASE_NAV_ITEMS = [
-  { icon: "🏠", label: "Accueil",  href: "/",       count: undefined as number | undefined },
-  { icon: "🌍", label: "Atlas",    href: "/atlas",   count: 14 },
-  { icon: "💡", label: "Concepts", href: "/concepts", count: 1050 },
-  { icon: "🎲", label: "Au hasard",href: "/random",   count: undefined as number | undefined },
-  { icon: "♡",  label: "Favoris",  href: "/carnet",  count: undefined as number | undefined },
+  { icon: Home,      label: "Accueil",  href: "/",        count: undefined as number | undefined },
+  { icon: Globe,     label: "Atlas",    href: "/atlas",    count: 14 },
+  { icon: Lightbulb, label: "Concepts", href: "/concepts", count: 1050 },
+  { icon: Dice5,     label: "Au hasard",href: "/random",   count: undefined as number | undefined },
+  { icon: Heart,     label: "Favoris",  href: "/carnet",   count: undefined as number | undefined },
 ];
 
 const LANGS = ["fr", "en", "es", "it", "tr"] as const;
@@ -87,7 +88,14 @@ export default function Sidebar({ uiLang, onLangChange }: Props) {
               onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "var(--paper-deep)"; }}
               onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
             >
-              <span>{item.icon}</span>
+              <item.icon
+                size={17}
+                strokeWidth={1.5}
+                color={isActive
+                  ? (item.label === "Favoris" ? "var(--terra)" : "var(--plum)")
+                  : "var(--ink-soft)"}
+                fill={isActive && item.label === "Favoris" ? "var(--terra)" : "none"}
+              />
               <span style={{ flex: 1 }}>{item.label}</span>
               {item.count !== undefined && (
                 <span style={{ fontSize: 11, color: "var(--ink-faint)" }}>

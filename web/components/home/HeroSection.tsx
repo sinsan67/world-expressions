@@ -8,6 +8,7 @@ import CountryStamp from "./CountryStamp";
 import { Expression } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { tagIcon } from "@/lib/tagIcons";
+import { Dice5 } from "lucide-react";
 import { cap } from "@/lib/utils";
 
 type Featured = Expression & { meaning_locale: string; literal: string | null };
@@ -167,7 +168,7 @@ export default function HeroSection({ featured, uiLang, regions, tagNames, onRef
                       onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--ink)"; el.style.background = "var(--paper-deep)"; }}
                       onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--paper-edge)"; el.style.background = "transparent"; }}
                     >
-                      🎲 {t.anotherOne}
+                      <Dice5 size={14} strokeWidth={1.5} style={{ display: "inline", verticalAlign: "middle", marginRight: "0.3rem" }} />{t.anotherOne}
                     </button>
                     <button
                       onClick={() => router.push(`/expression/${featured.id}?lang=${uiLang}`)}

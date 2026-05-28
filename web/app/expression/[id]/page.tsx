@@ -16,6 +16,7 @@ import { cap } from "@/lib/utils";
 import CountryPhotoBackdrop from "@/components/home/CountryPhotoBackdrop";
 import Eyebrow from "@/components/home/Eyebrow";
 import { recordView, toggleFavorite, isFavorite } from "@/lib/carnet";
+import { Heart, Dice5 } from "lucide-react";
 
 type UILang = "fr" | "en" | "es" | "tr" | "it";
 
@@ -316,7 +317,7 @@ function ExpressionPageContent({ id }: { id: string }) {
             onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.2)"; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
           >
-            {fav ? "♥" : "♡"}
+            <Heart size={20} strokeWidth={1.5} fill={fav ? "var(--terra)" : "none"} />
           </button>
         <div style={{ display: "flex", gap: 4 }}>
           {(["fr", "en", "es", "tr", "it"] as UILang[]).map((l) => (
@@ -585,7 +586,7 @@ function ExpressionPageContent({ id }: { id: string }) {
             onMouseEnter={(e) => { if (!loadingRandom) (e.currentTarget as HTMLElement).style.background = "var(--plum-deep)"; }}
             onMouseLeave={(e) => { if (!loadingRandom) (e.currentTarget as HTMLElement).style.background = "var(--plum)"; }}
           >
-            🎲 {loadingRandom ? "…" : t.randomBtn}
+            <Dice5 size={14} strokeWidth={1.5} style={{ display: "inline", verticalAlign: "middle", marginRight: "0.3rem" }} />{loadingRandom ? "…" : t.randomBtn}
           </button>
         </div>
 

@@ -8,6 +8,7 @@ import { getTypeLabel } from "@/lib/typeLabels";
 import { FLAG } from "@/lib/constants";
 import { cap } from "@/lib/utils";
 import { toggleFavorite, isFavorite } from "@/lib/carnet";
+import { Heart } from "lucide-react";
 
 const REGISTER_LABEL: Record<string, Record<string, string>> = {
   fr: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" },
@@ -114,7 +115,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
               onMouseEnter={(ev) => { (ev.currentTarget as HTMLElement).style.transform = "scale(1.2)"; }}
               onMouseLeave={(ev) => { (ev.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
             >
-              {fav ? "♥" : "♡"}
+              <Heart size={16} strokeWidth={1.5} fill={fav ? "var(--terra)" : "none"} />
             </button>
           </div>
         </div>
