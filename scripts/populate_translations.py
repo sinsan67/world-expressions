@@ -84,13 +84,34 @@ Original {source_name} example: {expr['example']}"""
 
 
 def get_untranslated(source_lang: str, target_lang: str, limit: int | None = None) -> list[dict]:
-    """Retourne les expressions de source_lang sans traduction vers target_lang."""
+    """
+    Retourne les expressions de source_lang sans traduction vers target_lang.
+
+    Double LEFT JOIN pour le contenu :
+    - ec_orig  = expression_content dans la langue source (expressions originales)
+    - ct_native = content_translations avec target_lang = source_lang
+                  (ex. expressions kaikki dont le contenu FR a été généré et stocké dans content_translations)
+    COALESCE prend ec_orig en priorité, sinon ct_native.
+
+    Exclut les mots (kind='word') et les expressions phrasebook.
+    """
     sql = """
-        SELECT e.id, e.text, ec.meaning, ec.origin, ec.example
+        SELECT e.id, e.text,
+               COALESCE(ec_orig.meaning, ct_native.meaning) AS meaning,
+               COALESCE(ec_orig.origin,  ct_native.origin)  AS origin,
+               COALESCE(ec_orig.example, ct_native.example) AS example
         FROM expressions e
-        LEFT JOIN expression_content ec
-            ON ec.expression_id = e.id AND ec.locale = :source_lang
+        LEFT JOIN expression_content ec_orig
+            ON ec_orig.expression_id = e.id AND ec_orig.locale = :source_lang
+        LEFT JOIN content_translations ct_native
+            ON ct_native.expression_id = e.id AND ct_native.target_lang = :source_lang
         WHERE e.language = :source_lang
+          AND e.kind != 'word'
+          AND NOT EXISTS (
+              SELECT 1 FROM expression_tags et
+              JOIN tags t ON t.id = et.tag_id
+              WHERE et.expression_id = e.id AND t.slug = 'phrasebook'
+          )
           AND e.id NOT IN (
               SELECT expression_id FROM content_translations WHERE target_lang = :target_lang
           )
