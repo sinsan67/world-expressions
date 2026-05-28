@@ -715,7 +715,7 @@ export default function CarnetPage() {
         <div style={{ height: "3rem" }} />
       </main>
 
-      <BottomNav />
+      <BottomNav uiLang={uiLang} />
     </div>
   );
 }

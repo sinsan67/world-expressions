@@ -4,13 +4,24 @@ import { usePathname } from "next/navigation";
 import { Home, Globe, Lightbulb, Heart } from "lucide-react";
 
 const NAV_ITEMS = [
-  { icon: Home,      label: "Accueil",  href: "/" },
-  { icon: Globe,     label: "Atlas",    href: "/atlas" },
-  { icon: Lightbulb, label: "Concepts", href: "/concepts" },
-  { icon: Heart,     label: "Favoris",  href: "/carnet" },
+  { id: "home",      icon: Home,       href: "/" },
+  { id: "atlas",     icon: Globe,      href: "/atlas" },
+  { id: "concepts",  icon: Lightbulb,  href: "/concepts" },
+  { id: "favorites", icon: Heart,      href: "/carnet" },
 ];
 
-export default function BottomNav() {
+const NAV_LABELS: Record<string, Record<string, string>> = {
+  home:      { fr: "Accueil",  en: "Home",       es: "Inicio",    it: "Home",      tr: "Ana sayfa" },
+  atlas:     { fr: "Atlas",    en: "Atlas",       es: "Atlas",     it: "Atlante",   tr: "Atlas" },
+  concepts:  { fr: "Concepts", en: "Concepts",    es: "Conceptos", it: "Concetti",  tr: "Kavramlar" },
+  favorites: { fr: "Favoris",  en: "Favourites",  es: "Favoritos", it: "Preferiti", tr: "Favoriler" },
+};
+
+type Props = {
+  uiLang?: string;
+};
+
+export default function BottomNav({ uiLang = "fr" }: Props) {
   const pathname = usePathname();
 
   return (
@@ -29,7 +40,7 @@ export default function BottomNav() {
         const isActive = item.href !== "#" && pathname === item.href;
         return (
           <Link
-            key={item.label}
+            key={item.id}
             href={item.href}
             style={{
               flex: 1,
@@ -48,12 +59,12 @@ export default function BottomNav() {
               size={21}
               strokeWidth={1.5}
               color={isActive
-                ? (item.label === "Favoris" ? "var(--terra)" : "var(--plum)")
+                ? (item.id === "favorites" ? "var(--terra)" : "var(--plum)")
                 : "var(--ink-faint)"}
-              fill={isActive && item.label === "Favoris" ? "var(--terra)" : "none"}
+              fill={isActive && item.id === "favorites" ? "var(--terra)" : "none"}
             />
             <span style={{ fontSize: 10, fontWeight: 600, fontFamily: "var(--font-body)" }}>
-              {item.label}
+              {NAV_LABELS[item.id]?.[uiLang] ?? NAV_LABELS[item.id]?.fr}
             </span>
           </Link>
         );

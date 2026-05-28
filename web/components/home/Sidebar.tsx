@@ -6,12 +6,24 @@ import { Home, Globe, Lightbulb, Dice5, Heart } from "lucide-react";
 import { getCarnet } from "@/lib/carnet";
 
 const BASE_NAV_ITEMS = [
-  { icon: Home,      label: "Accueil",  href: "/",        count: undefined as number | undefined },
-  { icon: Globe,     label: "Atlas",    href: "/atlas",    count: 14 },
-  { icon: Lightbulb, label: "Concepts", href: "/concepts", count: 1050 },
-  { icon: Dice5,     label: "Au hasard",href: "/random",   count: undefined as number | undefined },
-  { icon: Heart,     label: "Favoris",  href: "/carnet",   count: undefined as number | undefined },
+  { id: "home",      icon: Home,       href: "/",        count: undefined as number | undefined },
+  { id: "atlas",     icon: Globe,      href: "/atlas",   count: 14 },
+  { id: "concepts",  icon: Lightbulb,  href: "/concepts",count: 1050 },
+  { id: "random",    icon: Dice5,      href: "/random",  count: undefined as number | undefined },
+  { id: "favorites", icon: Heart,      href: "/carnet",  count: undefined as number | undefined },
 ];
+
+const NAV_LABELS: Record<string, Record<string, string>> = {
+  home:      { fr: "Accueil",   en: "Home",      es: "Inicio",     it: "Home",      tr: "Ana sayfa" },
+  atlas:     { fr: "Atlas",     en: "Atlas",      es: "Atlas",      it: "Atlante",   tr: "Atlas" },
+  concepts:  { fr: "Concepts",  en: "Concepts",   es: "Conceptos",  it: "Concetti",  tr: "Kavramlar" },
+  random:    { fr: "Au hasard", en: "Random",     es: "Al azar",    it: "A caso",    tr: "Rastgele" },
+  favorites: { fr: "Favoris",   en: "Favourites", es: "Favoritos",  it: "Preferiti", tr: "Favoriler" },
+};
+
+const LANG_LABEL: Record<string, string> = {
+  fr: "Langue", en: "Language", es: "Idioma", it: "Lingua", tr: "Dil",
+};
 
 const LANGS = ["fr", "en", "es", "it", "tr"] as const;
 type UILang = typeof LANGS[number];
@@ -32,7 +44,7 @@ export default function Sidebar({ uiLang, onLangChange }: Props) {
   }, []);
 
   const navItems = BASE_NAV_ITEMS.map((item) =>
-    item.label === "Favoris" ? { ...item, count: favCount } : item
+    item.id === "favorites" ? { ...item, count: favCount } : item
   );
 
   return (
@@ -69,7 +81,7 @@ export default function Sidebar({ uiLang, onLangChange }: Props) {
           const isActive = item.href !== "#" && pathname === item.href;
           return (
             <Link
-              key={item.label}
+              key={item.id}
               href={item.href}
               style={{
                 display: "flex",
@@ -92,11 +104,11 @@ export default function Sidebar({ uiLang, onLangChange }: Props) {
                 size={17}
                 strokeWidth={1.5}
                 color={isActive
-                  ? (item.label === "Favoris" ? "var(--terra)" : "var(--plum)")
+                  ? (item.id === "favorites" ? "var(--terra)" : "var(--plum)")
                   : "var(--ink-soft)"}
-                fill={isActive && item.label === "Favoris" ? "var(--terra)" : "none"}
+                fill={isActive && item.id === "favorites" ? "var(--terra)" : "none"}
               />
-              <span style={{ flex: 1 }}>{item.label}</span>
+              <span style={{ flex: 1 }}>{NAV_LABELS[item.id]?.[uiLang] ?? NAV_LABELS[item.id]?.fr}</span>
               {item.count !== undefined && (
                 <span style={{ fontSize: 11, color: "var(--ink-faint)" }}>
                   {item.count}
@@ -112,7 +124,7 @@ export default function Sidebar({ uiLang, onLangChange }: Props) {
       {/* Language picker */}
       <div>
         <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-faint)", marginBottom: "0.5rem", fontFamily: "var(--font-body)" }}>
-          Langue
+          {LANG_LABEL[uiLang] ?? "Language"}
         </p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.3rem" }}>
           {LANGS.map((lang) => (

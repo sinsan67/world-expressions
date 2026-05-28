@@ -309,7 +309,7 @@ export default function AtlasPage() {
         </div>
       </main>
 
-      <BottomNav />
+      <BottomNav uiLang={uiLang} />
     </div>
   );
 }

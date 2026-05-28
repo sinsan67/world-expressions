@@ -289,7 +289,7 @@ export default function ConceptsPage() {
         </div>
       </main>
 
-      <BottomNav />
+      <BottomNav uiLang={uiLang} />
     </div>
   );
 }

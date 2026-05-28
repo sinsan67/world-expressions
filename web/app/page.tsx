@@ -625,7 +625,7 @@ export default function Home() {
       </main>
 
       {/* Bottom nav — mobile only */}
-      <BottomNav />
+      <BottomNav uiLang={uiLang} />
     </div>
   );
 }
