@@ -218,8 +218,8 @@ export default function ConceptsPage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-                gap: "0.75rem",
+                gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+                gap: "1rem",
                 marginBottom: "3rem",
               }}
             >
@@ -235,8 +235,8 @@ export default function ConceptsPage() {
                       flexDirection: "column",
                       alignItems: "center",
                       justifyContent: "center",
-                      gap: "0.4rem",
-                      padding: "1rem 0.75rem",
+                      gap: "0.6rem",
+                      padding: "1.5rem 1rem",
                       borderRadius: "var(--r-lg)",
                       border: "1.5px solid var(--paper-edge)",
                       background: "var(--paper)",
@@ -249,8 +249,8 @@ export default function ConceptsPage() {
                     }}
                     onMouseEnter={(e) => {
                       const el = e.currentTarget as HTMLElement;
-                      el.style.transform = "translateY(-2px)";
-                      el.style.boxShadow = "0 6px 18px rgba(28,20,16,0.12)";
+                      el.style.transform = "translateY(-3px)";
+                      el.style.boxShadow = "0 8px 24px rgba(28,20,16,0.14)";
                       el.style.borderColor = "var(--plum)";
                     }}
                     onMouseLeave={(e) => {
@@ -263,7 +263,7 @@ export default function ConceptsPage() {
                     {/* Count badge */}
                     <span style={{
                       position: "absolute",
-                      top: 8, right: 8,
+                      top: 8, right: 10,
                       fontSize: 10,
                       color: "var(--ink-faint)",
                       fontFamily: "var(--font-body)",
@@ -272,13 +272,14 @@ export default function ConceptsPage() {
                       {tag.count}
                     </span>
 
-                    <span style={{ fontSize: 28, lineHeight: 1 }}>{icon}</span>
+                    <span style={{ fontSize: 40, lineHeight: 1 }}>{icon}</span>
                     <span style={{
-                      fontFamily: "var(--font-body)",
-                      fontSize: 13,
-                      fontWeight: 500,
+                      fontFamily: "var(--font-display)",
+                      fontStyle: "italic",
+                      fontSize: 15,
+                      fontWeight: 600,
                       color: "var(--ink)",
-                      lineHeight: 1.3,
+                      lineHeight: 1.25,
                       wordBreak: "break-word",
                     }}>
                       {name}

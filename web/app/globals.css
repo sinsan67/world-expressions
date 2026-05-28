@@ -90,6 +90,13 @@ body {
   opacity: 1;
 }
 
+/* Hero variant: always cover, no sidebar offset needed */
+.country-photo-hero::before {
+  background-size: cover;
+  background-position: center 30%;
+  background-repeat: no-repeat;
+}
+
 /* ─── Country stamp perforation ─── */
 .country-stamp {
   background-color: var(--stamp-tint, var(--paper-deep));
