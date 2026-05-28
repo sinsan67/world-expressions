@@ -181,22 +181,28 @@ def get_regions() -> list[dict]:
     return [{"code": r.region, "count": r.n} for r in rows]
 
 
+_TSQ = "websearch_to_tsquery('simple', :q)"
+_TEXT_VEC = "to_tsvector('simple', text)"
+_CONTENT_VEC = """to_tsvector('simple',
+            coalesce(meaning, '') || ' ' || coalesce(origin, '') || ' ' ||
+            coalesce(example, '') || ' ' || coalesce(tags_text, ''))"""
+
+
 def search_expressions(query: str, regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0, type_filter: Optional[str] = None) -> tuple[list[dict], int]:
     """
-    Cherche des expressions par mot-clé dans le texte, le sens, les tags, l'exemple et l'origine.
+    Cherche des expressions par mot-clé.
 
     Deux types de correspondance, retournés dans cet ordre :
-    - "exact"    : le mot apparaît dans le texte de l'expression elle-même
-    - "semantic" : le mot apparaît dans le sens, les tags, l'exemple ou l'origine
+    - "exact"    : le mot apparaît dans le texte de l'expression (FTS sur expressions.text)
+    - "semantic" : le mot apparaît dans le sens, les tags, l'exemple ou l'origine (FTS sur expression_content)
 
-    Le JOIN avec expression_content utilise la locale = langue de l'expression.
-    Les tags sont agrégés en une seule chaîne par la requête SQL (string_agg).
+    Utilise PostgreSQL tsvector/tsquery avec config 'simple' (tokenisation sans stemming par langue —
+    fonctionne pour toutes les langues du projet). GIN indexes sur expressions.text et expression_content.
+    ts_rank ordonne les résultats par pertinence à l'intérieur de chaque catégorie.
     """
-    q = f"%{query.lower().strip()}%"
     region_sql, region_params = _region_clause(regions)
     type_sql, type_params = _type_clause(type_filter)
 
-    # Sous-requête réutilisée : jointure expressions + contenu + tags agrégés
     base_cte = """
         WITH expr_full AS (
             SELECT
@@ -211,6 +217,7 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
                 ec.meaning,
                 ec.origin,
                 ec.example,
+                STRING_AGG(t.slug, ' ') AS tags_text,
                 STRING_AGG(t.slug, ',') AS tags
             FROM expressions e
             LEFT JOIN expression_content ec
@@ -223,25 +230,22 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
         )
     """.format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK, type_clause=type_sql)
 
-    exact_sql = base_cte + """
-        SELECT * FROM expr_full
-        WHERE lower(text) LIKE :q
-        ORDER BY CASE WHEN kind = 'word' THEN 1 ELSE 0 END, text
+    exact_sql = base_cte + f"""
+        SELECT *, ts_rank({_TEXT_VEC}, {_TSQ}) AS rank
+        FROM expr_full
+        WHERE {_TEXT_VEC} @@ {_TSQ}
+        ORDER BY rank DESC, CASE WHEN kind = 'word' THEN 1 ELSE 0 END, text
     """
 
-    semantic_sql = base_cte + """
-        SELECT * FROM expr_full
-        WHERE lower(text) NOT LIKE :q
-          AND (
-              lower(meaning) LIKE :q
-           OR lower(tags)    LIKE :q
-           OR lower(example) LIKE :q
-           OR lower(origin)  LIKE :q
-          )
-        ORDER BY CASE WHEN kind = 'word' THEN 1 ELSE 0 END, text
+    semantic_sql = base_cte + f"""
+        SELECT *, ts_rank({_CONTENT_VEC}, {_TSQ}) AS rank
+        FROM expr_full
+        WHERE NOT ({_TEXT_VEC} @@ {_TSQ})
+          AND {_CONTENT_VEC} @@ {_TSQ}
+        ORDER BY rank DESC, CASE WHEN kind = 'word' THEN 1 ELSE 0 END, text
     """
 
-    params = {"q": q, **region_params, **type_params}
+    params = {"q": query.strip(), **region_params, **type_params}
 
     with engine.connect() as conn:
         exact_rows    = conn.execute(text(exact_sql),    params).fetchall()
@@ -417,8 +421,13 @@ def get_type_counts(regions: Optional[set[str]] = None, tag_set: Optional[set[st
     query_where = ""
     if query:
         query_join = "\n            LEFT JOIN expression_content ec_tc ON ec_tc.expression_id = e.id AND ec_tc.locale = e.language"
-        query_where = " AND (lower(e.text) LIKE :q_tc OR lower(ec_tc.meaning) LIKE :q_tc OR lower(ec_tc.example) LIKE :q_tc OR lower(ec_tc.origin) LIKE :q_tc)"
-        params["q_tc"] = f"%{query.lower().strip()}%"
+        query_where = """ AND (
+            to_tsvector('simple', e.text) @@ websearch_to_tsquery('simple', :q_tc)
+            OR to_tsvector('simple',
+                coalesce(ec_tc.meaning,'') || ' ' || coalesce(ec_tc.example,'') || ' ' || coalesce(ec_tc.origin,''))
+               @@ websearch_to_tsquery('simple', :q_tc)
+        )"""
+        params["q_tc"] = query.strip()
 
     sql = f"""
         SELECT e.kind, COUNT(DISTINCT e.id) AS n
