@@ -7,6 +7,7 @@ import WelcomeModal from "@/components/WelcomeModal";
 import HeroSection from "@/components/home/HeroSection";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
+import LangBar from "@/components/ui/LangBar";
 import ConceptChip from "@/components/home/ConceptChip";
 import CountryStamp from "@/components/home/CountryStamp";
 import SearchBar from "@/components/ui/SearchBar";
@@ -407,7 +408,8 @@ export default function Home() {
       )}
 
       {/* Sidebar — desktop only */}
-      <Sidebar uiLang={uiLang} onLangChange={changeLang} />
+      <Sidebar uiLang={uiLang} />
+      <LangBar uiLang={uiLang} onLangChange={changeLang} />
 
       {/* Main content */}
       <main className="wex-main" style={{ paddingBottom: 80 }}>

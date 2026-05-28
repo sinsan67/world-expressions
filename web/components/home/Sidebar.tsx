@@ -21,19 +21,11 @@ const NAV_LABELS: Record<string, Record<string, string>> = {
   favorites: { fr: "Favoris",   en: "Favourites", es: "Favoritos",  it: "Preferiti", tr: "Favoriler" },
 };
 
-const LANG_LABEL: Record<string, string> = {
-  fr: "Langue", en: "Language", es: "Idioma", it: "Lingua", tr: "Dil",
-};
-
-const LANGS = ["fr", "en", "es", "it", "tr"] as const;
-type UILang = typeof LANGS[number];
-
 type Props = {
   uiLang: string;
-  onLangChange: (lang: UILang) => void;
 };
 
-export default function Sidebar({ uiLang, onLangChange }: Props) {
+export default function Sidebar({ uiLang }: Props) {
   const pathname = usePathname();
   const [favCount, setFavCount] = useState<number | undefined>(undefined);
 
@@ -118,36 +110,6 @@ export default function Sidebar({ uiLang, onLangChange }: Props) {
           );
         })}
       </nav>
-
-      <div style={{ margin: "1.25rem 0", height: 1, background: "var(--paper-edge)" }} />
-
-      {/* Language picker */}
-      <div>
-        <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-faint)", marginBottom: "0.5rem", fontFamily: "var(--font-body)" }}>
-          {LANG_LABEL[uiLang] ?? "Language"}
-        </p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.3rem" }}>
-          {LANGS.map((lang) => (
-            <button
-              key={lang}
-              onClick={() => onLangChange(lang)}
-              style={{
-                fontSize: 11, fontWeight: 700, padding: "3px 8px",
-                borderRadius: "var(--r-pill)",
-                border: `1.5px solid ${uiLang === lang ? "var(--ink)" : "var(--paper-edge)"}`,
-                background: uiLang === lang ? "var(--ink)" : "transparent",
-                color: uiLang === lang ? "var(--paper)" : "var(--ink-soft)",
-                cursor: "pointer",
-                textTransform: "uppercase",
-                transition: "all 120ms ease",
-                fontFamily: "var(--font-body)",
-              }}
-            >
-              {lang}
-            </button>
-          ))}
-        </div>
-      </div>
 
       <div style={{ flex: 1 }} />
       <div style={{ margin: "1rem 0 0.5rem", height: 1, background: "var(--paper-edge)" }} />

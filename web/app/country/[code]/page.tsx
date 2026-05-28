@@ -4,6 +4,7 @@ import { use, useCallback, useEffect, useRef, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ExpressionCard from "@/components/ExpressionCard";
+import LangBar from "@/components/ui/LangBar";
 import {
   browseByRegion, searchExpressions, searchByConcept,
   getTopTags, getAllTagNames, getTypeCounts, Expression, TypeCounts,
@@ -183,6 +184,11 @@ function CountryPageContent({ code }: { code: string }) {
     if (stored && valid.includes(stored)) setUILang(stored);
   }, []);
 
+  const changeLang = useCallback((lang: UILang) => {
+    setUILang(lang);
+    localStorage.setItem("wex_lang", lang);
+  }, []);
+
   useEffect(() => {
     getAllTagNames(uiLang).then(setTagNames);
   }, [uiLang]);
@@ -342,6 +348,7 @@ function CountryPageContent({ code }: { code: string }) {
 
   return (
     <main className="min-h-screen" style={{ background: "#f5f3ff" }}>
+      <LangBar uiLang={uiLang} onLangChange={changeLang} />
 
       {/* ===== HERO ===== */}
       <div className="relative" style={{ minHeight: 220, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
@@ -412,25 +419,6 @@ function CountryPageContent({ code }: { code: string }) {
               )}
             </div>
 
-            {/* Language pills */}
-            <div style={{ display: "flex", gap: 4 }}>
-              {(["fr", "en", "es", "tr", "it"] as UILang[]).map((l) => (
-                <button
-                  key={l}
-                  onClick={() => { setUILang(l); localStorage.setItem("wex_lang", l); }}
-                  style={{
-                    fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
-                    border: "1.5px solid",
-                    borderColor: uiLang === l ? "#a78bfa" : "rgba(255,255,255,0.25)",
-                    background: uiLang === l ? "#7c3aed" : "rgba(255,255,255,0.08)",
-                    color: uiLang === l ? "#fff" : "rgba(255,255,255,0.55)",
-                    cursor: "pointer", textTransform: "uppercase" as const, letterSpacing: "0.05em",
-                  }}
-                >
-                  {l}
-                </button>
-              ))}
-            </div>
           </div>
 
           {/* Country identity */}

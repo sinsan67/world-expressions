@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
+import LangBar from "@/components/ui/LangBar";
 import { getRegions, RegionInfo } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
@@ -109,7 +110,8 @@ export default function AtlasPage() {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
-      <Sidebar uiLang={uiLang} onLangChange={changeLang} />
+      <Sidebar uiLang={uiLang} />
+      <LangBar uiLang={uiLang} onLangChange={changeLang} />
 
       <main className="wex-main" style={{ paddingBottom: 80 }}>
 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
+import LangBar from "@/components/ui/LangBar";
 import Eyebrow from "@/components/home/Eyebrow";
 import Avatar from "@/components/carnet/Avatar";
 import StatTile from "@/components/carnet/StatTile";
@@ -355,7 +356,8 @@ export default function CarnetPage() {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
-      <Sidebar uiLang={uiLang} onLangChange={changeLang} />
+      <Sidebar uiLang={uiLang} />
+      <LangBar uiLang={uiLang} onLangChange={changeLang} />
 
       <main className="wex-main" style={{ paddingBottom: 80 }}>
 
