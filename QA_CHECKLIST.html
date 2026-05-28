@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>QA Checklist — World Expressions</title>
+<style>
+  :root {
+    --paper: #faf8f4;
+    --ink: #1c1410;
+    --ink-soft: #5c4f3a;
+    --ink-softer: #9c8c7a;
+    --ink-faint: #c4b8aa;
+    --plum: #7c3aed;
+    --plum-bg: #f5f3ff;
+    --terra: #c2410c;
+    --ok-green: #16a34a;
+    --ok-bg: #f0fdf4;
+    --ko-red: #dc2626;
+    --ko-bg: #fef2f2;
+    --skip-gray: #6b7280;
+    --skip-bg: #f9fafb;
+    --paper-edge: #e8e0d4;
+    --r-sm: 6px; --r-md: 10px; --r-pill: 999px;
+    --shadow: 0 2px 8px rgba(28,20,16,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px; line-height: 1.5; min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    background: var(--ink); color: #fff;
+    padding: 1.25rem 1.5rem; position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  }
+  .header-title { font-size: 16px; font-weight: 700; flex: 1; }
+  .header-title span { color: #c4b5fd; font-style: italic; }
+  .header-meta { font-size: 12px; color: rgba(255,255,255,0.5); }
+  .btn {
+    font-size: 12px; font-weight: 600; padding: 6px 14px;
+    border-radius: var(--r-pill); border: none; cursor: pointer;
+    transition: all 120ms ease; font-family: inherit;
+  }
+  .btn-ghost { background: rgba(255,255,255,0.1); color: #fff; }
+  .btn-ghost:hover { background: rgba(255,255,255,0.2); }
+  .btn-primary { background: var(--plum); color: #fff; }
+  .btn-primary:hover { background: #6d28d9; }
+
+  /* Progress */
+  .progress-bar { width: 100%; height: 3px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #86efac; border-radius: 2px; transition: width 300ms ease; }
+
+  /* Stats */
+  .stats-bar {
+    display: flex; gap: 1rem; padding: 0.75rem 1.5rem;
+    background: #fff; border-bottom: 1px solid var(--paper-edge);
+    flex-wrap: wrap; align-items: center;
+  }
+  .stat-pill {
+    display: flex; align-items: center; gap: 0.3rem;
+    font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: var(--r-pill);
+  }
+  .stat-ok    { background: var(--ok-bg);   color: var(--ok-green); }
+  .stat-ko    { background: var(--ko-bg);   color: var(--ko-red);   }
+  .stat-skip  { background: var(--skip-bg); color: var(--skip-gray);}
+  .stat-todo  { background: #eff6ff;        color: #2563eb;         }
+  .stat-total { background: var(--plum-bg); color: var(--plum);     }
+
+  /* Layout */
+  .container { max-width: 860px; margin: 0 auto; padding: 1.5rem 1rem 5rem; }
+
+  /* Section */
+  .section { margin-bottom: 2rem; }
+  .section-header {
+    display: flex; align-items: center; gap: 0.75rem;
+    margin-bottom: 0.75rem; padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--plum-bg);
+  }
+  .section-icon { font-size: 20px; }
+  .section-title { font-size: 15px; font-weight: 700; color: var(--ink); font-family: Georgia, serif; font-style: italic; }
+  .section-url { font-size: 11px; color: var(--plum); text-decoration: none; margin-left: 0.25rem; opacity: 0.7; }
+  .section-url:hover { opacity: 1; }
+  .section-count { margin-left: auto; font-size: 11px; color: var(--ink-faint); font-weight: 600; }
+
+  /* Item */
+  .item {
+    background: #fff; border: 1.5px solid var(--paper-edge);
+    border-radius: var(--r-md); margin-bottom: 0.4rem;
+    overflow: hidden; transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+  .item:hover { box-shadow: var(--shadow); }
+  .item.status-ok   { border-color: #bbf7d0; background: var(--ok-bg); }
+  .item.status-ko   { border-color: #fecaca; background: var(--ko-bg); }
+  .item.status-skip { border-color: #e5e7eb; background: var(--skip-bg); opacity: 0.7; }
+
+  .item-row { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.65rem 0.75rem; }
+  .item-num { font-size: 11px; font-weight: 700; color: var(--ink-faint); min-width: 22px; text-align: right; padding-top: 2px; flex-shrink: 0; }
+  .item-content { flex: 1; min-width: 0; }
+  .item-label { font-size: 13.5px; color: var(--ink); font-weight: 500; line-height: 1.45; }
+  .item.status-ok .item-label { text-decoration: line-through; color: var(--ok-green); }
+  .item-expected { font-size: 12px; color: var(--ink-softer); margin-top: 4px; line-height: 1.55; }
+  .item-tip {
+    font-size: 11px; color: var(--plum); margin-top: 5px; line-height: 1.5;
+    padding: 4px 9px; background: var(--plum-bg); border-radius: var(--r-sm); display: inline-block;
+  }
+
+  /* Status buttons */
+  .status-btns { display: flex; gap: 0.3rem; flex-shrink: 0; padding-top: 1px; }
+  .sbtn {
+    width: 30px; height: 30px; border-radius: var(--r-sm);
+    border: 1.5px solid var(--paper-edge); background: transparent; cursor: pointer;
+    font-size: 14px; display: flex; align-items: center; justify-content: center;
+    transition: all 120ms ease; font-family: inherit;
+  }
+  .sbtn:hover { transform: scale(1.1); }
+  .sbtn-ok   { border-color: #bbf7d0; background: #f0fdf4; color: var(--ok-green); }
+  .sbtn-ok.active   { background: var(--ok-green); color: #fff; border-color: var(--ok-green); }
+  .sbtn-ko   { border-color: #fecaca; background: #fef2f2; color: var(--ko-red); }
+  .sbtn-ko.active   { background: var(--ko-red);   color: #fff; border-color: var(--ko-red);   }
+  .sbtn-skip { border-color: #e5e7eb; background: var(--skip-bg); color: var(--skip-gray); font-size: 11px; }
+  .sbtn-skip.active { background: var(--skip-gray); color: #fff; border-color: var(--skip-gray); }
+
+  /* KO panel */
+  .ko-panel { display: none; padding: 0.75rem; border-top: 1px solid #fecaca; background: #fff8f8; gap: 0.75rem; flex-direction: column; }
+  .ko-panel.visible { display: flex; }
+  .ko-panel label { font-size: 12px; font-weight: 600; color: var(--ko-red); display: block; margin-bottom: 0.25rem; }
+  .ko-comment {
+    width: 100%; min-height: 60px; border: 1.5px solid #fecaca; border-radius: var(--r-sm);
+    padding: 0.5rem 0.75rem; font-size: 13px; font-family: inherit; color: var(--ink);
+    background: #fff; resize: vertical; outline: none; transition: border-color 120ms ease;
+  }
+  .ko-comment:focus { border-color: var(--ko-red); }
+  .screenshot-area {
+    border: 2px dashed #fca5a5; border-radius: var(--r-sm); padding: 0.75rem 1rem;
+    text-align: center; cursor: pointer; transition: background 120ms ease; position: relative;
+  }
+  .screenshot-area:hover { background: #fff0f0; }
+  .screenshot-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .screenshot-area p { font-size: 12px; color: var(--ko-red); pointer-events: none; }
+  .screenshot-preview { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+  .screenshot-preview img { height: 60px; border-radius: var(--r-sm); border: 1px solid #fca5a5; cursor: zoom-in; }
+
+  /* Lightbox */
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: var(--r-md); }
+  .lightbox-close { position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.15); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+  /* Env */
+  .env-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: var(--r-pill); cursor: pointer; border: none; font-family: inherit; }
+  .env-badge.active-staging { background: #fef3c7; color: #92400e; }
+  .env-badge.active-prod    { background: #dcfce7; color: #14532d; }
+  .env-badge.inactive       { background: var(--skip-bg); color: var(--skip-gray); }
+
+  /* Footer */
+  .footer-actions { position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink); padding: 0.75rem 1.5rem; display: flex; gap: 0.75rem; align-items: center; z-index: 100; }
+  .footer-label { font-size: 12px; color: rgba(255,255,255,0.5); flex: 1; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">World <span>Expressions</span> — QA Checklist</div>
+  <div class="header-meta" id="last-saved">Pas encore sauvegardé</div>
+  <button class="btn btn-ghost" onclick="resetAll()">Réinitialiser</button>
+  <button class="btn btn-primary" onclick="exportReport()">Exporter rapport</button>
+  <div class="progress-bar" style="flex-basis:100%;order:10;">
+    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <span class="stat-pill stat-total" id="stat-total">Total : 61</span>
+  <span class="stat-pill stat-ok"   id="stat-ok">✓ OK : 0</span>
+  <span class="stat-pill stat-ko"   id="stat-ko">✗ KO : 0</span>
+  <span class="stat-pill stat-skip" id="stat-skip">– Skip : 0</span>
+  <span class="stat-pill stat-todo" id="stat-todo">→ Reste : 61</span>
+  <div style="margin-left:auto;display:flex;gap:0.5rem;align-items:center;">
+    <span style="font-size:12px;color:var(--ink-softer);">Tester sur :</span>
+    <button class="env-badge active-staging" id="btn-staging" onclick="setEnv('staging')">Staging</button>
+    <button class="env-badge inactive"       id="btn-prod"    onclick="setEnv('prod')">Prod</button>
+  </div>
+</div>
+
+<div class="container" id="checklist-container"></div>
+
+<div class="footer-actions">
+  <span class="footer-label" id="footer-label">✓ OK si ça marche · ✗ KO si ça ne marche pas (ajoute un commentaire) · – Skip si tu ne peux pas tester.</span>
+  <button class="btn btn-ghost" onclick="markAllOk()">Tout marquer OK</button>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="" />
+</div>
+
+<script>
+const SECTIONS = [
+  {
+    id: "home", icon: "🏠", title: "Page d'accueil — /",
+    url: {
+      staging: "https://world-expressions-git-staging-ssinanusa-gmailcoms-projects.vercel.app/",
+      prod: "https://world-expressions.vercel.app/"
+    },
+    items: [
+      {
+        id: 1,
+        label: "Ouvrir l'app en navigation privée — vérifier que le modal de bienvenue s'affiche",
+        expected: "Un écran de bienvenue s'ouvre automatiquement : une phrase d'accroche, 3 expressions issues de 3 langues différentes, et un sélecteur de langue.",
+        tip: "💡 Navigation privée = Cmd+Shift+N sur Mac (Ctrl+Shift+N sur Windows). Ça simule un nouveau visiteur — le navigateur fait comme s'il ne connaissait pas le site."
+      },
+      {
+        id: 2,
+        label: "Dans le modal, cliquer successivement sur chaque langue (FR, EN, ES, IT, TR)",
+        expected: "Le bouton de validation change de texte à chaque clic : 'Commencer' en français · 'Let's go' en anglais · '¡Vamos!' en espagnol · 'Iniziamo' en italien · 'Başlayalım' en turc. Le changement est immédiat, sans rechargement de page."
+      },
+      {
+        id: 3,
+        label: "Cliquer sur le bouton de validation (ex : 'Commencer') pour fermer le modal",
+        expected: "Le modal se ferme et l'app s'affiche normalement. Important : lors de ta prochaine visite, le modal ne réapparaîtra plus — l'app mémorise que tu l'as déjà vu.",
+        tip: "💡 Technique : le choix de langue est enregistré dans la mémoire locale du navigateur (localStorage), sous la clé 'wex_lang'. C'est la mémoire interne du navigateur — elle persiste même après fermeture de l'onglet, mais est propre à chaque navigateur et chaque ordinateur."
+      },
+      {
+        id: 4,
+        label: "Recharger la page (F5 ou Cmd+R) — vérifier que le modal N'APPARAÎT PAS",
+        expected: "Aucun modal. La page s'affiche directement. L'app reconnaît que tu es un visiteur connu et ne te redemande pas ta langue."
+      },
+      {
+        id: 5,
+        label: "Vérifier que l'encart 'Expression du moment' est chargé avec son type et son registre traduits",
+        expected: "L'encart (à droite sur desktop, en haut sur mobile) affiche une expression avec son type traduit (ex : 'Expression', 'Proverbe', 'Locution') et son niveau de langue traduit (ex : 'courant', 'familier', 'argot'). Ces labels doivent être dans la langue de ton interface, pas en anglais."
+      },
+      {
+        id: 6,
+        label: "Mettre l'interface en anglais (EN) — vérifier qu'une traduction mot-à-mot apparaît sous le titre d'une expression française",
+        expected: "Sous le titre de l'expression (qui reste en français), une ligne supplémentaire s'affiche en écriture manuscrite italique : c'est la traduction littérale mot-à-mot en anglais. Elle n'apparaît que quand la langue de l'interface est différente de la langue de l'expression.",
+        tip: "💡 Ex : 'Avoir le cafard' avec l'interface en anglais → affiche 'To have the cockroach' en dessous. Ces traductions sont stockées en base de données — pas générées à la volée."
+      },
+      {
+        id: 7,
+        label: "Cliquer sur le bouton 🎲 / 'Une autre' de l'encart Expression du moment",
+        expected: "Une nouvelle expression aléatoire remplace l'ancienne dans l'encart. Le titre de la nouvelle expression est cliquable et mène vers sa page complète."
+      },
+      {
+        id: 8,
+        label: "Changer la langue de l'interface (FR → EN par exemple) pendant que l'encart affiche une expression",
+        expected: "L'interface change de langue (boutons, labels), MAIS l'expression dans l'encart reste la même. Elle ne se recharge pas automatiquement — seule une action explicite sur le bouton 🎲 change l'expression.",
+        tip: "💡 C'est un choix de design intentionnel : l'expression du moment est 'figée' pour ta session. Changer la langue ne doit pas faire sauter l'expression que tu étais en train de lire."
+      },
+      {
+        id: 9,
+        label: "Taper un mot dans la barre de recherche (ex : 'chat', 'peur', 'argent') et valider",
+        expected: "Une liste de résultats s'affiche avec un compteur en haut (ex : '18 expressions — 🐱 animal'). Deux types de résultats : les expressions qui contiennent ce mot dans leur texte, et celles dont le sens est lié à ce mot.",
+        tip: "💡 Technique : deux algorithmes de recherche tournent en parallèle. La recherche exacte cherche le mot dans le texte de l'expression. La recherche sémantique cherche dans la signification, les tags et l'origine."
+      },
+      {
+        id: 10,
+        label: "Après une recherche, recharger la page (F5 ou Cmd+R) — vérifier que la recherche se relance automatiquement",
+        expected: "La même recherche se relance et les mêmes résultats s'affichent. L'URL contient le mot cherché (ex : /#q=chat) — c'est ce qui permet de restaurer la recherche après rechargement.",
+        tip: "💡 Technique : le mot de recherche est stocké dans le 'hash' de l'URL (la partie après le #). Le hash est lu au rechargement pour relancer la recherche automatiquement."
+      },
+      {
+        id: 11,
+        label: "Faire une recherche avec beaucoup de résultats (ex : 'avoir') et scroller jusqu'en bas de la liste",
+        expected: "En arrivant en bas de la liste, de nouveaux résultats apparaissent automatiquement — sans bouton 'Page suivante'. C'est l'infinite scroll (défilement infini).",
+        tip: "💡 Technique : un composant invisible en bas de page surveille s'il devient visible à l'écran. Dès que c'est le cas, il déclenche le chargement du prochain lot de 20 résultats."
+      },
+      {
+        id: 12,
+        label: "Cliquer n'importe où sur une carte d'expression (pas sur un tag ni sur l'icône source)",
+        expected: "Navigation vers la page complète de cette expression. L'URL change pour /expression/[identifiant] (ex : /expression/avoir-le-cafard)."
+      },
+      {
+        id: 13,
+        label: "Cliquer sur un tag coloré en bas d'une carte (ex : 'animal', 'argent', 'travail')",
+        expected: "La barre de recherche se remplit avec le nom de ce tag dans ta langue courante et les résultats se mettent à jour immédiatement.",
+        tip: "💡 Les tags sont stockés en anglais en base de données (ex : 'money') mais affichés dans ta langue (ex : 'argent' en français, 'dinero' en espagnol) grâce à une table de traductions."
+      },
+      {
+        id: 14,
+        label: "Cliquer sur le cœur ♡ en haut à droite d'une carte expression",
+        expected: "Le cœur devient rouge/terra (favori ajouté). Cliquer à nouveau le vide (favori retiré). Le compteur de favoris dans la barre latérale se met à jour immédiatement.",
+        tip: "💡 Les favoris sont stockés dans la mémoire locale de ton navigateur (localStorage). Ils ne sont pas envoyés à un serveur — d'où la mention 'mode local' sur la page /carnet."
+      },
+      {
+        id: 15,
+        label: "Cliquer sur un chip de suggestion thématique (petite bulle sous les filtres, ex : 'argent', 'animaux')",
+        expected: "La page défile automatiquement vers la barre de recherche et la recherche se lance avec ce thème."
+      },
+      {
+        id: 16,
+        label: "Sur desktop : cliquer sur 'World Expressions' tout en haut de la barre latérale gauche",
+        expected: "Retour à l'accueil vierge : la barre de recherche est vidée et les résultats disparaissent. C'est différent d'un simple rechargement — l'état complet de la page est réinitialisé.",
+        tip: "💡 Technique : ce lien utilise une balise HTML classique <a href='/'> plutôt que le routeur Next.js, ce qui force un rechargement complet et remet l'état React à zéro."
+      },
+      {
+        id: 17,
+        label: "Sur desktop : vérifier que 'Accueil' est mis en surbrillance dans la barre latérale",
+        expected: "L'item 'Accueil' a un fond violet clair et le texte est en violet. Cet indicateur de page courante ne s'affiche que sur la page /."
+      }
+    ]
+  },
+
+  {
+    id: "atlas", icon: "🌍", title: "Page Atlas — /atlas",
+    url: {
+      staging: "https://world-expressions-git-staging-ssinanusa-gmailcoms-projects.vercel.app/atlas",
+      prod: "https://world-expressions.vercel.app/atlas"
+    },
+    items: [
+      {
+        id: 18,
+        label: "Ouvrir /atlas — vérifier que les 14 pays s'affichent correctement",
+        expected: "14 cartes pays : photo réelle pour FR, UK, US, AU, ES, TR, IT. Dégradé pastel pour les pays d'Amérique latine (MX, AR, CO, CL, PE, CU, VE). Chaque carte affiche le drapeau, le nom du pays et le nombre d'expressions disponibles."
+      },
+      {
+        id: 19,
+        label: "Observer l'animation à l'ouverture de la page",
+        expected: "Les cartes n'apparaissent pas toutes en même temps : elles glissent vers le haut une par une avec un léger décalage progressif (comme un jeu de cartes qu'on étale)."
+      },
+      {
+        id: 20,
+        label: "Passer la souris sur une carte pays",
+        expected: "La carte se soulève légèrement (effet de lévitation) et son ombre s'accentue. L'effet disparaît quand la souris quitte la carte."
+      },
+      {
+        id: 21,
+        label: "Cliquer sur un pays dans la grille",
+        expected: "Navigation vers la page dédiée à ce pays. Ex : France → /country/fr, Espagne → /country/es, Turquie → /country/tr."
+      },
+      {
+        id: 22,
+        label: "Vérifier que 'Atlas' est mis en surbrillance dans la barre latérale (desktop)",
+        expected: "L'item 'Atlas' a un fond violet clair — indique qu'on est sur la page /atlas."
+      },
+      {
+        id: 23,
+        label: "Sur mobile/tablette : vérifier que l'icône 'Atlas' dans la barre de navigation basse est active",
+        expected: "L'icône Atlas (globe) apparaît en violet dans la barre de navigation du bas."
+      }
+    ]
+  },
+
+  {
+    id: "concepts", icon: "💡", title: "Page Concepts — /concepts",
+    url: {
+      staging: "https://world-expressions-git-staging-ssinanusa-gmailcoms-projects.vercel.app/concepts",
+      prod: "https://world-expressions.vercel.app/concepts"
+    },
+    items: [
+      {
+        id: 24,
+        label: "Ouvrir /concepts — vérifier que la grille de 60 concepts est chargée",
+        expected: "60 cartes-concepts s'affichent, chacune avec un emoji représentatif, le nom du concept traduit dans ta langue et un badge indiquant le nombre d'expressions associées.",
+        tip: "💡 Ces concepts sont les 'tags' de la base de données, traduits dans la langue de l'interface. Le tag 'money' s'affiche 'argent' en français, 'dinero' en espagnol, 'para' en turc."
+      },
+      {
+        id: 25,
+        label: "Observer l'animation à l'ouverture",
+        expected: "Même animation qu'Atlas : les cartes glissent une par une avec un décalage progressif."
+      },
+      {
+        id: 26,
+        label: "Cliquer sur le filtre de langue 'FR' en haut de la page",
+        expected: "La grille se recharge avec uniquement les concepts liés aux expressions françaises."
+      },
+      {
+        id: 27,
+        label: "Cliquer successivement sur les filtres 'EN', 'ES', 'IT', 'TR'",
+        expected: "La grille se recharge à chaque changement avec les concepts propres à la langue sélectionnée. Le nombre de concepts et les emojis peuvent différer d'une langue à l'autre."
+      },
+      {
+        id: 28,
+        label: "Cliquer sur le filtre 'Tous'",
+        expected: "La grille revient aux concepts cross-langues (tous les tags confondus, toutes langues confondues)."
+      },
+      {
+        id: 29,
+        label: "Passer la souris sur une carte concept",
+        expected: "La carte se soulève légèrement, une bordure violette (plum) apparaît et l'ombre s'accentue."
+      },
+      {
+        id: 30,
+        label: "Cliquer sur un concept",
+        expected: "Navigation vers la page d'accueil (/) avec la barre de recherche pré-remplie du nom de ce concept dans ta langue — les résultats se chargent immédiatement."
+      },
+      {
+        id: 31,
+        label: "Vérifier que 'Concepts' est mis en surbrillance dans la barre latérale (desktop)",
+        expected: "L'item 'Concepts' a un fond violet clair."
+      },
+      {
+        id: 32,
+        label: "Sur mobile : vérifier que l'icône 'Concepts' est active dans la barre de navigation basse",
+        expected: "L'icône Concepts (ampoule) apparaît en violet."
+      }
+    ]
+  },
+
+  {
+    id: "random", icon: "🎲", title: "Page Au hasard — /random",
+    url: {
+      staging: "https://world-expressions-git-staging-ssinanusa-gmailcoms-projects.vercel.app/random",
+      prod: "https://world-expressions.vercel.app/random"
+    },
+    items: [
+      {
+        id: 33,
+        label: "Cliquer sur 'Au hasard' dans la barre latérale (ou dans la barre de navigation basse sur mobile)",
+        expected: "Tu arrives directement sur la page d'une expression prise au hasard (/expression/[id]). Tu ne vois jamais de page /random intermédiaire — la redirection est transparente.",
+        tip: "💡 Technique : /random est une page serveur (Server Component Next.js). Le serveur appelle l'API, récupère un ID d'expression au hasard, et fait une redirection HTTP avant même d'envoyer du HTML au navigateur."
+      },
+      {
+        id: 34,
+        label: "Saisir directement l'URL .../random dans la barre d'adresse et valider",
+        expected: "Même résultat : redirection immédiate vers une expression aléatoire. Pas de page blanche, pas d'écran de chargement intermédiaire."
+      }
+    ]
+  },
+
+  {
+    id: "expression", icon: "📖", title: "Page Expression — /expression/[id]",
+    url: {
+      staging: "https://world-expressions-git-staging-ssinanusa-gmailcoms-projects.vercel.app/expression/avoir-le-cafard",
+      prod: "https://world-expressions.vercel.app/expression/avoir-le-cafard"
+    },
+    items: [
+      {
+        id: 35,
+        label: "Ouvrir la page d'une expression — vérifier l'en-tête visuel (hero)",
+        expected: "Photo du pays de l'expression en arrière-plan avec un dégradé sombre. Le titre de l'expression s'affiche en grand en blanc, dans une police serif élégante (Fraunces italic)."
+      },
+      {
+        id: 36,
+        label: "Cliquer sur le drapeau du pays affiché sous le titre",
+        expected: "Navigation vers la page dédiée à ce pays. Ex : drapeau 🇫🇷 → /country/fr, drapeau 🇪🇸 → /country/es."
+      },
+      {
+        id: 37,
+        label: "Vérifier que les 3 sections de contenu sont visibles immédiatement, sans clic supplémentaire",
+        expected: "Signification, exemple d'usage et origine sont tous affichés directement sur la page. Aucun bouton 'voir plus' ou 'révéler' à cliquer."
+      },
+      {
+        id: 38,
+        label: "Mettre l'interface en anglais (EN) et ouvrir une expression française — vérifier la traduction",
+        expected: "Le sens de l'expression est affiché en anglais. Sous le titre (en français), une ligne en écriture manuscrite montre la traduction mot-à-mot. Ex : 'Avoir le cafard' → 'To have the cockroach'.",
+        tip: "💡 Ces traductions sont générées par Mistral (IA) et stockées en base de données — pas calculées à la volée. Chaque expression peut avoir une traduction dans les 5 langues de l'app."
+      },
+      {
+        id: 39,
+        label: "Depuis la page d'une expression, changer la langue de l'interface",
+        expected: "Le sens se retraduit dans la nouvelle langue, mais l'expression affichée reste la même — tu ne navigues pas vers une autre expression."
+      },
+      {
+        id: 40,
+        label: "Cliquer sur un tag affiché sous l'expression",
+        expected: "Navigation vers la page d'accueil (/) avec ce tag pré-rempli dans la barre de recherche, dans ta langue courante."
+      },
+      {
+        id: 41,
+        label: "Faire défiler jusqu'à la section 'Dans le même univers' — vérifier les mini-cartes",
+        expected: "4 mini-cartes d'expressions partageant des tags communs avec l'expression courante s'affichent. Chaque mini-carte est cliquable et mène vers la page de cette autre expression."
+      },
+      {
+        id: 42,
+        label: "Cliquer sur le cœur ♡ dans la barre de navigation en haut à droite de la page",
+        expected: "L'expression est ajoutée aux favoris : le cœur devient rouge. Cliquer à nouveau la retire. En quittant et revenant sur cette page, l'état du cœur est mémorisé."
+      },
+      {
+        id: 43,
+        label: "Visiter une expression, puis ouvrir /carnet et vérifier l'onglet Historique",
+        expected: "L'expression que tu viens de visiter apparaît dans l'historique avec l'heure de visite.",
+        tip: "💡 Technique : dès l'ouverture de la page, une fonction (recordView) est appelée automatiquement. Elle enregistre l'ID, la langue et le pays de l'expression dans ta mémoire locale (wex_carnet.history, max 50 entrées)."
+      },
+      {
+        id: 44,
+        label: "Cliquer sur le bouton 'Expression au hasard' en bas de page",
+        expected: "Navigation vers la page d'une autre expression prise au hasard."
+      },
+      {
+        id: 45,
+        label: "Cliquer sur '← Retour' en haut à gauche de la page",
+        expected: "Retour à la page précédente (liste de résultats, atlas, etc.). Si tu es arrivé directement sur cette URL sans page précédente, retour à l'accueil."
+      }
+    ]
+  },
+
+  {
+    id: "country", icon: "🗺️", title: "Page Pays — /country/[code]",
+    url: {
+      staging: "https://world-expressions-git-staging-ssinanusa-gmailcoms-projects.vercel.app/country/fr",
+      prod: "https://world-expressions.vercel.app/country/fr"
+    },
+    items: [
+      {
+        id: 46,
+        label: "Ouvrir /country/fr — vérifier l'en-tête de la page",
+        expected: "Photo de la France en arrière-plan, drapeau 🇫🇷 visible, nom du pays et nombre total d'expressions françaises affichés."
+      },
+      {
+        id: 47,
+        label: "Vérifier que les expressions du pays chargent automatiquement et que le défilement infini fonctionne",
+        expected: "Les expressions françaises s'affichent dès l'ouverture. En scrollant jusqu'en bas, les suivantes apparaissent automatiquement sans action supplémentaire."
+      },
+      {
+        id: 48,
+        label: "Cliquer sur un chip concept affiché sur la page du pays",
+        expected: "La liste se filtre pour n'afficher que les expressions françaises liées à ce concept précis."
+      },
+      {
+        id: 49,
+        label: "Utiliser le menu déroulant 'Autre pays' dans la navigation de la page",
+        expected: "Un menu s'ouvre avec la liste de tous les pays disponibles. Sélectionner un pays navigue directement vers sa page /country/[code]."
+      }
+    ]
+  },
+
+  {
+    id: "carnet", icon: "♡", title: "Mon Carnet — /carnet",
+    url: {
+      staging: "https://world-expressions-git-staging-ssinanusa-gmailcoms-projects.vercel.app/carnet",
+      prod: "https://world-expressions.vercel.app/carnet"
+    },
+    items: [
+      {
+        id: 50,
+        label: "Ouvrir /carnet — vérifier la carte de profil en haut (CoverCard)",
+        expected: "Affiche une grande initiale (basée sur ta langue d'interface), ton streak de visites consécutives 🔥, et tes tags les plus consultés. Toutes ces données viennent de ta mémoire locale.",
+        tip: "💡 Le 'streak' (série) s'incrémente chaque jour où tu consultes au moins une expression. Il se remet à 1 si tu rates une journée. C'est calculé en comparant la date d'aujourd'hui avec la dernière date enregistrée."
+      },
+      {
+        id: 51,
+        label: "Vérifier la cohérence des tuiles de statistiques",
+        expected: "3 tuiles affichent des chiffres cohérents avec ce que tu as effectivement fait : nombre d'expressions vues, nombre de favoris, nombre de pays différents explorés."
+      },
+      {
+        id: 52,
+        label: "Onglet Favoris : taper dans le champ de recherche pour filtrer la liste",
+        expected: "La liste des favoris se filtre en temps réel selon ce que tu tapes — sans rechargement de page."
+      },
+      {
+        id: 53,
+        label: "Vérifier les chips de filtres par pays (visible seulement si tu as des favoris de 2 pays différents ou plus)",
+        expected: "Des chips de pays apparaissent au-dessus de la liste (ex : 🇫🇷 4 · 🇹🇷 2). Cliquer filtre la liste sur ce pays. On peut combiner filtre texte et filtre pays.",
+        tip: "💡 Ce filtre n'apparaît que si tes favoris viennent d'au moins 2 pays différents — sinon il n'a aucun intérêt et reste masqué."
+      },
+      {
+        id: 54,
+        label: "Cliquer sur le cœur ♥ à droite d'un favori pour le retirer de la liste",
+        expected: "Une animation de glissement s'exécute (la ligne glisse vers la droite en s'effaçant) puis l'entrée disparaît définitivement de la liste."
+      },
+      {
+        id: 55,
+        label: "Cliquer sur l'onglet 'Historique'",
+        expected: "Les 30 dernières expressions que tu as consultées s'affichent avec un horodatage relatif (ex : 'il y a 5 min', 'hier')."
+      },
+      {
+        id: 56,
+        label: "Cliquer sur l'onglet 'Notes'",
+        expected: "Si tu n'as pas encore créé de notes, la section est vide. Aucun message d'erreur, aucun crash."
+      },
+      {
+        id: 57,
+        label: "Sur desktop : vérifier les barres de progression par pays (colonne droite)",
+        expected: "Pour chaque pays dont tu as visité des expressions, une barre animée montre ta progression (ex : '3/400 expressions françaises vues'). L'animation de la barre se déclenche à l'ouverture de la page.",
+        tip: "💡 Le total (ex : 400) vient de l'API. Le nombre de vues vient de ton localStorage. Les deux sont combinés pour calculer le pourcentage affiché."
+      },
+      {
+        id: 58,
+        label: "Cliquer sur le ✕ pour fermer la bannière 'Mode local · créer un compte'",
+        expected: "La bannière se ferme. Elle ne réapparaît plus même après rechargement de la page.",
+        tip: "💡 L'état 'bannière fermée' est sauvegardé dans ta mémoire locale (wex_carnet.user.bannerDismissed)."
+      },
+      {
+        id: 59,
+        label: "Cliquer sur le bouton 'Export JSON'",
+        expected: "Un fichier .json se télécharge automatiquement avec toutes tes données (favoris, historique, notes, statistiques).",
+        tip: "💡 JSON = format de données lisible par les machines. Tu peux l'ouvrir dans un éditeur de texte ou l'importer dans une autre app."
+      },
+      {
+        id: 60,
+        label: "Cliquer sur le bouton 'Export CSV'",
+        expected: "Un fichier .csv se télécharge. Ce format s'ouvre directement dans Excel ou Google Sheets.",
+        tip: "💡 CSV = données séparées par des virgules. C'est le format universel pour les tableurs."
+      },
+      {
+        id: 61,
+        label: "Vérifier que le compteur de favoris dans la barre latérale est à jour (desktop)",
+        expected: "Le nombre affiché à droite de 'Favoris' dans la sidebar correspond au nombre réel de favoris dans ta mémoire locale. Il se met à jour sans rechargement.",
+        tip: "💡 Ce compteur est lu depuis le localStorage au chargement de la sidebar. Aucun appel API — tout est local et instantané."
+      }
+    ]
+  }
+];
+
+let state = {};
+let currentEnv = "staging";
+
+function initState() {
+  const saved = localStorage.getItem("wex_qa_state");
+  if (saved) { try { state = JSON.parse(saved); } catch(e) {} }
+  const savedEnv = localStorage.getItem("wex_qa_env");
+  if (savedEnv) currentEnv = savedEnv;
+}
+
+function saveState() {
+  localStorage.setItem("wex_qa_state", JSON.stringify(state));
+  localStorage.setItem("wex_qa_env", currentEnv);
+  const now = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  document.getElementById("last-saved").textContent = `Sauvegardé à ${now}`;
+}
+
+function render() {
+  const container = document.getElementById("checklist-container");
+  container.innerHTML = "";
+  SECTIONS.forEach(section => {
+    const div = document.createElement("div");
+    div.className = "section";
+    const url = section.url ? section.url[currentEnv] : null;
+    const openLink = url ? `<a href="${url}" target="_blank" class="section-url" title="Ouvrir dans un nouvel onglet">↗ Ouvrir</a>` : "";
+    div.innerHTML = `
+      <div class="section-header">
+        <span class="section-icon">${section.icon}</span>
+        <span class="section-title">${section.title}</span>
+        ${openLink}
+        <span class="section-count" id="sc-${section.id}"></span>
+      </div>
+    `;
+    section.items.forEach(item => {
+      const s = state[item.id] || { status: "todo", comment: "", screenshots: [] };
+      const el = document.createElement("div");
+      el.className = `item${s.status !== "todo" ? " status-" + s.status : ""}`;
+      el.id = `item-${item.id}`;
+      const tipHtml = item.tip ? `<div class="item-tip">${item.tip}</div>` : "";
+      el.innerHTML = `
+        <div class="item-row">
+          <span class="item-num">${item.id}</span>
+          <div class="item-content">
+            <div class="item-label">${item.label}</div>
+            <div class="item-expected">→ ${item.expected}</div>
+            ${tipHtml}
+          </div>
+          <div class="status-btns">
+            <button class="sbtn sbtn-ok   ${s.status==="ok"   ? "active" : ""}" onclick="setStatus(${item.id},'ok')"   title="Ça marche — OK">✓</button>
+            <button class="sbtn sbtn-ko   ${s.status==="ko"   ? "active" : ""}" onclick="setStatus(${item.id},'ko')"   title="Ça ne marche pas — KO">✗</button>
+            <button class="sbtn sbtn-skip ${s.status==="skip" ? "active" : ""}" onclick="setStatus(${item.id},'skip')" title="Je ne peux pas tester ça">–</button>
+          </div>
+        </div>
+        <div class="ko-panel${s.status === "ko" ? " visible" : ""}" id="ko-${item.id}">
+          <div>
+            <label>Décris le bug</label>
+            <textarea class="ko-comment" placeholder="Comportement observé vs comportement attendu. Étapes pour reproduire…" onchange="setComment(${item.id},this.value)">${s.comment || ""}</textarea>
+          </div>
+          <div>
+            <label>Screenshot (optionnel)</label>
+            <div class="screenshot-area">
+              <input type="file" accept="image/*" multiple onchange="addScreenshots(${item.id},this)" />
+              <p>📎 Cliquer ou glisser un screenshot ici</p>
+            </div>
+            <div class="screenshot-preview" id="prev-${item.id}">
+              ${(s.screenshots || []).map((src, i) => `<img src="${src}" onclick="openLightbox('${src}')" title="Screenshot ${i+1}" />`).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+      div.appendChild(el);
+    });
+    container.appendChild(div);
+    updateSectionCount(section);
+  });
+  updateStats();
+}
+
+function setStatus(id, status) {
+  if (!state[id]) state[id] = { status: "todo", comment: "", screenshots: [] };
+  state[id].status = (state[id].status === status) ? "todo" : status;
+  const el = document.getElementById(`item-${id}`);
+  el.className = `item${state[id].status !== "todo" ? " status-" + state[id].status : ""}`;
+  el.querySelectorAll(".sbtn").forEach(b => b.classList.remove("active"));
+  if (state[id].status !== "todo") el.querySelector(`.sbtn-${state[id].status}`).classList.add("active");
+  document.getElementById(`ko-${id}`).classList.toggle("visible", state[id].status === "ko");
+  saveState();
+  updateStats();
+  const section = SECTIONS.find(s => s.items.some(i => i.id === id));
+  if (section) updateSectionCount(section);
+}
+
+function setComment(id, value) {
+  if (!state[id]) state[id] = { status: "ko", comment: "", screenshots: [] };
+  state[id].comment = value;
+  saveState();
+}
+
+function addScreenshots(id, input) {
+  if (!state[id]) state[id] = { status: "ko", comment: "", screenshots: [] };
+  const preview = document.getElementById(`prev-${id}`);
+  Array.from(input.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const src = e.target.result;
+      state[id].screenshots.push(src);
+      const img = document.createElement("img");
+      img.src = src; img.title = file.name;
+      img.onclick = () => openLightbox(src);
+      preview.appendChild(img);
+      saveState();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function markAllOk() {
+  if (!confirm("Marquer TOUS les parcours comme OK ?")) return;
+  SECTIONS.forEach(s => s.items.forEach(item => {
+    if (!state[item.id]) state[item.id] = { status: "todo", comment: "", screenshots: [] };
+    state[item.id].status = "ok";
+  }));
+  saveState(); render();
+}
+
+function resetAll() {
+  if (!confirm("Réinitialiser la checklist ? Ta progression sera perdue.")) return;
+  state = {}; saveState(); render();
+}
+
+function setEnv(env) {
+  currentEnv = env;
+  document.getElementById("btn-staging").className = `env-badge ${env === "staging" ? "active-staging" : "inactive"}`;
+  document.getElementById("btn-prod").className    = `env-badge ${env === "prod"    ? "active-prod"    : "inactive"}`;
+  saveState(); render();
+}
+
+function updateStats() {
+  const all = SECTIONS.flatMap(s => s.items);
+  const total = all.length;
+  const ok   = all.filter(i => state[i.id]?.status === "ok").length;
+  const ko   = all.filter(i => state[i.id]?.status === "ko").length;
+  const skip = all.filter(i => state[i.id]?.status === "skip").length;
+  const todo = total - ok - ko - skip;
+  document.getElementById("stat-total").textContent = `Total : ${total}`;
+  document.getElementById("stat-ok").textContent   = `✓ OK : ${ok}`;
+  document.getElementById("stat-ko").textContent   = `✗ KO : ${ko}`;
+  document.getElementById("stat-skip").textContent = `– Skip : ${skip}`;
+  document.getElementById("stat-todo").textContent = `→ Reste : ${todo}`;
+  document.getElementById("progress-fill").style.width = Math.round((ok + skip) / total * 100) + "%";
+  const footer = document.getElementById("footer-label");
+  if (todo === 0 && ko === 0) footer.textContent = `🎉 QA terminée — ${ok} OK, ${skip} skippés. Aucun bug !`;
+  else if (ko > 0) footer.textContent = `${ko} bug${ko > 1 ? "s" : ""} documenté${ko > 1 ? "s" : ""} · ${todo} parcours restants.`;
+  else footer.textContent = `${todo} parcours restants · ${ok} OK · ${ko} KO · ${skip} skippés.`;
+}
+
+function updateSectionCount(section) {
+  const ok  = section.items.filter(i => state[i.id]?.status === "ok").length;
+  const ko  = section.items.filter(i => state[i.id]?.status === "ko").length;
+  const el  = document.getElementById(`sc-${section.id}`);
+  if (el) el.textContent = `${ok + ko}/${section.items.length}${ko > 0 ? ` · ${ko} KO` : ""}`;
+}
+
+function openLightbox(src) {
+  document.getElementById("lightbox-img").src = src;
+  document.getElementById("lightbox").classList.add("open");
+}
+function closeLightbox() { document.getElementById("lightbox").classList.remove("open"); }
+
+function exportReport() {
+  const all = SECTIONS.flatMap(s => s.items.map(item => ({
+    id: item.id, section: s.title, label: item.label, expected: item.expected,
+    status: state[item.id]?.status || "todo",
+    comment: state[item.id]?.comment || "",
+    screenshots: (state[item.id]?.screenshots || []).length,
+  })));
+  const ok = all.filter(i => i.status === "ok").length;
+  const ko = all.filter(i => i.status === "ko").length;
+  const skip = all.filter(i => i.status === "skip").length;
+  const todo = all.filter(i => i.status === "todo").length;
+  const lines = [
+    `# QA Report — World Expressions`,
+    `Date : ${new Date().toLocaleDateString("fr-FR")} ${new Date().toLocaleTimeString("fr-FR")}`,
+    `Environnement : ${currentEnv.toUpperCase()}`,
+    `Résumé : ${ok} OK · ${ko} KO · ${skip} Skip · ${todo} non testés`,
+    "", "## Bugs KO",
+    ...all.filter(i => i.status === "ko").map(i =>
+      `### #${i.id} — ${i.label}\n- Section : ${i.section}\n- Attendu : ${i.expected}\n- Bug : ${i.comment || "(pas de commentaire)"}\n- Screenshots : ${i.screenshots}`
+    ),
+    "", "## Tous les résultats",
+    ...all.map(i => `- [${i.status.padEnd(4)}] #${i.id} ${i.label}`),
+  ];
+  const blob = new Blob([lines.join("\n")], { type: "text/markdown" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `qa-report-${currentEnv}-${new Date().toISOString().slice(0,10)}.md`;
+  a.click();
+}
+
+initState();
+render();
+document.getElementById("btn-staging").className = `env-badge ${currentEnv === "staging" ? "active-staging" : "inactive"}`;
+document.getElementById("btn-prod").className    = `env-badge ${currentEnv === "prod"    ? "active-prod"    : "inactive"}`;
+</script>
+</body>
+</html>
