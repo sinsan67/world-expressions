@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 
 export default async function RandomPage() {
+  await connection();
   const API = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   try {
     const res = await fetch(`${API}/random`, { cache: "no-store" });
