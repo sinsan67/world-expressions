@@ -1,4 +1,17 @@
 import { defineConfig, devices } from '@playwright/test';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+
+// Load .env.playwright if it exists (gitignored — store VERCEL_BYPASS_TOKEN there)
+try {
+  const lines = readFileSync(resolve(__dirname, '.env.playwright'), 'utf-8').split('\n');
+  for (const line of lines) {
+    const [key, ...rest] = line.split('=');
+    if (key && rest.length && !process.env[key.trim()]) {
+      process.env[key.trim()] = rest.join('=').trim();
+    }
+  }
+} catch { /* file absent — ignore */ }
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 

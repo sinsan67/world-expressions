@@ -85,6 +85,9 @@ export function toggleFavorite(expressionId: string): void {
     c.favorites.push({ expressionId, savedAt: new Date().toISOString() });
   }
   saveCarnet(c);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("wex-carnet-updated"));
+  }
 }
 
 export function isFavorite(expressionId: string): boolean {

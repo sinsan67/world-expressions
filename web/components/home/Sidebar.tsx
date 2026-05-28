@@ -30,9 +30,13 @@ export default function Sidebar({ uiLang }: Props) {
   const [favCount, setFavCount] = useState<number | undefined>(undefined);
 
   useEffect(() => {
-    const carnet = getCarnet();
-    const n = carnet.favorites.length;
-    setFavCount(n > 0 ? n : undefined);
+    const update = () => {
+      const n = getCarnet().favorites.length;
+      setFavCount(n > 0 ? n : undefined);
+    };
+    update();
+    window.addEventListener("wex-carnet-updated", update);
+    return () => window.removeEventListener("wex-carnet-updated", update);
   }, []);
 
   const navItems = BASE_NAV_ITEMS.map((item) =>
