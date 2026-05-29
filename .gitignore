@@ -26,3 +26,10 @@ data/raw/
 
 # Logs
 *.log
+
+# SQLite local (source de vérité = Neon)
+*.db
+
+# Test artifacts
+web/playwright-report/
+web/test-results/

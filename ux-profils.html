@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>World Expressions — Sous le capot : les utilisateurs</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0f0a1e;
+    color: #e2e0f0;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 36px 80px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    margin-bottom: 48px;
+    border-bottom: 1px solid #2d1f5e;
+    padding-bottom: 28px;
+  }
+  .header-meta {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #7c6aab;
+    margin-bottom: 10px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .header h1 span { color: #a78bfa; }
+  .header .tagline {
+    font-size: 14px;
+    color: #9d8ec0;
+    max-width: 600px;
+    line-height: 1.5;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 56px;
+  }
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #7c6aab;
+    margin-bottom: 6px;
+  }
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .section-sub {
+    font-size: 13px;
+    color: #9d8ec0;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  /* ── PERSONAS GRID ── */
+  .personas-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .persona-card {
+    background: #160d2e;
+    border: 1px solid #2d1f5e;
+    border-radius: 12px;
+    padding: 16px;
+    position: relative;
+  }
+  .persona-card.no-account {
+    border-color: #1e1e3a;
+    background: #0e0e18;
+    opacity: 0.7;
+  }
+  .persona-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .persona-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .persona-tagline {
+    font-size: 11px;
+    color: #a78bfa;
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+  .persona-desc {
+    font-size: 12px;
+    color: #9d8ec0;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .persona-need {
+    font-size: 11px;
+    background: #0f0a1e;
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: #c4b8e8;
+    line-height: 1.4;
+    border-left: 2px solid #a78bfa;
+  }
+  .persona-card.no-account .persona-need {
+    border-left-color: #3a3a5a;
+    color: #5a5a7a;
+  }
+  .account-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    background: #1a1130;
+    border: 1px solid #4c1d95;
+    color: #a78bfa;
+  }
+  .account-badge.no {
+    border-color: #2d2d4e;
+    color: #4a4a6a;
+    background: transparent;
+  }
+
+  /* ── VALUE PROP ── */
+  .value-prop {
+    background: linear-gradient(135deg, #1a0d3e 0%, #160d2e 100%);
+    border: 1px solid #4c1d95;
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    box-shadow: 0 4px 24px #7c3aed18;
+  }
+  .value-prop-icon { font-size: 40px; }
+  .value-prop-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .value-prop-title span { color: #a78bfa; }
+  .value-prop-sub {
+    font-size: 13px;
+    color: #9d8ec0;
+    line-height: 1.5;
+  }
+
+  /* ── MATRIX TABLE ── */
+  .matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .matrix th {
+    text-align: left;
+    padding: 8px 14px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #7c6aab;
+    border-bottom: 1px solid #2d1f5e;
+  }
+  .matrix td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #1a1130;
+    vertical-align: top;
+    color: #c4b8e8;
+    line-height: 1.4;
+  }
+  .matrix tr:last-child td { border-bottom: none; }
+  .matrix td:first-child { color: #fff; font-weight: 600; }
+  .matrix .gain { color: #86efac; }
+  .matrix .neutral { color: #5a5a7a; font-style: italic; }
+
+  /* ── ONBOARDING ── */
+  .principles-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .principle {
+    flex: 1;
+    background: #0e1a20;
+    border: 1px solid #1a3a4a;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .principle-icon { font-size: 20px; margin-bottom: 8px; }
+  .principle-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .principle-text { font-size: 11px; color: #7ea8b8; line-height: 1.4; }
+
+  .questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .question-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 180px 180px;
+    gap: 12px;
+    align-items: start;
+    background: #160d2e;
+    border: 1px solid #2d1f5e;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .question-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #2d1f5e;
+    color: #a78bfa;
+    font-size: 12px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .question-text { font-size: 13px; color: #fff; font-weight: 600; padding-top: 4px; }
+  .question-text span { display: block; font-size: 11px; font-weight: 400; color: #9d8ec0; margin-top: 3px; }
+  .question-personas { font-size: 11px; color: #a78bfa; padding-top: 5px; }
+  .question-saves { font-size: 11px; color: #86efac; padding-top: 5px; }
+
+  /* ── AUTH TIMELINE ── */
+  .auth-timeline {
+    display: flex;
+    gap: 12px;
+  }
+  .auth-step {
+    flex: 1;
+    border-radius: 12px;
+    padding: 18px 20px;
+    border: 1px solid transparent;
+  }
+  .auth-step.mvp {
+    background: #0d1f0d;
+    border-color: #1a4a1a;
+    box-shadow: 0 0 0 1px #22c55e20, 0 4px 18px #22c55e10;
+  }
+  .auth-step.v2 {
+    background: #160d2e;
+    border-color: #4c1d95;
+  }
+  .auth-step.later {
+    background: #0e0e18;
+    border-color: #1e1e3a;
+    opacity: 0.6;
+  }
+  .auth-step-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .auth-step.mvp .auth-step-label { color: #22c55e; }
+  .auth-step.v2 .auth-step-label { color: #a78bfa; }
+  .auth-step.later .auth-step-label { color: #3a3a5a; }
+  .auth-step-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .auth-step-desc { font-size: 12px; color: #9d8ec0; line-height: 1.5; }
+  .auth-step-why { font-size: 11px; color: #5a7a5a; margin-top: 8px; font-style: italic; }
+  .auth-step.v2 .auth-step-why { color: #7c6aab; }
+
+  /* ── MVP SCOPE ── */
+  .mvp-items {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .mvp-item {
+    background: #0d1f0d;
+    border: 1px solid #1a4a1a;
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .mvp-item-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #1a4a1a;
+    color: #22c55e;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .mvp-item-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+  .mvp-item-desc { font-size: 11px; color: #5a7a5a; line-height: 1.4; }
+
+  .decision-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: #1a1130;
+    border: 1px solid #4c1d95;
+    color: #a78bfa;
+    margin-right: 6px;
+    margin-bottom: 4px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid #2d1f5e;
+    margin: 48px 0;
+  }
+
+  /* ── UX DECISIONS ── */
+  .ux-decisions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .ux-decision {
+    flex: 1;
+    background: #160d2e;
+    border: 1px solid #2d1f5e;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 12px;
+  }
+  .ux-decision-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #7c6aab;
+    margin-bottom: 6px;
+  }
+  .ux-decision-title { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .ux-decision-desc { color: #9d8ec0; line-height: 1.5; }
+
+  /* ── V2+ IDEAS ── */
+  .ideas-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .idea-card {
+    background: #0e0e18;
+    border: 1px solid #1e1e3a;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .idea-card.v2-reassess {
+    border-color: #2d1f5e;
+    background: #160d2e;
+  }
+  .idea-icon { font-size: 20px; margin-bottom: 8px; }
+  .idea-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .idea-desc { font-size: 11px; color: #5a5a7a; line-height: 1.4; }
+  .idea-tag {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    background: #1a1130;
+    border: 1px solid #2d1f5e;
+    color: #7c6aab;
+  }
+  .idea-tag.reassess {
+    border-color: #4c1d95;
+    color: #a78bfa;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-meta">World Expressions — Atelier produit — 2026-05-29</div>
+  <h1>Sous le capot : <span>les utilisateurs</span></h1>
+  <p class="tagline">
+    Qui navigue sur l'app, pourquoi ils reviennent, et ce qu'un profil change pour eux.
+    Ce document est un spec produit déguisé en histoire — il définit les personas avant le code.
+  </p>
+</div>
+
+<!-- ── SECTION 1 : PERSONAS ── -->
+<div class="section">
+  <div class="section-label">Section 1</div>
+  <div class="section-title">Les 7 personas</div>
+  <div class="section-sub">
+    6 profils susceptibles de créer un compte + 1 profil "lecture seule" (le curieux de passage) qu'on garde en tête pour ne jamais lui imposer de friction.
+  </div>
+
+  <div class="personas-grid">
+
+    <div class="persona-card">
+      <div class="account-badge">Compte utile</div>
+      <span class="persona-icon">🌍</span>
+      <div class="persona-name">L'amateur de langues et de cultures</div>
+      <div class="persona-tagline">"J'adore comparer comment les cultures pensent"</div>
+      <div class="persona-desc">
+        Explore l'app en mode multilingue. S'intéresse aux équivalents cross-langues, aux concepts partagés, aux différences culturelles dans le mot-à-mot. Navigue souvent par concept ou par pays.
+      </div>
+      <div class="persona-need">
+        Besoin : retrouver sa sélection de langues et ses filtres pays à chaque visite. Ne pas tout re-paramétrer.
+      </div>
+    </div>
+
+    <div class="persona-card">
+      <div class="account-badge">Compte utile</div>
+      <span class="persona-icon">📖</span>
+      <div class="persona-name">L'amateur de littérature</div>
+      <div class="persona-tagline">"Je vis dans la langue française"</div>
+      <div class="persona-desc">
+        Navigue uniquement en français. Cherche la beauté d'une tournure, l'origine d'une expression, la nuance entre deux formulations. Le multilingue ne l'intéresse pas — ou peu.
+      </div>
+      <div class="persona-need">
+        Besoin : une vue 100% française, sans les traductions et équivalents étrangers qui "polluent" son expérience. Un mode mono-langue.
+      </div>
+    </div>
+
+    <div class="persona-card">
+      <div class="account-badge">Compte utile</div>
+      <span class="persona-icon">🎓</span>
+      <div class="persona-name">L'apprenant</div>
+      <div class="persona-tagline">"J'apprends l'espagnol et je veux penser comme un Espagnol"</div>
+      <div class="persona-desc">
+        Apprend une langue étrangère. Se sert des expressions pour aller au-delà du vocabulaire scolaire et comprendre comment les gens parlent vraiment. Mobile-first.
+      </div>
+      <div class="persona-need">
+        Besoin : définir sa langue cible une fois pour toutes. L'app met alors en avant les traductions vers cette langue, et les équivalents dans la langue apprise.
+      </div>
+    </div>
+
+    <div class="persona-card">
+      <div class="account-badge">Compte utile</div>
+      <span class="persona-icon">✈️</span>
+      <div class="persona-name">L'expatrié / biculturel</div>
+      <div class="persona-tagline">"Je vis entre deux langues, deux cultures"</div>
+      <div class="persona-desc">
+        Vit ou a vécu à l'étranger. Reconnaît instantanément les expressions de son pays d'origine ET de son pays d'adoption. Cherche souvent à expliquer une expression à l'autre culture.
+      </div>
+      <div class="persona-need">
+        Besoin : ses deux pays "épinglés" — toujours visibles, toujours comparables. Sync des favoris sur tous ses appareils.
+      </div>
+    </div>
+
+    <div class="persona-card">
+      <div class="account-badge">Compte utile</div>
+      <span class="persona-icon">🏛️</span>
+      <div class="persona-name">L'amoureux des proverbes</div>
+      <div class="persona-tagline">"Un proverbe dit en une phrase ce qu'un livre entier ne peut pas"</div>
+      <div class="persona-desc">
+        Attrait spécifique pour la sagesse populaire condensée. Ne s'intéresse pas aux expressions argotiques ou familières — uniquement aux proverbes, adages, maximes. C'était l'intention originale du projet.
+      </div>
+      <div class="persona-need">
+        Besoin : un filtre de contenu persistant — n'afficher que les proverbes dans tous les résultats, toutes les pages. Sans avoir à re-filtrer à chaque visite.
+      </div>
+    </div>
+
+    <div class="persona-card">
+      <div class="account-badge">Compte utile</div>
+      <span class="persona-icon">✏️</span>
+      <div class="persona-name">Le créatif / prof</div>
+      <div class="persona-tagline">"Je cherche la bonne expression pour ce que j'écris"</div>
+      <div class="persona-desc">
+        Auteur, journaliste, enseignant — cherche une expression précise à réutiliser. Usage professionnel, besoin d'organisation. N'attend pas de fiabilité de traduction certifiée.
+      </div>
+      <div class="persona-need">
+        Besoin : sauvegarder des listes organisées (par projet, thème) et les retrouver vite. Export possible.
+      </div>
+    </div>
+
+    <div class="persona-card no-account">
+      <div class="account-badge no">Pas de compte</div>
+      <span class="persona-icon">👋</span>
+      <div class="persona-name">Le curieux de passage</div>
+      <div class="persona-tagline">"J'ai cliqué par hasard, c'est marrant"</div>
+      <div class="persona-desc">
+        Tombe sur l'app via un lien ou les résultats Google. Explore 5 minutes sans intent précis. Repartira sans s'inscrire — et c'est OK.
+      </div>
+      <div class="persona-need">
+        Principe : ne jamais le forcer. Aucune friction, aucun paywall, aucune pop-up de création de compte. Il reviendra peut-être — laissons-le tranquille.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ── SECTION 2 : VALEUR DU PROFIL ── -->
+<div class="section">
+  <div class="section-label">Section 2</div>
+  <div class="section-title">Pourquoi un profil ?</div>
+  <div class="section-sub">
+    La vraie question n'est pas "comment authentifier" — c'est "qu'est-ce qui change pour l'utilisateur quand l'app le reconnaît ?"
+  </div>
+
+  <div class="value-prop">
+    <div class="value-prop-icon">🧠</div>
+    <div>
+      <div class="value-prop-title">L'app se souvient de <span>comment tu navigues</span></div>
+      <div class="value-prop-sub">
+        Le profil n'est pas "un compte pour sauvegarder des favoris". C'est une vue personnalisée de l'app — tes filtres, ta langue cible, ton type de contenu préféré, tes pays. Tu retrouves ton univers à chaque visite, sur n'importe quel appareil.
+      </div>
+    </div>
+  </div>
+
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th>Persona</th>
+        <th>Sans compte, il manque...</th>
+        <th>Ce qu'un compte apporte</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Amateur de langues</td>
+        <td>Filtres pays et langues à re-sélectionner à chaque visite</td>
+        <td class="gain">Sélection de langues + filtres pays persistants</td>
+      </tr>
+      <tr>
+        <td>Amateur de littérature</td>
+        <td>Doit désactiver les éléments multilingues à chaque fois</td>
+        <td class="gain">Mode mono-langue sauvegardé — vue 100% FR par défaut</td>
+      </tr>
+      <tr>
+        <td>Apprenant</td>
+        <td>Langue cible non mémorisée, traductions pas mises en avant</td>
+        <td class="gain">Langue cible enregistrée, UI adaptée à l'apprentissage</td>
+      </tr>
+      <tr>
+        <td>Expatrié / biculturel</td>
+        <td>Favoris perdus si changement d'appareil</td>
+        <td class="gain">Sync favoris cross-device + deux pays "épinglés"</td>
+      </tr>
+      <tr>
+        <td>Amoureux des proverbes</td>
+        <td>Filtre "proverbes uniquement" à réactiver à chaque session</td>
+        <td class="gain">Filtre de contenu persistant — proverbes par défaut partout</td>
+      </tr>
+      <tr>
+        <td>Créatif / prof</td>
+        <td>Favoris en vrac non organisés, perdus si changement de device</td>
+        <td class="gain">Listes nommées + sync cross-device + export</td>
+      </tr>
+      <tr>
+        <td>Curieux de passage</td>
+        <td>—</td>
+        <td class="neutral">Pas concerné — l'app doit fonctionner parfaitement sans compte</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr class="divider">
+
+<!-- ── SECTION 3 : ONBOARDING ── -->
+<div class="section">
+  <div class="section-label">Section 3</div>
+  <div class="section-title">L'onboarding questionnaire</div>
+  <div class="section-sub">
+    Après la création de compte, 3 questions optionnelles pour personnaliser l'expérience dès le départ. Tout est modifiable ensuite dans "Mon profil".
+  </div>
+
+  <div class="principles-row">
+    <div class="principle">
+      <div class="principle-icon">🙋</div>
+      <div class="principle-title">100% optionnel</div>
+      <div class="principle-text">Rien de plus désagréable que de forcer un utilisateur. Le questionnaire peut être ignoré entièrement — l'app a des valeurs par défaut sensées.</div>
+    </div>
+    <div class="principle">
+      <div class="principle-icon">3️⃣</div>
+      <div class="principle-title">3 questions maximum</div>
+      <div class="principle-text">Au-delà de 3 questions, on bascule dans le formulaire. L'onboarding doit prendre moins de 30 secondes si on y répond.</div>
+    </div>
+    <div class="principle">
+      <div class="principle-icon">✏️</div>
+      <div class="principle-title">Tout modifiable ensuite</div>
+      <div class="principle-text">Chaque choix fait à l'onboarding est accessible et éditable dans "Mon profil" à tout moment. Aucune décision initiale n'est irréversible.</div>
+    </div>
+  </div>
+
+  <div class="questions-list">
+
+    <div class="question-row">
+      <div class="question-num">1</div>
+      <div>
+        <div class="question-text">
+          "Tu es plutôt ici pour..."
+          <span>Explorer plusieurs langues et les comparer / Plonger dans une seule langue</span>
+        </div>
+      </div>
+      <div class="question-personas">Cible A, B, D</div>
+      <div class="question-saves">Mode d'affichage par défaut (multilingue vs mono-langue)</div>
+    </div>
+
+    <div class="question-row">
+      <div class="question-num">2</div>
+      <div>
+        <div class="question-text">
+          "Tu apprends une langue en ce moment ?"
+          <span>Sélection de la langue cible (FR / EN / ES / IT / TR / Aucune)</span>
+        </div>
+      </div>
+      <div class="question-personas">Cible C surtout</div>
+      <div class="question-saves">Langue cible → traductions mises en avant dans cette langue</div>
+    </div>
+
+    <div class="question-row">
+      <div class="question-num">3</div>
+      <div>
+        <div class="question-text">
+          "Quel type d'expressions t'intéresse ?"
+          <span>Toutes / Proverbes et sagesse populaire / Expressions du quotidien / Argot et familier</span>
+        </div>
+      </div>
+      <div class="question-personas">Cible E surtout</div>
+      <div class="question-saves">Filtre de contenu persistant — appliqué à tous les résultats</div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ── SECTION 4 : AUTHENTIFICATION ── -->
+<div class="section">
+  <div class="section-label">Section 4</div>
+  <div class="section-title">Authentification — décisions</div>
+  <div class="section-sub">
+    La friction à l'inscription est le premier tueur de comptes. On part simple et on ajoute les options dans l'ordre de leur utilité réelle.
+  </div>
+
+  <div class="auth-timeline">
+
+    <div class="auth-step mvp">
+      <div class="auth-step-label">MVP — maintenant</div>
+      <div class="auth-step-title">OAuth Google</div>
+      <div class="auth-step-desc">
+        Un clic, pas de mot de passe, sécurité déléguée. Couvre la grande majorité des utilisateurs. Implémentation via NextAuth.js — 1 à 2 jours de travail.
+      </div>
+      <div class="auth-step-why">Google couvre 90% des cas avec 50% de l'effort.</div>
+    </div>
+
+    <div class="auth-step v2">
+      <div class="auth-step-label">V2 auth — ensuite</div>
+      <div class="auth-step-title">Email + mot de passe</div>
+      <div class="auth-step-desc">
+        Pour les utilisateurs qui refusent les silos Google/Apple. Nécessite deux flows en plus : vérification email + mot de passe oublié. Requiert un service d'envoi d'email (Resend). +2 jours de travail.
+      </div>
+      <div class="auth-step-why">NextAuth est modulaire — s'ajoute proprement sur l'existant OAuth.</div>
+    </div>
+
+    <div class="auth-step later">
+      <div class="auth-step-label">Plus tard</div>
+      <div class="auth-step-title">Apple OAuth</div>
+      <div class="auth-step-desc">
+        Utile pour les utilisateurs iOS. Requiert un abonnement Apple Developer (99€/an) et un process de validation plus complexe. Pas prioritaire.
+      </div>
+      <div class="auth-step-why">À déclencher quand la base mobile iOS devient significative.</div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ── SECTION 5 : MVP SCOPE ── -->
+<div class="section">
+  <div class="section-label">Section 5</div>
+  <div class="section-title">MVP — ce qu'on construit en premier</div>
+  <div class="section-sub">
+    Le scope le plus petit qui apporte de la valeur réelle aux personas A, C, D et E. Tout le reste est V2+.
+  </div>
+
+  <div class="mvp-items">
+
+    <div class="mvp-item">
+      <div class="mvp-item-num">1</div>
+      <div>
+        <div class="mvp-item-title">OAuth Google — login / logout</div>
+        <div class="mvp-item-desc">Création de compte en 1 clic. Profil minimal en base (id, email, préférences JSON). Session persistante.</div>
+      </div>
+    </div>
+
+    <div class="mvp-item">
+      <div class="mvp-item-num">2</div>
+      <div>
+        <div class="mvp-item-title">Onboarding questionnaire (optionnel)</div>
+        <div class="mvp-item-desc">3 questions, skippable. Sauvegarde les préférences dans le profil en base.</div>
+      </div>
+    </div>
+
+    <div class="mvp-item">
+      <div class="mvp-item-num">3</div>
+      <div>
+        <div class="mvp-item-title">Sync favoris localStorage → serveur</div>
+        <div class="mvp-item-desc">Automatique à la première connexion — sans demander. Un message discret informe l'utilisateur : "Tes X favoris ont été sauvegardés dans ton compte."</div>
+      </div>
+    </div>
+
+    <div class="mvp-item">
+      <div class="mvp-item-num">4</div>
+      <div>
+        <div class="mvp-item-title">Page "Mon profil" — préférences éditables</div>
+        <div class="mvp-item-desc">Langue UI, mode d'affichage, langue cible, filtre contenu. Toutes les réponses au questionnaire modifiables ici.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="ux-decisions">
+    <div class="ux-decision">
+      <div class="ux-decision-label">Décision UX — entrée dans le compte</div>
+      <div class="ux-decision-title">Bouton "Se connecter" discret dans le header</div>
+      <div class="ux-decision-desc">Visible mais pas intrusif — coin haut-droit, côté LangBar. On ne pousse pas la création de compte, on la rend accessible au bon moment.</div>
+    </div>
+    <div class="ux-decision">
+      <div class="ux-decision-label">Décision UX — sync favoris</div>
+      <div class="ux-decision-title">Automatique à la connexion, avec notification</div>
+      <div class="ux-decision-desc">Pas de pop-up "Veux-tu importer tes favoris ?". La sync se fait silencieusement, et un toast discret confirme : "Tes X favoris ont été sauvegardés."</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 16px; padding: 16px 20px; background: #0e1a20; border: 1px solid #1a3a4a; border-radius: 10px; font-size: 12px; color: #7ea8b8; line-height: 1.6;">
+    <strong style="color: #c4b8e8;">Principe clé :</strong>
+    l'app doit fonctionner parfaitement sans compte. Le profil est un bonus, pas un prérequis.
+  </div>
+</div>
+
+
+<hr class="divider">
+
+<!-- ── SECTION PARALLÈLE : PROCHAIN DOCUMENT ── -->
+<div class="section">
+  <div class="section-label">En parallèle</div>
+  <div class="section-title">Prochain document à créer : <span style="color:#a78bfa">Côté jardin</span></div>
+  <div class="section-sub">
+    L'histoire de l'application racontée du point de vue de l'utilisateur — les fonctionnalités, les parcours, l'évolution du produit version par version. La contrepartie de <code style="background:#1a1130;padding:2px 6px;border-radius:4px;color:#c4b8e8">sous-le-capot.html</code> qui lui raconte la technique et la base de données.
+    <br><br>
+    <strong style="color:#c4b8e8;">Fichier :</strong> <code style="background:#1a1130;padding:2px 6px;border-radius:4px;color:#c4b8e8">cote-jardin.html</code> &nbsp;—&nbsp;
+    <strong style="color:#c4b8e8;">Format :</strong> même style visuel que ce document &nbsp;—&nbsp;
+    <strong style="color:#c4b8e8;">Auteur :</strong> Sinan + Claude (document co-construit en atelier)
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ── SECTION 6 : V2+ IDEAS ── -->
+<div class="section">
+  <div class="section-label">Section 6</div>
+  <div class="section-title">V2+ — Idées qui ouvrent des portes</div>
+  <div class="section-sub">
+    Notées maintenant pour ne pas les perdre. Un atelier dédié décidera de la priorisation et du périmètre de chaque idée avant tout développement.
+  </div>
+
+  <div class="ideas-grid">
+
+    <div class="idea-card v2-reassess">
+      <div class="idea-icon">✏️</div>
+      <div class="idea-title">Listes nommées (Créatif / Prof)</div>
+      <div class="idea-desc">Organiser ses favoris en listes thématiques (par projet, par cours...). Export possible. Besoin du persona G.</div>
+      <div class="idea-tag reassess">À réévaluer après tests MVP</div>
+    </div>
+
+    <div class="idea-card v2-reassess">
+      <div class="idea-icon">🔑</div>
+      <div class="idea-title">Auth email + mot de passe</div>
+      <div class="idea-desc">Pour les utilisateurs qui refusent Google. Requiert vérification email + mot de passe oublié + service Resend.</div>
+      <div class="idea-tag reassess">V2 auth — planifié</div>
+    </div>
+
+    <div class="idea-card">
+      <div class="idea-icon">✨</div>
+      <div class="idea-title">Recommandations personnalisées</div>
+      <div class="idea-desc">"Parce que tu aimes les proverbes espagnols, voici..." — basé sur l'historique et les préférences du profil.</div>
+      <div class="idea-tag">À atelieriser</div>
+    </div>
+
+    <div class="idea-card">
+      <div class="idea-icon">🔥</div>
+      <div class="idea-title">Streak et gamification légère</div>
+      <div class="idea-desc">Nombre de jours consécutifs de visite, badges de découverte, premier proverbe turc exploré... Renforce le retour régulier sans alourdir l'expérience.</div>
+      <div class="idea-tag">À atelieriser</div>
+    </div>
+
+    <div class="idea-card">
+      <div class="idea-icon">📊</div>
+      <div class="idea-title">Statistiques personnelles</div>
+      <div class="idea-desc">Combien de langues explorées, quels pays visités, quels tags consultés. Une carte de ton voyage linguistique personnel.</div>
+      <div class="idea-tag">À atelieriser</div>
+    </div>
+
+    <div class="idea-card">
+      <div class="idea-icon">🔄</div>
+      <div class="idea-title">Mode révision (Apprenant)</div>
+      <div class="idea-desc">Revoir les expressions sauvegardées dans un format flashcard ou liste. Pensé pour le persona C qui apprend une langue.</div>
+      <div class="idea-tag">À atelieriser</div>
+    </div>
+
+    <div class="idea-card">
+      <div class="idea-icon">🔗</div>
+      <div class="idea-title">Partage de liste</div>
+      <div class="idea-desc">Envoyer une sélection d'expressions à un ami — lien public ou message. Vecteur de découverte de l'app pour de nouveaux utilisateurs.</div>
+      <div class="idea-tag">À atelieriser</div>
+    </div>
+
+    <div class="idea-card">
+      <div class="idea-icon">🤝</div>
+      <div class="idea-title">Contenu collaboratif</div>
+      <div class="idea-desc">Les utilisateurs proposent des expressions. Modération avant publication. Ouvre l'app à la contribution communautaire — change profondément la nature du produit.</div>
+      <div class="idea-tag">À atelieriser</div>
+    </div>
+
+    <div class="idea-card">
+      <div class="idea-icon">🔔</div>
+      <div class="idea-title">Notifications push (PWA)</div>
+      <div class="idea-desc">"Expression du jour" en notification mobile. Nécessite que l'app soit installée en PWA. Fort potentiel pour l'engagement quotidien de l'apprenant.</div>
+      <div class="idea-tag">À atelieriser</div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
