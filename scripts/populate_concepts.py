@@ -66,7 +66,13 @@ Return ONLY a valid JSON array. Each element must have:
 - "rationale": one sentence explaining what metaphorical mechanism or image these two expressions share — if you cannot articulate a clear shared image, lower the confidence below 0.65
 - "confidence": float 0.0–1.0 following the scale above
 
-Only include expressions with confidence ≥ 0.65.
+Follow this reasoning process strictly — in this order:
+1. ANALYZE the source expression: what concrete mechanism does it use? (a physical object, creature, sensation, gesture, spatial image...) — not just what it means, but HOW it creates meaning.
+2. SEARCH by mechanism: for each target language, look for idiomatic expressions that use a SIMILAR mechanism — not just expressions with a similar general meaning.
+3. ENUMERATE candidates: think of 2–3 per language, including less famous ones that may be more precise.
+4. SELECT all candidates with confidence ≥ 0.65. If several qualify in the same language, include all of them — rank by confidence (highest first).
+
+You may and should return multiple expressions per language when several qualify.
 No markdown, no explanation — return only the JSON array."""
 
 
@@ -138,13 +144,19 @@ def call_mistral(client: Mistral, source_expr: dict, target_langs: list[str]) ->
     try:
         resp = client.chat.complete(
             model=MODEL,
-            max_tokens=600,
+            max_tokens=2000,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_msg},
             ],
         )
         raw = resp.choices[0].message.content.strip()
+        if not raw:
+            print(f"  Mistral returned empty response")
+            return None
+        if not raw.startswith("["):
+            print(f"  Mistral non-JSON response (first 200 chars): {raw[:200]}")
+            return None
         return json.loads(raw)
     except Exception as e:
         print(f"  Mistral error: {e}")
