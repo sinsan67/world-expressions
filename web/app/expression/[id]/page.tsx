@@ -9,6 +9,7 @@ import {
   searchByConcept,
   getRandomExpression,
   Expression,
+  ConceptEquivalent,
 } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
@@ -32,11 +33,15 @@ const T: Record<UILang, {
   related: string;
   randomBtn: string;
   back: string;
+  sameIdea: string;
+  elsewhereInTheWorld: string;
   register: Record<string, string>;
 }> = {
   fr: {
     wordForWord: "Mot à mot",
     equivalent: "Équivalent",
+    sameIdea: "La même idée",
+    elsewhereInTheWorld: "...ailleurs dans le monde",
     original: "Version originale",
     origin: "Origine",
     example: "Exemple",
@@ -60,6 +65,8 @@ const T: Record<UILang, {
     related: "More like this",
     randomBtn: "Random expression",
     back: "Back",
+    sameIdea: "The same idea",
+    elsewhereInTheWorld: "...around the world",
     register: { standard: "standard", informal: "informal", slang: "slang", vulgar: "vulgar", formal: "formal" },
   },
   es: {
@@ -74,6 +81,8 @@ const T: Record<UILang, {
     related: "En el mismo universo",
     randomBtn: "Expresión al azar",
     back: "Volver",
+    sameIdea: "La misma idea",
+    elsewhereInTheWorld: "...en todo el mundo",
     register: { standard: "estándar", informal: "informal", slang: "argot", vulgar: "vulgar", formal: "formal" },
   },
   tr: {
@@ -88,6 +97,8 @@ const T: Record<UILang, {
     related: "Benzer ifadeler",
     randomBtn: "Rastgele ifade",
     back: "Geri",
+    sameIdea: "Aynı fikir",
+    elsewhereInTheWorld: "...dünyada",
     register: { standard: "standart", informal: "günlük", slang: "argo", vulgar: "kaba", formal: "resmi" },
   },
   it: {
@@ -102,6 +113,8 @@ const T: Record<UILang, {
     related: "Nello stesso universo",
     randomBtn: "Espressione casuale",
     back: "Indietro",
+    sameIdea: "La stessa idea",
+    elsewhereInTheWorld: "...nel mondo",
     register: { standard: "standard", informal: "informale", slang: "slang", vulgar: "volgare", formal: "formale" },
   },
 };
@@ -109,6 +122,52 @@ const T: Record<UILang, {
 const LANGUAGE_NAME: Record<string, string> = {
   fr: "Français", en: "English", es: "Español", it: "Italiano", tr: "Türkçe",
 };
+
+function ConceptCard({ eq }: { eq: ConceptEquivalent }) {
+  return (
+    <Link
+      href={`/expression/${eq.id}`}
+      style={{
+        display: "block",
+        minWidth: 200,
+        background: "var(--paper)",
+        border: "1px solid var(--paper-edge)",
+        borderRadius: "var(--r-md)",
+        padding: "1rem",
+        textDecoration: "none",
+        transition: "box-shadow 150ms ease, border-color 150ms ease",
+        flexShrink: 0,
+      }}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget as HTMLElement;
+        el.style.boxShadow = "var(--shadow-card)";
+        el.style.borderColor = "var(--terra-soft)";
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget as HTMLElement;
+        el.style.boxShadow = "none";
+        el.style.borderColor = "var(--paper-edge)";
+      }}
+    >
+      <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink-faint)", marginBottom: "0.5rem", fontFamily: "var(--font-body)" }}>
+        {FLAG[eq.region] || FLAG[eq.language] || ""} {LANGUAGE_NAME[eq.language] || eq.language.toUpperCase()}
+      </p>
+      <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 16, color: "var(--ink)", lineHeight: 1.25, marginBottom: eq.literal_fr && eq.language !== "fr" ? "0.4rem" : "0.5rem" }}>
+        {eq.text}
+      </p>
+      {eq.literal_fr && eq.language !== "fr" && (
+        <p style={{ fontSize: 12, color: "var(--ink-softer)", fontStyle: "italic", marginBottom: "0.5rem" }}>
+          « {eq.literal_fr} »
+        </p>
+      )}
+      {eq.meaning_fr && (
+        <p style={{ fontSize: 12, color: "var(--ink-softer)", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+          {eq.meaning_fr}
+        </p>
+      )}
+    </Link>
+  );
+}
 
 function MiniCard({ expr, lang }: { expr: Expression; lang: string }) {
   return (
@@ -550,6 +609,30 @@ function ExpressionPageContent({ id }: { id: string }) {
                   </Link>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+        {/* Concept equivalents — La même idée */}
+        {expr.concept_equivalents.length > 0 && (
+          <div style={{ marginTop: "2rem" }}>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "0.75rem" }}>
+              <div>
+                <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--terra)", fontFamily: "var(--font-body)", marginBottom: "0.2rem" }}>
+                  {t.sameIdea}
+                </p>
+                <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 20, fontWeight: 500, color: "var(--ink)", lineHeight: 1 }}>
+                  {t.elsewhereInTheWorld}
+                </p>
+              </div>
+              <span style={{ fontSize: 12, color: "var(--ink-faint)", fontFamily: "var(--font-body)", whiteSpace: "nowrap" }}>
+                {expr.concept_equivalents.length} équivalent{expr.concept_equivalents.length > 1 ? "s" : ""}
+              </span>
+            </div>
+            <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: "0.5rem" }}>
+              {expr.concept_equivalents.map((eq) => (
+                <ConceptCard key={eq.id} eq={eq} />
+              ))}
             </div>
           </div>
         )}
