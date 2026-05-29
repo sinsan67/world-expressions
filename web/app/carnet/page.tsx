@@ -239,7 +239,7 @@ export default function CarnetPage() {
     const d = new Date(c.user.createdAt);
     setMemberSince(d.toLocaleDateString(undefined, { month: "long", year: "numeric" }));
 
-    if (isBannerDismissed()) setBannerDismissed(true);
+    if (isBannerDismissed() || c.user.syncedAccountId !== null) setBannerDismissed(true);
   }, []);
 
   // Fetch regions for progress totals

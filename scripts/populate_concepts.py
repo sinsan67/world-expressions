@@ -172,8 +172,13 @@ def process_expression(client: Mistral, source_expr: dict, dry_run: bool) -> boo
     if not equivalents:
         return False
 
-    # Filtrer par seuil de confiance
-    valid = [e for e in equivalents if isinstance(e, dict) and e.get("confidence", 0) >= 0.65]
+    # Filtrer par seuil de confiance et rejeter les mots seuls (< 2 mots)
+    valid = [
+        e for e in equivalents
+        if isinstance(e, dict)
+        and e.get("confidence", 0) >= 0.65
+        and len(e.get("text", "").strip().split()) >= 2
+    ]
 
     if not valid:
         print(f"  No confident equivalents found")
