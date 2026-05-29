@@ -8,7 +8,7 @@ Restart freely if interrupted.
 
 Usage:
     python3 scripts/generate_expressions.py --language it --count 60
-    python3 scripts/generate_expressions.py --language tr --count 62
+    python3 scripts/generate_expressions.py --language tr --count 200 --batch-size 5
     python3 scripts/generate_expressions.py --language it --count 5 --dry-run
 
 Supported languages: it, tr, es
@@ -40,11 +40,19 @@ LANGUAGE_CONFIG = {
         "region": "it",
         "source_label": "Treccani",
         "source_url": "https://www.treccani.it/vocabolario/",
+        "themes": [
+            "food and cooking", "family and relationships", "money and wealth",
+            "the human body", "love and romance", "death and fate",
+            "luck and fortune", "time and patience", "work and laziness",
+            "animals", "weather and nature", "travel and homesickness",
+            "friendship and trust", "wisdom and foolishness", "anger and conflict",
+            "fear and courage", "pride and humility", "honesty and deception",
+            "hope and despair", "old age and youth",
+        ],
         "system_prompt": """You are an expert in Italian idiomatic expressions, proverbs, and sayings.
 Generate authentic Italian expressions (idiomatic phrases, proverbs, locutions) that are:
 - Actually used by native Italian speakers
 - Culturally rooted in Italian life and history
-- Diverse in topic: food, family, work, body, animals, love, time, money, luck, character...
 
 For each expression return ONLY a valid JSON object with these exact fields:
 - "id": kebab-case slug in Italian (e.g. "avere-il-cuore-in-gola")
@@ -54,7 +62,7 @@ For each expression return ONLY a valid JSON object with these exact fields:
 - "example": natural Italian sentence using the expression
 - "register": one of "standard", "informal", "slang", "formal"
 - "tags": array of 2-5 English thematic slug tags (e.g. ["body", "fear", "surprise"])
-- "type": "expression" for idioms/locutions, "word" for single words with idiomatic meaning
+- "kind": one of "idiom" (idiomatic phrase), "proverb" (proverb/saying), "locution" (fixed locution), "word" (single word with idiomatic meaning)
 
 No markdown, no extra text — only the JSON object.""",
     },
@@ -63,11 +71,19 @@ No markdown, no extra text — only the JSON object.""",
         "region": "tr",
         "source_label": "TDK",
         "source_url": "https://sozluk.gov.tr/",
+        "themes": [
+            "food and cooking", "family and hospitality", "money and poverty",
+            "the human body", "love and marriage", "destiny and fate",
+            "luck and misfortune", "time and patience", "work and effort",
+            "animals and nature", "weather", "village life and Anatolian tradition",
+            "friendship and betrayal", "wisdom from elders", "anger and conflict",
+            "fear and courage", "pride and shame", "honesty and lies",
+            "hope and resignation", "religion and spirituality",
+        ],
         "system_prompt": """You are an expert in Turkish idiomatic expressions, proverbs (atasözü), and sayings (deyim).
 Generate authentic Turkish expressions that are:
 - Actually used by native Turkish speakers
 - Culturally rooted in Turkish life, history, and Anatolian traditions
-- Diverse in topic: food, family, work, body, animals, love, time, money, luck, character...
 
 For each expression return ONLY a valid JSON object with these exact fields:
 - "id": kebab-case romanized Turkish slug (replace ş→s, ğ→g, ı→i, ö→o, ü→u, ç→c, e.g. "ayagini-yorganina-gore-uzat")
@@ -77,7 +93,7 @@ For each expression return ONLY a valid JSON object with these exact fields:
 - "example": natural Turkish sentence using the expression
 - "register": one of "standard", "informal", "slang", "formal"
 - "tags": array of 2-5 English thematic slug tags (e.g. ["money", "frugality", "advice"])
-- "type": "expression" for idioms/deyim/atasözü, "word" for single words with idiomatic meaning
+- "kind": one of "idiom" (deyim), "proverb" (atasözü/proverb), "locution" (fixed locution), "word" (single word with idiomatic meaning)
 
 No markdown, no extra text — only the JSON object.""",
     },
@@ -86,6 +102,7 @@ No markdown, no extra text — only the JSON object.""",
         "region": "es",
         "source_label": "RAE",
         "source_url": "https://dle.rae.es/",
+        "themes": [],
         "system_prompt": """You are an expert in Spanish idiomatic expressions, proverbs (refranes), and sayings (dichos) from ALL Spanish-speaking countries.
 Generate authentic Spanish expressions that are:
 - Actually used by native speakers — cover the full Hispanic world: Spain, Mexico, Argentina, Colombia, Chile, Peru, Venezuela, Cuba, and other countries
@@ -101,7 +118,7 @@ For each expression return ONLY a valid JSON object with these exact fields:
 - "example": natural Spanish sentence using the expression
 - "register": one of "standard", "informal", "slang", "formal"
 - "tags": array of 2-5 English thematic slug tags (e.g. ["luck", "optimism", "proverb"])
-- "type": "expression" for idioms/refranes/dichos, "word" for single words with idiomatic meaning
+- "kind": one of "idiom" (idiom/dicho), "proverb" (refrán/proverb), "locution" (fixed locution), "word" (single word with idiomatic meaning)
 - "region": ISO 3166-1 alpha-2 country code for the primary country of origin — use "es" for Spain, "ar" for Argentina, "mx" for Mexico, "co" for Colombia, "cl" for Chile, "pe" for Peru, "cu" for Cuba, "ve" for Venezuela; use "es" if pan-Hispanic or origin unknown
 
 No markdown, no extra text — only the JSON object.""",
@@ -109,6 +126,9 @@ No markdown, no extra text — only the JSON object.""",
 }
 
 VALID_REGISTERS = {"standard", "informal", "slang", "formal", "vulgar"}
+VALID_KINDS = {"idiom", "word", "proverb", "locution"}
+# Map legacy 'type' values Mistral might still return to valid 'kind' values
+KIND_ALIASES = {"expression": "idiom", "phrase": "idiom", "saying": "proverb"}
 
 
 def slugify(text: str) -> str:
@@ -150,11 +170,10 @@ def get_or_create_tag(conn, slug: str) -> str:
 def insert_expression(expr: dict, language: str, config: dict) -> None:
     """Insert one expression into expressions + expression_content + expression_tags."""
     with engine.begin() as conn:
-        # expressions table
         conn.execute(
             text("""
-                INSERT INTO expressions (id, text, language, region, register, type, source)
-                VALUES (:id, :text, :language, :region, :register, :type, :source)
+                INSERT INTO expressions (id, text, language, region, register, kind, source)
+                VALUES (:id, :text, :language, :region, :register, :kind, :source)
                 ON CONFLICT (id) DO NOTHING
             """),
             {
@@ -163,12 +182,11 @@ def insert_expression(expr: dict, language: str, config: dict) -> None:
                 "language": language,
                 "region": expr.get("region") or config["region"],
                 "register": expr.get("register", "standard"),
-                "type": expr.get("type", "expression"),
+                "kind": expr["kind"],
                 "source": None,
             },
         )
 
-        # expression_content table
         conn.execute(
             text("""
                 INSERT INTO expression_content (expression_id, locale, meaning, origin, example)
@@ -184,7 +202,6 @@ def insert_expression(expr: dict, language: str, config: dict) -> None:
             },
         )
 
-        # tags
         for tag_slug in expr.get("tags", []):
             slug = slugify(tag_slug)
             if not slug:
@@ -200,37 +217,66 @@ def insert_expression(expr: dict, language: str, config: dict) -> None:
             )
 
 
-def build_user_message(batch_num: int, existing_expressions: list[str], language: str) -> str:
-    """Build a prompt asking Mistral to generate one new expression."""
-    avoid = "\n".join(f"- {e}" for e in existing_expressions[-30:]) if existing_expressions else "(none yet)"
-    return f"""Generate 1 authentic {LANGUAGE_CONFIG[language]['name']} idiomatic expression or proverb.
+def build_user_message(existing_expressions: list[str], language: str, batch_size: int, theme: str | None) -> str:
+    """Build a prompt asking Mistral to generate one batch of expressions."""
+    avoid = "\n".join(f"- {e}" for e in existing_expressions[-60:]) if existing_expressions else "(none yet)"
+    theme_line = f"\nFocus this batch on the theme: **{theme}**\n" if theme else ""
 
-Already generated in this session (avoid duplicates):
+    if batch_size == 1:
+        return f"""Generate 1 authentic {LANGUAGE_CONFIG[language]['name']} idiomatic expression or proverb.
+{theme_line}
+Already in database (avoid duplicates):
 {avoid}
 
 Return a single JSON object for one new expression."""
+    else:
+        return f"""Generate {batch_size} authentic {LANGUAGE_CONFIG[language]['name']} idiomatic expressions or proverbs.
+{theme_line}
+Rules:
+- Each expression in this batch must be distinct from the others
+- Do NOT repeat any expression from the list below
+- Vary the register across the batch (mix standard, informal, formal)
+
+Already in database — do NOT generate any of these:
+{avoid}
+
+Return a JSON array of exactly {batch_size} objects:
+[
+  {{"id": "...", "expression": "...", "meaning": "...", "origin": "...", "example": "...", "register": "...", "tags": [...], "type": "..."}},
+  ...
+]
+
+No markdown, no extra text — only the JSON array."""
 
 
-def call_mistral(client: Mistral, language: str, existing_in_session: list[str]) -> dict:
+def call_mistral(client: Mistral, language: str, existing_in_session: list[str], batch_size: int, theme: str | None) -> list[dict]:
+    """Call Mistral and return a list of expression dicts (1 or more)."""
     config = LANGUAGE_CONFIG[language]
     response = client.chat.complete(
         model=MODEL,
-        max_tokens=600,
+        max_tokens=600 * batch_size,
         messages=[
             {"role": "system", "content": config["system_prompt"]},
-            {"role": "user", "content": build_user_message(len(existing_in_session), existing_in_session, language)},
+            {"role": "user", "content": build_user_message(existing_in_session, language, batch_size, theme)},
         ],
     )
     raw = response.choices[0].message.content.strip()
     if raw.startswith("```"):
         parts = raw.split("```")
         raw = parts[1].lstrip("json").strip() if len(parts) > 1 else raw
-    return json.loads(raw)
+
+    parsed = json.loads(raw)
+    if isinstance(parsed, dict):
+        return [parsed]
+    elif isinstance(parsed, list):
+        return parsed
+    else:
+        raise ValueError(f"Unexpected response type: {type(parsed)}")
 
 
 def validate_expression(expr: dict, language: str) -> tuple[bool, str]:
     """Basic validation of a generated expression."""
-    required = ["id", "expression", "meaning", "example", "register", "tags", "type"]
+    required = ["id", "expression", "meaning", "example", "register", "tags"]
     for field in required:
         if field not in expr:
             return False, f"missing field '{field}'"
@@ -238,9 +284,11 @@ def validate_expression(expr: dict, language: str) -> tuple[bool, str]:
         expr["register"] = "standard"
     if not isinstance(expr["tags"], list) or len(expr["tags"]) == 0:
         return False, "tags must be a non-empty list"
-    if expr["type"] not in ("expression", "word"):
-        expr["type"] = "expression"
-    # Ensure id is properly slugified
+    # Normalise kind: accept both 'kind' and legacy 'type' keys, map aliases
+    raw_kind = expr.get("kind") or expr.get("type", "idiom")
+    expr["kind"] = KIND_ALIASES.get(raw_kind, raw_kind) if raw_kind not in VALID_KINDS else raw_kind
+    if expr["kind"] not in VALID_KINDS:
+        expr["kind"] = "idiom"
     expr["id"] = slugify(expr.get("id") or expr["expression"])
     return True, "ok"
 
@@ -250,17 +298,21 @@ def main():
     parser = argparse.ArgumentParser(description="Generate new expressions via Mistral and insert into Neon")
     parser.add_argument("--language", required=True, choices=supported, help=f"Target language: {supported}")
     parser.add_argument("--count", type=int, default=60, help="Number of expressions to generate (default: 60)")
+    parser.add_argument("--batch-size", type=int, default=5, help="Expressions per API call (default: 5)")
     parser.add_argument("--dry-run", action="store_true", help="Print generated JSON without inserting into DB")
-    parser.add_argument("--delay", type=float, default=0.5, help="Delay between API calls in seconds (default: 0.5)")
+    parser.add_argument("--delay", type=float, default=1.0, help="Delay between API calls in seconds (default: 1.0)")
     args = parser.parse_args()
 
     language = args.language
+    batch_size = max(1, min(args.batch_size, 10))
     config = LANGUAGE_CONFIG[language]
-    # For English regional variants, the DB language is "en", not the script key
     db_language = config.get("db_language", language)
+    themes = config.get("themes", [])
 
-    print(f"Generating {args.count} {config['name']} expressions")
-    print(f"Fetching existing {db_language.upper()} / region={config['region']} expressions from database...")
+    print(f"Generating {args.count} {config['name']} expressions (batch={batch_size})")
+    if themes:
+        print(f"Thematic rotation: {len(themes)} themes")
+    print(f"Fetching existing {db_language.upper()} expressions from database...")
     existing_ids, existing_texts = get_existing(db_language)
     print(f"  → {len(existing_ids)} already in database\n")
 
@@ -271,71 +323,77 @@ def main():
 
     client = Mistral(api_key=api_key)
 
-    # Pre-load existing texts so Mistral knows to avoid them from the first call
     generated_this_session: list[str] = list(existing_texts)
     ok = skipped = errors = 0
-    attempts = 0
-    max_attempts = args.count * 3  # allow retries for duplicates/errors
+    batch_num = 0
+    max_batch_attempts = (args.count // batch_size + 10) * 4
 
-    while ok < args.count and attempts < max_attempts:
-        attempts += 1
-        print(f"[{ok+1:3}/{args.count}] Calling Mistral... ", end="", flush=True)
+    while ok < args.count and batch_num < max_batch_attempts:
+        theme = themes[batch_num % len(themes)] if themes else None
+        remaining = args.count - ok
+        current_batch = min(batch_size, remaining)
+        theme_label = f" [{theme}]" if theme else ""
+        print(f"\n[Batch {batch_num + 1}{theme_label}] Requesting {current_batch} expressions...", flush=True)
 
         try:
-            expr = call_mistral(client, language, generated_this_session)
+            batch = call_mistral(client, language, generated_this_session, current_batch, theme)
         except json.JSONDecodeError as e:
-            print(f"JSON ERROR ({e})")
+            print(f"  JSON ERROR: {e}")
             errors += 1
+            batch_num += 1
             time.sleep(args.delay)
             continue
         except Exception as e:
             if "429" in str(e) or "rate" in str(e).lower():
-                print("RATE LIMIT — waiting 60s")
+                print("  RATE LIMIT — waiting 60s")
                 time.sleep(60)
             else:
-                print(f"API ERROR ({e})")
+                print(f"  API ERROR: {e}")
                 errors += 1
                 time.sleep(args.delay)
+            batch_num += 1
             continue
 
-        valid, reason = validate_expression(expr, language)
-        if not valid:
-            print(f"INVALID ({reason})")
-            errors += 1
-            time.sleep(args.delay)
-            continue
+        batch_num += 1
 
-        expr_id = expr["id"]
-        expr_text = expr["expression"]
+        for expr in batch:
+            if ok >= args.count:
+                break
 
-        if expr_id in existing_ids:
-            print(f"SKIP (already in DB: {expr_id})")
-            skipped += 1
-            time.sleep(args.delay)
-            continue
-
-        if expr_text in generated_this_session:
-            print(f"SKIP (duplicate in session)")
-            skipped += 1
-            time.sleep(args.delay)
-            continue
-
-        print(f"{expr_text}")
-
-        if args.dry_run:
-            print(f"  [dry-run] {json.dumps(expr, ensure_ascii=False, indent=2)}")
-        else:
-            try:
-                insert_expression(expr, db_language, config)
-            except Exception as e:
-                print(f"  DB ERROR ({e})")
+            valid, reason = validate_expression(expr, language)
+            if not valid:
+                print(f"  INVALID ({reason}): {expr.get('expression', '?')}")
                 errors += 1
-                time.sleep(args.delay)
                 continue
 
-        existing_ids.add(expr_id)
-        generated_this_session.append(expr_text)
-        ok += 1
+            expr_id = expr["id"]
+            expr_text = expr["expression"]
+
+            if expr_id in existing_ids:
+                print(f"  SKIP (already in DB): {expr_id}")
+                skipped += 1
+                continue
+
+            if expr_text in generated_this_session:
+                print(f"  SKIP (duplicate): {expr_text}")
+                skipped += 1
+                continue
+
+            print(f"  [{ok + 1:3}/{args.count}] {expr_text}")
+
+            if args.dry_run:
+                print(f"    [dry-run] {json.dumps(expr, ensure_ascii=False, indent=2)}")
+            else:
+                try:
+                    insert_expression(expr, db_language, config)
+                except Exception as e:
+                    print(f"    DB ERROR: {e}")
+                    errors += 1
+                    continue
+
+            existing_ids.add(expr_id)
+            generated_this_session.append(expr_text)
+            ok += 1
 
         if ok < args.count:
             time.sleep(args.delay)
