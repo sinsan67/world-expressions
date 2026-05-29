@@ -124,6 +124,32 @@ class ContentTranslation(Base):
     example       = Column(Text)      # exemple d'usage dans la langue cible
 
 
+class User(Base):
+    """Compte utilisateur créé via Google OAuth."""
+    __tablename__ = "users"
+
+    id         = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    google_id  = Column(String(255), unique=True, nullable=False)
+    email      = Column(String(255), unique=True, nullable=False)
+    name       = Column(String(255))
+    avatar_url = Column(Text)
+    ui_lang    = Column(String(10), nullable=False, server_default="en")
+    created_at = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+
+    favorites = relationship("UserFavorite", back_populates="user", cascade="all, delete-orphan")
+
+
+class UserFavorite(Base):
+    """Expression mise en favori par un utilisateur connecté."""
+    __tablename__ = "user_favorites"
+
+    user_id       = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    expression_id = Column(String(120), ForeignKey("expressions.id", ondelete="CASCADE"), primary_key=True)
+    saved_at      = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+
+    user = relationship("User", back_populates="favorites")
+
+
 class NewsletterSubscriber(Base):
     """Abonné à la newsletter — une expression par jour."""
     __tablename__ = "newsletter_subscribers"

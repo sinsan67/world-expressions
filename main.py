@@ -167,6 +167,59 @@ _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 _VALID_LANGS = {"fr", "en", "es", "it", "tr"}
 
 
+class UpsertUserRequest(BaseModel):
+    google_id: str
+    email: str
+    name: str | None = None
+    avatar_url: str | None = None
+
+
+class PreferencesRequest(BaseModel):
+    ui_lang: str
+
+
+class FavoriteRequest(BaseModel):
+    expression_id: str
+
+
+@app.post("/users/upsert")
+def upsert_user(body: UpsertUserRequest):
+    """Crée ou met à jour un utilisateur après connexion Google OAuth."""
+    return database.upsert_user(body.google_id, body.email, body.name, body.avatar_url)
+
+
+@app.get("/users/{user_id}/preferences")
+def get_preferences(user_id: str):
+    """Retourne les préférences d'un utilisateur (ui_lang)."""
+    prefs = database.get_user_preferences(user_id)
+    if prefs is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return prefs
+
+
+@app.put("/users/{user_id}/preferences")
+def update_preferences(user_id: str, body: PreferencesRequest):
+    """Met à jour les préférences d'un utilisateur."""
+    if body.ui_lang not in _VALID_LANGS:
+        raise HTTPException(status_code=422, detail=f"ui_lang must be one of {sorted(_VALID_LANGS)}")
+    prefs = database.update_user_preferences(user_id, body.ui_lang)
+    if prefs is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return prefs
+
+
+@app.get("/users/{user_id}/favorites")
+def get_favorites(user_id: str):
+    """Retourne les favoris d'un utilisateur."""
+    return {"favorites": database.get_user_favorites(user_id)}
+
+
+@app.post("/users/{user_id}/favorites")
+def toggle_favorite(user_id: str, body: FavoriteRequest):
+    """Ajoute ou retire un favori (toggle). Retourne {"action": "added"|"removed"}."""
+    return database.toggle_user_favorite(user_id, body.expression_id)
+
+
 class SubscribeRequest(BaseModel):
     email: str
     language: str = "en"
