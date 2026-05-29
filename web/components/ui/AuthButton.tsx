@@ -4,9 +4,12 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 
+type DropdownPos = { top: number; right: number };
+
 export default function AuthButton() {
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState<DropdownPos | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -17,6 +20,14 @@ export default function AuthButton() {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
+
+  function handleToggle() {
+    if (!open && ref.current) {
+      const rect = ref.current.getBoundingClientRect();
+      setDropdownPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
+    }
+    setOpen((v) => !v);
+  }
 
   if (status === "loading") return null;
 
@@ -46,7 +57,7 @@ export default function AuthButton() {
   return (
     <div ref={ref} style={{ position: "relative" }}>
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={handleToggle}
         style={{
           display: "flex",
           alignItems: "center",
@@ -102,19 +113,19 @@ export default function AuthButton() {
         </span>
       </button>
 
-      {open && (
+      {open && dropdownPos && (
         <div
           style={{
-            position: "absolute",
-            top: "calc(100% + 6px)",
-            right: 0,
+            position: "fixed",
+            top: dropdownPos.top,
+            right: dropdownPos.right,
             background: "var(--paper)",
             border: "1px solid var(--paper-edge)",
             borderRadius: "var(--r-md)",
             boxShadow: "var(--shadow-postcard)",
             padding: "0.5rem",
             minWidth: 160,
-            zIndex: 100,
+            zIndex: 9999,
           }}
         >
           <a
