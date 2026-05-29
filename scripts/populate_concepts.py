@@ -189,13 +189,17 @@ def process_expression(client: Mistral, source_expr: dict, dry_run: bool) -> boo
         return True
 
     concept_id = str(uuid.uuid4())
+    slug = slugify(source_expr["text"])
 
     with engine.begin() as conn:
-        # Créer le concept
+        # Créer le concept — si le slug existe déjà, récupérer l'UUID existant
         conn.execute(
-            text("INSERT INTO concepts(id, slug) VALUES(:id, :slug) ON CONFLICT DO NOTHING"),
-            {"id": concept_id, "slug": slugify(source_expr["text"])}
+            text("INSERT INTO concepts(id, slug) VALUES(:id, :slug) ON CONFLICT (slug) DO NOTHING"),
+            {"id": concept_id, "slug": slug}
         )
+        row = conn.execute(text("SELECT id FROM concepts WHERE slug=:slug"), {"slug": slug}).fetchone()
+        concept_id = row.id  # UUID réel en DB (peut différer si conflit de slug)
+
         # Lier l'expression source
         conn.execute(
             text("UPDATE expressions SET concept_id=:cid, concept_confidence=1.0 WHERE id=:eid"),
