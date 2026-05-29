@@ -2,7 +2,6 @@
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 
 type DropdownPos = { top: number; right: number };
 
@@ -11,6 +10,7 @@ export default function AuthButton() {
   const [open, setOpen] = useState(false);
   const [dropdownPos, setDropdownPos] = useState<DropdownPos | null>(null);
   const ref = useRef<HTMLDivElement>(null);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -70,12 +70,14 @@ export default function AuthButton() {
           transition: "all 120ms ease",
         }}
       >
-        {session.user?.image ? (
-          <Image
+        {session.user?.image && !imgError ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             src={session.user.image}
             alt={session.user.name ?? ""}
             width={18}
             height={18}
+            onError={() => setImgError(true)}
             style={{ borderRadius: "50%", display: "block" }}
           />
         ) : (
