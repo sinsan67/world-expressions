@@ -51,6 +51,7 @@ IMPORTANT — what counts as an idiomatic equivalent:
 - Valid: "avoir le cafard" (FR) ↔ "to feel blue" (EN) — both use a physical/sensory image to express sadness.
 - Not valid: "avoir le cafard" (FR) ↔ "estar triste" (ES) — "estar triste" is a literal statement, not an idiom.
 - Not valid: two expressions that merely share a broad theme (e.g. "distance", "time", "money") without a shared metaphor.
+- Not valid: a literal word-for-word translation of the source expression into another language. Even if it sounds plausible, do not include it unless you are certain native speakers actually use it.
 
 Confidence scale — be strict and precise:
 - 1.00 : The exact same expression, translated verbatim into another language. The metaphor, image, and structure are identical. Use ONLY when you are certain the idiom exists in that language with the same wording.
