@@ -360,26 +360,8 @@ function ExpressionPageContent({ id }: { id: string }) {
           </Link>
         </div>
 
-        {/* Favorite + language switcher */}
+        {/* Language switcher */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <button
-            onClick={handleFav}
-            title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: "4px 6px",
-              fontSize: 20,
-              lineHeight: 1,
-              color: fav ? "var(--terra)" : "var(--ink-faint)",
-              transition: "color 150ms ease, transform 150ms ease",
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.2)"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
-          >
-            <Heart size={20} strokeWidth={1.5} fill={fav ? "var(--terra)" : "none"} />
-          </button>
         <div style={{ display: "flex", gap: 4 }}>
           {(["fr", "en", "es", "tr", "it"] as UILang[]).map((l) => (
             <Link
@@ -470,6 +452,31 @@ function ExpressionPageContent({ id }: { id: string }) {
           zIndex: 1,
           animation: "fadeSlideUp 0.4s ease-out both",
         }}>
+
+          {/* Favorite button — top-right of card */}
+          <button
+            onClick={handleFav}
+            title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
+            style={{
+              position: "absolute",
+              top: "1.25rem",
+              right: "1.25rem",
+              background: fav ? "var(--terra-soft, rgba(180,80,40,0.08))" : "var(--paper-tint)",
+              border: `1.5px solid ${fav ? "var(--terra)" : "var(--paper-edge)"}`,
+              borderRadius: "var(--r-pill)",
+              cursor: "pointer",
+              padding: "6px 10px",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.3rem",
+              color: fav ? "var(--terra)" : "var(--ink-faint)",
+              transition: "all 150ms ease",
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.05)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
+          >
+            <Heart size={16} strokeWidth={1.5} fill={fav ? "var(--terra)" : "none"} />
+          </button>
 
           {/* Meaning */}
           <div>

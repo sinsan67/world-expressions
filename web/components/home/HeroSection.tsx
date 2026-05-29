@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import CountryPhotoBackdrop from "./CountryPhotoBackdrop";
 import Postcard from "./Postcard";
 import Postmark from "./Postmark";
@@ -8,8 +9,9 @@ import CountryStamp from "./CountryStamp";
 import { Expression } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { tagIcon } from "@/lib/tagIcons";
-import { Dice5 } from "lucide-react";
+import { Dice5, Heart } from "lucide-react";
 import { cap } from "@/lib/utils";
+import { isFavorite, toggleFavorite } from "@/lib/carnet";
 
 type Featured = Expression & { meaning_locale: string; literal: string | null };
 
@@ -34,6 +36,19 @@ type Props = {
 
 export default function HeroSection({ featured, uiLang, regions, tagNames, onRefresh, onConceptClick, t }: Props) {
   const router = useRouter();
+  const [fav, setFav] = useState(false);
+
+  useEffect(() => {
+    if (featured?.id) setFav(isFavorite(featured.id));
+  }, [featured?.id]);
+
+  function handleFav(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!featured?.id) return;
+    toggleFavorite(featured.id);
+    setFav((v) => !v);
+  }
+
   const now = new Date();
   const day = String(now.getDate()).padStart(2, "0");
   const month = now.toLocaleString("en", { month: "short" }).toUpperCase();
@@ -153,6 +168,25 @@ export default function HeroSection({ featured, uiLang, regions, tagNames, onRef
                   })}
 
                   <div style={{ marginLeft: "auto", display: "flex", gap: "0.4rem", flexShrink: 0 }}>
+                    <button
+                      onClick={handleFav}
+                      title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
+                      style={{
+                        padding: "6px 10px",
+                        borderRadius: "var(--r-pill)",
+                        border: `1.5px solid ${fav ? "var(--terra)" : "var(--paper-edge)"}`,
+                        background: fav ? "var(--terra-soft, rgba(180,80,40,0.08))" : "transparent",
+                        color: fav ? "var(--terra)" : "var(--ink-faint)",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        transition: "all 150ms ease",
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.1)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
+                    >
+                      <Heart size={15} strokeWidth={1.5} fill={fav ? "var(--terra)" : "none"} />
+                    </button>
                     <button
                       onClick={onRefresh}
                       style={{
