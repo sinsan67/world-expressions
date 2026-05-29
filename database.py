@@ -420,20 +420,24 @@ def get_concept_equivalents(expression_id: str) -> list[dict]:
           AND e.concept_confidence >= 0.65
         ORDER BY e.concept_confidence DESC
     """
-    with engine.connect() as conn:
-        rows = conn.execute(text(sql), {"id": expression_id}).fetchall()
-    return [
-        {
-            "id": r.id,
-            "text": r.text,
-            "language": r.language,
-            "region": r.region or r.language,
-            "literal_fr": r.literal_fr,
-            "concept_confidence": r.concept_confidence,
-            "meaning_fr": r.meaning_fr,
-        }
-        for r in rows
-    ]
+    try:
+        with engine.connect() as conn:
+            rows = conn.execute(text(sql), {"id": expression_id}).fetchall()
+        return [
+            {
+                "id": r.id,
+                "text": r.text,
+                "language": r.language,
+                "region": r.region or r.language,
+                "literal_fr": r.literal_fr,
+                "concept_confidence": r.concept_confidence,
+                "meaning_fr": r.meaning_fr,
+            }
+            for r in rows
+        ]
+    except Exception:
+        # Migration not yet applied on this environment — return empty list gracefully
+        return []
 
 
 def get_type_counts(regions: Optional[set[str]] = None, tag_set: Optional[set[str]] = None, query: Optional[str] = None) -> dict:
