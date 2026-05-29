@@ -44,18 +44,37 @@ LANG_NAMES = {
 
 SYSTEM_PROMPT = """You are an expert in idiomatic expressions across multiple languages.
 
-Given an idiomatic expression in one language, find its closest idiomatic equivalent in other languages.
-An idiomatic equivalent shares the SAME metaphorical meaning and usage context — not just a literal translation.
+Your task: given an idiomatic expression in one language, find its idiomatic equivalents in other languages.
+
+IMPORTANT — what counts as an idiomatic equivalent:
+- Expressions must share the same metaphorical IMAGE, not just a similar general meaning.
+- Valid: "avoir le cafard" (FR) ↔ "to feel blue" (EN) — both use a physical/sensory image to express sadness.
+- Not valid: "avoir le cafard" (FR) ↔ "estar triste" (ES) — "estar triste" is a literal statement, not an idiom.
+- Not valid: two expressions that merely share a broad theme (e.g. "distance", "time", "money") without a shared metaphor.
+- Not valid: a literal word-for-word translation of the source expression into another language. Even if it sounds plausible, do not include it unless you are certain native speakers actually use it.
+
+Confidence scale — be strict and precise:
+- 1.00 : The exact same expression, translated verbatim into another language. The metaphor, image, and structure are identical. Use ONLY when you are certain the idiom exists in that language with the same wording.
+- 0.90–0.99 : Same metaphor and register, interchangeable in context. A native speaker would use this in the exact same situation.
+- 0.65–0.89 : Similar meaning, but the metaphor or register differs. The idea overlaps, the image does not.
+- Below 0.65 : Only shares a broad theme or topic — do not include.
 
 Return ONLY a valid JSON array. Each element must have:
 - "language": 2-letter code (en/es/it/tr/fr)
-- "text": the idiomatic expression in that language (most natural, common form)
+- "text": the idiomatic expression in its most natural, common form
 - "literal_fr": word-for-word translation of that expression into French
-- "meaning_fr": what the expression means in French (1 sentence)
-- "confidence": float 0.0–1.0 (1.0 = perfect equivalent, 0.7 = close but not identical, below 0.6 = skip)
+- "meaning_fr": what this expression means, in French, in 1 sentence
+- "rationale": one sentence explaining what metaphorical mechanism or image these two expressions share — if you cannot articulate a clear shared image, lower the confidence below 0.65
+- "confidence": float 0.0–1.0 following the scale above
 
-Only include languages where a genuine idiomatic equivalent exists (confidence >= 0.6).
-No markdown, no extra text — only the JSON array."""
+Follow this reasoning process strictly — in this order:
+1. ANALYZE the source expression: what concrete mechanism does it use? (a physical object, creature, sensation, gesture, spatial image...) — not just what it means, but HOW it creates meaning.
+2. SEARCH by mechanism: for each target language, look for idiomatic expressions that use a SIMILAR mechanism — not just expressions with a similar general meaning.
+3. ENUMERATE candidates: think of 2–3 per language, including less famous ones that may be more precise.
+4. SELECT all candidates with confidence ≥ 0.65. If several qualify in the same language, include all of them — rank by confidence (highest first).
+
+You may and should return multiple expressions per language when several qualify.
+No markdown, no explanation — return only the JSON array."""
 
 
 def slugify(text: str) -> str:
@@ -126,13 +145,19 @@ def call_mistral(client: Mistral, source_expr: dict, target_langs: list[str]) ->
     try:
         resp = client.chat.complete(
             model=MODEL,
-            max_tokens=600,
+            max_tokens=2000,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_msg},
             ],
         )
         raw = resp.choices[0].message.content.strip()
+        if not raw:
+            print(f"  Mistral returned empty response")
+            return None
+        if not raw.startswith("["):
+            print(f"  Mistral non-JSON response (first 200 chars): {raw[:200]}")
+            return None
         return json.loads(raw)
     except Exception as e:
         print(f"  Mistral error: {e}")
@@ -158,6 +183,7 @@ def process_expression(client: Mistral, source_expr: dict, dry_run: bool) -> boo
     for eq in valid:
         print(f"    [{eq['language']}] {eq['text']!r} — conf={eq.get('confidence', '?')}")
         print(f"      littéral: {eq.get('literal_fr', '')!r}")
+        print(f"      rationale: {eq.get('rationale', '—')}")
 
     if dry_run:
         return True
@@ -188,14 +214,15 @@ def process_expression(client: Mistral, source_expr: dict, dry_run: bool) -> boo
         literal_fr = eq.get("literal_fr", "").strip() or None
         meaning_fr = eq.get("meaning_fr", "").strip() or None
 
+        rationale = eq.get("rationale", "").strip() or None
         existing_id = find_existing_expression(eq_text, lang)
 
         with engine.begin() as conn:
             if existing_id:
                 expr_id = existing_id
                 conn.execute(
-                    text("UPDATE expressions SET concept_id=:cid, concept_confidence=:conf, literal_fr=:lf WHERE id=:eid"),
-                    {"cid": concept_id, "conf": confidence, "lf": literal_fr, "eid": expr_id}
+                    text("UPDATE expressions SET concept_id=:cid, concept_confidence=:conf, literal_fr=:lf, rationale=:r WHERE id=:eid"),
+                    {"cid": concept_id, "conf": confidence, "lf": literal_fr, "r": rationale, "eid": expr_id}
                 )
             else:
                 expr_id = slugify(eq_text)
@@ -205,10 +232,10 @@ def process_expression(client: Mistral, source_expr: dict, dry_run: bool) -> boo
                         expr_id = f"{expr_id}-{lang}"
 
                 conn.execute(
-                    text("""INSERT INTO expressions(id, text, language, concept_id, concept_confidence, literal_fr)
-                            VALUES(:id, :text, :lang, :cid, :conf, :lf)"""),
+                    text("""INSERT INTO expressions(id, text, language, concept_id, concept_confidence, literal_fr, rationale)
+                            VALUES(:id, :text, :lang, :cid, :conf, :lf, :r)"""),
                     {"id": expr_id, "text": eq_text, "lang": lang,
-                     "cid": concept_id, "conf": confidence, "lf": literal_fr}
+                     "cid": concept_id, "conf": confidence, "lf": literal_fr, "r": rationale}
                 )
 
             # Stocker le sens en français dans expression_content si absent
