@@ -146,6 +146,7 @@ def get_expression(
         expr["translation"] = database.get_translation(expression_id, target)
     else:
         expr["translation"] = None
+    expr["concept_equivalents"] = database.get_concept_equivalents(expression_id)
     return expr
 
 

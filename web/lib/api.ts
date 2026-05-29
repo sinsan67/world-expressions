@@ -13,6 +13,16 @@ export type ExpressionTranslation = {
   example: string | null;
 };
 
+export type ConceptEquivalent = {
+  id: string;
+  text: string;
+  language: string;
+  region: string;
+  literal_fr: string | null;
+  concept_confidence: number;
+  meaning_fr: string | null;
+};
+
 export type Expression = {
   id: string;
   expression: string;
@@ -28,6 +38,7 @@ export type Expression = {
   source: string | null;
   match_type: "exact" | "semantic" | "tag" | "direct";
   translation: ExpressionTranslation | null;
+  concept_equivalents: ConceptEquivalent[];
 };
 
 export type SearchResponse = {

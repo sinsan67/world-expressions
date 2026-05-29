@@ -403,6 +403,39 @@ def get_expression_by_id(expression_id: str) -> Optional[dict]:
     return _build_expression_dict(row, "direct") if row else None
 
 
+def get_concept_equivalents(expression_id: str) -> list[dict]:
+    """Return expressions sharing the same concept, in other languages, ordered by confidence."""
+    sql = """
+        WITH source AS (
+            SELECT concept_id, language FROM expressions WHERE id = :id
+        )
+        SELECT
+            e.id, e.text, e.language, e.region, e.literal_fr, e.concept_confidence,
+            COALESCE(ec_fr.meaning, ct_fr.meaning) AS meaning_fr
+        FROM expressions e
+        JOIN source ON e.concept_id = source.concept_id AND source.concept_id IS NOT NULL
+        LEFT JOIN expression_content ec_fr ON ec_fr.expression_id = e.id AND ec_fr.locale = 'fr'
+        LEFT JOIN content_translations ct_fr ON ct_fr.expression_id = e.id AND ct_fr.target_lang = 'fr'
+        WHERE e.language != source.language
+          AND e.concept_confidence >= 0.65
+        ORDER BY e.concept_confidence DESC
+    """
+    with engine.connect() as conn:
+        rows = conn.execute(text(sql), {"id": expression_id}).fetchall()
+    return [
+        {
+            "id": r.id,
+            "text": r.text,
+            "language": r.language,
+            "region": r.region or r.language,
+            "literal_fr": r.literal_fr,
+            "concept_confidence": r.concept_confidence,
+            "meaning_fr": r.meaning_fr,
+        }
+        for r in rows
+    ]
+
+
 def get_type_counts(regions: Optional[set[str]] = None, tag_set: Optional[set[str]] = None, query: Optional[str] = None) -> dict:
     """Retourne le nombre d'expressions par type (idiom/proverb/locution/word), avec filtres optionnels."""
     region_sql, region_params = _region_clause(regions)
