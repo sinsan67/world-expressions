@@ -161,6 +161,12 @@ export function getProgressByCountry(): CountryProgress[] {
     .sort((a, b) => b.seen - a.seen);
 }
 
+export function markSynced(accountId: string): void {
+  const c = getCarnet();
+  c.user.syncedAccountId = accountId;
+  saveCarnet(c);
+}
+
 export function dismissBanner(): void {
   const c = getCarnet();
   c.user.bannerDismissed = true;
