@@ -130,6 +130,7 @@ function ConceptCard({ eq }: { eq: ConceptEquivalent }) {
       style={{
         display: "block",
         minWidth: 200,
+        maxWidth: 260,
         background: "var(--paper)",
         border: "1px solid var(--paper-edge)",
         borderRadius: "var(--r-md)",
@@ -137,6 +138,7 @@ function ConceptCard({ eq }: { eq: ConceptEquivalent }) {
         textDecoration: "none",
         transition: "box-shadow 150ms ease, border-color 150ms ease",
         flexShrink: 0,
+        scrollSnapAlign: "start",
       }}
       onMouseEnter={(e) => {
         const el = e.currentTarget as HTMLElement;
@@ -629,10 +631,23 @@ function ExpressionPageContent({ id }: { id: string }) {
                 {expr.concept_equivalents.length} équivalent{expr.concept_equivalents.length > 1 ? "s" : ""}
               </span>
             </div>
-            <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: "0.5rem" }}>
-              {expr.concept_equivalents.map((eq) => (
-                <ConceptCard key={eq.id} eq={eq} />
-              ))}
+            <div style={{ position: "relative" }}>
+              <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: "0.5rem", scrollSnapType: "x mandatory" }}>
+                {expr.concept_equivalents.map((eq) => (
+                  <ConceptCard key={eq.id} eq={eq} />
+                ))}
+              </div>
+              {expr.concept_equivalents.length > 1 && (
+                <div style={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  bottom: "0.5rem",
+                  width: 56,
+                  background: "linear-gradient(to right, transparent, var(--paper))",
+                  pointerEvents: "none",
+                }} />
+              )}
             </div>
           </div>
         )}
