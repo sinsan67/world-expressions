@@ -492,6 +492,78 @@ def get_all_slugs() -> list[str]:
         return [row.id for row in conn.execute(sql)]
 
 
+def upsert_user(google_id: str, email: str, name: Optional[str], avatar_url: Optional[str]) -> dict:
+    """Crée ou met à jour un utilisateur via Google OAuth. Retourne le profil complet."""
+    sql = text("""
+        INSERT INTO users (id, google_id, email, name, avatar_url, created_at)
+        VALUES (gen_random_uuid(), :google_id, :email, :name, :avatar_url, NOW())
+        ON CONFLICT (google_id) DO UPDATE
+            SET email = EXCLUDED.email,
+                name = EXCLUDED.name,
+                avatar_url = EXCLUDED.avatar_url
+        RETURNING id::text, google_id, email, name, avatar_url, ui_lang, created_at
+    """)
+    with engine.begin() as conn:
+        row = conn.execute(sql, {"google_id": google_id, "email": email, "name": name, "avatar_url": avatar_url}).fetchone()
+    return {"id": row.id, "email": row.email, "name": row.name, "avatar_url": row.avatar_url, "ui_lang": row.ui_lang}
+
+
+def get_user_preferences(user_id: str) -> Optional[dict]:
+    """Retourne les préférences d'un utilisateur (ui_lang)."""
+    sql = text("SELECT id::text, ui_lang FROM users WHERE id = :user_id::uuid")
+    with engine.connect() as conn:
+        row = conn.execute(sql, {"user_id": user_id}).fetchone()
+    if row is None:
+        return None
+    return {"id": row.id, "ui_lang": row.ui_lang}
+
+
+def update_user_preferences(user_id: str, ui_lang: str) -> Optional[dict]:
+    """Met à jour les préférences d'un utilisateur. Retourne les nouvelles valeurs."""
+    sql = text("""
+        UPDATE users SET ui_lang = :ui_lang
+        WHERE id = :user_id::uuid
+        RETURNING id::text, ui_lang
+    """)
+    with engine.begin() as conn:
+        row = conn.execute(sql, {"user_id": user_id, "ui_lang": ui_lang}).fetchone()
+    if row is None:
+        return None
+    return {"id": row.id, "ui_lang": row.ui_lang}
+
+
+def get_user_favorites(user_id: str) -> list[dict]:
+    """Retourne les favoris d'un utilisateur, du plus récent au plus ancien."""
+    sql = text("""
+        SELECT expression_id, saved_at
+        FROM user_favorites
+        WHERE user_id = :user_id::uuid
+        ORDER BY saved_at DESC
+    """)
+    with engine.connect() as conn:
+        rows = conn.execute(sql, {"user_id": user_id}).fetchall()
+    return [{"expression_id": r.expression_id, "saved_at": r.saved_at.isoformat()} for r in rows]
+
+
+def toggle_user_favorite(user_id: str, expression_id: str) -> dict:
+    """Ajoute ou retire un favori. Retourne {"action": "added"} ou {"action": "removed"}."""
+    check_sql = text("SELECT 1 FROM user_favorites WHERE user_id = :uid::uuid AND expression_id = :eid")
+    with engine.begin() as conn:
+        exists = conn.execute(check_sql, {"uid": user_id, "eid": expression_id}).fetchone()
+        if exists:
+            conn.execute(
+                text("DELETE FROM user_favorites WHERE user_id = :uid::uuid AND expression_id = :eid"),
+                {"uid": user_id, "eid": expression_id}
+            )
+            return {"action": "removed"}
+        else:
+            conn.execute(
+                text("INSERT INTO user_favorites (user_id, expression_id, saved_at) VALUES (:uid::uuid, :eid, NOW())"),
+                {"uid": user_id, "eid": expression_id}
+            )
+            return {"action": "added"}
+
+
 def subscribe_newsletter(email: str, language: str) -> dict:
     """
     Enregistre un abonné à la newsletter.

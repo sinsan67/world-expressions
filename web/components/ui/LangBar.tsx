@@ -1,5 +1,7 @@
 "use client";
 
+import AuthButton from "./AuthButton";
+
 type UILang = "fr" | "en" | "es" | "it" | "tr";
 const LANGS: UILang[] = ["fr", "en", "es", "it", "tr"];
 
@@ -17,6 +19,7 @@ export default function LangBar({ uiLang, onLangChange }: Props) {
         right: 0,
         zIndex: 60,
         display: "flex",
+        alignItems: "center",
         gap: "0.25rem",
         padding: "6px 12px",
         background: "var(--paper)",
@@ -25,6 +28,8 @@ export default function LangBar({ uiLang, onLangChange }: Props) {
         borderBottomLeftRadius: "var(--r-sm)",
       }}
     >
+      <AuthButton />
+      <span style={{ width: 1, height: 14, background: "var(--paper-edge)", margin: "0 0.2rem" }} />
       {LANGS.map((lang) => (
         <button
           key={lang}
