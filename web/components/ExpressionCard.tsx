@@ -9,6 +9,15 @@ import { FLAG } from "@/lib/constants";
 import { cap } from "@/lib/utils";
 import { toggleFavorite, isFavorite } from "@/lib/carnet";
 import { Heart } from "lucide-react";
+import Link from "next/link";
+
+const ORIGIN_EXAMPLE_LABEL: Record<string, { toggle: string; origin: string }> = {
+  fr: { toggle: "Origine & exemple", origin: "Origine" },
+  en: { toggle: "Origin & example",  origin: "Origin"  },
+  es: { toggle: "Origen & ejemplo",  origin: "Origen"  },
+  tr: { toggle: "Köken & örnek",     origin: "Köken"   },
+  it: { toggle: "Origine & esempio", origin: "Origine" },
+};
 
 const REGISTER_LABEL: Record<string, Record<string, string>> = {
   fr: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" },
@@ -31,6 +40,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
   const router = useRouter();
   const flag = FLAG[e.region] || "";
   const typeLabel = getTypeLabel(e.type ?? "expression", uiLang);
+  const oeLabel = ORIGIN_EXAMPLE_LABEL[uiLang] ?? ORIGIN_EXAMPLE_LABEL.en;
 
   // Read from localStorage only on the client (avoids SSR/hydration mismatch)
   useEffect(() => { setFav(isFavorite(e.id)); }, [e.id]);
@@ -84,7 +94,14 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
             </div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            <span className="text-xl">{flag}</span>
+            <Link
+              href={`/country/${e.region}`}
+              onClick={(ev) => ev.stopPropagation()}
+              style={{ textDecoration: "none", lineHeight: 1, fontSize: "1.25rem" }}
+              title={e.region.toUpperCase()}
+            >
+              {flag}
+            </Link>
             {e.source && (
               <a
                 href={e.source}
@@ -132,13 +149,13 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
               className="text-xs font-medium text-left transition-colors"
               style={{ color: showDetails ? "var(--plum)" : "var(--ink-faint)", fontFamily: "var(--font-body)" }}
             >
-              {showDetails ? "▾" : "▸"} Origine &amp; exemple
+              {showDetails ? "▾" : "▸"} {oeLabel.toggle}
             </button>
             {showDetails && (
               <div className="flex flex-col gap-2">
                 {e.origin && (
                   <p className="text-xs" style={{ color: "var(--ink-softer)" }}>
-                    <strong>Origine :</strong> {e.origin}
+                    <strong>{oeLabel.origin} :</strong> {e.origin}
                   </p>
                 )}
                 {e.example && (

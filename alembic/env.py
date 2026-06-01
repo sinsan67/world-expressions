@@ -8,7 +8,7 @@ from alembic import context
 
 from models import Base  # nos modèles SQLAlchemy
 
-load_dotenv(Path(__file__).parent.parent / ".env")
+load_dotenv(Path(__file__).parent.parent / ".env.dev")
 
 config = context.config
 

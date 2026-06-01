@@ -7,7 +7,6 @@ import {
   getExpression,
   getAllTagNames,
   searchByConcept,
-  getRandomExpression,
   Expression,
   ConceptEquivalent,
 } from "@/lib/api";
@@ -17,7 +16,8 @@ import { cap } from "@/lib/utils";
 import CountryPhotoBackdrop from "@/components/home/CountryPhotoBackdrop";
 import Eyebrow from "@/components/home/Eyebrow";
 import { recordView, toggleFavorite, isFavorite } from "@/lib/carnet";
-import { Heart, Dice5 } from "lucide-react";
+import { Heart, Dice5, Search } from "lucide-react";
+import SearchOverlay from "@/components/SearchOverlay";
 
 type UILang = "fr" | "en" | "es" | "tr" | "it";
 
@@ -123,10 +123,10 @@ const LANGUAGE_NAME: Record<string, string> = {
   fr: "Français", en: "English", es: "Español", it: "Italiano", tr: "Türkçe",
 };
 
-function ConceptCard({ eq }: { eq: ConceptEquivalent }) {
+function ConceptCard({ eq, onNavigate }: { eq: ConceptEquivalent; onNavigate: (url: string) => void }) {
   return (
-    <Link
-      href={`/expression/${eq.id}`}
+    <div
+      onClick={() => onNavigate(`/expression/${eq.id}`)}
       style={{
         display: "block",
         minWidth: 200,
@@ -135,7 +135,7 @@ function ConceptCard({ eq }: { eq: ConceptEquivalent }) {
         border: "1px solid var(--paper-edge)",
         borderRadius: "var(--r-md)",
         padding: "1rem",
-        textDecoration: "none",
+        cursor: "pointer",
         transition: "box-shadow 150ms ease, border-color 150ms ease",
         flexShrink: 0,
         scrollSnapAlign: "start",
@@ -152,7 +152,16 @@ function ConceptCard({ eq }: { eq: ConceptEquivalent }) {
       }}
     >
       <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink-faint)", marginBottom: "0.5rem", fontFamily: "var(--font-body)" }}>
-        {FLAG[eq.region] || FLAG[eq.language] || ""} {LANGUAGE_NAME[eq.language] || eq.language.toUpperCase()}
+        <Link
+          href={`/country/${eq.region || eq.language}`}
+          onClick={(e) => e.stopPropagation()}
+          style={{ textDecoration: "none", color: "inherit" }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.7"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+        >
+          {FLAG[eq.region] || FLAG[eq.language] || ""}
+        </Link>
+        {" "}{LANGUAGE_NAME[eq.language] || eq.language.toUpperCase()}
       </p>
       <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 16, color: "var(--ink)", lineHeight: 1.25, marginBottom: eq.literal_fr && eq.language !== "fr" ? "0.4rem" : "0.5rem" }}>
         {eq.text}
@@ -167,7 +176,7 @@ function ConceptCard({ eq }: { eq: ConceptEquivalent }) {
           {eq.meaning_fr}
         </p>
       )}
-    </Link>
+    </div>
   );
 }
 
@@ -241,8 +250,10 @@ function ExpressionPageContent({ id }: { id: string }) {
   const [related, setRelated] = useState<Expression[]>([]);
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [error, setError] = useState(false);
-  const [loadingRandom, setLoadingRandom] = useState(false);
   const [fav, setFav] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+
+  const prev = searchParams.get("prev") || null;
 
   // Sync fav state from localStorage on client
   useEffect(() => { setFav(isFavorite(id)); }, [id]);
@@ -272,18 +283,6 @@ function ExpressionPageContent({ id }: { id: string }) {
   function handleFav() {
     toggleFavorite(id);
     setFav((v) => !v);
-  }
-
-  async function goRandom() {
-    setLoadingRandom(true);
-    try {
-      const random = await getRandomExpression(lang);
-      router.push(`/expression/${random.id}?lang=${lang}`);
-    } catch {
-      // ignore
-    } finally {
-      setLoadingRandom(false);
-    }
   }
 
   if (error) {
@@ -337,31 +336,58 @@ function ExpressionPageContent({ id }: { id: string }) {
         borderBottom: "1px solid var(--paper-edge)",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <button
-            onClick={() => {
-              if (window.history.length > 1) router.back();
-              else router.push("/");
-            }}
-            style={{
-              fontSize: 13,
-              color: "var(--ink-softer)",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: 0,
-              fontFamily: "var(--font-body)",
-            }}
-          >
-            ← {t.back}
-          </button>
+          {prev ? (
+            <Link
+              href={`/expression/${prev}?lang=${lang}`}
+              style={{ fontSize: 13, color: "var(--ink-softer)", textDecoration: "none", fontFamily: "var(--font-body)" }}
+            >
+              ← {t.back}
+            </Link>
+          ) : (
+            <button
+              onClick={() => {
+                if (window.history.length > 1) router.back();
+                else router.push("/");
+              }}
+              style={{
+                fontSize: 13,
+                color: "var(--ink-softer)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              ← {t.back}
+            </button>
+          )}
           <Link href="/" style={{ textDecoration: "none", fontFamily: "var(--font-display)" }}>
             <span style={{ color: "var(--ink)", fontWeight: 500, fontStyle: "italic", fontSize: 16 }}>World </span>
             <em style={{ color: "var(--terra)", fontStyle: "italic", fontSize: 16 }}>Expressions</em>
           </Link>
         </div>
 
-        {/* Language switcher */}
+        {/* Nav icons + language switcher */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <button
+          onClick={() => setShowSearch(true)}
+          title="Search"
+          style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink-faint)", display: "flex", padding: 4, transition: "color 120ms ease" }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink)"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-faint)"; }}
+        >
+          <Search size={16} strokeWidth={1.5} />
+        </button>
+        <Link
+          href={`/random?prev=${id}&lang=${lang}`}
+          title={t.randomBtn}
+          style={{ color: "var(--ink-faint)", textDecoration: "none", display: "flex", padding: 4, alignItems: "center", transition: "color 120ms ease" }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink)"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-faint)"; }}
+        >
+          <Dice5 size={16} strokeWidth={1.5} />
+        </Link>
         <div style={{ display: "flex", gap: 4 }}>
           {(["fr", "en", "es", "tr", "it"] as UILang[]).map((l) => (
             <Link
@@ -641,7 +667,7 @@ function ExpressionPageContent({ id }: { id: string }) {
             <div style={{ position: "relative" }}>
               <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: "0.5rem", scrollSnapType: "x mandatory" }}>
                 {expr.concept_equivalents.map((eq) => (
-                  <ConceptCard key={eq.id} eq={eq} />
+                  <ConceptCard key={eq.id} eq={eq} onNavigate={(url) => router.push(url)} />
                 ))}
               </div>
               {expr.concept_equivalents.length > 1 && (
@@ -671,31 +697,12 @@ function ExpressionPageContent({ id }: { id: string }) {
           </div>
         )}
 
-        {/* Random button */}
-        <div style={{ display: "flex", justifyContent: "center", marginTop: "2.5rem" }}>
-          <button
-            onClick={goRandom}
-            disabled={loadingRandom}
-            style={{
-              padding: "0.65rem 1.75rem",
-              borderRadius: "var(--r-pill)",
-              border: "none",
-              background: loadingRandom ? "var(--paper-deep)" : "var(--plum)",
-              color: loadingRandom ? "var(--ink-faint)" : "var(--paper)",
-              fontSize: 13,
-              fontWeight: 600,
-              fontFamily: "var(--font-body)",
-              cursor: loadingRandom ? "not-allowed" : "pointer",
-              transition: "background 150ms ease",
-            }}
-            onMouseEnter={(e) => { if (!loadingRandom) (e.currentTarget as HTMLElement).style.background = "var(--plum-deep)"; }}
-            onMouseLeave={(e) => { if (!loadingRandom) (e.currentTarget as HTMLElement).style.background = "var(--plum)"; }}
-          >
-            <Dice5 size={14} strokeWidth={1.5} style={{ display: "inline", verticalAlign: "middle", marginRight: "0.3rem" }} />{loadingRandom ? "…" : t.randomBtn}
-          </button>
-        </div>
 
       </main>
+
+      {showSearch && (
+        <SearchOverlay uiLang={lang} onClose={() => setShowSearch(false)} />
+      )}
     </div>
   );
 }

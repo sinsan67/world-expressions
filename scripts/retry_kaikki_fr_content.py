@@ -11,7 +11,7 @@ Idempotent : seules les expressions sans contenu FR sont traitées.
 Usage:
     python3 scripts/retry_kaikki_fr_content.py --dry-run
     python3 scripts/retry_kaikki_fr_content.py --delay 2.0
-    python3 scripts/retry_kaikki_fr_content.py --staging --delay 2.0
+    python3 scripts/retry_kaikki_fr_content.py --prod --delay 2.0
 """
 
 import sys
@@ -26,16 +26,16 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from dotenv import load_dotenv
 
 parser = argparse.ArgumentParser(description="Génère le contenu FR pour les expressions kaikki")
-parser.add_argument("--staging", action="store_true", help="Utilise la base staging (.env.staging)")
+parser.add_argument("--prod", action="store_true", help="Utilise la base production (.env.prod)")
 parser.add_argument("--dry-run", action="store_true", help="Affiche sans appeler l'API")
 parser.add_argument("--limit", type=int, default=None, help="Nombre max d'expressions")
 parser.add_argument("--delay", type=float, default=1.0, help="Délai entre appels API (défaut: 1.0s)")
 args = parser.parse_args()
 
-env_file = ".env.staging" if args.staging else ".env"
+env_file = ".env.prod" if args.prod else ".env.dev"
 load_dotenv(Path(__file__).parent.parent / env_file)
-if args.staging:
-    print(f"Using STAGING database ({env_file})")
+if args.prod:
+    print(f"Using PRODUCTION database ({env_file})")
 
 from sqlalchemy import text
 from config import engine

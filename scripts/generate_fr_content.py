@@ -26,7 +26,7 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 
-env_file = Path(__file__).parent.parent / ".env"
+env_file = Path(__file__).parent.parent / ".env.dev"
 if not os.environ.get("DATABASE_URL"):
     load_dotenv(env_file)
 
@@ -104,7 +104,7 @@ def main():
 
     api_key = os.environ.get("MISTRAL_API_KEY")
     if not api_key:
-        load_dotenv(Path(__file__).parent.parent / ".env")
+        load_dotenv(Path(__file__).parent.parent / ".env.dev")
         api_key = os.environ.get("MISTRAL_API_KEY")
     if not api_key:
         print("ERROR: MISTRAL_API_KEY not set", file=sys.stderr)

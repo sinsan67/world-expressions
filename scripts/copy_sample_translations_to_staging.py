@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Copie un échantillon de traductions IT+TR depuis la DB prod vers staging.
-Objectif : permettre de tester le sélecteur de langue en staging sans
+Copie un échantillon de traductions IT+TR depuis la DB prod vers dev local.
+Objectif : permettre de tester le sélecteur de langue en local sans
 re-générer les traductions via Mistral.
 
 Sélection : les N premières expressions communes aux deux bases,
@@ -15,25 +15,25 @@ from sqlalchemy import create_engine, text
 
 ROOT = Path(__file__).parent.parent
 
-load_dotenv(ROOT / ".env")
-PROD_URL = os.getenv("DATABASE_URL")
+load_dotenv(ROOT / ".env.dev")
+DEV_URL = os.getenv("DATABASE_URL")
 
-load_dotenv(ROOT / ".env.staging", override=True)
-STAGING_URL = os.getenv("DATABASE_URL")
+load_dotenv(ROOT / ".env.prod", override=True)
+PROD_URL = os.getenv("DATABASE_URL")
 
 SAMPLE_SIZE = 100
 LANGS = ["it", "tr"]
 
 def main():
     prod_engine = create_engine(PROD_URL)
-    staging_engine = create_engine(STAGING_URL)
+    dev_engine = create_engine(DEV_URL)
 
-    with prod_engine.connect() as prod, staging_engine.connect() as staging:
-        # Expression IDs présents en staging
+    with prod_engine.connect() as prod, dev_engine.connect() as dev:
+        # Expression IDs présents en dev local
         staging_ids = {
-            row[0] for row in staging.execute(text("SELECT id FROM expressions"))
+            row[0] for row in dev.execute(text("SELECT id FROM expressions"))
         }
-        print(f"Expressions en staging : {len(staging_ids)}")
+        print(f"Expressions en dev local : {len(staging_ids)}")
 
         for lang in LANGS:
             # Traductions prod pour les expressions qui existent aussi en staging
@@ -59,14 +59,14 @@ def main():
             for row in eligible:
                 expr_id, tl, meaning, literal, idiomatic, origin, example = row
                 # Idempotent : skip si déjà présent
-                exists = staging.execute(text("""
+                exists = dev.execute(text("""
                     SELECT 1 FROM content_translations
                     WHERE expression_id = :eid AND target_lang = :lang
                 """), {"eid": expr_id, "lang": tl}).fetchone()
                 if exists:
                     skipped += 1
                     continue
-                staging.execute(text("""
+                dev.execute(text("""
                     INSERT INTO content_translations
                       (expression_id, target_lang, meaning, literal, idiomatic, origin, example)
                     VALUES (:eid, :lang, :meaning, :literal, :idiomatic, :origin, :example)
@@ -77,7 +77,7 @@ def main():
                 })
                 inserted += 1
 
-            staging.commit()
+            dev.commit()
             print(f"FR→{lang} : {inserted} insérées, {skipped} déjà présentes")
 
     print("Terminé.")

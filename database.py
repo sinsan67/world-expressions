@@ -280,16 +280,19 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, lim
             ec.meaning,
             ec.origin,
             ec.example,
-            STRING_AGG(t.slug, ',') AS tags
+            (SELECT STRING_AGG(t2.slug, ',')
+             FROM expression_tags et2
+             JOIN tags t2 ON t2.id = et2.tag_id
+             WHERE et2.expression_id = e.id) AS tags
         FROM expressions e
         LEFT JOIN expression_content ec
             ON ec.expression_id = e.id AND ec.locale = e.language
-        JOIN expression_tags et ON et.expression_id = e.id
-        JOIN tags t ON t.id = et.tag_id
-        WHERE t.slug = ANY(:tag_set)
+        WHERE EXISTS (
+            SELECT 1 FROM expression_tags et
+            JOIN tags t ON t.id = et.tag_id
+            WHERE et.expression_id = e.id AND t.slug = ANY(:tag_set)
+        )
         {region_clause}{exclude_phrasebook}{type_clause}
-        GROUP BY e.id, e.text, e.language, e.region, e.register,
-                 e.illustration, e.kind, e.source, ec.meaning, ec.origin, ec.example
         ORDER BY e.language, CASE WHEN e.kind = 'word' THEN 1 ELSE 0 END, e.text
     """.format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK, type_clause=type_sql)
 
