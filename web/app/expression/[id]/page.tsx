@@ -128,17 +128,12 @@ function ConceptCard({ eq, onNavigate }: { eq: ConceptEquivalent; onNavigate: (u
     <div
       onClick={() => onNavigate(`/expression/${eq.id}`)}
       style={{
-        display: "block",
-        minWidth: 200,
-        maxWidth: 260,
         background: "var(--paper)",
         border: "1px solid var(--paper-edge)",
         borderRadius: "var(--r-md)",
-        padding: "1rem",
+        overflow: "hidden",
         cursor: "pointer",
         transition: "box-shadow 150ms ease, border-color 150ms ease",
-        flexShrink: 0,
-        scrollSnapAlign: "start",
       }}
       onMouseEnter={(e) => {
         const el = e.currentTarget as HTMLElement;
@@ -151,31 +146,34 @@ function ConceptCard({ eq, onNavigate }: { eq: ConceptEquivalent; onNavigate: (u
         el.style.borderColor = "var(--paper-edge)";
       }}
     >
-      <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink-faint)", marginBottom: "0.5rem", fontFamily: "var(--font-body)" }}>
-        <Link
-          href={`/country/${eq.region || eq.language}`}
-          onClick={(e) => e.stopPropagation()}
-          style={{ textDecoration: "none", color: "inherit" }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.7"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
-        >
-          {FLAG[eq.region] || FLAG[eq.language] || ""}
-        </Link>
-        {" "}{LANGUAGE_NAME[eq.language] || eq.language.toUpperCase()}
-      </p>
-      <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 16, color: "var(--ink)", lineHeight: 1.25, marginBottom: eq.literal_fr && eq.language !== "fr" ? "0.4rem" : "0.5rem" }}>
-        {eq.text}
-      </p>
-      {eq.literal_fr && eq.language !== "fr" && (
-        <p style={{ fontSize: 12, color: "var(--ink-softer)", fontStyle: "italic", marginBottom: "0.5rem" }}>
-          « {eq.literal_fr} »
+      <div style={{ height: 3, background: "var(--terra)" }} />
+      <div style={{ padding: "0.75rem 1rem" }}>
+        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink-faint)", marginBottom: "0.4rem", fontFamily: "var(--font-body)" }}>
+          <Link
+            href={`/country/${eq.region || eq.language}`}
+            onClick={(e) => e.stopPropagation()}
+            style={{ textDecoration: "none", color: "inherit" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.7"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+          >
+            {FLAG[eq.region] || FLAG[eq.language] || ""}
+          </Link>
+          {" "}{LANGUAGE_NAME[eq.language] || eq.language.toUpperCase()}
         </p>
-      )}
-      {eq.meaning_fr && (
-        <p style={{ fontSize: 12, color: "var(--ink-softer)", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-          {eq.meaning_fr}
+        <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 15, color: "var(--ink)", lineHeight: 1.25, marginBottom: eq.literal_fr && eq.language !== "fr" ? "0.35rem" : "0.4rem" }}>
+          {eq.text}
         </p>
-      )}
+        {eq.literal_fr && eq.language !== "fr" && (
+          <p style={{ fontSize: 12, color: "var(--ink-softer)", fontStyle: "italic", marginBottom: "0.35rem" }}>
+            « {eq.literal_fr} »
+          </p>
+        )}
+        {eq.meaning_fr && (
+          <p style={{ fontSize: 12, color: "var(--ink-softer)", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+            {eq.meaning_fr}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
@@ -541,17 +539,12 @@ function ExpressionPageContent({ id }: { id: string }) {
                 fontSize: 13,
                 fontStyle: "italic",
                 color: "var(--ink-softer)",
-                borderLeft: "2px solid var(--terra-soft)",
-                paddingLeft: "0.75rem",
                 lineHeight: 1.65,
               }}>
                 {primaryExample}
               </p>
             </div>
           )}
-
-          {/* Separator */}
-          <hr style={{ border: "none", borderTop: "1px dashed var(--paper-edge)", margin: 0 }} />
 
           {/* Origin */}
           {primaryOrigin && (
@@ -589,23 +582,27 @@ function ExpressionPageContent({ id }: { id: string }) {
 
           {/* Source */}
           {expr.source && (
-            <a
-              href={expr.source}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                fontSize: 12,
-                color: "var(--ink-faint)",
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
-                textDecoration: "none",
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-softer)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-faint)"; }}
-            >
-              📎 {t.source} ↗
-            </a>
+            <div style={{ borderTop: "1px solid var(--paper-edge)", paddingTop: "0.75rem" }}>
+              <a
+                href={expr.source}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontSize: 11,
+                  color: "var(--ink-faint)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  textDecoration: "none",
+                  fontFamily: "var(--font-body)",
+                  letterSpacing: "0.03em",
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-softer)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-faint)"; }}
+              >
+                {t.source} ↗
+              </a>
+            </div>
           )}
 
         </div>
@@ -651,36 +648,11 @@ function ExpressionPageContent({ id }: { id: string }) {
         {/* Concept equivalents — La même idée */}
         {expr.concept_equivalents.length > 0 && (
           <div style={{ marginTop: "2rem" }}>
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "0.75rem" }}>
-              <div>
-                <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--terra)", fontFamily: "var(--font-body)", marginBottom: "0.2rem" }}>
-                  {t.sameIdea}
-                </p>
-                <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 20, fontWeight: 500, color: "var(--ink)", lineHeight: 1 }}>
-                  {t.elsewhereInTheWorld}
-                </p>
-              </div>
-              <span style={{ fontSize: 12, color: "var(--ink-faint)", fontFamily: "var(--font-body)", whiteSpace: "nowrap" }}>
-                {expr.concept_equivalents.length} équivalent{expr.concept_equivalents.length > 1 ? "s" : ""}
-              </span>
-            </div>
-            <div style={{ position: "relative" }}>
-              <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: "0.5rem", scrollSnapType: "x mandatory" }}>
-                {expr.concept_equivalents.map((eq) => (
-                  <ConceptCard key={eq.id} eq={eq} onNavigate={(url) => router.push(url)} />
-                ))}
-              </div>
-              {expr.concept_equivalents.length > 1 && (
-                <div style={{
-                  position: "absolute",
-                  top: 0,
-                  right: 0,
-                  bottom: "0.5rem",
-                  width: 56,
-                  background: "linear-gradient(to right, transparent, var(--paper))",
-                  pointerEvents: "none",
-                }} />
-              )}
+            <SectionLabel>{t.sameIdea}</SectionLabel>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
+              {expr.concept_equivalents.map((eq) => (
+                <ConceptCard key={eq.id} eq={eq} onNavigate={(url) => router.push(url)} />
+              ))}
             </div>
           </div>
         )}
