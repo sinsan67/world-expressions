@@ -1,20 +1,21 @@
 import { test, expect } from '@playwright/test';
 
 const T = 90_000;
+const CARD = '[data-testid="expression-card"]';
 
 test.describe('Homepage — modal bienvenue', () => {
   test('#1 modal s\'affiche à la première visite', async ({ page }) => {
     await page.goto('/');
     await page.evaluate(() => localStorage.removeItem('wex_lang'));
     await page.reload();
-    await expect(page.locator('[role="dialog"], .wex-modal, [class*="modal"]').first()).toBeVisible({ timeout: T });
+    await expect(page.locator('[role="dialog"]').first()).toBeVisible({ timeout: T });
   });
 
   test('#2 boutons langue dans le modal changent le CTA', async ({ page }) => {
     await page.goto('/');
     await page.evaluate(() => localStorage.removeItem('wex_lang'));
     await page.reload();
-    const modal = page.locator('[role="dialog"], .wex-modal, [class*="modal"]').first();
+    const modal = page.locator('[role="dialog"]').first();
     await modal.waitFor({ timeout: T });
     const enBtn = modal.locator('button, [role="button"]').filter({ hasText: /^EN$|^English$|english/i }).first();
     if (await enBtn.isVisible()) {
@@ -27,7 +28,7 @@ test.describe('Homepage — modal bienvenue', () => {
     await page.goto('/');
     await page.evaluate(() => localStorage.removeItem('wex_lang'));
     await page.reload();
-    const modal = page.locator('[role="dialog"], .wex-modal, [class*="modal"]').first();
+    const modal = page.locator('[role="dialog"]').first();
     await modal.waitFor({ timeout: T });
     const cta = modal.locator('button').last();
     await cta.click();
@@ -40,14 +41,14 @@ test.describe('Homepage — modal bienvenue', () => {
     await page.evaluate(() => localStorage.setItem('wex_lang', 'fr'));
     await page.reload();
     await page.waitForLoadState('networkidle');
-    const modal = page.locator('[role="dialog"], .wex-modal, [class*="modal"]').first();
+    const modal = page.locator('[role="dialog"]').first();
     await expect(modal).not.toBeVisible();
   });
 });
 
 test.describe('Homepage — recherche', () => {
   test.beforeEach(async ({ page }) => {
-    await page.evaluate(() => localStorage.setItem('wex_lang', 'fr'));
+    await page.addInitScript(() => localStorage.setItem('wex_lang', 'fr'));
     await page.goto('/');
     await page.locator('input.wex-input').first().waitFor({ timeout: T });
   });
@@ -56,29 +57,28 @@ test.describe('Homepage — recherche', () => {
     const input = page.locator('input.wex-input').first();
     await input.fill('chat');
     await input.press('Enter');
-    // Attendre au moins une carte résultat
-    await expect(page.locator('[data-region], [class*="expression-card"], [class*="ExpressionCard"]').first()).toBeVisible({ timeout: T });
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
   });
 
   test('#10 rechargement après recherche relance la recherche', async ({ page }) => {
     const input = page.locator('input.wex-input').first();
     await input.fill('argent');
     await input.press('Enter');
-    await page.locator('[data-region], [class*="card"]').first().waitFor({ timeout: T });
+    await page.locator(CARD).first().waitFor({ timeout: T });
     await page.reload();
     await expect(page).toHaveURL(/#q=argent/);
-    await expect(page.locator('[data-region], [class*="card"]').first()).toBeVisible({ timeout: T });
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
   });
 
   test('#11 infinite scroll charge plus de résultats', async ({ page }) => {
     const input = page.locator('input.wex-input').first();
     await input.fill('avoir');
     await input.press('Enter');
-    await page.locator('[data-region], [class*="card"]').first().waitFor({ timeout: T });
-    const initialCount = await page.locator('[data-region], [class*="card"]').count();
+    await page.locator(CARD).first().waitFor({ timeout: T });
+    const initialCount = await page.locator(CARD).count();
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await page.waitForTimeout(2000);
-    const newCount = await page.locator('[data-region], [class*="card"]').count();
+    const newCount = await page.locator(CARD).count();
     expect(newCount).toBeGreaterThanOrEqual(initialCount);
   });
 
@@ -86,7 +86,7 @@ test.describe('Homepage — recherche', () => {
     const input = page.locator('input.wex-input').first();
     await input.fill('chat');
     await input.press('Enter');
-    const card = page.locator('a[href*="/expression/"]').first();
+    const card = page.locator(CARD).first();
     await card.waitFor({ timeout: T });
     await card.click();
     await expect(page).toHaveURL(/\/expression\//);
@@ -96,7 +96,7 @@ test.describe('Homepage — recherche', () => {
     const input = page.locator('input.wex-input').first();
     await input.fill('argent');
     await input.press('Enter');
-    await page.locator('[data-region], [class*="card"]').first().waitFor({ timeout: T });
+    await page.locator(CARD).first().waitFor({ timeout: T });
     const tag = page.locator('[class*="tag"], [class*="Tag"]').first();
     if (await tag.isVisible()) {
       await tag.click();
@@ -115,7 +115,7 @@ test.describe('Homepage — recherche', () => {
 
 test.describe('Homepage — navigation sidebar', () => {
   test.beforeEach(async ({ page }) => {
-    await page.evaluate(() => localStorage.setItem('wex_lang', 'fr'));
+    await page.addInitScript(() => localStorage.setItem('wex_lang', 'fr'));
     await page.goto('/');
     await page.locator('.wex-sidebar').first().waitFor({ timeout: T });
   });
@@ -126,7 +126,7 @@ test.describe('Homepage — navigation sidebar', () => {
     await input.press('Enter');
     const logo = page.locator('.wex-sidebar a[href="/"]').first();
     await logo.click();
-    await expect(page).toHaveURL(/^\/?(\?.*|#.*)?$/);
+    await expect(page).toHaveURL(/\/(\?.*|#.*)?$/);
   });
 
   test('#17 "Accueil" est en surbrillance dans la sidebar sur /', async ({ page }) => {

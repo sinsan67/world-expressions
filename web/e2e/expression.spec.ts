@@ -42,7 +42,7 @@ test.describe('Page /expression/[id]', () => {
   });
 
   test('#38 interface EN + expression FR → traduction littérale visible', async ({ page }) => {
-    await page.evaluate(() => localStorage.setItem('wex_lang', 'en'));
+    await page.addInitScript(() => localStorage.setItem('wex_lang', 'en'));
     // Chercher une expression française spécifiquement
     await page.goto('/');
     await page.locator('input.wex-input').first().waitFor({ timeout: T });

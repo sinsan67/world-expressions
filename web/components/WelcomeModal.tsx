@@ -116,6 +116,9 @@ export default function WelcomeModal({ onSelect }: Props) {
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Bienvenue"
       style={{
         position: "fixed", inset: 0, zIndex: 1000,
         background: "rgba(28,20,16,0.72)",

@@ -43,6 +43,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
 
   return (
     <div
+      data-testid="expression-card"
       className="rounded-2xl flex flex-col transition-shadow hover:shadow-md overflow-hidden"
       style={{
         background: "var(--paper)",
