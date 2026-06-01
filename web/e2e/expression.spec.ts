@@ -48,7 +48,7 @@ test.describe('Page /expression/[id]', () => {
     await page.locator('input.wex-input').first().waitFor({ timeout: T });
     await page.locator('input.wex-input').fill('avoir');
     await page.locator('input.wex-input').press('Enter');
-    const frCard = page.locator('a[href*="/expression/"]').first();
+    const frCard = page.locator('[data-testid="expression-card"]').first();
     await frCard.waitFor({ timeout: T });
     await frCard.click();
     await page.locator('h1, h2').first().waitFor({ timeout: T });
@@ -113,7 +113,7 @@ test.describe('Page /expression/[id]', () => {
     const backLink = page.locator('a[href="/"]').first();
     if (await backLink.isVisible({ timeout: 5000 }).catch(() => false)) {
       await backLink.click();
-      await expect(page).toHaveURL(/^\/?(\?.*|#.*)?$/);
+      await expect(page).toHaveURL(/\/(\?.*|#.*)?$/);
     }
   });
 });
