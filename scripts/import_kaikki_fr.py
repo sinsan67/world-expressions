@@ -257,7 +257,7 @@ def dry_run(limit: int = 30):
 
 def apply_import(staging: bool = False):
     from dotenv import load_dotenv
-    env_file = Path(__file__).parent.parent / (".env.staging" if staging else ".env")
+    env_file = Path(__file__).parent.parent / (".env.prod" if staging else ".env.dev")
     load_dotenv(env_file)
 
     db_url = os.environ.get("DATABASE_URL")

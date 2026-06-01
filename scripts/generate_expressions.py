@@ -27,7 +27,7 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import text
 
-load_dotenv(Path(__file__).parent.parent / ".env")
+load_dotenv(Path(__file__).parent.parent / ".env.dev")
 
 from mistralai.client import Mistral
 from config import engine

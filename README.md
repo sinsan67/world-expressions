@@ -37,7 +37,7 @@ python3 -m uvicorn main:app --reload
 cd web && npm run dev
 ```
 
-Requires a `.env` with `DATABASE_URL` (PostgreSQL) and `web/.env.local` with `NEXT_PUBLIC_API_URL`.
+Requires a `.env.dev` with `DATABASE_URL` (PostgreSQL) and `web/.env.local` with `NEXT_PUBLIC_API_URL`.
 
 ---
 

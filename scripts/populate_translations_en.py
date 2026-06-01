@@ -24,7 +24,7 @@ from dotenv import load_dotenv
 from sqlalchemy import text
 
 # Charge .env depuis la racine du projet, indépendamment du répertoire courant
-load_dotenv(Path(__file__).parent.parent / ".env")
+load_dotenv(Path(__file__).parent.parent / ".env.dev")
 
 from mistralai.client import Mistral
 from config import engine  # import après load_dotenv
