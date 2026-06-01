@@ -11,7 +11,7 @@ test.describe('Page /country/[code]', () => {
   test('#47 les expressions du pays se chargent', async ({ page }) => {
     await page.goto('/country/fr');
     await page.locator('h1, h2').first().waitFor({ timeout: T });
-    const cards = page.locator('a[href*="/expression/"]');
+    const cards = page.locator('[data-testid="expression-card"]');
     await expect(cards.first()).toBeVisible({ timeout: T });
     expect(await cards.count()).toBeGreaterThan(0);
   });

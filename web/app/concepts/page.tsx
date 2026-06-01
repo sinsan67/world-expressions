@@ -229,6 +229,7 @@ export default function ConceptsPage() {
                 return (
                   <button
                     key={tag.slug}
+                    data-testid="concept-card"
                     onClick={() => handleConceptClick(tag)}
                     style={{
                       display: "flex",

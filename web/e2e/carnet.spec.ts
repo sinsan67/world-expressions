@@ -37,9 +37,8 @@ test.describe('Page /carnet', () => {
     await seedCarnet(page);
     await page.goto('/carnet');
     await page.waitForLoadState('networkidle');
-    // Au moins un chiffre visible (favoris = 2, historique = 2, streak = 3)
-    const statNumbers = page.locator('[class*="stat"], [class*="Stat"], [class*="tile"], [class*="Tile"]');
-    expect(await statNumbers.count()).toBeGreaterThanOrEqual(1);
+    // Au moins une tuile de stat visible (wrapped in .wex-atlas-card)
+    await expect(page.locator('.wex-atlas-card').first()).toBeVisible({ timeout: T });
   });
 
   test('#55 onglet Historique est cliquable et affiche les entrées', async ({ page }) => {
