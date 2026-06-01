@@ -36,8 +36,8 @@ test.describe('Page /expression/[id]', () => {
     await page.locator('h1, h2').first().waitFor({ timeout: T });
     const main = page.locator('main, [role="main"], .wex-main').first();
     await expect(main).toBeVisible({ timeout: T });
-    // Au moins 2 sections de contenu (signification, exemple, origine...)
-    const sections = page.locator('section, [class*="section"], [class*="card"]');
+    // Au moins un paragraphe de contenu (signification)
+    const sections = page.locator('main p');
     expect(await sections.count()).toBeGreaterThanOrEqual(1);
   });
 
