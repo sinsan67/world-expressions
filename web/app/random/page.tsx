@@ -1,8 +1,13 @@
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 
-export default async function RandomPage() {
+export default async function RandomPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ prev?: string; lang?: string }>;
+}) {
   await connection();
+  const { prev, lang } = await searchParams;
   const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   let id: string | null = null;
   try {
@@ -14,5 +19,10 @@ export default async function RandomPage() {
   } catch {
     // API unavailable, fall through to home
   }
-  redirect(id ? `/expression/${id}` : "/");
+  if (!id) redirect("/");
+  const params = new URLSearchParams();
+  if (lang) params.set("lang", lang);
+  if (prev) params.set("prev", prev);
+  const qs = params.toString();
+  redirect(`/expression/${id}${qs ? "?" + qs : ""}`);
 }

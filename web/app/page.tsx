@@ -308,7 +308,10 @@ export default function Home() {
     const hash = window.location.hash;
     if (hash.startsWith("#q=")) {
       const initQ = decodeURIComponent(hash.slice(3));
-      if (initQ.trim().length >= 2) handleSearch(initQ);
+      if (initQ.trim().length >= 2) {
+        setQuery(initQ);
+        handleSearch(initQ);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -371,7 +374,9 @@ export default function Home() {
   }, [uiLang]);
 
   useEffect(() => {
-    getAllTagNames(uiLang).then(setTagNames);
+    let cancelled = false;
+    getAllTagNames(uiLang).then((tags) => { if (!cancelled) setTagNames(tags); });
+    return () => { cancelled = true; };
   }, [uiLang]);
 
   useEffect(() => {
