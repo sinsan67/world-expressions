@@ -230,7 +230,7 @@ export default function Home() {
 
   const runConceptSearch = useCallback(async (tag: string, rf: string[] = []) => {
     const regionCodes = rf.length ? rf : allRegionCodes;
-    setQuery(tag);
+    setQuery(tagNames[tag] ?? tag);
     setSearchMode("concept");
     setFilterRegions([]);
     setSortMode("relevance");
@@ -253,7 +253,7 @@ export default function Home() {
       setLoading(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allRegionCodes]);
+  }, [allRegionCodes, tagNames]);
 
   const handleSearch = useCallback(async (q: string) => {
     if (q.trim().length < 2) return;
