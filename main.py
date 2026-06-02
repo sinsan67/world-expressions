@@ -43,15 +43,18 @@ def search_expressions(
     limit: int = Query(20, ge=1, le=100, description="Number of results per page"),
     offset: int = Query(0, ge=0, description="Number of results to skip"),
     type_filter: str = Query("", description="Filter by expression type: idiom, proverb, locution, word"),
+    locale: str = Query("", description="UI locale for translated meanings, e.g. 'fr', 'en'"),
 ):
     """
     Search for expressions related to a word.
     Returns exact matches first, then semantic matches, then cross-language translation matches.
     Pass region=fr,uk,us to filter by origin country; omit for all regions.
+    Pass locale=fr to receive meanings in French when available.
     """
     regions = set(region.split(",")) - {""} if region else None
     tf = type_filter.strip() or None
-    results, total = database.search_expressions(q, regions, limit, offset, tf)
+    loc = locale.strip() or None
+    results, total = database.search_expressions(q, regions, limit, offset, tf, loc)
     return {
         "query": q,
         "regions": sorted(regions) if regions else "all",

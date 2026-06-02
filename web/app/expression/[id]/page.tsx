@@ -16,10 +16,14 @@ import { cap } from "@/lib/utils";
 import CountryPhotoBackdrop from "@/components/home/CountryPhotoBackdrop";
 import Eyebrow from "@/components/home/Eyebrow";
 import { recordView, toggleFavorite, isFavorite } from "@/lib/carnet";
-import { Heart, Dice5, Search } from "lucide-react";
+import { Heart, Dice5, Search, Volume2, VolumeX } from "lucide-react";
 import SearchOverlay from "@/components/SearchOverlay";
 
 type UILang = "fr" | "en" | "es" | "tr" | "it";
+
+const SPEECH_LANG: Record<string, string> = {
+  fr: "fr-FR", en: "en-GB", es: "es-ES", it: "it-IT", tr: "tr-TR",
+};
 
 const T: Record<UILang, {
   wordForWord: string;
@@ -36,6 +40,7 @@ const T: Record<UILang, {
   searchBack: string;
   sameIdea: string;
   elsewhereInTheWorld: string;
+  listen: string;
   register: Record<string, string>;
 }> = {
   fr: {
@@ -53,6 +58,7 @@ const T: Record<UILang, {
     randomBtn: "Expression au hasard",
     back: "Retour",
     searchBack: "Résultats pour",
+    listen: "Écouter",
     register: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" },
   },
   en: {
@@ -70,6 +76,7 @@ const T: Record<UILang, {
     searchBack: "Results for",
     sameIdea: "The same idea",
     elsewhereInTheWorld: "...around the world",
+    listen: "Listen",
     register: { standard: "standard", informal: "informal", slang: "slang", vulgar: "vulgar", formal: "formal" },
   },
   es: {
@@ -87,6 +94,7 @@ const T: Record<UILang, {
     searchBack: "Resultados de",
     sameIdea: "La misma idea",
     elsewhereInTheWorld: "...en todo el mundo",
+    listen: "Escuchar",
     register: { standard: "estándar", informal: "informal", slang: "argot", vulgar: "vulgar", formal: "formal" },
   },
   tr: {
@@ -104,6 +112,7 @@ const T: Record<UILang, {
     searchBack: "Sonuçlar:",
     sameIdea: "Aynı fikir",
     elsewhereInTheWorld: "...dünyada",
+    listen: "Dinle",
     register: { standard: "standart", informal: "günlük", slang: "argo", vulgar: "kaba", formal: "resmi" },
   },
   it: {
@@ -121,6 +130,7 @@ const T: Record<UILang, {
     searchBack: "Risultati per",
     sameIdea: "La stessa idea",
     elsewhereInTheWorld: "...nel mondo",
+    listen: "Ascolta",
     register: { standard: "standard", informal: "informale", slang: "slang", vulgar: "volgare", formal: "formale" },
   },
 };
@@ -256,6 +266,7 @@ function ExpressionPageContent({ id }: { id: string }) {
   const [error, setError] = useState(false);
   const [fav, setFav] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
 
   const prev = searchParams.get("prev") || null;
   const fromSearch = searchParams.get("from_search") || null;
@@ -288,6 +299,21 @@ function ExpressionPageContent({ id }: { id: string }) {
   function handleFav() {
     toggleFavorite(id);
     setFav((v) => !v);
+  }
+
+  function handleSpeak() {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    if (speaking) {
+      window.speechSynthesis.cancel();
+      setSpeaking(false);
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(expr!.expression);
+    utterance.lang = SPEECH_LANG[expr!.language] || expr!.language;
+    utterance.onend = () => setSpeaking(false);
+    utterance.onerror = () => setSpeaking(false);
+    window.speechSynthesis.speak(utterance);
+    setSpeaking(true);
   }
 
   if (error) {
@@ -472,6 +498,36 @@ function ExpressionPageContent({ id }: { id: string }) {
           }}>
             {cap(expr.expression)}
           </h1>
+
+          {/* Listen button */}
+          <button
+            onClick={handleSpeak}
+            title={t.listen}
+            style={{
+              marginTop: "1rem",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              background: speaking ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.15)",
+              border: "1px solid rgba(255,255,255,0.35)",
+              borderRadius: "var(--r-pill)",
+              color: "#fff",
+              fontSize: 13,
+              fontFamily: "var(--font-body)",
+              fontWeight: 500,
+              padding: "6px 14px",
+              cursor: "pointer",
+              backdropFilter: "blur(4px)",
+              transition: "background 150ms ease, transform 150ms ease",
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.28)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = speaking ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.15)"; }}
+          >
+            {speaking
+              ? <VolumeX size={14} strokeWidth={1.5} />
+              : <Volume2 size={14} strokeWidth={1.5} />}
+            {t.listen}
+          </button>
 
           {/* Literal translation on photo, in hand font */}
           {translationActive && translation?.literal && (

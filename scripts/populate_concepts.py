@@ -29,7 +29,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import os
 from dotenv import load_dotenv
-load_dotenv(Path(__file__).parent.parent / ".env.dev")
+
+_early = argparse.ArgumentParser(add_help=False)
+_early.add_argument("--prod", action="store_true")
+_early_args, _ = _early.parse_known_args()
+_env_file = ".env.prod" if _early_args.prod else ".env.dev"
+load_dotenv(Path(__file__).parent.parent / _env_file)
 
 from sqlalchemy import text
 from mistralai.client import Mistral
@@ -265,6 +270,7 @@ def main():
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--ids", type=str, default=None, help="Comma-separated expression IDs")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--prod", action="store_true", help="Utilise la base production (.env.prod)")
     args = parser.parse_args()
 
     ids = [i.strip() for i in args.ids.split(",")] if args.ids else None

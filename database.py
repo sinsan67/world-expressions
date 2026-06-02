@@ -42,6 +42,28 @@ def _build_expression_dict(row, match_type: str) -> dict:
     }
 
 
+def _get_preferred_content(ids: list, locale: str, conn) -> dict:
+    """
+    Batch-fetches meaning/origin/example in the preferred locale for a list of expression IDs.
+    expression_content takes priority over content_translations.
+    Returns {expression_id: {meaning, origin, example}}.
+    """
+    if not ids or not locale:
+        return {}
+    result: dict = {}
+    for row in conn.execute(text("""
+        SELECT expression_id, meaning, origin, example FROM content_translations
+        WHERE expression_id = ANY(:ids) AND target_lang = :locale
+    """), {"ids": ids, "locale": locale}).fetchall():
+        result[row.expression_id] = {"meaning": row.meaning, "origin": row.origin, "example": row.example}
+    for row in conn.execute(text("""
+        SELECT expression_id, meaning, origin, example FROM expression_content
+        WHERE expression_id = ANY(:ids) AND locale = :locale
+    """), {"ids": ids, "locale": locale}).fetchall():
+        result[row.expression_id] = {"meaning": row.meaning, "origin": row.origin, "example": row.example}
+    return result
+
+
 def _region_clause(regions: Optional[set[str]]) -> tuple[str, dict]:
     """
     Retourne un fragment SQL et ses paramètres pour filtrer par région.
@@ -224,7 +246,7 @@ def _find_matching_tag_slugs(query: str) -> set[str]:
     return {r.slug for r in rows}
 
 
-def search_expressions(query: str, regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0, type_filter: Optional[str] = None) -> tuple[list[dict], int]:
+def search_expressions(query: str, regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0, type_filter: Optional[str] = None, locale: Optional[str] = None) -> tuple[list[dict], int]:
     """
     Cherche des expressions par mot-clé.
 
@@ -342,6 +364,17 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
         ]
 
     all_results = exact + semantic + translation_new + concept_new
+
+    if locale and locale.strip():
+        with engine.connect() as conn:
+            preferred = _get_preferred_content([r["id"] for r in all_results], locale, conn)
+        for r in all_results:
+            if r["id"] in preferred:
+                p = preferred[r["id"]]
+                if p["meaning"]: r["meaning"] = p["meaning"]
+                if p["origin"]:  r["origin"]  = p["origin"]
+                if p["example"]: r["example"] = p["example"]
+
     return all_results[offset:offset + limit], len(all_results)
 
 
