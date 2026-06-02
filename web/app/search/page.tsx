@@ -17,6 +17,8 @@ import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 const LIMIT = 20;
 type UILang = "fr" | "en" | "es" | "it" | "tr";
 
+const MAX_SECTION_PREVIEW = 6;
+
 const T: Record<UILang, {
   placeholder: string;
   search: string;
@@ -31,6 +33,7 @@ const T: Record<UILang, {
   types: Record<string, string>;
   registers: Record<string, string>;
   matchSections: Record<string, string>;
+  showMore: (n: number) => string;
 }> = {
   fr: {
     placeholder: "Essaie : pied, argent, animal, partir…",
@@ -46,6 +49,7 @@ const T: Record<UILang, {
     types: { idiom: "expression", proverb: "proverbe", locution: "locution", word: "mot", expression: "expression" },
     registers: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" },
     matchSections: { exact: "Dans le texte", semantic: "Par le sens", translation: "Via les traductions", concept: "Par concept" },
+    showMore: (n) => `Voir les ${n} autres →`,
   },
   en: {
     placeholder: "Try: money, animal, leave, fear…",
@@ -61,6 +65,7 @@ const T: Record<UILang, {
     types: { idiom: "idiom", proverb: "proverb", locution: "locution", word: "word", expression: "expression" },
     registers: { standard: "standard", informal: "informal", slang: "slang", vulgar: "vulgar", formal: "formal" },
     matchSections: { exact: "In the text", semantic: "By meaning", translation: "Via translations", concept: "By concept" },
+    showMore: (n) => `Show ${n} more →`,
   },
   es: {
     placeholder: "Prueba: dinero, animal, partir, miedo…",
@@ -76,6 +81,7 @@ const T: Record<UILang, {
     types: { idiom: "modismo", proverb: "proverbio", locution: "locución", word: "palabra", expression: "expresión" },
     registers: { standard: "estándar", informal: "coloquial", slang: "argot", vulgar: "vulgar", formal: "formal" },
     matchSections: { exact: "En el texto", semantic: "Por el sentido", translation: "Via traducciones", concept: "Por concepto" },
+    showMore: (n) => `Ver ${n} más →`,
   },
   it: {
     placeholder: "Prova: soldi, animale, partire, paura…",
@@ -91,6 +97,7 @@ const T: Record<UILang, {
     types: { idiom: "espressione", proverb: "proverbio", locution: "locuzione", word: "parola", expression: "espressione" },
     registers: { standard: "standard", informal: "informale", slang: "gergone", vulgar: "volgare", formal: "formale" },
     matchSections: { exact: "Nel testo", semantic: "Per il senso", translation: "Via traduzioni", concept: "Per concetto" },
+    showMore: (n) => `Vedi altri ${n} →`,
   },
   tr: {
     placeholder: "Dene: para, hayvan, korku, ayrılmak…",
@@ -106,6 +113,7 @@ const T: Record<UILang, {
     types: { idiom: "deyim", proverb: "atasözü", locution: "deyiş", word: "kelime", expression: "ifade" },
     registers: { standard: "standart", informal: "gündelik", slang: "argo", vulgar: "kaba", formal: "resmi" },
     matchSections: { exact: "Metinde", semantic: "Anlama göre", translation: "Çeviri yoluyla", concept: "Kavram ile" },
+    showMore: (n) => `${n} tane daha gör →`,
   },
 };
 
@@ -139,6 +147,7 @@ function SearchPageContent() {
     regionParam ? regionParam.split(",").filter(Boolean) : []
   );
   const [sortMode, setSortMode] = useState<"relevance" | "country">("relevance");
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const sentinelRef = useRef<HTMLDivElement>(null);
   const allRegionCodes = regions.map((r) => r.code);
   const t = T[uiLang];
@@ -184,6 +193,7 @@ function SearchPageContent() {
     setHasError(false);
     setResults([]);
     setHasMore(false);
+    setExpandedSections(new Set());
     try {
       let data;
       if (concept && !q) {
@@ -378,7 +388,11 @@ function SearchPageContent() {
                   </div>
                 ))
               ) : matchTypeGroups ? (
-                matchTypeGroups.map(({ type, exprs }, gi) => (
+                matchTypeGroups.map(({ type, exprs }, gi) => {
+                  const isExpanded = expandedSections.has(type);
+                  const visible = isExpanded ? exprs : exprs.slice(0, MAX_SECTION_PREVIEW);
+                  const hidden = exprs.length - MAX_SECTION_PREVIEW;
+                  return (
                   <div key={type}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: `${gi === 0 ? "0" : "1.5rem"} 0 0.75rem`, color: "var(--ink-faint)", fontSize: 12, fontFamily: "var(--font-body)", letterSpacing: "0.03em" }}>
                       <span>{{ exact: "🎯", semantic: "💡", concept: "🏷️", translation: "🌍" }[type]}</span>
@@ -386,14 +400,23 @@ function SearchPageContent() {
                       <span>· {sectionExprCount(exprs.length, uiLang)}</span>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
-                      {exprs.map((expr, i) => (
+                      {visible.map((expr, i) => (
                         <div key={expr.id} style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
                           <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} />
                         </div>
                       ))}
                     </div>
+                    {!isExpanded && hidden > 0 && (
+                      <button
+                        onClick={() => setExpandedSections(prev => new Set(prev).add(type))}
+                        style={{ marginTop: "0.75rem", background: "none", border: "none", color: "var(--ink-soft)", fontSize: 12, fontFamily: "var(--font-body)", cursor: "pointer", padding: "0.25rem 0", textDecoration: "underline", textUnderlineOffset: 3 }}
+                      >
+                        {t.showMore(hidden)}
+                      </button>
+                    )}
                   </div>
-                ))
+                  );
+                })
               ) : (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
                   {results.map((expr, i) => (
