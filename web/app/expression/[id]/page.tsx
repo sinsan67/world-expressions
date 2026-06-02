@@ -33,6 +33,7 @@ const T: Record<UILang, {
   related: string;
   randomBtn: string;
   back: string;
+  searchBack: string;
   sameIdea: string;
   elsewhereInTheWorld: string;
   register: Record<string, string>;
@@ -51,6 +52,7 @@ const T: Record<UILang, {
     related: "Dans le même univers",
     randomBtn: "Expression au hasard",
     back: "Retour",
+    searchBack: "Résultats pour",
     register: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" },
   },
   en: {
@@ -65,6 +67,7 @@ const T: Record<UILang, {
     related: "More like this",
     randomBtn: "Random expression",
     back: "Back",
+    searchBack: "Results for",
     sameIdea: "The same idea",
     elsewhereInTheWorld: "...around the world",
     register: { standard: "standard", informal: "informal", slang: "slang", vulgar: "vulgar", formal: "formal" },
@@ -81,6 +84,7 @@ const T: Record<UILang, {
     related: "En el mismo universo",
     randomBtn: "Expresión al azar",
     back: "Volver",
+    searchBack: "Resultados de",
     sameIdea: "La misma idea",
     elsewhereInTheWorld: "...en todo el mundo",
     register: { standard: "estándar", informal: "informal", slang: "argot", vulgar: "vulgar", formal: "formal" },
@@ -97,6 +101,7 @@ const T: Record<UILang, {
     related: "Benzer ifadeler",
     randomBtn: "Rastgele ifade",
     back: "Geri",
+    searchBack: "Sonuçlar:",
     sameIdea: "Aynı fikir",
     elsewhereInTheWorld: "...dünyada",
     register: { standard: "standart", informal: "günlük", slang: "argo", vulgar: "kaba", formal: "resmi" },
@@ -113,6 +118,7 @@ const T: Record<UILang, {
     related: "Nello stesso universo",
     randomBtn: "Espressione casuale",
     back: "Indietro",
+    searchBack: "Risultati per",
     sameIdea: "La stessa idea",
     elsewhereInTheWorld: "...nel mondo",
     register: { standard: "standard", informal: "informale", slang: "slang", vulgar: "volgare", formal: "formale" },
@@ -252,6 +258,7 @@ function ExpressionPageContent({ id }: { id: string }) {
   const [showSearch, setShowSearch] = useState(false);
 
   const prev = searchParams.get("prev") || null;
+  const fromSearch = searchParams.get("from_search") || null;
 
   // Sync fav state from localStorage on client
   useEffect(() => { setFav(isFavorite(id)); }, [id]);
@@ -410,6 +417,29 @@ function ExpressionPageContent({ id }: { id: string }) {
         </div>
         </div>
       </nav>
+
+      {/* Search breadcrumb — visible only when arriving from a search */}
+      {fromSearch && (
+        <div style={{ padding: "0.4rem 1.25rem", borderBottom: "1px solid var(--paper-edge)", background: "var(--paper)" }}>
+          <Link
+            href={`/#q=${encodeURIComponent(fromSearch)}`}
+            style={{
+              fontSize: 12,
+              color: "var(--ink-faint)",
+              textDecoration: "none",
+              fontFamily: "var(--font-body)",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.3rem",
+              transition: "color 150ms ease",
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--plum)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-faint)"; }}
+          >
+            ← {t.searchBack} «&nbsp;{fromSearch}&nbsp;»
+          </Link>
+        </div>
+      )}
 
       {/* Hero — country photo backdrop */}
       <CountryPhotoBackdrop photo={photo} fadeBottom>

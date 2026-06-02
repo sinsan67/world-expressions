@@ -25,13 +25,15 @@
 
 ---
 
-## Sprint — Current (session 30, 2026-06-02)
+## Sprint — Current (session 33, 2026-06-02)
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
-| [BUG-001](#bug-001) | Bug | Search from sidebar broken on home page | S | P0 | ✅ Fixed — pending merge |
-| [US-001](#us-001) | Feature | Merge staging → main (55ec049) | S | P0 | 🔜 Ready |
-| [US-002](#us-002) | Feature | Verify TR enrichment completion + count | S | P1 | 🔜 Ready |
+| [BUG-001](#bug-001) | Bug | Search from sidebar broken on home page | S | P0 | ✅ Done (staging) |
+| [US-021](#us-021) | Feature | Cross-language concept search (issue #20) | L | P2 | ✅ Done — commit 6ad146d |
+| [US-022b](#us-022b) | Feature | Breadcrumb retour recherche (issue #21) | S | P2 | ✅ Done — commit c1c3b17 |
+| [US-002](#us-002) | Feature | Verify TR enrichment completion + count | S | P1 | ✅ Done — TR enrichment terminé S31 |
+| [US-001](#us-001) | Feature | Merge staging → main (6ad146d) | S | P0 | 🔜 Ready — migration GIN à appliquer d'abord |
 | [US-003](#us-003) | Feature | QA Checklist items #12+ | M | P1 | 🔜 Ready |
 
 ---
@@ -40,6 +42,8 @@
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
+| [US-024](#us-024) | Feature | Cross-language tag_names: map EN slugs to FR/ES/IT/TR | S | P2 | 📋 Ready |
+| [US-023](#us-023) | Feature | Filter + sort search results by country | M | P2 | 📋 Ready |
 | [US-004](#us-004) | Feature | SearchOverlay: hero-dismiss animation on home | M | P2 | 📋 Backlog |
 | [US-005](#us-005) | Feature | SearchOverlay: add country + concept dropdowns | M | P2 | 📋 Backlog |
 | [US-006](#us-006) | Feature | Dedicated /search page with persistent filters | L | P2 | 📋 Backlog |
@@ -57,6 +61,7 @@
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
+| [US-021](#us-021) | Feature | Cross-language concept search (issue #20) | L | P2 | ✅ Done — commit 6ad146d |
 | [US-009](#us-009) | Feature | Add new language (DE or PT) | XL | P3 | 📋 Backlog |
 | [US-010](#us-010) | Feature | Feature Voice: listen to expression (Web Speech API) | S | P3 | 📋 Backlog |
 | [US-011](#us-011) | Feature | Concept quality: WordReference enrichment script | M | P3 | 📋 Backlog |
@@ -71,6 +76,7 @@
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
+| [US-022](#us-022) | Feature | Emoji as exploration vector (concept graph + visual) | XXL | P3 | 💡 Idea |
 | [US-014](#us-014) | Feature | Game Mode: emoji puzzles (V4) | XXL | P3 | 💡 Idea |
 | [US-015](#us-015) | Feature | Interactive SVG world map | XL | P3 | 💡 Idea |
 | [US-016](#us-016) | Feature | PWA (offline, install on mobile, push notifs) | L | P3 | 💡 Idea |
@@ -215,6 +221,34 @@
 
 ---
 
+### US-021
+**Cross-language concept search**
+> As a user, when I type a word (e.g. "source"), I want to discover expressions in ALL available languages that relate to the same concept — not just those containing the word literally — so I can explore how different cultures express the same idea.
+
+**Size:** L **Priority:** P2 **Refs:** issue #20
+**Technical approach:** Concept Graph (540 cross-lingual concepts already in DB) — word → concept(s) → expressions linked to those concepts, all languages
+**Dependencies:** concept_graph populated in DB, FTS remains for exact matches
+
+**Acceptance criteria:**
+- Typing "source" returns expressions in FR/EN/ES/IT/TR that share the same concept — even if they don't contain the word "source"
+- Concept-matched results are visually distinguishable from text-exact matches (e.g. label "by concept")
+- Each result shows its country/language of origin
+- **If a country filter is active** (or user is on a `/country/[code]` page): only expressions from that country are returned, even for concept-based matches
+- If no concept graph match: fallback to text-based FTS only (no regression)
+
+---
+
+### US-022
+**Emoji as exploration vector (concept graph + visual)**
+> As a user, I want to explore expressions by clicking or searching with an emoji, discovering expressions from all languages linked to that visual concept — giving the app a playful, non-verbal entry point.
+
+**Size:** XXL **Priority:** P3 (long-term exploration)
+**Note:** needs a workshop to define emoji → concept mapping (1 emoji → N concepts/words), and a visual design for the graph exploration view.
+
+**Acceptance criteria:** TBD — conception workshop first
+
+---
+
 ### US-014
 **Game Mode: emoji puzzles (V4)**
 > As a user, I want to guess the expression from a grid of emojis — with no text hint — then reveal the answer from the database.
@@ -224,5 +258,61 @@
 
 ---
 
-*Last updated: 2026-06-02 (session 30)*
+### US-023
+**Filter and sort search results by country**
+> As a user who has searched and is viewing results, I want to filter expressions by one or more countries and sort them by country grouping, so that I can quickly explore how a specific culture expresses an idea.
+
+**Size:** M **Priority:** P2
+
+**Context:** When results are displayed, no country filter is currently visible (existing country chips only appear on the empty home page). This US adds a dedicated filter bar above the results grid, visible only in "searched" state.
+
+**Dependencies:**
+- API already supports `GET /search?q=...&region=fr,en` — country filtering is backend-side (no new endpoint needed)
+- Sort (by country) is frontend-only (re-order received results)
+
+**Acceptance criteria:**
+1. When results are displayed, a filter bar appears above the result cards with: a multi-select country dropdown (flags + name: FR, EN, ES, IT, TR) and a sort control
+2. Selecting one or more countries sends `region=fr,en` to the API and updates results; the count label updates (e.g. "8 expressions pour « source »")
+3. Sort "Par pays" groups results: all FR cards together, then EN, ES, IT, TR — each group has a subtle section header showing the country name and result count (e.g. "France · 12 expressions")
+4. Sort "Pertinence" (default) restores the original relevance order from the API; section headers are hidden
+5. Clearing all country filters or selecting "Tous" restores the full unfiltered results
+6. Filter bar state is reset on a new search
+
+**UX notes:**
+- Dropdown with checkboxes per country, "Tous" as a select-all option at the top
+- Sort: 2 options only — Pertinence (default) | Par pays
+- Filter bar is sticky or at minimum visible without scroll when results load
+- Mobile: controls stack vertically or collapse into a compact row
+
+**Future refinement — concept filter (deferred):**
+500+ concepts make a simple dropdown unusable. To be workshopped: type-ahead search on concept name, or top-N most common concepts as chips. Not in scope for this US.
+
+---
+
+### US-024
+**Cross-language tag_names: map EN slugs to FR/ES/IT/TR**
+> As a user, when I search a word in my language (e.g. "argent", "trabajo", "amitié"), I want the concept-based search (4th pass in search_expressions) to surface expressions tagged with the equivalent English slug — even if the word doesn't literally appear in those expressions.
+
+**Size:** S **Priority:** P2
+**Context:** The concept 4th pass in `search_expressions()` (commit c74d0b6) works correctly but yields 0 new results for cross-language queries because `tag_names` only has `en: money → money` (no FR/ES/IT/TR mappings for EN slugs). The code is in place — only data is missing.
+
+**Root cause identified (session 33):**
+- Tags are stored as English slugs (e.g. "money", "work", "love")
+- tag_names has entries for most FR/ES/IT/TR slugs (e.g. `fr: argent → argent`) but NOT the reverse cross-mapping (`fr: money → argent`)
+- Result: query "argent" finds slug "argent" (18 expressions) but misses slug "money" (131 expressions), of which 59 are NOT already surfaced by FTS
+
+**Technical approach:**
+- Write `scripts/populate_tag_names_crosslang.py` that, for each EN canonical tag slug, inserts `{locale}: {slug} → {localized_name}` in `tag_names` for FR/ES/IT/TR
+- ~20 top tags × 4 locales = ~80 new rows (can be done with a static dict or via Mistral for the full list)
+- Run against prod DB; no migration needed (table already exists)
+- Apply with `--prod` flag
+
+**Acceptance criteria:**
+- `GET /search?q=argent&limit=100` returns `concept > 0` (expressions tagged "money" not found by FTS)
+- `GET /search?q=trabajo&limit=100` (ES for "work") returns concept results tagged "work"
+- No regression on existing searches
+
+---
+
+*Last updated: 2026-06-02 (session 33)*
 *Maintained by Claude — update after each session's commits*
