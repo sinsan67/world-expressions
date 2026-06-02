@@ -51,6 +51,7 @@ const T = {
     newsletterError: "Une erreur s'est produite, réessaie.",
     types: { idiom: "expression", proverb: "proverbe", locution: "locution", word: "mot", expression: "expression" } as Record<string, string>,
     registers: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" } as Record<string, string>,
+    matchSections: { exact: "Dans le texte", semantic: "Par le sens", translation: "Via les traductions", concept: "Par concept" } as Record<string, string>,
   },
   en: {
     expressionOfDay: "Expression of the day",
@@ -77,6 +78,7 @@ const T = {
     newsletterError: "Something went wrong, please try again.",
     types: { idiom: "idiom", proverb: "proverb", locution: "locution", word: "word", expression: "expression" } as Record<string, string>,
     registers: { standard: "standard", informal: "informal", slang: "slang", vulgar: "vulgar", formal: "formal" } as Record<string, string>,
+    matchSections: { exact: "In the text", semantic: "By meaning", translation: "Via translations", concept: "By concept" } as Record<string, string>,
   },
   es: {
     expressionOfDay: "Expresión del día",
@@ -103,6 +105,7 @@ const T = {
     newsletterError: "Algo salió mal, inténtalo de nuevo.",
     types: { idiom: "modismo", proverb: "proverbio", locution: "locución", word: "palabra", expression: "expresión" } as Record<string, string>,
     registers: { standard: "estándar", informal: "coloquial", slang: "argot", vulgar: "vulgar", formal: "formal" } as Record<string, string>,
+    matchSections: { exact: "En el texto", semantic: "Por el sentido", translation: "Via traducciones", concept: "Por concepto" } as Record<string, string>,
   },
   tr: {
     expressionOfDay: "Günün deyimi",
@@ -129,6 +132,7 @@ const T = {
     newsletterError: "Bir şeyler ters gitti, tekrar dene.",
     types: { idiom: "deyim", proverb: "atasözü", locution: "deyiş", word: "kelime", expression: "ifade" } as Record<string, string>,
     registers: { standard: "standart", informal: "gündelik", slang: "argo", vulgar: "kaba", formal: "resmi" } as Record<string, string>,
+    matchSections: { exact: "Metinde", semantic: "Anlama göre", translation: "Çeviri yoluyla", concept: "Kavram ile" } as Record<string, string>,
   },
   it: {
     expressionOfDay: "Espressione del giorno",
@@ -155,6 +159,7 @@ const T = {
     newsletterError: "Qualcosa è andato storto, riprova.",
     types: { idiom: "espressione", proverb: "proverbio", locution: "locuzione", word: "parola", expression: "espressione" } as Record<string, string>,
     registers: { standard: "standard", informal: "informale", slang: "gergone", vulgar: "volgare", formal: "formale" } as Record<string, string>,
+    matchSections: { exact: "Nel testo", semantic: "Per il senso", translation: "Via traduzioni", concept: "Per concetto" } as Record<string, string>,
   },
 };
 
@@ -225,6 +230,19 @@ export default function Home() {
     }
     return ordered;
   }, [results, sortMode, regions]);
+
+  const matchTypeGroups = useMemo(() => {
+    if (searchMode !== "text" || sortMode !== "relevance" || results.length === 0) return null;
+    const ORDER = ["exact", "semantic", "translation", "concept"] as const;
+    const map = new Map<string, Expression[]>();
+    for (const expr of results) {
+      const mt = expr.match_type;
+      if (!map.has(mt)) map.set(mt, []);
+      map.get(mt)!.push(expr);
+    }
+    const groups = ORDER.filter((mt) => map.has(mt)).map((mt) => ({ type: mt, exprs: map.get(mt)! }));
+    return groups.length > 1 ? groups : null;
+  }, [results, searchMode, sortMode]);
 
   // ─── Handlers ───
 
@@ -612,6 +630,22 @@ export default function Home() {
                       <span>{FLAG[code] ?? "🌍"}</span>
                       <span style={{ fontWeight: 600 }}>{COUNTRY_NAME[code] ?? code.toUpperCase()}</span>
                       <span style={{ color: "var(--ink-faint)" }}>· {sectionExprCount(exprs.length, uiLang)}</span>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
+                      {exprs.map((expr, i) => (
+                        <div key={expr.id} style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
+                          <ExpressionCard expression={expr} onTagClick={(tag) => runConceptSearch(tag)} uiLang={uiLang} tagNames={tagNames} fromSearch={searched ? query : undefined} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              ) : matchTypeGroups ? (
+                matchTypeGroups.map(({ type, exprs }, gi) => (
+                  <div key={type}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: `${gi === 0 ? "0" : "1.5rem"} 0 0.75rem`, color: "var(--ink-faint)", fontSize: 12, fontFamily: "var(--font-body)", letterSpacing: "0.03em" }}>
+                      <span style={{ fontWeight: 600, color: "var(--ink-softer)" }}>{t.matchSections[type] ?? type}</span>
+                      <span>· {sectionExprCount(exprs.length, uiLang)}</span>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
                       {exprs.map((expr, i) => (

@@ -499,6 +499,7 @@ def get_expression_by_id(expression_id: str) -> Optional[dict]:
             e.illustration,
             e.source,
             e.kind,
+            e.literal_fr,
             COALESCE(ec_orig.meaning, ct_native.meaning, ec_en.meaning) AS meaning,
             COALESCE(ec_orig.origin,  ct_native.origin,  ec_en.origin)  AS origin,
             COALESCE(ec_orig.example, ct_native.example, ec_en.example) AS example,
@@ -514,7 +515,7 @@ def get_expression_by_id(expression_id: str) -> Optional[dict]:
         LEFT JOIN tags t ON t.id = et.tag_id
         WHERE e.id = :id
         GROUP BY e.id, e.text, e.language, e.region, e.register,
-                 e.illustration, e.source, e.kind,
+                 e.illustration, e.source, e.kind, e.literal_fr,
                  ec_orig.meaning, ec_orig.origin, ec_orig.example,
                  ct_native.meaning, ct_native.origin, ct_native.example,
                  ec_en.meaning, ec_en.origin, ec_en.example
@@ -523,7 +524,11 @@ def get_expression_by_id(expression_id: str) -> Optional[dict]:
     with engine.connect() as conn:
         row = conn.execute(text(sql), {"id": expression_id}).fetchone()
 
-    return _build_expression_dict(row, "direct") if row else None
+    if not row:
+        return None
+    result = _build_expression_dict(row, "direct")
+    result["literal_fr"] = row.literal_fr
+    return result
 
 
 def get_concept_equivalents(expression_id: str) -> list[dict]:
