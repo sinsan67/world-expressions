@@ -212,19 +212,19 @@ export default function Home() {
     if (sortMode !== "country" || results.length === 0) return null;
     const map = new Map<string, Expression[]>();
     for (const expr of results) {
-      const lang = expr.language ?? "??";
-      if (!map.has(lang)) map.set(lang, []);
-      map.get(lang)!.push(expr);
+      const code = expr.region ?? expr.language ?? "??";
+      if (!map.has(code)) map.set(code, []);
+      map.get(code)!.push(expr);
     }
     const ordered: { code: string; exprs: Expression[] }[] = [];
-    for (const code of REGION_ORDER) {
-      if (map.has(code)) ordered.push({ code, exprs: map.get(code)! });
+    for (const r of regions) {
+      if (map.has(r.code)) ordered.push({ code: r.code, exprs: map.get(r.code)! });
     }
     for (const [code, exprs] of map) {
-      if (!REGION_ORDER.includes(code)) ordered.push({ code, exprs });
+      if (!regions.some((r) => r.code === code)) ordered.push({ code, exprs });
     }
     return ordered;
-  }, [results, sortMode]);
+  }, [results, sortMode, regions]);
 
   // ─── Handlers ───
 
