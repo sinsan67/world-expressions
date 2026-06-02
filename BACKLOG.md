@@ -48,6 +48,7 @@
 | [US-011](#us-011) | Feature | Concept quality: WordReference enrichment script | M | P3 | 📋 Backlog |
 | [US-012](#us-012) | Feature | Register-based navigation (formal/informal/slang) | L | P3 | 📋 Backlog |
 | [US-013](#us-013) | Feature | Unify country filters + Mix button into one mechanism | L | P3 | 📋 Backlog |
+| [US-028](#us-028) | Feature | Section-header navigation on /search (click → jump or filter) | M | P3 | 💡 Idea |
 | [DEBT-003](#debt-003) | Debt | SQL pagination (LIMIT/OFFSET) — trigger: > 3K expressions/language | M | P2 | 📋 Backlog |
 | [DEBT-004](#debt-004) | Debt | Add is_phrasebook BOOLEAN column | S | P3 | 📋 Backlog |
 | [DEBT-005](#debt-005) | Debt | Render cold start: measure warm response time (< 3s) | S | P2 | 📋 Backlog |
@@ -274,5 +275,18 @@
 
 ---
 
-*Last updated: 2026-06-02 (session 42)*
+### US-028
+**Section-header navigation on /search**
+> As a user facing many results split into 4 sections, I want to click a section header (🎯 Dans le texte, 💡 Par le sens…) to jump directly to it or filter the view to only that section — without scrolling.
+
+**Size:** M **Priority:** P3 — atelier de conception à faire d'abord
+**Context:** S43 QA — avec 200+ résultats les sections sont encore loin même avec le cap à 6. Idée : les en-têtes de section deviennent des ancres ou des onglets en haut de la liste de résultats.
+**Options à explorer en atelier :**
+- Sticky chips en haut de la liste (clic → scroll anchor)
+- Onglets remplaçant le tri (Pertinence / Par pays / Mix) — filtre par match_type
+- Accordéon : une section ouverte à la fois
+
+---
+
+*Last updated: 2026-06-02 (session 43)*
 *Maintained by Claude — update after each session's commits*
