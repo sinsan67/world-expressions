@@ -65,7 +65,8 @@ export async function searchExpressions(
   regions: string[],
   limit = 20,
   offset = 0,
-  typeFilter?: string
+  typeFilter?: string,
+  lang?: string
 ): Promise<SearchResponse> {
   const params = new URLSearchParams({
     q: query,
@@ -74,6 +75,7 @@ export async function searchExpressions(
     offset: String(offset),
   });
   if (typeFilter) params.set("type_filter", typeFilter);
+  if (lang) params.set("locale", lang);
   const res = await fetch(`${API}/search?${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();

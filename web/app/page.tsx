@@ -267,7 +267,7 @@ export default function Home() {
     setResults([]);
     window.history.replaceState(null, "", "#q=" + encodeURIComponent(q));
     try {
-      const data = await searchExpressions(q, allRegionCodes, LIMIT, 0);
+      const data = await searchExpressions(q, allRegionCodes, LIMIT, 0, undefined, uiLang);
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
@@ -279,7 +279,7 @@ export default function Home() {
       setLoading(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allRegionCodes]);
+  }, [allRegionCodes, uiLang]);
 
   const loadMore = useCallback(async () => {
     if (!hasMore || loadingMore) return;
@@ -292,7 +292,7 @@ export default function Home() {
           ? await browseByRegion(activeRegions, LIMIT, offset)
           : searchMode === "concept"
           ? await searchByConcept([query], activeRegions, LIMIT, offset)
-          : await searchExpressions(query, activeRegions, LIMIT, offset);
+          : await searchExpressions(query, activeRegions, LIMIT, offset, undefined, uiLang);
       setResults((prev) => [...prev, ...data.results]);
       setHasMore(offset + data.results.length < data.total);
     } catch {
@@ -301,7 +301,7 @@ export default function Home() {
       setLoadingMore(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMore, loadingMore, searchMode, query, results.length, allRegionCodes, filterRegions]);
+  }, [hasMore, loadingMore, searchMode, query, results.length, allRegionCodes, filterRegions, uiLang]);
 
   const handleFilterChange = useCallback(async (newFilter: string[]) => {
     setFilterRegions(newFilter);
@@ -316,7 +316,7 @@ export default function Home() {
           ? await browseByRegion(regionCodes, LIMIT, 0)
           : searchMode === "concept"
           ? await searchByConcept([query], regionCodes, LIMIT, 0)
-          : await searchExpressions(query, regionCodes, LIMIT, 0);
+          : await searchExpressions(query, regionCodes, LIMIT, 0, undefined, uiLang);
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
@@ -327,7 +327,7 @@ export default function Home() {
       setLoading(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchMode, query, allRegionCodes]);
+  }, [searchMode, query, allRegionCodes, uiLang]);
 
   const refreshFeatured = useCallback(() => {
     getRandomExpression(uiLang).then((expr) => {

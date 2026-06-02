@@ -25,15 +25,12 @@
 
 ---
 
-## Sprint — Current (session 33, 2026-06-02)
+## Sprint — S38 (2026-06-02)
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
-| [BUG-001](#bug-001) | Bug | Search from sidebar broken on home page | S | P0 | ✅ Done (staging) |
-| [US-021](#us-021) | Feature | Cross-language concept search (issue #20) | L | P2 | ✅ Done — commit 6ad146d |
-| [US-022b](#us-022b) | Feature | Breadcrumb retour recherche (issue #21) | S | P2 | ✅ Done — commit c1c3b17 |
-| [US-002](#us-002) | Feature | Verify TR enrichment completion + count | S | P1 | ✅ Done — TR enrichment terminé S31 |
-| [US-001](#us-001) | Feature | Merge staging → main (6ad146d) | S | P0 | ✅ Done — mergé db963ee |
+| [BUG-002](#bug-002) | Bug | Meaning shown in original language instead of UI language | M | P1 | 🔄 In progress (S38) |
+| [BUG-003](#bug-003) | Bug | Tags mixed FR/EN on result cards | S | P2 | 📋 Backlog — data fix needed |
 | [US-003](#us-003) | Feature | QA Checklist items #12+ | M | P1 | 🔜 Ready |
 
 ---
@@ -42,9 +39,6 @@
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
-| [US-024](#us-024) | Feature | Cross-language tag_names: map EN slugs to FR/ES/IT/TR | S | P2 | ✅ Done — populate_tag_names_crosslang.py --prod (780 rows, S34) |
-| [US-025](#us-025) | Feature | Search tooltip (?) explaining how the engine works | S | P2 | ✅ Done — SEARCH_HELP multilingual + inline ? button (S35) |
-| [US-023](#us-023) | Feature | Filter + sort search results by country | M | P2 | ✅ Done — ResultsFilterBar + groupedResults + handleFilterChange (S35) |
 | [US-004](#us-004) | Feature | SearchOverlay: hero-dismiss animation on home | M | P2 | 📋 Backlog |
 | [US-005](#us-005) | Feature | SearchOverlay: add country + concept dropdowns | M | P2 | 📋 Backlog |
 | [US-006](#us-006) | Feature | Dedicated /search page with persistent filters | L | P2 | 📋 Backlog |
@@ -62,9 +56,8 @@
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
-| [US-021](#us-021) | Feature | Cross-language concept search (issue #20) | L | P2 | ✅ Done — commit 6ad146d |
 | [US-009](#us-009) | Feature | Add new language (DE or PT) | XL | P3 | 📋 Backlog |
-| [US-010](#us-010) | Feature | Feature Voice: listen to expression (Web Speech API) | S | P3 | 📋 Backlog |
+| [US-010](#us-010) | Feature | Feature Voice: listen to expression (Web Speech API) | S | P3 | ✅ Done — commit a8b3909 (S37) |
 | [US-011](#us-011) | Feature | Concept quality: WordReference enrichment script | M | P3 | 📋 Backlog |
 | [US-012](#us-012) | Feature | Register-based navigation (formal/informal/slang) | L | P3 | 📋 Backlog |
 | [US-013](#us-013) | Feature | Unify country filters + Mix button into one mechanism | L | P3 | 📋 Backlog |
@@ -89,6 +82,34 @@
 ---
 
 ## Item Details
+
+### BUG-002
+**Meaning shown in original language instead of UI language**
+> As a user with UI in English, when I search and see French/Spanish/Italian expressions in results, I expect their meaning to be displayed in English — not in the original language.
+
+**Root cause:** `search_expressions()` in database.py joins `expression_content ec ON ec.locale = e.language` — always original language. No locale parameter passed through the search chain.
+**Fix (S38):** Added `_get_preferred_content()` batch helper + `locale` parameter to `search_expressions()`. Post-processing overlays translated meaning/origin/example after result assembly. Updated `main.py` endpoint, `api.ts`, `page.tsx`.
+**Playwright test:** `web/e2e/search-locale.spec.ts` — verifies `locale=en` is included in the search request.
+**Files:** [database.py](database.py) · [main.py](main.py) · [web/lib/api.ts](web/lib/api.ts) · [web/app/page.tsx](web/app/page.tsx)
+**Acceptance criteria:**
+- Search "argent" with UI=EN → French expression cards show their meaning in English
+- Search "argent" with UI=FR → French expression cards show their meaning in French (unchanged)
+- No regression on existing exact/semantic search results
+
+---
+
+### BUG-003
+**Tags mixed FR/EN on result cards**
+> As a French user, when I see search result cards, all tags should appear in French — not a mix of French ("famille") and English ("luck") tags.
+
+**Root cause:** `getAllTagNames("fr")` returns `COALESCE(tag_names.name, tag_slug)`. For EN canonical tag slugs without a `(tag_id, "fr")` entry in `tag_names`, the raw English slug is shown. Only ~275 tags (out of ~1050) have FR translations in `tag_names`.
+**Fix needed:** Run `populate_tag_names_crosslang.py` for ALL tag slugs (not just top 20). Requires Mistral tokens — **urgent before 2026-06-10**.
+**Files:** [scripts/populate_tag_names_crosslang.py](scripts/populate_tag_names_crosslang.py) · [database.py → get_top_tags()](database.py)
+**Acceptance criteria:**
+- French user sees all tag chips in French (or an accepted localized form) on result cards
+- No regression on EN/ES/IT/TR tag display
+
+---
 
 ### BUG-001
 **Search from sidebar broken on home page**
@@ -335,5 +356,5 @@
 
 ---
 
-*Last updated: 2026-06-02 (session 35)*
+*Last updated: 2026-06-02 (session 38)*
 *Maintained by Claude — update after each session's commits*

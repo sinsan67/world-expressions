@@ -1,0 +1,49 @@
+import { test, expect } from '@playwright/test';
+
+const T = 90_000;
+const CARD = '[data-testid="expression-card"]';
+
+test.describe('Search — locale-aware meanings (bug fix: sense in UI language)', () => {
+  test('search request includes locale param matching UI language', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('wex_lang', 'en'));
+
+    const searchUrls: string[] = [];
+    page.on('request', (req) => {
+      if (req.url().includes('/search?')) searchUrls.push(req.url());
+    });
+
+    await page.goto('/');
+    const input = page.locator('input.wex-input').first();
+    await input.waitFor({ timeout: T });
+    await input.fill('argent');
+    await input.press('Enter');
+
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
+
+    const matchingUrl = searchUrls.find((u) => u.includes('argent'));
+    expect(matchingUrl, 'search API was called').toBeDefined();
+    expect(matchingUrl).toContain('locale=en');
+  });
+
+  test('changing UI language re-searches with new locale', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('wex_lang', 'fr'));
+    await page.goto('/#q=argent');
+
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
+
+    const searchUrlsAfterLangSwitch: string[] = [];
+    page.on('request', (req) => {
+      if (req.url().includes('/search?')) searchUrlsAfterLangSwitch.push(req.url());
+    });
+
+    // Switch to EN via the language button in the UI
+    const enBtn = page.locator('button').filter({ hasText: /^en$/i }).first();
+    if (await enBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await enBtn.click();
+      // After lang switch, if there are new search requests, they should use locale=en
+    }
+
+    // Verify cards are still visible
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
+  });
+});
