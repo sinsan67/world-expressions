@@ -8,7 +8,7 @@ import SearchOverlay from "@/components/SearchOverlay";
 
 const BASE_NAV_ITEMS = [
   { id: "home",      icon: Home,       href: "/",         count: undefined as number | undefined },
-  { id: "atlas",     icon: Globe,      href: "/atlas",    count: 14 },
+  { id: "atlas",     icon: Globe,      href: "/atlas",    count: 7 },
   { id: "concepts",  icon: Lightbulb,  href: "/concepts", count: 1050 },
   { id: "search",    icon: Search,     href: null,        count: undefined as number | undefined },
   { id: "favorites", icon: Heart,      href: "/carnet",   count: undefined as number | undefined },
@@ -160,7 +160,7 @@ export default function Sidebar({ uiLang }: Props) {
         </a>
       </div>
       <p style={{ fontSize: 11, color: "var(--ink-faint)", marginTop: "0.75rem", fontFamily: "var(--font-body)", lineHeight: 1.5 }}>
-        1 580+ expressions<br />5 langues · 14 pays
+        1 580+ expressions<br />5 langues · 7 pays
       </p>
     </aside>
   );
