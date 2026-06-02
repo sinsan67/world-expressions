@@ -42,8 +42,8 @@
 | ~~[US-026](#us-026)~~ | Feature | ~~Results section headers by match type~~ | S | P2 | ✅ Done (S41) |
 | ~~[US-027](#us-027)~~ | Feature | ~~Always show literal translation on expression page~~ | S | P2 | ✅ Done (S41) |
 | [US-004](#us-004) | Feature | Search hero-dismiss animation on home | M | P3 | 📋 Backlog |
-| [US-005](#us-005) | Feature | SearchOverlay: add country + concept dropdowns | M | P2 | 📋 Backlog |
-| [US-006](#us-006) | Feature | Dedicated /search page with persistent filters | L | P2 | 📋 Backlog |
+| ~~[US-005](#us-005)~~ | Feature | ~~SearchOverlay: add country + concept dropdowns~~ | M | P2 | ✅ Done (S42) |
+| ~~[US-006](#us-006)~~ | Feature | ~~Dedicated /search page with persistent filters~~ | L | P2 | ✅ Done (S42) |
 | [US-009](#us-009) | Feature | Add new language (DE or PT) | XL | P3 | 📋 Backlog |
 | [US-011](#us-011) | Feature | Concept quality: WordReference enrichment script | M | P3 | 📋 Backlog |
 | [US-012](#us-012) | Feature | Register-based navigation (formal/informal/slang) | L | P3 | 📋 Backlog |
@@ -274,5 +274,5 @@
 
 ---
 
-*Last updated: 2026-06-02 (session 40)*
+*Last updated: 2026-06-02 (session 42)*
 *Maintained by Claude — update after each session's commits*
