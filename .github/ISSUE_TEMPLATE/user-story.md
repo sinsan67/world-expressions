@@ -1,7 +1,11 @@
 ---
-name: Feature
-about: Nouvelle fonctionnalité ou amélioration
+name: User Story
+about: Fonctionnalité prête à être codée
 labels: feature
+---
+
+**Type :** User Story — prête à coder
+
 ---
 
 **Objectif :** [décrire ce que l'utilisateur doit pouvoir faire]

@@ -4,7 +4,17 @@ about: Comportement inattendu ou incorrect
 labels: bug
 ---
 
-**Résumé :** [décrire le bug en une phrase]
+**Type :** Bug — à analyser et corriger
+
+---
+
+## Comportement observé
+
+[ce qui se passe]
+
+## Comportement attendu
+
+[ce qui devrait se passer]
 
 ---
 
@@ -15,13 +25,17 @@ labels: bug
 1. [étape 1]
 2. [étape 2]
 
-## Comportement observé
+---
 
-[ce qui se passe]
+## Root cause (si connue)
 
-## Comportement attendu
+[explication technique du problème — à remplir après analyse]
 
-[ce qui devrait se passer]
+---
+
+## Actions de fix
+
+- [ ] ...
 
 ---
 
