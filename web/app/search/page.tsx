@@ -165,7 +165,7 @@ function SearchPageContent() {
 
   const matchTypeGroups = useMemo(() => {
     if (searchMode !== "text" || sortMode !== "relevance" || results.length === 0) return null;
-    const ORDER = ["exact", "semantic", "translation", "concept"] as const;
+    const ORDER = ["exact", "semantic", "concept", "translation"] as const;
     const map = new Map<string, Expression[]>();
     for (const expr of results) {
       const mt = expr.match_type;

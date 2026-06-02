@@ -18,7 +18,7 @@ const SEARCH_LABEL: Record<string, string> = {
 };
 
 const FILTER_LABEL: Record<string, string> = {
-  fr: "Langue", en: "Language", es: "Idioma", it: "Lingua", tr: "Dil",
+  fr: "Pays", en: "Country", es: "País", it: "Paese", tr: "Ülke",
 };
 
 const CONCEPT_LABEL: Record<string, string> = {
