@@ -322,6 +322,20 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Handle search triggered from SearchOverlay when already on home page
+  // (router.push to /#q=... doesn't re-mount the component, so the hash effect above won't fire)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { q } = (e as CustomEvent<{ q: string }>).detail;
+      if (q && q.trim().length >= 2) {
+        setQuery(q);
+        handleSearch(q);
+      }
+    };
+    window.addEventListener("wex-search", handler);
+    return () => window.removeEventListener("wex-search", handler);
+  }, [handleSearch]);
+
   useEffect(() => {
     // Don't reload the expression when the UI language changes — only labels translate.
     // The expression is fetched once on mount and when the user explicitly clicks "another one".
