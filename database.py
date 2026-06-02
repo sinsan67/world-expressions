@@ -87,6 +87,11 @@ def get_top_tags(limit: int = 30, language: Optional[str] = None, locale: Option
         LEFT JOIN tag_names tn ON tn.tag_id = t.id AND tn.locale = :locale
         WHERE NOT (t.slug = ANY(:meta_tags))
           {lang_clause}
+          AND NOT EXISTS (
+              SELECT 1 FROM expression_tags et_pb
+              JOIN tags t_pb ON t_pb.id = et_pb.tag_id
+              WHERE et_pb.expression_id = e.id AND t_pb.slug = 'phrasebook'
+          )
         GROUP BY t.slug, tn.name
         ORDER BY n DESC
         LIMIT :limit

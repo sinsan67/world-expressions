@@ -108,8 +108,7 @@ export default function ConceptsPage() {
   }, []);
 
   const handleConceptClick = useCallback((tag: TagInfo) => {
-    const name = tag.name || tag.slug;
-    router.push(`/#q=${encodeURIComponent(name)}`);
+    router.push(`/#concept=${encodeURIComponent(tag.slug)}`);
   }, [router]);
 
   const t = T[uiLang];
