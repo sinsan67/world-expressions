@@ -57,6 +57,7 @@
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
+| [US-021](#us-021) | Feature | Cross-language concept search (issue #20) | L | P2 | 📋 Backlog |
 | [US-009](#us-009) | Feature | Add new language (DE or PT) | XL | P3 | 📋 Backlog |
 | [US-010](#us-010) | Feature | Feature Voice: listen to expression (Web Speech API) | S | P3 | 📋 Backlog |
 | [US-011](#us-011) | Feature | Concept quality: WordReference enrichment script | M | P3 | 📋 Backlog |
@@ -71,6 +72,7 @@
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
+| [US-022](#us-022) | Feature | Emoji as exploration vector (concept graph + visual) | XXL | P3 | 💡 Idea |
 | [US-014](#us-014) | Feature | Game Mode: emoji puzzles (V4) | XXL | P3 | 💡 Idea |
 | [US-015](#us-015) | Feature | Interactive SVG world map | XL | P3 | 💡 Idea |
 | [US-016](#us-016) | Feature | PWA (offline, install on mobile, push notifs) | L | P3 | 💡 Idea |
@@ -215,6 +217,34 @@
 
 ---
 
+### US-021
+**Cross-language concept search**
+> As a user, when I type a word (e.g. "source"), I want to discover expressions in ALL available languages that relate to the same concept — not just those containing the word literally — so I can explore how different cultures express the same idea.
+
+**Size:** L **Priority:** P2 **Refs:** issue #20
+**Technical approach:** Concept Graph (540 cross-lingual concepts already in DB) — word → concept(s) → expressions linked to those concepts, all languages
+**Dependencies:** concept_graph populated in DB, FTS remains for exact matches
+
+**Acceptance criteria:**
+- Typing "source" returns expressions in FR/EN/ES/IT/TR that share the same concept — even if they don't contain the word "source"
+- Concept-matched results are visually distinguishable from text-exact matches (e.g. label "by concept")
+- Each result shows its country/language of origin
+- **If a country filter is active** (or user is on a `/country/[code]` page): only expressions from that country are returned, even for concept-based matches
+- If no concept graph match: fallback to text-based FTS only (no regression)
+
+---
+
+### US-022
+**Emoji as exploration vector (concept graph + visual)**
+> As a user, I want to explore expressions by clicking or searching with an emoji, discovering expressions from all languages linked to that visual concept — giving the app a playful, non-verbal entry point.
+
+**Size:** XXL **Priority:** P3 (long-term exploration)
+**Note:** needs a workshop to define emoji → concept mapping (1 emoji → N concepts/words), and a visual design for the graph exploration view.
+
+**Acceptance criteria:** TBD — conception workshop first
+
+---
+
 ### US-014
 **Game Mode: emoji puzzles (V4)**
 > As a user, I want to guess the expression from a grid of emojis — with no text hint — then reveal the answer from the database.
@@ -224,5 +254,5 @@
 
 ---
 
-*Last updated: 2026-06-02 (session 30)*
+*Last updated: 2026-06-02 (session 31)*
 *Maintained by Claude — update after each session's commits*

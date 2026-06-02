@@ -32,9 +32,10 @@ type Props = {
   onTagClick: (tag: string) => void;
   uiLang?: string;
   tagNames?: Record<string, string>;
+  fromSearch?: string;
 };
 
-export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr", tagNames = {} }: Props) {
+export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr", tagNames = {}, fromSearch }: Props) {
   const [showDetails, setShowDetails] = useState(false);
   const [fav, setFav] = useState(false);
   const router = useRouter();
@@ -62,7 +63,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
         cursor: "pointer",
         boxShadow: "var(--shadow-card)",
       }}
-      onClick={() => router.push(`/expression/${e.id}?lang=${uiLang}`)}
+      onClick={() => router.push(`/expression/${e.id}?lang=${uiLang}${fromSearch ? `&from_search=${encodeURIComponent(fromSearch)}` : ""}`)}
     >
       {/* Top border accent */}
       <div style={{ height: 1, background: "var(--paper-edge)" }} />

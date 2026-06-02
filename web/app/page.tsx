@@ -513,6 +513,7 @@ export default function Home() {
                       onTagClick={(tag) => runConceptSearch(tag)}
                       uiLang={uiLang}
                       tagNames={tagNames}
+                      fromSearch={searched ? query : undefined}
                     />
                   </div>
                 ))}
