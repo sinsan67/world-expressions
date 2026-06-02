@@ -29,7 +29,6 @@
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
-| [US-026](#us-026) | Feature | Results section headers by match type | S | P2 | 📋 Backlog |
 | [US-007](#us-007) | Feature | Enrich IT expressions (target 200+) | M | P2 | 📋 Backlog |
 | [US-008](#us-008) | Feature | Enrich TR expressions (target 200+) | M | P2 | 📋 Backlog |
 | [DEBT-001](#debt-001) | Debt | Enable Vercel Analytics in Dashboard [action: Sinan] | S | P1 | 📋 Backlog |
@@ -40,7 +39,8 @@
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
-| [US-027](#us-027) | Feature | Always show literal translation on expression page | S | P2 | 📋 Backlog |
+| ~~[US-026](#us-026)~~ | Feature | ~~Results section headers by match type~~ | S | P2 | ✅ Done (S41) |
+| ~~[US-027](#us-027)~~ | Feature | ~~Always show literal translation on expression page~~ | S | P2 | ✅ Done (S41) |
 | [US-004](#us-004) | Feature | Search hero-dismiss animation on home | M | P3 | 📋 Backlog |
 | [US-005](#us-005) | Feature | SearchOverlay: add country + concept dropdowns | M | P2 | 📋 Backlog |
 | [US-006](#us-006) | Feature | Dedicated /search page with persistent filters | L | P2 | 📋 Backlog |
