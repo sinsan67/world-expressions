@@ -7,16 +7,22 @@
 #
 # Usage :
 #   ./scripts/run_all_translations.sh
-#   ./scripts/run_all_translations.sh --delay 0.5
+#   ./scripts/run_all_translations.sh --prod
+#   ./scripts/run_all_translations.sh --prod --delay 0.5
 
 set -e
 cd "$(dirname "$0")/.."
 
-if [[ "$1" == "--delay" ]]; then
-  DELAY_FLAG="--delay $2"
-else
-  DELAY_FLAG="--delay 0.3"
-fi
+PROD_FLAG=""
+DELAY_FLAG="--delay 0.3"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --prod)  PROD_FLAG="--prod"; shift ;;
+    --delay) DELAY_FLAG="--delay $2"; shift 2 ;;
+    *)       shift ;;
+  esac
+done
 
 run_pair() {
   local src="$1" tgt="$2"
@@ -24,7 +30,7 @@ run_pair() {
   echo "================================================"
   echo "  $src → $tgt"
   echo "================================================"
-  python3 scripts/populate_translations.py --source "$src" --target "$tgt" $DELAY_FLAG
+  python3 scripts/populate_translations.py --source "$src" --target "$tgt" $DELAY_FLAG $PROD_FLAG
 }
 
 # Vers FR et EN (partiellement déjà faites)
