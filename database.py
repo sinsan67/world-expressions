@@ -212,13 +212,14 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
     """
     Cherche des expressions par mot-clé.
 
-    Deux types de correspondance, retournés dans cet ordre :
-    - "exact"    : le mot apparaît dans le texte de l'expression (FTS sur expressions.text)
-    - "semantic" : le mot apparaît dans le sens, les tags, l'exemple ou l'origine (FTS sur expression_content)
+    Trois types de correspondance, retournés dans cet ordre :
+    1. "exact"       : le mot apparaît dans le texte de l'expression (FTS sur expressions.text)
+    2. "semantic"    : le mot apparaît dans le sens/tags/exemple/origine (FTS sur expression_content)
+    3. "translation" : le mot apparaît dans une traduction (content_translations, toutes langues cibles)
+                       → permet de trouver "fuente" ou "fonte" en cherchant "source"
+                       → nécessite le GIN index idx_content_translations_fts
 
-    Utilise PostgreSQL tsvector/tsquery avec config 'simple' (tokenisation sans stemming par langue —
-    fonctionne pour toutes les langues du projet). GIN indexes sur expressions.text et expression_content.
-    ts_rank ordonne les résultats par pertinence à l'intérieur de chaque catégorie.
+    Utilise PostgreSQL tsvector/tsquery config 'simple'. GIN indexes sur les trois tables.
     """
     region_sql, region_params = _region_clause(regions)
     type_sql, type_params = _type_clause(type_filter)
@@ -265,16 +266,50 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
         ORDER BY rank DESC, CASE WHEN kind = 'word' THEN 1 ELSE 0 END, text
     """
 
+    # 3rd pass: expressions found via content_translations (cross-language search).
+    # Uses idx_content_translations_fts GIN index — fast even on 23k+ rows.
+    translation_sql = """
+        SELECT
+            e.id, e.text, e.language, e.region, e.register,
+            e.illustration, e.kind, e.source,
+            ec.meaning, ec.origin, ec.example,
+            STRING_AGG(t.slug, ',') AS tags
+        FROM expressions e
+        LEFT JOIN expression_content ec
+            ON ec.expression_id = e.id AND ec.locale = e.language
+        LEFT JOIN expression_tags et ON et.expression_id = e.id
+        LEFT JOIN tags t ON t.id = et.tag_id
+        WHERE EXISTS (
+            SELECT 1 FROM content_translations ct
+            WHERE ct.expression_id = e.id
+              AND to_tsvector('simple',
+                      coalesce(ct.meaning,'') || ' ' ||
+                      coalesce(ct.origin,'') || ' ' ||
+                      coalesce(ct.example,''))
+                  @@ {tsq}
+        )
+        {region_clause}{exclude_phrasebook}{type_clause}
+        GROUP BY e.id, e.text, e.language, e.region, e.register,
+                 e.illustration, e.kind, e.source, ec.meaning, ec.origin, ec.example
+        ORDER BY e.language, e.text
+    """.format(tsq=_TSQ, region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK, type_clause=type_sql)
+
     params = {"q": query.strip(), **region_params, **type_params}
 
     with engine.connect() as conn:
-        exact_rows    = conn.execute(text(exact_sql),    params).fetchall()
-        semantic_rows = conn.execute(text(semantic_sql), params).fetchall()
+        exact_rows       = conn.execute(text(exact_sql),       params).fetchall()
+        semantic_rows    = conn.execute(text(semantic_sql),    params).fetchall()
+        translation_rows = conn.execute(text(translation_sql), params).fetchall()
 
-    exact    = [_build_expression_dict(r, "exact")    for r in exact_rows]
-    semantic = [_build_expression_dict(r, "semantic") for r in semantic_rows]
+    exact       = [_build_expression_dict(r, "exact")       for r in exact_rows]
+    semantic    = [_build_expression_dict(r, "semantic")    for r in semantic_rows]
+    translation = [_build_expression_dict(r, "translation") for r in translation_rows]
 
-    all_results = exact + semantic
+    # Dedup: keep translation results not already surfaced by exact or semantic
+    found_ids = {r["id"] for r in exact + semantic}
+    translation_new = [r for r in translation if r["id"] not in found_ids]
+
+    all_results = exact + semantic + translation_new
     return all_results[offset:offset + limit], len(all_results)
 
 

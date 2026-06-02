@@ -46,7 +46,7 @@ def search_expressions(
 ):
     """
     Search for expressions related to a word.
-    Returns exact matches first, then semantic matches.
+    Returns exact matches first, then semantic matches, then cross-language translation matches.
     Pass region=fr,uk,us to filter by origin country; omit for all regions.
     """
     regions = set(region.split(",")) - {""} if region else None
@@ -58,8 +58,9 @@ def search_expressions(
         "total": total,
         "offset": offset,
         "limit": limit,
-        "exact":    sum(1 for r in results if r["match_type"] == "exact"),
-        "semantic": sum(1 for r in results if r["match_type"] == "semantic"),
+        "exact":       sum(1 for r in results if r["match_type"] == "exact"),
+        "semantic":    sum(1 for r in results if r["match_type"] == "semantic"),
+        "translation": sum(1 for r in results if r["match_type"] == "translation"),
         "results": results,
     }
 
