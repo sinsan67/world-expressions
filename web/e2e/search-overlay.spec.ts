@@ -94,9 +94,11 @@ test.describe('SearchOverlay (US-005)', () => {
     const select = page.locator('select').first();
     await expect(select).toBeVisible({ timeout: T });
     const options = select.locator('option');
-    // Au moins 2 options (l'option "Tous" + au moins un concept)
-    const count = await options.count();
-    expect(count).toBeGreaterThan(1);
+    // Attendre que l'API charge les concepts (appel useEffect async) — toPass retente
+    await expect(async () => {
+      const count = await options.count();
+      expect(count).toBeGreaterThan(1);
+    }).toPass({ timeout: T });
   });
 
   test('#O8 sélectionner un concept l\'affiche dans le dropdown', async ({ page }) => {

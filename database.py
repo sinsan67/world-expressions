@@ -233,13 +233,15 @@ _CONTENT_VEC = """to_tsvector('simple',
 def _find_matching_tag_slugs(query: str) -> set[str]:
     """
     Returns tag slugs where the slug or any localized tag name matches the query (case-insensitive exact).
-    E.g. query "argent" → slug "argent" (FR tag); query "money" → slug "money" (EN tag).
-    Note: FR and EN tag slugs are separate (argent ≠ money) — cross-slug synonymy not yet implemented.
+    Also matches multi-word slugs when the query uses spaces instead of hyphens
+    (e.g. "village life" matches slug "village-life").
     """
     sql = """
         SELECT DISTINCT t.slug FROM tags t
         LEFT JOIN tag_names tn ON tn.tag_id = t.id
-        WHERE LOWER(t.slug) = LOWER(:q) OR LOWER(tn.name) = LOWER(:q)
+        WHERE LOWER(t.slug) = LOWER(:q)
+           OR LOWER(tn.name) = LOWER(:q)
+           OR LOWER(REPLACE(t.slug, '-', ' ')) = LOWER(:q)
     """
     with engine.connect() as conn:
         rows = conn.execute(text(sql), {"q": query.strip()}).fetchall()
