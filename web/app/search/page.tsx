@@ -182,7 +182,7 @@ function SearchPageContent() {
       map.get(mt)!.push(expr);
     }
     const groups = ORDER.filter((mt) => map.has(mt)).map((mt) => ({ type: mt, exprs: map.get(mt)! }));
-    return groups.length > 1 ? groups : null;
+    return groups.length > 0 ? groups : null;
   }, [results, searchMode, sortMode]);
 
   // ─── Handlers ───
