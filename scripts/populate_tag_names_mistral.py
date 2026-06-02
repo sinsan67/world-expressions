@@ -56,13 +56,17 @@ No markdown, no extra text — only the JSON object."""
 def fetch_tags_missing_any(conn, limit: int | None) -> list[str]:
     """Retourne les slugs de tags manquant au moins une traduction FR/ES/IT/TR, triés par popularité."""
     q = """
-        SELECT DISTINCT t.id
-        FROM tags t
-        WHERE NOT EXISTS (SELECT 1 FROM tag_names tn WHERE tn.tag_id = t.id AND tn.locale = 'fr')
-           OR NOT EXISTS (SELECT 1 FROM tag_names tn WHERE tn.tag_id = t.id AND tn.locale = 'es')
-           OR NOT EXISTS (SELECT 1 FROM tag_names tn WHERE tn.tag_id = t.id AND tn.locale = 'it')
-           OR NOT EXISTS (SELECT 1 FROM tag_names tn WHERE tn.tag_id = t.id AND tn.locale = 'tr')
-        ORDER BY (SELECT COUNT(*) FROM expression_tags et WHERE et.tag_id = t.id) DESC
+        WITH candidates AS (
+            SELECT t.id, COUNT(et.expression_id) AS expr_count
+            FROM tags t
+            LEFT JOIN expression_tags et ON et.tag_id = t.id
+            WHERE NOT EXISTS (SELECT 1 FROM tag_names tn WHERE tn.tag_id = t.id AND tn.locale = 'fr')
+               OR NOT EXISTS (SELECT 1 FROM tag_names tn WHERE tn.tag_id = t.id AND tn.locale = 'es')
+               OR NOT EXISTS (SELECT 1 FROM tag_names tn WHERE tn.tag_id = t.id AND tn.locale = 'it')
+               OR NOT EXISTS (SELECT 1 FROM tag_names tn WHERE tn.tag_id = t.id AND tn.locale = 'tr')
+            GROUP BY t.id
+        )
+        SELECT id FROM candidates ORDER BY expr_count DESC
     """
     if limit:
         q += f" LIMIT {limit}"
