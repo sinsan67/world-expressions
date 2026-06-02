@@ -42,6 +42,7 @@
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
+| [US-024](#us-024) | Feature | Cross-language tag_names: map EN slugs to FR/ES/IT/TR | S | P2 | 📋 Ready |
 | [US-023](#us-023) | Feature | Filter + sort search results by country | M | P2 | 📋 Ready |
 | [US-004](#us-004) | Feature | SearchOverlay: hero-dismiss animation on home | M | P2 | 📋 Backlog |
 | [US-005](#us-005) | Feature | SearchOverlay: add country + concept dropdowns | M | P2 | 📋 Backlog |
@@ -285,6 +286,31 @@
 
 **Future refinement — concept filter (deferred):**
 500+ concepts make a simple dropdown unusable. To be workshopped: type-ahead search on concept name, or top-N most common concepts as chips. Not in scope for this US.
+
+---
+
+### US-024
+**Cross-language tag_names: map EN slugs to FR/ES/IT/TR**
+> As a user, when I search a word in my language (e.g. "argent", "trabajo", "amitié"), I want the concept-based search (4th pass in search_expressions) to surface expressions tagged with the equivalent English slug — even if the word doesn't literally appear in those expressions.
+
+**Size:** S **Priority:** P2
+**Context:** The concept 4th pass in `search_expressions()` (commit c74d0b6) works correctly but yields 0 new results for cross-language queries because `tag_names` only has `en: money → money` (no FR/ES/IT/TR mappings for EN slugs). The code is in place — only data is missing.
+
+**Root cause identified (session 33):**
+- Tags are stored as English slugs (e.g. "money", "work", "love")
+- tag_names has entries for most FR/ES/IT/TR slugs (e.g. `fr: argent → argent`) but NOT the reverse cross-mapping (`fr: money → argent`)
+- Result: query "argent" finds slug "argent" (18 expressions) but misses slug "money" (131 expressions), of which 59 are NOT already surfaced by FTS
+
+**Technical approach:**
+- Write `scripts/populate_tag_names_crosslang.py` that, for each EN canonical tag slug, inserts `{locale}: {slug} → {localized_name}` in `tag_names` for FR/ES/IT/TR
+- ~20 top tags × 4 locales = ~80 new rows (can be done with a static dict or via Mistral for the full list)
+- Run against prod DB; no migration needed (table already exists)
+- Apply with `--prod` flag
+
+**Acceptance criteria:**
+- `GET /search?q=argent&limit=100` returns `concept > 0` (expressions tagged "money" not found by FTS)
+- `GET /search?q=trabajo&limit=100` (ES for "work") returns concept results tagged "work"
+- No regression on existing searches
 
 ---
 
