@@ -28,7 +28,10 @@ export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
 
   const handleSearch = useCallback(() => {
     if (query.trim().length < 2) return;
-    router.push(`/#q=${encodeURIComponent(query.trim())}`);
+    const q = query.trim();
+    // Dispatch a custom event so the home page reacts even if already mounted at /
+    window.dispatchEvent(new CustomEvent("wex-search", { detail: { q } }));
+    router.push(`/#q=${encodeURIComponent(q)}`);
     onClose();
   }, [query, router, onClose]);
 

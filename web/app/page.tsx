@@ -322,6 +322,20 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Handle search triggered from SearchOverlay when already on home page
+  // (router.push to /#q=... doesn't re-mount the component, so the hash effect above won't fire)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { q } = (e as CustomEvent<{ q: string }>).detail;
+      if (q && q.trim().length >= 2) {
+        setQuery(q);
+        handleSearch(q);
+      }
+    };
+    window.addEventListener("wex-search", handler);
+    return () => window.removeEventListener("wex-search", handler);
+  }, [handleSearch]);
+
   useEffect(() => {
     // Don't reload the expression when the UI language changes — only labels translate.
     // The expression is fetched once on mount and when the user explicitly clicks "another one".
@@ -425,16 +439,18 @@ export default function Home() {
       {/* Main content */}
       <main className="wex-main" style={{ paddingBottom: 80 }}>
 
-        {/* Hero — country photo + postcard + atlas card */}
-        <HeroSection
-          featured={featured}
-          uiLang={uiLang}
-          regions={regions}
-          tagNames={tagNames}
-          onRefresh={refreshFeatured}
-          onConceptClick={(tag) => { const icon = tagIcon(tag) ?? ""; const name = tagNames[tag] ?? tag; setSearchLabel(`${icon ? icon + " " : ""}${name}`); runConceptSearch(tag); }}
-          t={{ expressionOfDay: t.expressionOfDay, anotherOne: t.anotherOne, readFile: t.readFile, atlasTitle: t.atlasTitle(regions.length), atlasEyebrow: t.atlasEyebrow, moreCountries: t.moreCountries, types: t.types, registers: t.registers }}
-        />
+        {/* Hero — country photo + postcard + atlas card (hidden during search) */}
+        {!searched && (
+          <HeroSection
+            featured={featured}
+            uiLang={uiLang}
+            regions={regions}
+            tagNames={tagNames}
+            onRefresh={refreshFeatured}
+            onConceptClick={(tag) => { const icon = tagIcon(tag) ?? ""; const name = tagNames[tag] ?? tag; setSearchLabel(`${icon ? icon + " " : ""}${name}`); runConceptSearch(tag); }}
+            t={{ expressionOfDay: t.expressionOfDay, anotherOne: t.anotherOne, readFile: t.readFile, atlasTitle: t.atlasTitle(regions.length), atlasEyebrow: t.atlasEyebrow, moreCountries: t.moreCountries, types: t.types, registers: t.registers }}
+          />
+        )}
 
         {/* Mobile header — lang switcher, shown only on mobile */}
         <div className="wex-mobile-header" style={{ justifyContent: "flex-end", padding: "0.75rem 1rem", gap: "0.4rem", background: "var(--paper)", borderBottom: "1px solid var(--paper-edge)" }}>
