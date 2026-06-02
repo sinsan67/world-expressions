@@ -56,22 +56,20 @@ test.describe('SearchOverlay (US-005)', () => {
     await openOverlay(page);
     const frPill = page.locator('button').filter({ hasText: / FR$/ }).first();
     // Avant clic : fond transparent
-    const bgBefore = await frPill.evaluate((el) => getComputedStyle(el).backgroundColor);
+    await expect(frPill).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     await frPill.click();
-    // Après clic : fond plum (#6b4d8f ou similaire, pas transparent)
-    const bgAfter = await frPill.evaluate((el) => getComputedStyle(el).backgroundColor);
-    expect(bgAfter).not.toBe(bgBefore);
+    // Après clic : fond plum — toHaveCSS retente jusqu'au re-render React
+    await expect(frPill).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)', { timeout: T });
   });
 
   test('#O5 double-clic sur pill FR → revient à inactif', async ({ page }) => {
     await page.goto('/');
     await openOverlay(page);
     const frPill = page.locator('button').filter({ hasText: / FR$/ }).first();
-    const bgBase = await frPill.evaluate((el) => getComputedStyle(el).backgroundColor);
     await frPill.click(); // active
+    await expect(frPill).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)', { timeout: T });
     await frPill.click(); // inactif à nouveau
-    const bgFinal = await frPill.evaluate((el) => getComputedStyle(el).backgroundColor);
-    expect(bgFinal).toBe(bgBase);
+    await expect(frPill).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)', { timeout: T });
   });
 
   test('#O6 sélection de plusieurs pays simultanément', async ({ page }) => {
@@ -97,7 +95,6 @@ test.describe('SearchOverlay (US-005)', () => {
     await expect(select).toBeVisible({ timeout: T });
     const options = select.locator('option');
     // Au moins 2 options (l'option "Tous" + au moins un concept)
-    await expect(options).toHaveCount(expect.objectContaining({ greaterThan: 1 }));
     const count = await options.count();
     expect(count).toBeGreaterThan(1);
   });
