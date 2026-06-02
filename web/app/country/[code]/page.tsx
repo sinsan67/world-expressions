@@ -38,118 +38,84 @@ const REGION_GRADIENTS: Record<string, string> = {
 };
 
 type UILang = "fr" | "en" | "es" | "tr" | "it";
-type Mode = "country" | "pick" | "explore";
 
 const T: Record<UILang, {
   backHome: string;
   countryOnly: (name: string) => string;
-  exploreCountry: string;
   exploreAll: string;
-  selectCountry: string;
   filterByConcept: string;
   filterByType: string;
   allTypes: string;
   searchPlaceholder: (name: string) => string;
-  searchPlaceholderExplore: string;
   noResults: string;
   expressions: (n: number) => string;
-  conceptLabel: (name: string) => string;
   searchLabel: (q: string) => string;
-  otherCountry: string;
 }> = {
   fr: {
     backHome: "Accueil",
     countryOnly: (name) => `${name} uniquement`,
-    exploreCountry: "Explorer un autre pays",
     exploreAll: "Explorer toutes les langues",
-    selectCountry: "Choisir un pays…",
     filterByConcept: "Filtrer par concept",
     filterByType: "Filtrer par type",
     allTypes: "Tous",
     searchPlaceholder: (name) => `Chercher dans ${name}…`,
-    searchPlaceholderExplore: "Chercher dans toutes les langues…",
     noResults: "Aucun résultat.",
     expressions: (n) => `${n} expression${n > 1 ? "s" : ""}`,
-    conceptLabel: (name) => `"${name}" — toutes les langues`,
     searchLabel: (q) => `Résultats pour "${q}"`,
-    otherCountry: "Autre pays",
   },
   en: {
     backHome: "Home",
     countryOnly: (name) => `${name} only`,
-    exploreCountry: "Explore another country",
     exploreAll: "Explore all languages",
-    selectCountry: "Choose a country…",
     filterByConcept: "Filter by concept",
     filterByType: "Filter by type",
     allTypes: "All",
     searchPlaceholder: (name) => `Search in ${name}…`,
-    searchPlaceholderExplore: "Search all languages…",
     noResults: "No results.",
     expressions: (n) => `${n} expression${n > 1 ? "s" : ""}`,
-    conceptLabel: (name) => `"${name}" — all languages`,
     searchLabel: (q) => `Results for "${q}"`,
-    otherCountry: "Another country",
   },
   es: {
     backHome: "Inicio",
     countryOnly: (name) => `Solo ${name}`,
-    exploreCountry: "Explorar otro país",
     exploreAll: "Explorar todos los idiomas",
-    selectCountry: "Elegir un país…",
     filterByConcept: "Filtrar por concepto",
     filterByType: "Filtrar por tipo",
     allTypes: "Todos",
     searchPlaceholder: (name) => `Buscar en ${name}…`,
-    searchPlaceholderExplore: "Buscar en todos los idiomas…",
     noResults: "Sin resultados.",
     expressions: (n) => `${n} expresión${n > 1 ? "es" : ""}`,
-    conceptLabel: (name) => `"${name}" — todos los idiomas`,
     searchLabel: (q) => `Resultados para "${q}"`,
-    otherCountry: "Otro país",
   },
   tr: {
     backHome: "Ana sayfa",
     countryOnly: (name) => `Yalnızca ${name}`,
-    exploreCountry: "Başka bir ülkeyi keşfet",
     exploreAll: "Tüm dilleri keşfet",
-    selectCountry: "Ülke seç…",
     filterByConcept: "Kavrama göre filtrele",
     filterByType: "Türe göre filtrele",
     allTypes: "Tümü",
     searchPlaceholder: (name) => `${name}'de ara…`,
-    searchPlaceholderExplore: "Tüm dillerde ara…",
     noResults: "Sonuç yok.",
     expressions: (n) => `${n} deyim`,
-    conceptLabel: (name) => `"${name}" — tüm diller`,
     searchLabel: (q) => `"${q}" için sonuçlar`,
-    otherCountry: "Başka ülke",
   },
   it: {
     backHome: "Home",
     countryOnly: (name) => `Solo ${name}`,
-    exploreCountry: "Esplora un altro paese",
     exploreAll: "Esplora tutte le lingue",
-    selectCountry: "Scegli un paese…",
     filterByConcept: "Filtra per concetto",
     filterByType: "Filtra per tipo",
     allTypes: "Tutti",
     searchPlaceholder: (name) => `Cerca in ${name}…`,
-    searchPlaceholderExplore: "Cerca in tutte le lingue…",
     noResults: "Nessun risultato.",
     expressions: (n) => `${n} espression${n > 1 ? "i" : "e"}`,
-    conceptLabel: (name) => `"${name}" — tutte le lingue`,
     searchLabel: (q) => `Risultati per "${q}"`,
-    otherCountry: "Altro paese",
   },
 };
-
-const ALL_COUNTRIES = Object.entries(COUNTRY_NAME) as [string, string][];
 
 function CountryPageContent({ code }: { code: string }) {
   const router = useRouter();
   const [uiLang, setUILang] = useState<UILang>("en");
-  const [mode, setMode] = useState<Mode>("country");
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
@@ -162,10 +128,6 @@ function CountryPageContent({ code }: { code: string }) {
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [typeCounts, setTypeCounts] = useState<TypeCounts>({ idiom: 0, proverb: 0, locution: 0, word: 0 });
-  const [showPickDropdown, setShowPickDropdown] = useState(false);
-  const [showHeroCountryPicker, setShowHeroCountryPicker] = useState(false);
-  const pickDropdownRef = useRef<HTMLDivElement>(null);
-  const heroPickerRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -200,44 +162,26 @@ function CountryPageContent({ code }: { code: string }) {
   }, [lang, uiLang]);
 
   const fetchTypeCounts = useCallback(
-    async (currentMode: Mode, tag: string | null, query: string | null) => {
-      const regions = currentMode === "country" || currentMode === "pick" ? [code] : [];
-      const counts = await getTypeCounts(regions, tag ? [tag] : [], query ?? "").catch(() => null);
+    async (tag: string | null, query: string | null) => {
+      const counts = await getTypeCounts([code], tag ? [tag] : [], query ?? "").catch(() => null);
       if (counts) setTypeCounts(counts);
     },
     [code]
   );
 
   useEffect(() => {
-    fetchTypeCounts(mode, activeTag, searchQuery);
-  }, [mode, activeTag, searchQuery, fetchTypeCounts]);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (pickDropdownRef.current && !pickDropdownRef.current.contains(e.target as Node))
-        setShowPickDropdown(false);
-      if (heroPickerRef.current && !heroPickerRef.current.contains(e.target as Node))
-        setShowHeroCountryPicker(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+    fetchTypeCounts(activeTag, searchQuery);
+  }, [activeTag, searchQuery, fetchTypeCounts]);
 
   const doFetch = useCallback(
-    async (currentMode: Mode, tag: string | null, query: string | null, offset: number, tf: string | null = null) => {
+    async (tag: string | null, query: string | null, offset: number, tf: string | null = null) => {
       const typeParam = tf || undefined;
       if (query && query.trim()) {
-        const regions = currentMode === "country" || currentMode === "pick" ? [code] : [];
-        const r = await searchExpressions(query.trim(), regions, LIMIT, offset, typeParam);
+        const r = await searchExpressions(query.trim(), [code], LIMIT, offset, typeParam);
         return { results: r.results, total: r.total };
       }
       if (tag) {
-        const regions = currentMode === "country" || currentMode === "pick" ? [code] : [];
-        const r = await searchByConcept([tag], regions, LIMIT, offset, typeParam);
-        return { results: r.results, total: r.total };
-      }
-      if (currentMode === "explore") {
-        const r = await browseByRegion([], LIMIT, offset, typeParam);
+        const r = await searchByConcept([tag], [code], LIMIT, offset, typeParam);
         return { results: r.results, total: r.total };
       }
       const r = await browseByRegion([code], LIMIT, offset, typeParam);
@@ -247,11 +191,11 @@ function CountryPageContent({ code }: { code: string }) {
   );
 
   const load = useCallback(
-    async (currentMode: Mode, tag: string | null, query: string | null, tf: string | null = null) => {
+    async (tag: string | null, query: string | null, tf: string | null = null) => {
       setLoading(true);
       setExpressions([]);
       try {
-        const data = await doFetch(currentMode, tag, query, 0, tf);
+        const data = await doFetch(tag, query, 0, tf);
         setExpressions(data.results);
         setTotal(data.total);
         setHasMore(data.results.length < data.total);
@@ -271,7 +215,7 @@ function CountryPageContent({ code }: { code: string }) {
     setLoadingMore(true);
     const offset = expressions.length;
     try {
-      const data = await doFetch(mode, activeTag, searchQuery, offset, typeFilter);
+      const data = await doFetch(activeTag, searchQuery, offset, typeFilter);
       setExpressions((prev) => [...prev, ...data.results]);
       setHasMore(offset + data.results.length < data.total);
     } catch {
@@ -279,10 +223,10 @@ function CountryPageContent({ code }: { code: string }) {
     } finally {
       setLoadingMore(false);
     }
-  }, [hasMore, loadingMore, expressions.length, mode, activeTag, searchQuery, typeFilter, doFetch]);
+  }, [hasMore, loadingMore, expressions.length, activeTag, searchQuery, typeFilter, doFetch]);
 
   useEffect(() => {
-    load("country", null, null);
+    load(null, null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -297,21 +241,12 @@ function CountryPageContent({ code }: { code: string }) {
     return () => observer.disconnect();
   }, [hasMore, loadingMore, loadMore]);
 
-  const switchMode = (newMode: Mode) => {
-    setMode(newMode);
-    setActiveTag(null);
-    setSearchInput("");
-    setSearchQuery(null);
-    setTypeFilter(null);
-    load(newMode, null, null, null);
-  };
-
   const selectTag = (slug: string) => {
     const newTag = activeTag === slug ? null : slug;
     setActiveTag(newTag);
     setSearchInput("");
     setSearchQuery(null);
-    load(mode, newTag, null, typeFilter);
+    load(newTag, null, typeFilter);
     setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
   };
 
@@ -320,24 +255,29 @@ function CountryPageContent({ code }: { code: string }) {
     const q = searchInput.trim();
     if (!q) {
       setSearchQuery(null);
-      load(mode, activeTag, null, typeFilter);
+      load(activeTag, null, typeFilter);
       return;
     }
     setActiveTag(null);
     setSearchQuery(q);
-    load(mode, null, q, typeFilter);
+    load(null, q, typeFilter);
     setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
   };
 
   const clearSearch = () => {
     setSearchInput("");
     setSearchQuery(null);
-    load(mode, activeTag, null, typeFilter);
+    load(activeTag, null, typeFilter);
   };
 
   const selectTypeFilter = (newType: string | null) => {
     setTypeFilter(newType);
-    load(mode, activeTag, searchQuery, newType);
+    load(activeTag, searchQuery, newType);
+  };
+
+  const goExploreAll = () => {
+    const q = searchInput.trim();
+    router.push(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
   };
 
   return (
@@ -370,7 +310,7 @@ function CountryPageContent({ code }: { code: string }) {
           <div style={{ width: 48 }} />
         </div>
 
-        {/* Hero — CountryPhotoBackdrop style */}
+        {/* Hero */}
         <div
           className={`country-photo country-photo-hero${hasHeroImage ? " fade-bottom" : ""}`}
           style={{
@@ -381,55 +321,12 @@ function CountryPageContent({ code }: { code: string }) {
           }}
         >
           <div style={{ padding: "1.25rem 2rem 3rem" }}>
-
             {/* Desktop breadcrumb */}
             <div className="wex-atlas-card">
-              <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "rgba(255,255,255,0.65)", margin: 0, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "rgba(255,255,255,0.65)", margin: 0 }}>
                 <Link href="/" style={{ color: "rgba(255,255,255,0.65)", textDecoration: "none" }}>
                   ← {t.backHome}
                 </Link>
-                {/* Country picker — desktop */}
-                <div ref={heroPickerRef} style={{ position: "relative" }}>
-                  <button
-                    onClick={() => setShowHeroCountryPicker((v) => !v)}
-                    style={{
-                      fontSize: 12, fontWeight: 600, padding: "4px 12px", borderRadius: "var(--r-pill)",
-                      border: "1.5px solid rgba(255,255,255,0.3)",
-                      background: showHeroCountryPicker ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.08)",
-                      color: "rgba(255,255,255,0.85)", cursor: "pointer",
-                      fontFamily: "var(--font-body)",
-                    }}
-                  >
-                    🌍 {t.otherCountry} ▾
-                  </button>
-                  {showHeroCountryPicker && (
-                    <div style={{
-                      position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 50,
-                      background: "var(--ink)", border: "1px solid rgba(255,255,255,0.12)",
-                      borderRadius: "var(--r-lg)", padding: "0.4rem 0",
-                      boxShadow: "var(--shadow-deep)",
-                      minWidth: 200, maxHeight: 280, overflowY: "auto",
-                    }}>
-                      {ALL_COUNTRIES.filter(([c]) => c !== code).map(([c, name]) => (
-                        <button
-                          key={c}
-                          onClick={() => { setShowHeroCountryPicker(false); router.push(`/country/${c}`); }}
-                          style={{
-                            display: "flex", alignItems: "center", gap: "0.5rem",
-                            width: "100%", padding: "8px 16px", border: "none",
-                            background: "transparent", color: "rgba(255,255,255,0.8)",
-                            cursor: "pointer", fontSize: 13, textAlign: "left",
-                            fontFamily: "var(--font-body)",
-                          }}
-                          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
-                          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                        >
-                          {FLAG[c] || "🌍"} {name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
               </p>
             </div>
 
@@ -447,7 +344,7 @@ function CountryPageContent({ code }: { code: string }) {
               }}>
                 {countryName}
               </h1>
-              {mode === "country" && total > 0 && !loading && !searchQuery && !activeTag && (
+              {total > 0 && !loading && !searchQuery && !activeTag && (
                 <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 13, marginTop: "0.35rem", fontFamily: "var(--font-body)" }}>
                   {t.expressions(total)}
                 </p>
@@ -467,36 +364,21 @@ function CountryPageContent({ code }: { code: string }) {
                 background: "var(--plum-bg)", padding: 4, gap: 2,
               }}>
                 <button
-                  onClick={() => switchMode("country")}
                   style={{
                     padding: "8px 16px", borderRadius: "var(--r-md)", fontSize: 13, fontWeight: 600,
-                    border: "none", cursor: "pointer", transition: "all 0.15s",
-                    background: mode === "country" ? "var(--plum)" : "transparent",
-                    color: mode === "country" ? "#fff" : "var(--plum)",
+                    border: "none", cursor: "default",
+                    background: "var(--plum)", color: "#fff",
                     fontFamily: "var(--font-body)",
                   }}
                 >
                   {flag} {t.countryOnly(countryName)}
                 </button>
                 <button
-                  onClick={() => switchMode("pick")}
+                  onClick={goExploreAll}
                   style={{
                     padding: "8px 16px", borderRadius: "var(--r-md)", fontSize: 13, fontWeight: 600,
                     border: "none", cursor: "pointer", transition: "all 0.15s",
-                    background: mode === "pick" ? "var(--plum)" : "transparent",
-                    color: mode === "pick" ? "#fff" : "var(--plum)",
-                    fontFamily: "var(--font-body)",
-                  }}
-                >
-                  🗺️ {t.exploreCountry}
-                </button>
-                <button
-                  onClick={() => switchMode("explore")}
-                  style={{
-                    padding: "8px 16px", borderRadius: "var(--r-md)", fontSize: 13, fontWeight: 600,
-                    border: "none", cursor: "pointer", transition: "all 0.15s",
-                    background: mode === "explore" ? "var(--plum)" : "transparent",
-                    color: mode === "explore" ? "#fff" : "var(--plum)",
+                    background: "transparent", color: "var(--plum)",
                     fontFamily: "var(--font-body)",
                   }}
                 >
@@ -505,69 +387,13 @@ function CountryPageContent({ code }: { code: string }) {
               </div>
             </div>
 
-            {/* Country picker (mode pick) */}
-            {mode === "pick" && (
-              <div ref={pickDropdownRef} style={{ position: "relative", marginBottom: "1.25rem", display: "flex", justifyContent: "center" }}>
-                <button
-                  onClick={() => setShowPickDropdown((v) => !v)}
-                  style={{
-                    display: "flex", alignItems: "center", gap: "0.5rem",
-                    padding: "10px 20px", borderRadius: "var(--r-md)",
-                    border: "1.5px solid var(--plum-soft)",
-                    background: showPickDropdown ? "var(--plum-bg)" : "var(--paper)",
-                    color: "var(--plum)", fontWeight: 600, fontSize: 14,
-                    cursor: "pointer", minWidth: 220, justifyContent: "space-between",
-                    boxShadow: "var(--shadow-stamp)",
-                    fontFamily: "var(--font-body)",
-                  }}
-                >
-                  <span>{flag} {countryName}</span>
-                  <span style={{ opacity: 0.5 }}>▾</span>
-                </button>
-                {showPickDropdown && (
-                  <div style={{
-                    position: "absolute", top: "calc(100% + 6px)", left: "50%",
-                    transform: "translateX(-50%)", zIndex: 50,
-                    background: "var(--paper)", border: "1.5px solid var(--plum-soft)",
-                    borderRadius: "var(--r-lg)", padding: "0.4rem 0",
-                    boxShadow: "var(--shadow-deep)",
-                    minWidth: 220, maxHeight: 300, overflowY: "auto",
-                  }}>
-                    {ALL_COUNTRIES.map(([c, name]) => (
-                      <button
-                        key={c}
-                        onClick={() => {
-                          setShowPickDropdown(false);
-                          if (c !== code) router.push(`/country/${c}`);
-                        }}
-                        style={{
-                          display: "flex", alignItems: "center", gap: "0.5rem",
-                          width: "100%", padding: "9px 16px", border: "none",
-                          background: c === code ? "var(--plum-bg)" : "transparent",
-                          color: c === code ? "var(--plum)" : "var(--ink)",
-                          cursor: c === code ? "default" : "pointer",
-                          fontSize: 13, textAlign: "left", fontWeight: c === code ? 700 : 400,
-                          fontFamily: "var(--font-body)",
-                        }}
-                        onMouseEnter={(e) => { if (c !== code) e.currentTarget.style.background = "var(--plum-bg)"; }}
-                        onMouseLeave={(e) => { if (c !== code) e.currentTarget.style.background = "transparent"; }}
-                      >
-                        {FLAG[c] || "🌍"} {name}
-                        {c === code && <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--plum)" }}>✓</span>}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
             {/* Search bar */}
             <form onSubmit={handleSearch} style={{ marginBottom: "1.25rem", position: "relative" }}>
               <input
                 type="search"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                placeholder={mode === "country" ? t.searchPlaceholder(countryName) : t.searchPlaceholderExplore}
+                placeholder={t.searchPlaceholder(countryName)}
                 className="wex-input"
                 style={{
                   width: "100%", padding: "10px 44px 10px 16px",
@@ -698,9 +524,7 @@ function CountryPageContent({ code }: { code: string }) {
             <p style={{ textAlign: "right", fontSize: 13, color: "var(--ink-faint)", marginBottom: "1rem", fontFamily: "var(--font-body)" }}>
               {searchQuery
                 ? `${total} expression${total > 1 ? "s" : ""} — ${t.searchLabel(searchQuery)}`
-                : mode === "explore"
-                  ? `${total} expression${total > 1 ? "s" : ""} — ${t.conceptLabel(tagNames[activeTag!] || activeTag!)}`
-                  : `${total} expression${total > 1 ? "s" : ""} — ${flag} ${countryName} · ${tagNames[activeTag!] || activeTag!}`
+                : `${total} expression${total > 1 ? "s" : ""} — ${flag} ${countryName} · ${tagNames[activeTag!] || activeTag!}`
               }
             </p>
           )}
@@ -742,7 +566,7 @@ function CountryPageContent({ code }: { code: string }) {
                   : "No expressions available for this country yet."}
               </p>
               <button
-                onClick={() => switchMode("explore")}
+                onClick={goExploreAll}
                 style={{
                   padding: "10px 22px", borderRadius: "var(--r-pill)",
                   background: "var(--plum)", color: "#fff", border: "none",
