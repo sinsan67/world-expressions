@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Story 01 — Lancement @world.expressions</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #1a1a2e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      padding: 24px;
+      gap: 24px;
+    }
+
+    h2 {
+      color: #888;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* Cadre story Instagram — ratio 9:16 */
+    .story {
+      width: 360px;
+      height: 640px;
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background: #FFF9F2;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    /* Barre du haut (imitation UI Instagram) */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 16px 10px;
+      background: linear-gradient(to bottom, rgba(255,249,242,1), rgba(255,249,242,0));
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f6a623, #e8567a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .handle {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    /* Contenu principal */
+    .story-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 28px 100px;
+      gap: 0;
+      text-align: center;
+    }
+
+    .hook {
+      font-size: 15px;
+      color: #888;
+      font-style: italic;
+      margin-bottom: 20px;
+      letter-spacing: 0.02em;
+    }
+
+    .expression-chip {
+      background: #1a1a1a;
+      color: #FFF9F2;
+      font-size: 22px;
+      font-weight: 700;
+      padding: 12px 22px;
+      border-radius: 40px;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .emoji-big {
+      font-size: 72px;
+      margin: 12px 0;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.1));
+    }
+
+    .meaning-fr {
+      font-size: 17px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .meaning-en {
+      font-size: 14px;
+      color: #999;
+      font-style: italic;
+      margin-bottom: 24px;
+    }
+
+    .origin-bubble {
+      background: #FFF0D9;
+      border-radius: 14px;
+      padding: 12px 16px;
+      max-width: 280px;
+    }
+
+    .origin-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #E8A020;
+      margin-bottom: 4px;
+    }
+
+    .origin-text {
+      font-size: 13px;
+      color: #5a4a30;
+      line-height: 1.5;
+    }
+
+    /* CTA bas de story */
+    .story-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px 24px 24px;
+      background: linear-gradient(to top, rgba(255,249,242,1) 70%, rgba(255,249,242,0));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cta-label {
+      font-size: 11px;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .cta-link {
+      font-size: 14px;
+      font-weight: 700;
+      color: #E8A020;
+      letter-spacing: -0.01em;
+    }
+
+    .swipe-up {
+      font-size: 11px;
+      color: #bbb;
+      margin-top: 2px;
+    }
+
+    /* Légende sous le mockup */
+    .caption {
+      max-width: 360px;
+      text-align: center;
+    }
+
+    .caption h3 {
+      color: #ddd;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .caption p {
+      color: #777;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* Config card */
+    .config-card {
+      width: 360px;
+      background: #252538;
+      border-radius: 16px;
+      padding: 20px 24px;
+      border: 1px solid #333;
+    }
+
+    .config-card h3 {
+      color: #E8A020;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+    }
+
+    .config-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid #333;
+      padding: 10px 0;
+      gap: 12px;
+    }
+
+    .config-row:last-child { border-bottom: none; }
+
+    .config-label {
+      color: #888;
+      font-size: 12px;
+      min-width: 80px;
+      padding-top: 2px;
+    }
+
+    .config-value {
+      color: #eee;
+      font-size: 13px;
+      font-weight: 500;
+      text-align: right;
+      flex: 1;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Config du compte @world.expressions</h2>
+
+  <div class="config-card">
+    <h3>À remplir dans le profil Instagram</h3>
+
+    <div class="config-row">
+      <span class="config-label">Nom</span>
+      <span class="config-value">World Expressions</span>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Handle</span>
+      <span class="config-value">@world.expressions</span>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Email</span>
+      <span class="config-value">worldsexpressions@proton.me</span>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Catégorie</span>
+      <span class="config-value">Éducation / Application</span>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Site web</span>
+      <span class="config-value">world-expressions.vercel.app</span>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Bio (FR)</span>
+      <span class="config-value">Explore les expressions du monde entier 🌍<br>Chaque langue cache des pépites.<br>Application gratuite 👇</span>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Bio (EN)</span>
+      <span class="config-value">Discover idiomatic expressions from every language 🌍<br>Free web app 👇</span>
+    </div>
+    <div class="config-row">
+      <span class="config-label">Note bio</span>
+      <span class="config-value">150 chars max — choisir FR ou EN, ou une version mixte courte</span>
+    </div>
+  </div>
+
+  <h2>Story 01 — Première expression</h2>
+
+  <!-- Mockup Story -->
+  <div class="story">
+
+    <!-- Top bar -->
+    <div class="top-bar">
+      <div class="avatar">🌍</div>
+      <span class="handle">world.expressions</span>
+    </div>
+
+    <!-- Corps -->
+    <div class="story-body">
+      <p class="hook">Tu connais cette expression ?</p>
+
+      <div class="expression-chip">Avoir le cafard 🪳</div>
+
+      <div class="emoji-big">😔</div>
+
+      <p class="meaning-fr">Se sentir triste, déprimé</p>
+      <p class="meaning-en">"To feel blue" — "To be down"</p>
+
+      <div class="origin-bubble">
+        <p class="origin-label">Origine</p>
+        <p class="origin-text">
+          Au XIXe s., les soldats français d'Afrique du Nord ramenaient
+          l'ennui des casernes — et le surnom de <em>"cafard"</em>
+          pour ce vague à l'âme.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="story-footer">
+      <p class="cta-label">400+ expressions à explorer</p>
+      <p class="cta-link">world-expressions.vercel.app</p>
+      <p class="swipe-up">Glisse vers le haut ↑</p>
+    </div>
+
+  </div>
+
+  <!-- Caption -->
+  <div class="caption">
+    <h3>Caption suggérée</h3>
+    <p>
+      Tu utilises cette expression mais tu sais pas d'où elle vient ? 🪳<br><br>
+      "Avoir le cafard" vient des soldats français en Afrique du Nord au XIXe siècle —
+      le cafard comme métaphore de l'ennui et de la mélancolie.<br><br>
+      Explore 400+ expressions françaises (et leurs équivalents dans le monde) →
+      <strong>world-expressions.vercel.app</strong><br><br>
+      #expressionsfrancaises #frenchidioms #languagelearning #apprendrelefrançais
+      #worldexpressions #idioms #français
+    </p>
+  </div>
+
+</body>
+</html>

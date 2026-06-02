@@ -1,0 +1,23 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="globe-clip">
+      <circle cx="50" cy="33" r="21"/>
+    </clipPath>
+  </defs>
+
+  <!-- Fingers (terra) drawn first, globe will overlap their tops -->
+  <rect x="21" y="50" width="10" height="23" rx="5" fill="#c1543a"/>
+  <rect x="33" y="47" width="10" height="26" rx="5" fill="#c1543a"/>
+  <rect x="45" y="48" width="10" height="25" rx="5" fill="#c1543a"/>
+  <rect x="57" y="52" width="10" height="21" rx="5" fill="#c1543a"/>
+
+  <!-- Globe (plum) on top of fingertips -->
+  <circle cx="50" cy="33" r="21" fill="#6b4d8f"/>
+  <!-- Equator -->
+  <ellipse cx="50" cy="33" rx="21" ry="7" stroke="#c9b8d9" stroke-width="1.6" fill="none" clip-path="url(#globe-clip)"/>
+  <!-- Meridian -->
+  <ellipse cx="50" cy="33" rx="7.5" ry="21" stroke="#c9b8d9" stroke-width="1.6" fill="none" clip-path="url(#globe-clip)"/>
+
+  <!-- Palm (terra) connecting finger bases -->
+  <rect x="17" y="65" width="62" height="22" rx="10" fill="#c1543a"/>
+</svg>
