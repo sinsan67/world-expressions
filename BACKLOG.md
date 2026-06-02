@@ -42,8 +42,9 @@
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
-| [US-024](#us-024) | Feature | Cross-language tag_names: map EN slugs to FR/ES/IT/TR | S | P2 | 📋 Ready |
-| [US-023](#us-023) | Feature | Filter + sort search results by country | M | P2 | 📋 Ready |
+| [US-024](#us-024) | Feature | Cross-language tag_names: map EN slugs to FR/ES/IT/TR | S | P2 | ✅ Done — populate_tag_names_crosslang.py --prod (780 rows, S34) |
+| [US-025](#us-025) | Feature | Search tooltip (?) explaining how the engine works | S | P2 | ✅ Done — SEARCH_HELP multilingual + inline ? button (S35) |
+| [US-023](#us-023) | Feature | Filter + sort search results by country | M | P2 | ✅ Done — ResultsFilterBar + groupedResults + handleFilterChange (S35) |
 | [US-004](#us-004) | Feature | SearchOverlay: hero-dismiss animation on home | M | P2 | 📋 Backlog |
 | [US-005](#us-005) | Feature | SearchOverlay: add country + concept dropdowns | M | P2 | 📋 Backlog |
 | [US-006](#us-006) | Feature | Dedicated /search page with persistent filters | L | P2 | 📋 Backlog |
@@ -314,5 +315,25 @@
 
 ---
 
-*Last updated: 2026-06-02 (session 33)*
+### US-025
+**Search tooltip — how the engine works**
+> As a user seeing search results, I want to understand how the search works, so that I can formulate better queries and discover the multilingual depth of the engine.
+
+**Size:** S **Priority:** P2
+
+**Implementation (S35):**
+- `SEARCH_HELP` module-level constant in `page.tsx` — 5 locales (fr/en/es/it/tr)
+- `?` button inline next to the search bar (flex row wrapping SearchBar)
+- Hover (desktop) / click (mobile) to show a 280px popover
+- Text: 2 sentences — multi-pass search mechanism + concrete example with «industrie»/«industry» → «work»/«business»
+
+**Acceptance criteria:**
+1. A `?` button is visible next to the search bar at all times
+2. Hovering (desktop) or tapping (mobile) shows a tooltip in the current UI language
+3. Tooltip text mentions at least 2 search passes and gives a cross-language example
+4. No layout regression on mobile (max-width: calc(100vw - 2rem))
+
+---
+
+*Last updated: 2026-06-02 (session 35)*
 *Maintained by Claude — update after each session's commits*
