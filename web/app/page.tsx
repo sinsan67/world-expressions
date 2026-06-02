@@ -425,16 +425,18 @@ export default function Home() {
       {/* Main content */}
       <main className="wex-main" style={{ paddingBottom: 80 }}>
 
-        {/* Hero — country photo + postcard + atlas card */}
-        <HeroSection
-          featured={featured}
-          uiLang={uiLang}
-          regions={regions}
-          tagNames={tagNames}
-          onRefresh={refreshFeatured}
-          onConceptClick={(tag) => { const icon = tagIcon(tag) ?? ""; const name = tagNames[tag] ?? tag; setSearchLabel(`${icon ? icon + " " : ""}${name}`); runConceptSearch(tag); }}
-          t={{ expressionOfDay: t.expressionOfDay, anotherOne: t.anotherOne, readFile: t.readFile, atlasTitle: t.atlasTitle(regions.length), atlasEyebrow: t.atlasEyebrow, moreCountries: t.moreCountries, types: t.types, registers: t.registers }}
-        />
+        {/* Hero — country photo + postcard + atlas card (hidden during search) */}
+        {!searched && (
+          <HeroSection
+            featured={featured}
+            uiLang={uiLang}
+            regions={regions}
+            tagNames={tagNames}
+            onRefresh={refreshFeatured}
+            onConceptClick={(tag) => { const icon = tagIcon(tag) ?? ""; const name = tagNames[tag] ?? tag; setSearchLabel(`${icon ? icon + " " : ""}${name}`); runConceptSearch(tag); }}
+            t={{ expressionOfDay: t.expressionOfDay, anotherOne: t.anotherOne, readFile: t.readFile, atlasTitle: t.atlasTitle(regions.length), atlasEyebrow: t.atlasEyebrow, moreCountries: t.moreCountries, types: t.types, registers: t.registers }}
+          />
+        )}
 
         {/* Mobile header — lang switcher, shown only on mobile */}
         <div className="wex-mobile-header" style={{ justifyContent: "flex-end", padding: "0.75rem 1rem", gap: "0.4rem", background: "var(--paper)", borderBottom: "1px solid var(--paper-edge)" }}>
