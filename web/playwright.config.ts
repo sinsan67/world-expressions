@@ -32,6 +32,11 @@ export default defineConfig({
     extraHTTPHeaders: process.env.VERCEL_BYPASS_TOKEN
       ? { 'x-vercel-protection-bypass': process.env.VERCEL_BYPASS_TOKEN }
       : {},
+    // Pré-setter wex_lang pour éviter que la modal d'onboarding bloque les tests
+    storageState: {
+      cookies: [],
+      origins: [{ origin: BASE_URL, localStorage: [{ name: 'wex_lang', value: 'fr' }] }],
+    },
   },
   expect: {
     // Laisse le temps aux composants React de s'hydrater et aux données API d'arriver
