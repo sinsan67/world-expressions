@@ -33,7 +33,7 @@
 | [US-021](#us-021) | Feature | Cross-language concept search (issue #20) | L | P2 | ✅ Done — commit 6ad146d |
 | [US-022b](#us-022b) | Feature | Breadcrumb retour recherche (issue #21) | S | P2 | ✅ Done — commit c1c3b17 |
 | [US-002](#us-002) | Feature | Verify TR enrichment completion + count | S | P1 | ✅ Done — TR enrichment terminé S31 |
-| [US-001](#us-001) | Feature | Merge staging → main (6ad146d) | S | P0 | 🔜 Ready — migration GIN à appliquer d'abord |
+| [US-001](#us-001) | Feature | Merge staging → main (6ad146d) | S | P0 | ✅ Done — mergé db963ee |
 | [US-003](#us-003) | Feature | QA Checklist items #12+ | M | P1 | 🔜 Ready |
 
 ---
