@@ -25,30 +25,14 @@
 
 ---
 
-## Sprint — S38 (2026-06-02)
+## Next Sprint
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
-| [BUG-002](#bug-002) | Bug | Meaning shown in original language instead of UI language | M | P1 | 🔄 In progress (S38) |
-| [BUG-003](#bug-003) | Bug | Tags mixed FR/EN on result cards | S | P2 | 📋 Backlog — data fix needed |
-| [US-003](#us-003) | Feature | QA Checklist items #12+ | M | P1 | 🔜 Ready |
-
----
-
-## Backlog — Next Sprint
-
-| ID | Type | Title | Size | Priority | Status |
-|----|------|-------|------|----------|--------|
-| [US-004](#us-004) | Feature | SearchOverlay: hero-dismiss animation on home | M | P2 | 📋 Backlog |
-| [US-005](#us-005) | Feature | SearchOverlay: add country + concept dropdowns | M | P2 | 📋 Backlog |
-| [US-006](#us-006) | Feature | Dedicated /search page with persistent filters | L | P2 | 📋 Backlog |
+| [US-026](#us-026) | Feature | Results section headers by match type | S | P2 | 📋 Backlog |
 | [US-007](#us-007) | Feature | Enrich IT expressions (target 200+) | M | P2 | 📋 Backlog |
 | [US-008](#us-008) | Feature | Enrich TR expressions (target 200+) | M | P2 | 📋 Backlog |
 | [DEBT-001](#debt-001) | Debt | Enable Vercel Analytics in Dashboard [action: Sinan] | S | P1 | 📋 Backlog |
-| [DEBT-002](#debt-002) | Debt | Playwright E2E tests in CI (VERCEL_BYPASS_TOKEN) | S | P2 | 📋 Backlog |
-| [DEBT-003](#debt-003) | Debt | SQL pagination (LIMIT/OFFSET) — trigger: > 3K expressions | M | P2 | 📋 Backlog |
-| [DEBT-004](#debt-004) | Debt | Add is_phrasebook BOOLEAN column | S | P3 | 📋 Backlog |
-| [DEBT-005](#debt-005) | Debt | Render cold start: Playwright timing test (< 3s warm) | S | P2 | 📋 Backlog |
 
 ---
 
@@ -56,11 +40,17 @@
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
+| [US-027](#us-027) | Feature | Always show literal translation on expression page | S | P2 | 📋 Backlog |
+| [US-004](#us-004) | Feature | Search hero-dismiss animation on home | M | P3 | 📋 Backlog |
+| [US-005](#us-005) | Feature | SearchOverlay: add country + concept dropdowns | M | P2 | 📋 Backlog |
+| [US-006](#us-006) | Feature | Dedicated /search page with persistent filters | L | P2 | 📋 Backlog |
 | [US-009](#us-009) | Feature | Add new language (DE or PT) | XL | P3 | 📋 Backlog |
-| [US-010](#us-010) | Feature | Feature Voice: listen to expression (Web Speech API) | S | P3 | ✅ Done — commit a8b3909 (S37) |
 | [US-011](#us-011) | Feature | Concept quality: WordReference enrichment script | M | P3 | 📋 Backlog |
 | [US-012](#us-012) | Feature | Register-based navigation (formal/informal/slang) | L | P3 | 📋 Backlog |
 | [US-013](#us-013) | Feature | Unify country filters + Mix button into one mechanism | L | P3 | 📋 Backlog |
+| [DEBT-003](#debt-003) | Debt | SQL pagination (LIMIT/OFFSET) — trigger: > 3K expressions/language | M | P2 | 📋 Backlog |
+| [DEBT-004](#debt-004) | Debt | Add is_phrasebook BOOLEAN column | S | P3 | 📋 Backlog |
+| [DEBT-005](#debt-005) | Debt | Render cold start: measure warm response time (< 3s) | S | P2 | 📋 Backlog |
 | [DEBT-006](#debt-006) | Debt | Refactor homepage page.tsx inline styles → CSS tokens | L | P3 | 📋 Backlog |
 | [DEBT-007](#debt-007) | Debt | Migrate homepage hash routing to Next.js router | L | P3 | 📋 Backlog |
 
@@ -70,7 +60,6 @@
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
-| [US-022](#us-022) | Feature | Emoji as exploration vector (concept graph + visual) | XXL | P3 | 💡 Idea |
 | [US-014](#us-014) | Feature | Game Mode: emoji puzzles (V4) | XXL | P3 | 💡 Idea |
 | [US-015](#us-015) | Feature | Interactive SVG world map | XL | P3 | 💡 Idea |
 | [US-016](#us-016) | Feature | PWA (offline, install on mobile, push notifs) | L | P3 | 💡 Idea |
@@ -78,86 +67,55 @@
 | [US-018](#us-018) | Feature | Visual styles library (Twemoji, Noto, etc.) | L | P3 | 💡 Idea |
 | [US-019](#us-019) | Feature | Collaborative content: user-submitted expressions | XXL | P3 | 💡 Idea |
 | [US-020](#us-020) | Feature | Email newsletter: one expression per day | M | P3 | 💡 Idea |
+| [US-022](#us-022) | Feature | Emoji as exploration vector (concept graph + visual) | XXL | P3 | 💡 Idea |
 
 ---
 
 ## Item Details
 
-### BUG-002
-**Meaning shown in original language instead of UI language**
-> As a user with UI in English, when I search and see French/Spanish/Italian expressions in results, I expect their meaning to be displayed in English — not in the original language.
+### US-026
+**Results section headers by match type**
+> As a user, when I see search results, I want to understand how each expression was found (exact / semantic / translation / concept) so I can immediately grasp why it appears and how deep the search went.
 
-**Root cause:** `search_expressions()` in database.py joins `expression_content ec ON ec.locale = e.language` — always original language. No locale parameter passed through the search chain.
-**Fix (S38):** Added `_get_preferred_content()` batch helper + `locale` parameter to `search_expressions()`. Post-processing overlays translated meaning/origin/example after result assembly. Updated `main.py` endpoint, `api.ts`, `page.tsx`.
-**Playwright test:** `web/e2e/search-locale.spec.ts` — verifies `locale=en` is included in the search request.
-**Files:** [database.py](database.py) · [main.py](main.py) · [web/lib/api.ts](web/lib/api.ts) · [web/app/page.tsx](web/app/page.tsx)
+**Size:** S **Priority:** P2
+**Context:** `match_type` already exists in search results (`exact` / `semantic` / `translation` / `concept`). Results are currently a flat list with no visual distinction between match types.
+
+**Technical approach:**
+- Group results client-side by `match_type` (keep relevance ordering within each group)
+- Inject a sticky section header between groups: "Exact match", "Semantic match", "Found via translation", "Same concept"
+- i18n 5 languages
+
 **Acceptance criteria:**
-- Search "argent" with UI=EN → French expression cards show their meaning in English
-- Search "argent" with UI=FR → French expression cards show their meaning in French (unchanged)
-- No regression on existing exact/semantic search results
+1. When results are displayed, section headers appear between groups (e.g. "12 exact matches · 3 semantic · 8 by concept")
+2. Each header is visually subtle — not dominant — a separator, not a title
+3. If only one match type in results: no section header shown
+4. i18n: headers displayed in current UI language
+5. No regression on existing search behavior
 
 ---
 
-### BUG-003
-**Tags mixed FR/EN on result cards**
-> As a French user, when I see search result cards, all tags should appear in French — not a mix of French ("famille") and English ("luck") tags.
+### US-027
+**Always show literal translation on expression page**
+> As a user on an expression detail page, I want to always see the literal translation of the expression (e.g. "to break the feet" for "casser les pieds"), not just after clicking to translate — so I immediately understand the linguistic humor.
 
-**Root cause:** `getAllTagNames("fr")` returns `COALESCE(tag_names.name, tag_slug)`. For EN canonical tag slugs without a `(tag_id, "fr")` entry in `tag_names`, the raw English slug is shown. Only ~275 tags (out of ~1050) have FR translations in `tag_names`.
-**Fix needed:** Run `populate_tag_names_crosslang.py` for ALL tag slugs (not just top 20). Requires Mistral tokens — **urgent before 2026-06-10**.
-**Files:** [scripts/populate_tag_names_crosslang.py](scripts/populate_tag_names_crosslang.py) · [database.py → get_top_tags()](database.py)
+**Size:** S **Priority:** P2
+**Context:** `literal_fr` is stored in the DB for many expressions. Currently only visible when the user clicks the translate button. Sinan confirmed he wants it always visible: "it's fun".
+**Dependency:** Check coverage — how many expressions have `literal_fr` populated in prod.
+
 **Acceptance criteria:**
-- French user sees all tag chips in French (or an accepted localized form) on result cards
-- No regression on EN/ES/IT/TR tag display
-
----
-
-### BUG-001
-**Search from sidebar broken on home page**
-> As a user, when I open the search overlay from the sidebar and submit a query, I expect to see results on the home page — even if I was already on that page.
-
-**Root cause:** `router.push('/#q=...')` on the same page doesn't remount the component — the hash `useEffect` with `[]` deps doesn't re-fire.
-**Fix:** dispatch a `wex-search` custom event in `SearchOverlay.tsx`; `page.tsx` listens and calls `handleSearch(q)`.
-**Files:** [SearchOverlay.tsx](web/components/SearchOverlay.tsx) · [page.tsx](web/app/page.tsx)
-**Acceptance criteria:**
-- Typing "argent" + Enter in the overlay from home page → results appear
-- Typing from /atlas → navigates to home + results appear
-- Overlay closes after submit
-
----
-
-### US-001
-**Merge staging → main (session 30 commits)**
-> Merge commit 55ec049 from staging to main so prod reflects the sidebar search button and hero-dismiss features.
-**Acceptance criteria:**
-- prod URL shows "Rechercher" button in sidebar
-- Hero hides when results are displayed
-- Tagline in sidebar is translated
-
----
-
-### US-002
-**Verify TR enrichment completion**
-> Check that the TR enrichment script (PID 21910, ~230/500 at close of session 29) has completed and count how many TR expressions are now in prod.
-**Acceptance criteria:**
-- `ps aux | grep generate` returns nothing (process done)
-- `tail -20 /tmp/enrichment_it_tr.log` shows completion message
-- DB count TR expressions logged
-
----
-
-### US-003
-**QA Checklist items #12+**
-> Continue the manual QA pass starting from item #12 in QA_CHECKLIST.html. Collect failures, synthesize into a prioritized fix plan.
-**Acceptance criteria:**
-- Items #12–#30 tested and documented (pass/fail)
-- Failures logged with priority and estimated fix size
+1. On `/expression/[id]`, the literal translation is displayed inline below the expression text, always (no click needed)
+2. Only shown if the field is non-null and non-empty
+3. Visual treatment: smaller text, italic, secondary color — clearly distinct from the meaning
+4. If UI language ≠ expression language: show `literal_fr` as the literal translation regardless (it's the FR field, already the main UI)
+5. No layout regression on mobile
 
 ---
 
 ### US-004
-**SearchOverlay: hero-dismiss animation on home**
+**Search hero-dismiss animation on home**
 > As a user on the home page, when I click "Search" in the sidebar, the hero section slides up and disappears, the search bar takes focus — no modal, stays in-page.
-**Size:** M **Priority:** P2
+
+**Size:** M **Priority:** P3 — impact utilisateur faible (Sinan, S40)
 **Acceptance criteria:**
 - Hero animates out (slide up + fade) when search triggered from sidebar while on /
 - Search input takes focus
@@ -168,6 +126,7 @@
 ### US-005
 **SearchOverlay: add country + concept dropdowns**
 > As a user, I want to filter search results by country and/or concept directly from the overlay, without going to the home page first.
+
 **Size:** M **Priority:** P2
 **Acceptance criteria:**
 - Overlay shows 2 optional dropdowns (country, concept) below the text input
@@ -179,6 +138,7 @@
 ### US-006
 **Dedicated /search page with persistent filters**
 > As a user, I want a dedicated /search URL with query in URL params, persistent filters, and results — shareable and SEO-friendly.
+
 **Size:** L **Priority:** P2
 **Dependencies:** frontend router, API query params
 **Acceptance criteria:**
@@ -191,8 +151,9 @@
 ### US-007 / US-008
 **Enrich IT / TR expressions (target 200+ each)**
 > As a user, I want more idiomatic expressions in Italian and Turkish so the app feels substantial in those languages.
+
 **Size:** M each
-**Dependencies:** Mistral token (expires 2026-06-10 — high urgency)
+**Dependencies:** Mistral token (expires 2026-06-10 — urgent)
 **Acceptance criteria:**
 - IT: ≥ 200 expressions in prod DB
 - TR: ≥ 200 expressions in prod DB
@@ -200,30 +161,76 @@
 
 ---
 
-### DEBT-001
-**Enable Vercel Analytics** [action: Sinan in Vercel Dashboard]
-> Enable Vercel Analytics so usage data starts being collected. Code already deployed (commit f751a8b).
-**Size:** S **Priority:** P1
-**Acceptance criteria:**
-- Vercel Dashboard → Analytics → Enabled
-- Data appears in dashboard within 24h of enabling
+### US-009
+**Add new language (DE or PT)**
+> As a user interested in European languages, I want to discover German or Portuguese expressions so I can explore another major culture.
+
+**Size:** XL **Priority:** P3
+**Dependencies:** source identification, generate_expressions.py adaptation, UI lang selector update, translations matrix update
 
 ---
 
-### DEBT-002
-**Playwright E2E tests in CI (VERCEL_BYPASS_TOKEN)**
-> Add the VERCEL_BYPASS_TOKEN to Playwright config so E2E tests can run against the staging URL (currently blocked by Vercel SSO).
-**Size:** S
+### US-011
+**Concept quality: WordReference enrichment script**
+> As a product owner, I want a script that cross-checks our concept links (expression A ↔ expression B via concept_id) against WordReference, to surface false positives so we can improve quality.
+
+**Size:** M **Priority:** P3
+**Context:** WordReference dict accessible (fren, fres, frit). Forums blocked (HTTP 418). Script `check_wordreference.py` already exists as a prototype.
+
+---
+
+### US-012
+**Register-based navigation**
+> As a user, I want to browse expressions by language register (formal / informal / slang / vulgar) and compare how different cultures express the same idea at the same register level.
+
+**Size:** L **Priority:** P3
+**Context:** `register` field already in DB. Workshop needed to define page design and navigation model before coding.
+
+---
+
+### US-013
+**Unify country filters + Mix button**
+> As a user, when I select multiple countries, I want the Mix behavior to happen automatically — without a separate button.
+
+**Size:** L **Priority:** P3
+**Context:** 1 country selected = filter. 2+ countries = mix (round-robin). Mix button could disappear as standalone UI.
+
+---
+
+### US-014
+**Game Mode: emoji puzzles (V4)**
+> As a user, I want to guess the expression from a grid of emojis — with no text hint — then reveal the answer from the database.
+
+**Size:** XXL **Priority:** P3 (deferred until tech base is solid)
+**Dependencies:** solid data quality in all 5 languages, is_phrasebook column
+**Acceptance criteria:** TBD (full conception workshop needed first)
+
+---
+
+### US-022
+**Emoji as exploration vector**
+> As a user, I want to explore expressions by clicking or searching with an emoji, discovering expressions from all languages linked to that visual concept.
+
+**Size:** XXL **Priority:** P3
+**Note:** Workshop needed to define emoji → concept mapping.
+
+---
+
+### DEBT-001
+**Enable Vercel Analytics** [action: Sinan in Vercel Dashboard]
+> Enable Vercel Analytics so usage data starts being collected. Code already deployed (commit f751a8b).
+
+**Size:** S **Priority:** P1
 **Acceptance criteria:**
-- `VERCEL_BYPASS_TOKEN` set in env
-- `npx playwright test` runs against staging without auth errors
-- Tests pass
+- Vercel Dashboard → Analytics → Enabled
+- Data appears in dashboard within 24h
 
 ---
 
 ### DEBT-003
-**SQL pagination (LIMIT/OFFSET) — trigger: > 3K expressions/language**
-> Replace Python-level slicing in `search_expressions` (database.py `fetchall()`) with native SQL `LIMIT`/`OFFSET`. Currently loads all results into memory before slicing.
+**SQL pagination (LIMIT/OFFSET)**
+> Replace Python-level slicing in `search_expressions` (database.py) with native SQL LIMIT/OFFSET.
+
 **Size:** M **Trigger:** when any language exceeds ~3 000 expressions
 **Acceptance criteria:**
 - `search_expressions` uses SQL LIMIT/OFFSET
@@ -232,129 +239,40 @@
 
 ---
 
-### US-010
-**Feature Voice: listen to expression (Web Speech API)**
-> As a user, I want to click a "listen" button on any expression card to hear the expression pronounced in its original language.
-**Size:** S (Web Speech API is browser-native, no backend needed)
-**Acceptance criteria:**
-- Button visible on expression page `/expression/[id]`
-- Reads the expression text in the correct `lang=` (fr/en/es/it/tr)
-- Graceful fallback if browser doesn't support SpeechSynthesis
+### DEBT-004
+**Add is_phrasebook BOOLEAN column**
+> Add a dedicated boolean column to flag phrasebook entries (currently tagged with `phrasebook` tag), enabling cleaner filtering without tag dependency.
+
+**Size:** S **Priority:** P3
+**Trigger:** before Game Mode development
 
 ---
 
-### US-021
-**Cross-language concept search**
-> As a user, when I type a word (e.g. "source"), I want to discover expressions in ALL available languages that relate to the same concept — not just those containing the word literally — so I can explore how different cultures express the same idea.
-
-**Size:** L **Priority:** P2 **Refs:** issue #20
-**Technical approach:** Concept Graph (540 cross-lingual concepts already in DB) — word → concept(s) → expressions linked to those concepts, all languages
-**Dependencies:** concept_graph populated in DB, FTS remains for exact matches
-
-**Acceptance criteria:**
-- Typing "source" returns expressions in FR/EN/ES/IT/TR that share the same concept — even if they don't contain the word "source"
-- Concept-matched results are visually distinguishable from text-exact matches (e.g. label "by concept")
-- Each result shows its country/language of origin
-- **If a country filter is active** (or user is on a `/country/[code]` page): only expressions from that country are returned, even for concept-based matches
-- If no concept graph match: fallback to text-based FTS only (no regression)
-
----
-
-### US-022
-**Emoji as exploration vector (concept graph + visual)**
-> As a user, I want to explore expressions by clicking or searching with an emoji, discovering expressions from all languages linked to that visual concept — giving the app a playful, non-verbal entry point.
-
-**Size:** XXL **Priority:** P3 (long-term exploration)
-**Note:** needs a workshop to define emoji → concept mapping (1 emoji → N concepts/words), and a visual design for the graph exploration view.
-
-**Acceptance criteria:** TBD — conception workshop first
-
----
-
-### US-014
-**Game Mode: emoji puzzles (V4)**
-> As a user, I want to guess the expression from a grid of emojis — with no text hint — then reveal the answer from the database.
-**Size:** XXL **Priority:** P3 (deferred until tech base is solid)
-**Dependencies:** solid data quality in all 5 languages, is_phrasebook column
-**Acceptance criteria:** TBD (full conception workshop needed first)
-
----
-
-### US-023
-**Filter and sort search results by country**
-> As a user who has searched and is viewing results, I want to filter expressions by one or more countries and sort them by country grouping, so that I can quickly explore how a specific culture expresses an idea.
-
-**Size:** M **Priority:** P2
-
-**Context:** When results are displayed, no country filter is currently visible (existing country chips only appear on the empty home page). This US adds a dedicated filter bar above the results grid, visible only in "searched" state.
-
-**Dependencies:**
-- API already supports `GET /search?q=...&region=fr,en` — country filtering is backend-side (no new endpoint needed)
-- Sort (by country) is frontend-only (re-order received results)
-
-**Acceptance criteria:**
-1. When results are displayed, a filter bar appears above the result cards with: a multi-select country dropdown (flags + name: FR, EN, ES, IT, TR) and a sort control
-2. Selecting one or more countries sends `region=fr,en` to the API and updates results; the count label updates (e.g. "8 expressions pour « source »")
-3. Sort "Par pays" groups results: all FR cards together, then EN, ES, IT, TR — each group has a subtle section header showing the country name and result count (e.g. "France · 12 expressions")
-4. Sort "Pertinence" (default) restores the original relevance order from the API; section headers are hidden
-5. Clearing all country filters or selecting "Tous" restores the full unfiltered results
-6. Filter bar state is reset on a new search
-
-**UX notes:**
-- Dropdown with checkboxes per country, "Tous" as a select-all option at the top
-- Sort: 2 options only — Pertinence (default) | Par pays
-- Filter bar is sticky or at minimum visible without scroll when results load
-- Mobile: controls stack vertically or collapse into a compact row
-
-**Future refinement — concept filter (deferred):**
-500+ concepts make a simple dropdown unusable. To be workshopped: type-ahead search on concept name, or top-N most common concepts as chips. Not in scope for this US.
-
----
-
-### US-024
-**Cross-language tag_names: map EN slugs to FR/ES/IT/TR**
-> As a user, when I search a word in my language (e.g. "argent", "trabajo", "amitié"), I want the concept-based search (4th pass in search_expressions) to surface expressions tagged with the equivalent English slug — even if the word doesn't literally appear in those expressions.
-
-**Size:** S **Priority:** P2
-**Context:** The concept 4th pass in `search_expressions()` (commit c74d0b6) works correctly but yields 0 new results for cross-language queries because `tag_names` only has `en: money → money` (no FR/ES/IT/TR mappings for EN slugs). The code is in place — only data is missing.
-
-**Root cause identified (session 33):**
-- Tags are stored as English slugs (e.g. "money", "work", "love")
-- tag_names has entries for most FR/ES/IT/TR slugs (e.g. `fr: argent → argent`) but NOT the reverse cross-mapping (`fr: money → argent`)
-- Result: query "argent" finds slug "argent" (18 expressions) but misses slug "money" (131 expressions), of which 59 are NOT already surfaced by FTS
-
-**Technical approach:**
-- Write `scripts/populate_tag_names_crosslang.py` that, for each EN canonical tag slug, inserts `{locale}: {slug} → {localized_name}` in `tag_names` for FR/ES/IT/TR
-- ~20 top tags × 4 locales = ~80 new rows (can be done with a static dict or via Mistral for the full list)
-- Run against prod DB; no migration needed (table already exists)
-- Apply with `--prod` flag
-
-**Acceptance criteria:**
-- `GET /search?q=argent&limit=100` returns `concept > 0` (expressions tagged "money" not found by FTS)
-- `GET /search?q=trabajo&limit=100` (ES for "work") returns concept results tagged "work"
-- No regression on existing searches
-
----
-
-### US-025
-**Search tooltip — how the engine works**
-> As a user seeing search results, I want to understand how the search works, so that I can formulate better queries and discover the multilingual depth of the engine.
+### DEBT-005
+**Render cold start: measure warm response time**
+> Confirm that warm API responses are under 3s. Add a Playwright timing assertion or a manual benchmark.
 
 **Size:** S **Priority:** P2
 
-**Implementation (S35):**
-- `SEARCH_HELP` module-level constant in `page.tsx` — 5 locales (fr/en/es/it/tr)
-- `?` button inline next to the search bar (flex row wrapping SearchBar)
-- Hover (desktop) / click (mobile) to show a 280px popover
-- Text: 2 sentences — multi-pass search mechanism + concrete example with «industrie»/«industry» → «work»/«business»
+---
 
-**Acceptance criteria:**
-1. A `?` button is visible next to the search bar at all times
-2. Hovering (desktop) or tapping (mobile) shows a tooltip in the current UI language
-3. Tooltip text mentions at least 2 search passes and gives a cross-language example
-4. No layout regression on mobile (max-width: calc(100vw - 2rem))
+### DEBT-006
+**Refactor homepage page.tsx inline styles → CSS tokens**
+> Replace inline style objects in page.tsx with CSS class names using existing design tokens.
+
+**Size:** L **Priority:** P3
+**Trigger:** before a major homepage redesign
 
 ---
 
-*Last updated: 2026-06-02 (session 38)*
+### DEBT-007
+**Migrate homepage hash routing to Next.js router**
+> Replace `window.history.replaceState(null, "", "#concept=...")` with proper Next.js router navigation.
+
+**Size:** L **Priority:** P3
+**Trigger:** before adding /search dedicated page (US-006)
+
+---
+
+*Last updated: 2026-06-02 (session 40)*
 *Maintained by Claude — update after each session's commits*

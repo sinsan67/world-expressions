@@ -36,7 +36,8 @@ export type Expression = {
   language: string;
   type: string;
   source: string | null;
-  match_type: "exact" | "semantic" | "tag" | "direct";
+  match_type: "exact" | "semantic" | "translation" | "concept" | "direct";
+  literal_fr: string | null;
   translation: ExpressionTranslation | null;
   concept_equivalents: ConceptEquivalent[];
 };

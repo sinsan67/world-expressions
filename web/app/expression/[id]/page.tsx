@@ -341,6 +341,7 @@ function ExpressionPageContent({ id }: { id: string }) {
   const t = T[lang];
   const translation = expr.translation ?? null;
   const translationActive = !!translation && lang !== expr.language;
+  const effectiveLiteral = translation?.literal ?? (lang === "fr" && expr.language !== "fr" ? expr.literal_fr : null);
 
   const primaryMeaning = translation?.meaning ?? expr.meaning;
   const primaryOrigin = translation?.origin ?? expr.origin;
@@ -530,7 +531,7 @@ function ExpressionPageContent({ id }: { id: string }) {
           </button>
 
           {/* Literal translation on photo, in hand font */}
-          {translationActive && translation?.literal && (
+          {lang !== expr.language && effectiveLiteral && (
             <p style={{
               fontFamily: "var(--font-hand)",
               fontSize: 22,
@@ -538,7 +539,7 @@ function ExpressionPageContent({ id }: { id: string }) {
               marginTop: "0.5rem",
               lineHeight: 1.3,
             }}>
-              « {translation.literal} »
+              « {effectiveLiteral} »
             </p>
           )}
         </div>
@@ -595,7 +596,7 @@ function ExpressionPageContent({ id }: { id: string }) {
           </div>
 
           {/* Literal + idiomatic translation block */}
-          {translationActive && translation?.literal && (
+          {lang !== expr.language && (effectiveLiteral || translation?.idiomatic) && (
             <div style={{
               background: "var(--plum-bg)",
               borderRadius: "var(--r-md)",
@@ -604,11 +605,13 @@ function ExpressionPageContent({ id }: { id: string }) {
               flexDirection: "column",
               gap: "0.4rem",
             }}>
-              <p style={{ fontSize: 13, color: "var(--plum)", lineHeight: 1.6 }}>
-                <span style={{ fontWeight: 600 }}>{t.wordForWord} : </span>
-                <em>« {translation.literal} »</em>
-              </p>
-              {translation.idiomatic && (
+              {effectiveLiteral && (
+                <p style={{ fontSize: 13, color: "var(--plum)", lineHeight: 1.6 }}>
+                  <span style={{ fontWeight: 600 }}>{t.wordForWord} : </span>
+                  <em>« {effectiveLiteral} »</em>
+                </p>
+              )}
+              {translation?.idiomatic && (
                 <p style={{ fontSize: 13, color: "var(--plum-deep)", lineHeight: 1.6 }}>
                   <span style={{ fontWeight: 600 }}>→ {t.equivalent} : </span>
                   {translation.idiomatic}
