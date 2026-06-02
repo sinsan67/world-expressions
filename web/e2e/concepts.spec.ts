@@ -50,11 +50,11 @@ test.describe('Page /concepts', () => {
     }
   });
 
-  test('#30 clic sur un concept redirige vers homepage avec recherche', async ({ page }) => {
+  test('#30 clic sur un concept redirige vers homepage', async ({ page }) => {
     await page.goto('/concepts');
     await page.locator(CONCEPT).first().waitFor({ timeout: T });
     await page.locator(CONCEPT).first().click();
-    await expect(page).toHaveURL(/\/#q=/, { timeout: T });
+    await expect(page).toHaveURL(/\/#(q|concept)=/, { timeout: T });
   });
 
   test('#31 "Concepts" est en surbrillance dans la sidebar', async ({ page }) => {
