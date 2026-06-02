@@ -16,26 +16,30 @@ test.describe('Page /country/[code]', () => {
     expect(await cards.count()).toBeGreaterThan(0);
   });
 
-  test('#48 clic sur un chip concept lance une recherche', async ({ page }) => {
+  test('#48 clic sur un chip concept filtre les expressions (reste sur /country/fr)', async ({ page }) => {
     await page.goto('/country/fr');
     await page.locator('h1, h2').first().waitFor({ timeout: T });
-    const chip = page.locator('[class*="chip"], [class*="Chip"], [class*="tag"]').first();
-    if (await chip.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await chip.click();
-      // Doit naviguer vers la homepage avec un paramètre de recherche
-      await expect(page).toHaveURL(/\/#q=|\/\?q=/, { timeout: T });
-    }
+    // Les chips concept sont des boutons dans la section "Filtrer par concept"
+    const chip = page.locator('button').filter({ hasText: /💰|❤️|😱|🐾|🏃|👁️|🎭|🎵|😄|😔/ }).first();
+    if (!await chip.isVisible({ timeout: 5000 }).catch(() => false)) return;
+    await chip.click();
+    // La page RESTE sur /country/fr (filtre local, pas de navigation)
+    await expect(page).toHaveURL(/\/country\/fr/, { timeout: T });
+    // Des cartes doivent toujours s'afficher (ou l'état "aucun résultat")
+    await page.waitForTimeout(1500);
+    const hasCards = await page.locator('[data-testid="expression-card"]').count();
+    const hasEmpty = await page.locator('text=Aucun résultat').isVisible().catch(() => false);
+    expect(hasCards > 0 || hasEmpty).toBe(true);
   });
 
-  test('#49 navigation vers un autre pays via le dropdown', async ({ page }) => {
+  test('#49 bouton "Explorer toutes les langues" navigue vers /search', async ({ page }) => {
     await page.goto('/country/fr');
     await page.locator('h1, h2').first().waitFor({ timeout: T });
-    const dropdown = page.locator('select, [role="listbox"], [class*="dropdown"], [class*="Dropdown"]').first();
-    if (await dropdown.isVisible({ timeout: 5000 }).catch(() => false)) {
-      // Le dropdown "Autre pays" doit contenir des options
-      const options = dropdown.locator('option, [role="option"]');
-      expect(await options.count()).toBeGreaterThan(1);
-    }
+    // Le bouton "Explorer toutes les langues / Explore all languages" navigue vers /search
+    const exploreBtn = page.locator('button').filter({ hasText: /Explorer toutes|Explore all|Explorar todos|Esplora tutte|Tüm dilleri/ }).first();
+    if (!await exploreBtn.isVisible({ timeout: 5000 }).catch(() => false)) return;
+    await exploreBtn.click();
+    await expect(page).toHaveURL(/\/search/, { timeout: T });
   });
 
   test('sidebar active "Atlas" depuis /country/[code]', async ({ page }) => {
