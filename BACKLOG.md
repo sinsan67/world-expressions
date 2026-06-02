@@ -30,7 +30,6 @@
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
 | [US-026](#us-026) | Feature | Results section headers by match type | S | P2 | 📋 Backlog |
-| [US-004](#us-004) | Feature | Search hero-dismiss animation on home | M | P2 | 📋 Backlog |
 | [US-007](#us-007) | Feature | Enrich IT expressions (target 200+) | M | P2 | 📋 Backlog |
 | [US-008](#us-008) | Feature | Enrich TR expressions (target 200+) | M | P2 | 📋 Backlog |
 | [DEBT-001](#debt-001) | Debt | Enable Vercel Analytics in Dashboard [action: Sinan] | S | P1 | 📋 Backlog |
@@ -42,6 +41,7 @@
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
 | [US-027](#us-027) | Feature | Always show literal translation on expression page | S | P2 | 📋 Backlog |
+| [US-004](#us-004) | Feature | Search hero-dismiss animation on home | M | P3 | 📋 Backlog |
 | [US-005](#us-005) | Feature | SearchOverlay: add country + concept dropdowns | M | P2 | 📋 Backlog |
 | [US-006](#us-006) | Feature | Dedicated /search page with persistent filters | L | P2 | 📋 Backlog |
 | [US-009](#us-009) | Feature | Add new language (DE or PT) | XL | P3 | 📋 Backlog |
@@ -115,7 +115,7 @@
 **Search hero-dismiss animation on home**
 > As a user on the home page, when I click "Search" in the sidebar, the hero section slides up and disappears, the search bar takes focus — no modal, stays in-page.
 
-**Size:** M **Priority:** P2
+**Size:** M **Priority:** P3 — impact utilisateur faible (Sinan, S40)
 **Acceptance criteria:**
 - Hero animates out (slide up + fade) when search triggered from sidebar while on /
 - Search input takes focus
