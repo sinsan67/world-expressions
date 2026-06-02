@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import ExpressionCard from "@/components/ExpressionCard";
 import WelcomeModal from "@/components/WelcomeModal";
@@ -11,6 +11,7 @@ import LangBar from "@/components/ui/LangBar";
 import ConceptChip from "@/components/home/ConceptChip";
 import CountryStamp from "@/components/home/CountryStamp";
 import SearchBar from "@/components/ui/SearchBar";
+import ResultsFilterBar from "@/components/home/ResultsFilterBar";
 import Eyebrow from "@/components/home/Eyebrow";
 import {
   searchExpressions, searchByConcept, browseByRegion, getTopTags,
@@ -157,6 +158,23 @@ const T = {
   },
 };
 
+const REGION_ORDER = ["fr", "en", "es", "it", "tr"];
+
+const SEARCH_HELP: Record<UILang, string> = {
+  fr: "Recherche en plusieurs passes : le mot exact, puis synonymes et tags, puis concepts multilingues. Exemple : « industrie » remonte aussi des expressions en anglais ou turc liées à « work » ou « business ».",
+  en: "Search runs in multiple passes: exact word, then synonyms and tags, then multilingual concepts. Example: «industry» also surfaces Spanish or Turkish expressions tagged «work» or «business».",
+  es: "Búsqueda en varias pasadas: la palabra exacta, luego sinónimos y etiquetas, y finalmente conceptos multilingues. Ejemplo: «industria» también muestra expresiones en francés o turco relacionadas con «work».",
+  it: "Ricerca in più fasi: la parola esatta, poi sinonimi e tag, poi concetti multilingua. Esempio: «industria» mostra anche espressioni in francese o turco legate a «work».",
+  tr: "Arama birden fazla aşamada çalışır: tam kelime, ardından eş anlamlılar ve etiketler, ardından çok dilli kavramlar. Örnek: «sanayi» araması «work» etiketli Fransızca veya İspanyolca ifadeler de gösterir.",
+};
+
+function sectionExprCount(n: number, lang: UILang): string {
+  if (lang === "es") return `${n} expresión${n > 1 ? "es" : ""}`;
+  if (lang === "it") return `${n} espression${n > 1 ? "i" : "e"}`;
+  if (lang === "tr") return `${n} deyim`;
+  return `${n} expression${n > 1 ? "s" : ""}`;
+}
+
 export default function Home() {
   const router = useRouter();
   const [uiLang, setUILang] = useState<UILang>("en");
@@ -180,6 +198,9 @@ export default function Home() {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterLang, setNewsletterLang] = useState<UILang>("en");
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
+  const [filterRegions, setFilterRegions] = useState<string[]>([]);
+  const [sortMode, setSortMode] = useState<"relevance" | "country">("relevance");
+  const [tooltipOpen, setTooltipOpen] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const exploreRef = useRef<HTMLDivElement>(null);
   const featuredLoadedRef = useRef(false);
@@ -187,12 +208,32 @@ export default function Home() {
   const t = T[uiLang];
   const allRegionCodes = regions.map((r) => r.code);
 
+  const groupedResults = useMemo(() => {
+    if (sortMode !== "country" || results.length === 0) return null;
+    const map = new Map<string, Expression[]>();
+    for (const expr of results) {
+      const code = expr.region ?? expr.language ?? "??";
+      if (!map.has(code)) map.set(code, []);
+      map.get(code)!.push(expr);
+    }
+    const ordered: { code: string; exprs: Expression[] }[] = [];
+    for (const r of regions) {
+      if (map.has(r.code)) ordered.push({ code: r.code, exprs: map.get(r.code)! });
+    }
+    for (const [code, exprs] of map) {
+      if (!regions.some((r) => r.code === code)) ordered.push({ code, exprs });
+    }
+    return ordered;
+  }, [results, sortMode, regions]);
+
   // ─── Handlers ───
 
   const runConceptSearch = useCallback(async (tag: string, rf: string[] = []) => {
     const regionCodes = rf.length ? rf : allRegionCodes;
     setQuery(tag);
     setSearchMode("concept");
+    setFilterRegions([]);
+    setSortMode("relevance");
     setLoading(true);
     setHasError(false);
     setSearched(true);
@@ -217,6 +258,8 @@ export default function Home() {
   const handleSearch = useCallback(async (q: string) => {
     if (q.trim().length < 2) return;
     setSearchLabel("");
+    setFilterRegions([]);
+    setSortMode("relevance");
     setSearchMode("text");
     setLoading(true);
     setHasError(false);
@@ -242,13 +285,14 @@ export default function Home() {
     if (!hasMore || loadingMore) return;
     setLoadingMore(true);
     const offset = results.length;
+    const activeRegions = filterRegions.length > 0 ? filterRegions : allRegionCodes;
     try {
       const data =
         searchMode === "browse"
-          ? await browseByRegion(allRegionCodes, LIMIT, offset)
+          ? await browseByRegion(activeRegions, LIMIT, offset)
           : searchMode === "concept"
-          ? await searchByConcept([query], allRegionCodes, LIMIT, offset)
-          : await searchExpressions(query, allRegionCodes, LIMIT, offset);
+          ? await searchByConcept([query], activeRegions, LIMIT, offset)
+          : await searchExpressions(query, activeRegions, LIMIT, offset);
       setResults((prev) => [...prev, ...data.results]);
       setHasMore(offset + data.results.length < data.total);
     } catch {
@@ -257,7 +301,33 @@ export default function Home() {
       setLoadingMore(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMore, loadingMore, searchMode, query, results.length, allRegionCodes]);
+  }, [hasMore, loadingMore, searchMode, query, results.length, allRegionCodes, filterRegions]);
+
+  const handleFilterChange = useCallback(async (newFilter: string[]) => {
+    setFilterRegions(newFilter);
+    const regionCodes = newFilter.length > 0 ? newFilter : allRegionCodes;
+    setLoading(true);
+    setHasError(false);
+    setResults([]);
+    setHasMore(false);
+    try {
+      const data =
+        searchMode === "browse"
+          ? await browseByRegion(regionCodes, LIMIT, 0)
+          : searchMode === "concept"
+          ? await searchByConcept([query], regionCodes, LIMIT, 0)
+          : await searchExpressions(query, regionCodes, LIMIT, 0);
+      setResults(data.results);
+      setTotal(data.total);
+      setHasMore(data.results.length < data.total);
+    } catch {
+      setHasError(true);
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchMode, query, allRegionCodes]);
 
   const refreshFeatured = useCallback(() => {
     getRandomExpression(uiLang).then((expr) => {
@@ -475,21 +545,54 @@ export default function Home() {
 
         {/* Search section */}
         <div ref={exploreRef} style={{ padding: "2rem 1.5rem 1rem", maxWidth: 720, margin: "0 auto" }}>
-          <SearchBar
-            value={query}
-            onChange={setQuery}
-            onSearch={() => handleSearch(query)}
-            placeholder={t.placeholder}
-            searchLabel={t.search}
-            loading={loading}
-            emoji={tagIcon(query.trim()) ?? undefined}
-          />
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <div style={{ flex: 1 }}>
+              <SearchBar
+                value={query}
+                onChange={setQuery}
+                onSearch={() => handleSearch(query)}
+                placeholder={t.placeholder}
+                searchLabel={t.search}
+                loading={loading}
+                emoji={tagIcon(query.trim()) ?? undefined}
+              />
+            </div>
+            <div
+              style={{ position: "relative", flexShrink: 0 }}
+              onMouseEnter={() => setTooltipOpen(true)}
+              onMouseLeave={() => setTooltipOpen(false)}
+            >
+              <button
+                onClick={() => setTooltipOpen((o) => !o)}
+                aria-label="Comment fonctionne la recherche ?"
+                style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid var(--paper-edge)", background: "var(--paper-deep)", color: "var(--ink-soft)", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-body)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+              >
+                ?
+              </button>
+              {tooltipOpen && (
+                <div style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", zIndex: 100, background: "var(--paper)", border: "1px solid var(--paper-edge)", borderRadius: 10, padding: "0.75rem 1rem", width: 280, maxWidth: "calc(100vw - 2rem)", boxShadow: "0 4px 16px rgba(0,0,0,0.12)", fontSize: 12, color: "var(--ink-soft)", lineHeight: 1.6, fontFamily: "var(--font-body)" }}>
+                  {SEARCH_HELP[uiLang]}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Results area */}
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem 2rem" }}>
           {hasError && (
             <p className="text-center text-sm mb-6" style={{ color: "var(--terra)" }}>{t.serverError}</p>
+          )}
+
+          {searched && results.length > 0 && (
+            <ResultsFilterBar
+              regions={regions}
+              filterRegions={filterRegions}
+              onFilterChange={handleFilterChange}
+              sortMode={sortMode}
+              onSortChange={setSortMode}
+              uiLang={uiLang}
+            />
           )}
 
           {searched && !loading && !hasError && results.length > 0 && (
@@ -502,22 +605,41 @@ export default function Home() {
 
           {results.length > 0 && (
             <>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
-                {results.map((expr, i) => (
-                  <div
-                    key={expr.id}
-                    style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i % LIMIT, 8) * 45}ms` }}
-                  >
-                    <ExpressionCard
-                      expression={expr}
-                      onTagClick={(tag) => runConceptSearch(tag)}
-                      uiLang={uiLang}
-                      tagNames={tagNames}
-                      fromSearch={searched ? query : undefined}
-                    />
+              {groupedResults ? (
+                groupedResults.map(({ code, exprs }, gi) => (
+                  <div key={code}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: `${gi === 0 ? "0" : "1.5rem"} 0 0.75rem`, color: "var(--ink-soft)", fontSize: 13, fontFamily: "var(--font-body)" }}>
+                      <span>{FLAG[code] ?? "🌍"}</span>
+                      <span style={{ fontWeight: 600 }}>{COUNTRY_NAME[code] ?? code.toUpperCase()}</span>
+                      <span style={{ color: "var(--ink-faint)" }}>· {sectionExprCount(exprs.length, uiLang)}</span>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
+                      {exprs.map((expr, i) => (
+                        <div key={expr.id} style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
+                          <ExpressionCard expression={expr} onTagClick={(tag) => runConceptSearch(tag)} uiLang={uiLang} tagNames={tagNames} fromSearch={searched ? query : undefined} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ))}
-              </div>
+                ))
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
+                  {results.map((expr, i) => (
+                    <div
+                      key={expr.id}
+                      style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i % LIMIT, 8) * 45}ms` }}
+                    >
+                      <ExpressionCard
+                        expression={expr}
+                        onTagClick={(tag) => runConceptSearch(tag)}
+                        uiLang={uiLang}
+                        tagNames={tagNames}
+                        fromSearch={searched ? query : undefined}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
               <div ref={sentinelRef} className="h-4" />
               {loadingMore && (
                 <div className="flex justify-center py-6">
