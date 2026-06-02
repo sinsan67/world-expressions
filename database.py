@@ -104,11 +104,32 @@ def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
     Retourne une expression au hasard (toutes langues).
     Si `locale` est fourni, essaie de servir le sens dans cette locale.
     Retourne aussi `meaning_locale` pour que le frontend sache dans quelle langue est le sens.
+
+    Optimisation perf : ORDER BY RANDOM() en deux étapes.
+    Étape 1 — trie uniquement la colonne id (table légère, pas de JOIN).
+    Étape 2 — charge l'expression complète par PK (lookup direct, pas de tri).
+    Évite de trier des milliers de lignes multi-colonnes jointes à chaque appel.
     """
+    effective_locale = locale or ""
+
+    # Étape 1 : ID aléatoire sur la table légère, sans JOINs
+    id_sql = """
+        SELECT e.id FROM expressions e
+        WHERE e.kind != 'word'
+          AND NOT EXISTS (
+              SELECT 1 FROM expression_tags et_pb
+              JOIN tags t_pb ON t_pb.id = et_pb.tag_id
+              WHERE et_pb.expression_id = e.id AND t_pb.slug = 'phrasebook'
+          )
+        ORDER BY RANDOM()
+        LIMIT 1
+    """
+
+    # Étape 2 : chargement complet par PK — pas d'ORDER BY, lookup direct
     # Double LEFT JOIN : ec_orig = contenu dans la langue de l'expression,
     # ec_pref = contenu dans la locale demandée (peut être NULL si pas encore traduit).
     # COALESCE prend ec_pref en priorité, sinon ec_orig.
-    sql = """
+    full_sql = """
         SELECT
             e.id,
             e.text,
@@ -133,24 +154,18 @@ def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
             ON ct_pref.expression_id = e.id AND ct_pref.target_lang = :locale
         LEFT JOIN expression_tags et ON et.expression_id = e.id
         LEFT JOIN tags t ON t.id = et.tag_id
-        WHERE e.kind != 'word'
-          AND NOT EXISTS (
-              SELECT 1 FROM expression_tags et_pb
-              JOIN tags t_pb ON t_pb.id = et_pb.tag_id
-              WHERE et_pb.expression_id = e.id AND t_pb.slug = 'phrasebook'
-          )
+        WHERE e.id = :expr_id
         GROUP BY e.id, e.text, e.language, e.region, e.register,
                  e.illustration, e.source,
                  ec_orig.meaning, ec_orig.origin, ec_orig.example,
                  ec_pref.meaning, ec_pref.origin, ec_pref.example,
                  ct_pref.meaning, ct_pref.origin, ct_pref.example, ct_pref.literal
-        ORDER BY RANDOM()
-        LIMIT 1
     """
-    # Si pas de locale demandée, on utilise la langue de l'expression comme fallback
-    effective_locale = locale or ""
     with engine.connect() as conn:
-        row = conn.execute(text(sql), {"locale": effective_locale}).fetchone()
+        id_row = conn.execute(text(id_sql)).fetchone()
+        if not id_row:
+            return None
+        row = conn.execute(text(full_sql), {"locale": effective_locale, "expr_id": id_row.id}).fetchone()
     if not row:
         return None
     result = _build_expression_dict(row, "direct")
