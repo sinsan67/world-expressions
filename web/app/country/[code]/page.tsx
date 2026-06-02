@@ -715,11 +715,43 @@ function CountryPageContent({ code }: { code: string }) {
             </div>
           )}
 
-          {/* No results */}
+          {/* No results (search/filter active) */}
           {!loading && expressions.length === 0 && (searchQuery || activeTag) && (
             <div style={{ textAlign: "center", marginTop: "4rem", color: "var(--ink-faint)" }}>
               <div style={{ fontSize: 36, marginBottom: "0.75rem" }}>🔍</div>
               <p style={{ fontSize: 16, fontFamily: "var(--font-body)" }}>{t.noResults}</p>
+            </div>
+          )}
+
+          {/* No expressions for this country yet */}
+          {!loading && total === 0 && !searchQuery && !activeTag && (
+            <div style={{ textAlign: "center", marginTop: "5rem", color: "var(--ink-faint)" }}>
+              <div style={{ fontSize: 48, marginBottom: "1rem" }}>{flag}</div>
+              <p style={{ fontSize: 17, fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--ink-soft)", marginBottom: "0.5rem" }}>
+                {countryName}
+              </p>
+              <p style={{ fontSize: 14, fontFamily: "var(--font-body)", marginBottom: "1.5rem" }}>
+                {uiLang === "fr"
+                  ? "Aucune expression disponible pour ce pays pour l'instant."
+                  : uiLang === "es"
+                  ? "No hay expresiones disponibles para este país por ahora."
+                  : uiLang === "it"
+                  ? "Nessuna espressione disponibile per questo paese al momento."
+                  : uiLang === "tr"
+                  ? "Bu ülke için henüz ifade bulunmuyor."
+                  : "No expressions available for this country yet."}
+              </p>
+              <button
+                onClick={() => switchMode("explore")}
+                style={{
+                  padding: "10px 22px", borderRadius: "var(--r-pill)",
+                  background: "var(--plum)", color: "#fff", border: "none",
+                  fontSize: 14, fontWeight: 600, cursor: "pointer",
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                🌍 {t.exploreAll}
+              </button>
             </div>
           )}
 

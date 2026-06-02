@@ -197,7 +197,7 @@ export default function Home() {
     setHasError(false);
     setSearched(true);
     setResults([]);
-    window.history.replaceState(null, "", "#q=" + encodeURIComponent(tag));
+    window.history.replaceState(null, "", "#concept=" + encodeURIComponent(tag));
     exploreRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     try {
       const data = await searchByConcept([tag], regionCodes, LIMIT, 0);
@@ -306,7 +306,13 @@ export default function Home() {
 
   useEffect(() => {
     const hash = window.location.hash;
-    if (hash.startsWith("#q=")) {
+    if (hash.startsWith("#concept=")) {
+      const slug = decodeURIComponent(hash.slice(9));
+      if (slug.trim().length >= 2) {
+        setQuery(slug);
+        runConceptSearch(slug);
+      }
+    } else if (hash.startsWith("#q=")) {
       const initQ = decodeURIComponent(hash.slice(3));
       if (initQ.trim().length >= 2) {
         setQuery(initQ);
