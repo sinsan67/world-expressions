@@ -61,6 +61,7 @@ def search_expressions(
         "exact":       sum(1 for r in results if r["match_type"] == "exact"),
         "semantic":    sum(1 for r in results if r["match_type"] == "semantic"),
         "translation": sum(1 for r in results if r["match_type"] == "translation"),
+        "concept":     sum(1 for r in results if r["match_type"] == "concept"),
         "results": results,
     }
 

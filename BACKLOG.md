@@ -25,13 +25,15 @@
 
 ---
 
-## Sprint — Current (session 30, 2026-06-02)
+## Sprint — Current (session 33, 2026-06-02)
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
-| [BUG-001](#bug-001) | Bug | Search from sidebar broken on home page | S | P0 | ✅ Fixed — pending merge |
-| [US-001](#us-001) | Feature | Merge staging → main (55ec049) | S | P0 | 🔜 Ready |
-| [US-002](#us-002) | Feature | Verify TR enrichment completion + count | S | P1 | 🔜 Ready |
+| [BUG-001](#bug-001) | Bug | Search from sidebar broken on home page | S | P0 | ✅ Done (staging) |
+| [US-021](#us-021) | Feature | Cross-language concept search (issue #20) | L | P2 | ✅ Done — commit 6ad146d |
+| [US-022b](#us-022b) | Feature | Breadcrumb retour recherche (issue #21) | S | P2 | ✅ Done — commit c1c3b17 |
+| [US-002](#us-002) | Feature | Verify TR enrichment completion + count | S | P1 | ✅ Done — TR enrichment terminé S31 |
+| [US-001](#us-001) | Feature | Merge staging → main (6ad146d) | S | P0 | 🔜 Ready — migration GIN à appliquer d'abord |
 | [US-003](#us-003) | Feature | QA Checklist items #12+ | M | P1 | 🔜 Ready |
 
 ---
@@ -40,6 +42,7 @@
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
+| [US-023](#us-023) | Feature | Filter + sort search results by country | M | P2 | 📋 Ready |
 | [US-004](#us-004) | Feature | SearchOverlay: hero-dismiss animation on home | M | P2 | 📋 Backlog |
 | [US-005](#us-005) | Feature | SearchOverlay: add country + concept dropdowns | M | P2 | 📋 Backlog |
 | [US-006](#us-006) | Feature | Dedicated /search page with persistent filters | L | P2 | 📋 Backlog |
@@ -57,7 +60,7 @@
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
-| [US-021](#us-021) | Feature | Cross-language concept search (issue #20) | L | P2 | 📋 Backlog |
+| [US-021](#us-021) | Feature | Cross-language concept search (issue #20) | L | P2 | ✅ Done — commit 6ad146d |
 | [US-009](#us-009) | Feature | Add new language (DE or PT) | XL | P3 | 📋 Backlog |
 | [US-010](#us-010) | Feature | Feature Voice: listen to expression (Web Speech API) | S | P3 | 📋 Backlog |
 | [US-011](#us-011) | Feature | Concept quality: WordReference enrichment script | M | P3 | 📋 Backlog |
@@ -254,5 +257,36 @@
 
 ---
 
-*Last updated: 2026-06-02 (session 31)*
+### US-023
+**Filter and sort search results by country**
+> As a user who has searched and is viewing results, I want to filter expressions by one or more countries and sort them by country grouping, so that I can quickly explore how a specific culture expresses an idea.
+
+**Size:** M **Priority:** P2
+
+**Context:** When results are displayed, no country filter is currently visible (existing country chips only appear on the empty home page). This US adds a dedicated filter bar above the results grid, visible only in "searched" state.
+
+**Dependencies:**
+- API already supports `GET /search?q=...&region=fr,en` — country filtering is backend-side (no new endpoint needed)
+- Sort (by country) is frontend-only (re-order received results)
+
+**Acceptance criteria:**
+1. When results are displayed, a filter bar appears above the result cards with: a multi-select country dropdown (flags + name: FR, EN, ES, IT, TR) and a sort control
+2. Selecting one or more countries sends `region=fr,en` to the API and updates results; the count label updates (e.g. "8 expressions pour « source »")
+3. Sort "Par pays" groups results: all FR cards together, then EN, ES, IT, TR — each group has a subtle section header showing the country name and result count (e.g. "France · 12 expressions")
+4. Sort "Pertinence" (default) restores the original relevance order from the API; section headers are hidden
+5. Clearing all country filters or selecting "Tous" restores the full unfiltered results
+6. Filter bar state is reset on a new search
+
+**UX notes:**
+- Dropdown with checkboxes per country, "Tous" as a select-all option at the top
+- Sort: 2 options only — Pertinence (default) | Par pays
+- Filter bar is sticky or at minimum visible without scroll when results load
+- Mobile: controls stack vertically or collapse into a compact row
+
+**Future refinement — concept filter (deferred):**
+500+ concepts make a simple dropdown unusable. To be workshopped: type-ahead search on concept name, or top-N most common concepts as chips. Not in scope for this US.
+
+---
+
+*Last updated: 2026-06-02 (session 33)*
 *Maintained by Claude — update after each session's commits*

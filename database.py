@@ -208,16 +208,35 @@ _CONTENT_VEC = """to_tsvector('simple',
             coalesce(example, '') || ' ' || coalesce(tags_text, ''))"""
 
 
+def _find_matching_tag_slugs(query: str) -> set[str]:
+    """
+    Returns tag slugs where the slug or any localized tag name matches the query (case-insensitive exact).
+    E.g. query "argent" → slug "argent" (FR tag); query "money" → slug "money" (EN tag).
+    Note: FR and EN tag slugs are separate (argent ≠ money) — cross-slug synonymy not yet implemented.
+    """
+    sql = """
+        SELECT DISTINCT t.slug FROM tags t
+        LEFT JOIN tag_names tn ON tn.tag_id = t.id
+        WHERE LOWER(t.slug) = LOWER(:q) OR LOWER(tn.name) = LOWER(:q)
+    """
+    with engine.connect() as conn:
+        rows = conn.execute(text(sql), {"q": query.strip()}).fetchall()
+    return {r.slug for r in rows}
+
+
 def search_expressions(query: str, regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0, type_filter: Optional[str] = None) -> tuple[list[dict], int]:
     """
     Cherche des expressions par mot-clé.
 
-    Trois types de correspondance, retournés dans cet ordre :
+    Quatre types de correspondance, retournés dans cet ordre :
     1. "exact"       : le mot apparaît dans le texte de l'expression (FTS sur expressions.text)
     2. "semantic"    : le mot apparaît dans le sens/tags/exemple/origine (FTS sur expression_content)
     3. "translation" : le mot apparaît dans une traduction (content_translations, toutes langues cibles)
                        → permet de trouver "fuente" ou "fonte" en cherchant "source"
                        → nécessite le GIN index idx_content_translations_fts
+    4. "concept"     : le mot correspond à un tag slug ou un nom de tag localisé (tag_names)
+                       → chercher "argent" (FR) ou "money" (EN) ramène toutes les expressions
+                          taggées "money" dans toutes les langues
 
     Utilise PostgreSQL tsvector/tsquery config 'simple'. GIN indexes sur les trois tables.
     """
@@ -309,7 +328,20 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
     found_ids = {r["id"] for r in exact + semantic}
     translation_new = [r for r in translation if r["id"] not in found_ids]
 
-    all_results = exact + semantic + translation_new
+    # 4th pass: concept search — if query matches a tag slug or localized tag name
+    # (e.g. "argent" → slug "money", "travail" → slug "work")
+    matching_tags = _find_matching_tag_slugs(query)
+    concept_new: list[dict] = []
+    if matching_tags:
+        concept_all, _ = search_by_concept(matching_tags, regions, limit=10000, type_filter=type_filter)
+        found_ids_3_passes = {r["id"] for r in exact + semantic + translation_new}
+        concept_new = [
+            {**r, "match_type": "concept"}
+            for r in concept_all
+            if r["id"] not in found_ids_3_passes
+        ]
+
+    all_results = exact + semantic + translation_new + concept_new
     return all_results[offset:offset + limit], len(all_results)
 
 
