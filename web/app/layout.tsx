@@ -29,6 +29,10 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://world-expressions.vercel.app"),
   title: "World Expressions",
   description: "Every language has its own madness.",
+  icons: {
+    icon: "/logo.svg",
+    apple: "/logo.svg",
+  },
   openGraph: {
     title: "World Expressions",
     description: "Every language has its own madness.",
