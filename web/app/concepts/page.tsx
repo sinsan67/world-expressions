@@ -8,6 +8,7 @@ import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
 import { tagIcon } from "@/lib/tagIcons";
 import { getConcepts, ConceptItem } from "@/lib/api";
+import { DOMAIN_DEFS, DomainDef } from "@/lib/domainDefs";
 
 type UILang = "fr" | "en" | "es" | "it" | "tr";
 
@@ -107,31 +108,6 @@ const T: Record<UILang, {
 
 // ─── Domaines ─────────────────────────────────────────────────────────────────
 
-type DomainDef = { emoji: string; labels: Record<UILang, string> };
-
-const DOMAIN_DEFS: Record<string, DomainDef> = {
-  emotions:  { emoji: "💛", labels: { fr: "Émotions",        en: "Emotions",          es: "Emociones",        it: "Emozioni",        tr: "Duygular" } },
-  relations: { emoji: "🤝", labels: { fr: "Relations",       en: "Relationships",     es: "Relaciones",       it: "Relazioni",       tr: "İlişkiler" } },
-  money:     { emoji: "💰", labels: { fr: "Argent & pouvoir",en: "Money & power",     es: "Dinero & poder",   it: "Denaro & potere", tr: "Para & güç" } },
-  wisdom:    { emoji: "🧠", labels: { fr: "Esprit & sagesse",en: "Mind & wisdom",     es: "Mente & sabiduría",it: "Mente & saggezza",tr: "Akıl & bilgelik" } },
-  speech:    { emoji: "🗣️", labels: { fr: "Parole",          en: "Speech",            es: "Palabra",          it: "Parola",          tr: "Söz" } },
-  morality:  { emoji: "⚖️", labels: { fr: "Morale & société",en: "Morality",          es: "Moral & sociedad", it: "Morale",          tr: "Ahlak" } },
-  nature:    { emoji: "🌿", labels: { fr: "Nature & corps",  en: "Nature & body",     es: "Naturaleza",       it: "Natura & corpo",  tr: "Doğa & beden" } },
-  time:      { emoji: "⏳", labels: { fr: "Temps & destin",  en: "Time & fate",       es: "Tiempo & destino", it: "Tempo & destino", tr: "Zaman & kader" } },
-  work:      { emoji: "💪", labels: { fr: "Travail & effort",en: "Work & effort",     es: "Trabajo & esfuerzo",it: "Lavoro & sforzo",tr: "Çalışma" } },
-  humor:     { emoji: "🎭", labels: { fr: "Humour & absurde",en: "Humor & absurdity", es: "Humor & absurdo",  it: "Umorismo",        tr: "Mizah" } },
-  pleasure:  { emoji: "🍷", labels: { fr: "Plaisirs & excès",en: "Pleasures & excess",es: "Placeres",         it: "Piaceri",         tr: "Zevk" } },
-  travel:    { emoji: "🌍", labels: { fr: "Voyage & exil",   en: "Travel & exile",    es: "Viaje & exilio",   it: "Viaggio",         tr: "Seyahat" } },
-  luck:      { emoji: "🎲", labels: { fr: "Chance & risque", en: "Luck & risk",       es: "Suerte & riesgo",  it: "Fortuna",         tr: "Şans & risk" } },
-  knowledge: { emoji: "📖", labels: { fr: "Savoir",          en: "Knowledge",         es: "Saber",            it: "Sapere",          tr: "Bilgi" } },
-  justice:   { emoji: "⚔️", labels: { fr: "Justice & loi",   en: "Justice & law",     es: "Justicia & ley",   it: "Giustizia",       tr: "Adalet" } },
-  conflict:  { emoji: "🔥", labels: { fr: "Conflit",         en: "Conflict",          es: "Conflicto",        it: "Conflitto",       tr: "Çatışma" } },
-  ambition:  { emoji: "👑", labels: { fr: "Ambition",        en: "Ambition",          es: "Ambición",         it: "Ambizione",       tr: "Hırs" } },
-  body:      { emoji: "🫀", labels: { fr: "Corps & santé",   en: "Body & health",     es: "Cuerpo & salud",   it: "Corpo & salute",  tr: "Beden & sağlık" } },
-  change:    { emoji: "🌀", labels: { fr: "Changement",      en: "Change",            es: "Cambio",           it: "Cambiamento",     tr: "Değişim" } },
-  food:      { emoji: "🍽️", labels: { fr: "Nourriture",      en: "Food",              es: "Comida",           it: "Cibo",            tr: "Yemek" } },
-};
-
 // Couleur de fond + accent par domaine (palette pastel)
 const DOMAIN_COLORS: Record<string, { bg: string; accent: string }> = {
   emotions:  { bg: "linear-gradient(145deg, #fffbeb 0%, #fde68a 100%)", accent: "#b45309" },
@@ -209,8 +185,11 @@ export default function ConceptsPage() {
   const [langFilter, setLangFilter] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<"themes" | "styles">("themes");
   const [activeDomain, setActiveDomain] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"pills" | "bubbles">("pills");
+  const [isDesktop, setIsDesktop] = useState(true);
 
   const [concepts, setConcepts] = useState<ConceptItem[]>([]);
+  const [domainExprCounts, setDomainExprCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -219,6 +198,13 @@ export default function ConceptsPage() {
     // Restore active domain from URL on mount (e.g. /concepts?domain=emotions)
     const domFromUrl = new URLSearchParams(window.location.search).get("domain");
     if (domFromUrl) setActiveDomain(domFromUrl);
+  }, []);
+
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
   // Sync activeDomain with browser back/forward buttons
@@ -245,7 +231,10 @@ export default function ConceptsPage() {
     setLoading(true);
     const lang = langFilter !== "all" ? LANG_API[langFilter] ?? "" : "";
     getConcepts(uiLang, lang)
-      .then((data) => setConcepts(data.concepts))
+      .then((data) => {
+        setConcepts(data.concepts);
+        setDomainExprCounts(data.domain_expr_counts ?? {});
+      })
       .catch(() => setConcepts([]))
       .finally(() => setLoading(false));
   }, [uiLang, langFilter]);
@@ -272,13 +261,6 @@ export default function ConceptsPage() {
     return map;
   }, [concepts]);
 
-  const domainExprCounts = useMemo(() => {
-    const map: Record<string, number> = {};
-    for (const [domain, items] of Object.entries(conceptsByDomain)) {
-      map[domain] = items.reduce((sum, c) => sum + c.count, 0);
-    }
-    return map;
-  }, [conceptsByDomain]);
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
@@ -515,38 +497,92 @@ export default function ConceptsPage() {
                 /* ── Vue d'un domaine ── */
                 <div style={{ marginBottom: "3rem", animation: "fadeSlideUp 0.35s cubic-bezier(0.2, 0.7, 0.3, 1) both" }}>
 
-                  {/* Retour */}
-                  <button
-                    onClick={closeDomain}
-                    style={{
-                      background: "var(--paper-edge)",
-                      border: "none",
-                      cursor: "pointer",
-                      fontFamily: "var(--font-body)",
-                      fontSize: 14,
-                      fontWeight: 500,
-                      color: "var(--ink-soft)",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "0.4rem",
-                      padding: "6px 14px",
-                      borderRadius: "var(--r-pill)",
-                      marginBottom: "1.5rem",
-                      transition: "background 120ms ease, color 120ms ease",
-                    }}
-                    onMouseEnter={(e) => {
-                      const el = e.currentTarget as HTMLElement;
-                      el.style.background = "var(--plum-bg)";
-                      el.style.color = "var(--plum)";
-                    }}
-                    onMouseLeave={(e) => {
-                      const el = e.currentTarget as HTMLElement;
-                      el.style.background = "var(--paper-edge)";
-                      el.style.color = "var(--ink-soft)";
-                    }}
-                  >
-                    ← {t.backToDomains}
-                  </button>
+                  {/* Retour + toggle vue */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
+                    <button
+                      onClick={closeDomain}
+                      style={{
+                        background: "var(--paper-edge)",
+                        border: "none",
+                        cursor: "pointer",
+                        fontFamily: "var(--font-body)",
+                        fontSize: 14,
+                        fontWeight: 500,
+                        color: "var(--ink-soft)",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.4rem",
+                        padding: "6px 14px",
+                        borderRadius: "var(--r-pill)",
+                        transition: "background 120ms ease, color 120ms ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        const el = e.currentTarget as HTMLElement;
+                        el.style.background = "var(--plum-bg)";
+                        el.style.color = "var(--plum)";
+                      }}
+                      onMouseLeave={(e) => {
+                        const el = e.currentTarget as HTMLElement;
+                        el.style.background = "var(--paper-edge)";
+                        el.style.color = "var(--ink-soft)";
+                      }}
+                    >
+                      ← {t.backToDomains}
+                    </button>
+
+                    {isDesktop && (
+                      <button
+                        onClick={() => setViewMode(v => v === "pills" ? "bubbles" : "pills")}
+                        title={viewMode === "pills" ? "Vue bulles" : "Vue liste"}
+                        style={{
+                          background: "var(--paper-edge)",
+                          border: "none",
+                          cursor: "pointer",
+                          color: "var(--ink-soft)",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.35rem",
+                          padding: "6px 12px",
+                          borderRadius: "var(--r-pill)",
+                          fontSize: 13,
+                          fontFamily: "var(--font-body)",
+                          fontWeight: 500,
+                          transition: "background 120ms ease, color 120ms ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          const el = e.currentTarget as HTMLElement;
+                          el.style.background = "var(--plum-bg)";
+                          el.style.color = "var(--plum)";
+                        }}
+                        onMouseLeave={(e) => {
+                          const el = e.currentTarget as HTMLElement;
+                          el.style.background = "var(--paper-edge)";
+                          el.style.color = "var(--ink-soft)";
+                        }}
+                      >
+                        {viewMode === "pills" ? (
+                          <>
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                              <circle cx="3.5" cy="3.5" r="2" stroke="currentColor" strokeWidth="1.4"/>
+                              <circle cx="10.5" cy="3.5" r="2" stroke="currentColor" strokeWidth="1.4"/>
+                              <circle cx="3.5" cy="10.5" r="2" stroke="currentColor" strokeWidth="1.4"/>
+                              <circle cx="10.5" cy="10.5" r="2" stroke="currentColor" strokeWidth="1.4"/>
+                            </svg>
+                            Bulles
+                          </>
+                        ) : (
+                          <>
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                              <line x1="1" y1="3.5" x2="13" y2="3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                              <line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                              <line x1="1" y1="10.5" x2="13" y2="10.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                            </svg>
+                            Liste
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
 
                   {/* En-tête du domaine — cliquable pour revenir */}
                   <button
@@ -581,50 +617,103 @@ export default function ConceptsPage() {
                     </div>
                   </button>
 
-                  {/* Pills de concepts avec emojis */}
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-                    {(conceptsByDomain[activeDomain] ?? []).map((concept) => {
-                      const icon = tagIcon(concept.slug);
-                      return (
-                        <button
-                          key={concept.slug}
-                          data-testid="concept-card"
-                          onClick={() => handleConceptClick(concept)}
-                          style={{
-                            fontFamily: "var(--font-body)",
-                            fontSize: 14,
-                            padding: "6px 14px",
-                            borderRadius: "var(--r-pill)",
-                            border: "1.5px solid var(--paper-edge)",
-                            background: "var(--paper)",
-                            color: "var(--ink)",
-                            cursor: "pointer",
-                            transition: "all 120ms ease",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.4rem",
-                            boxShadow: "var(--shadow-postcard)",
-                          }}
-                          onMouseEnter={(e) => {
-                            const el = e.currentTarget as HTMLElement;
-                            el.style.borderColor = "var(--plum)";
-                            el.style.color = "var(--plum)";
-                            el.style.transform = "translateY(-1px)";
-                          }}
-                          onMouseLeave={(e) => {
-                            const el = e.currentTarget as HTMLElement;
-                            el.style.borderColor = "var(--paper-edge)";
-                            el.style.color = "var(--ink)";
-                            el.style.transform = "translateY(0)";
-                          }}
-                        >
-                          {icon && <span style={{ fontSize: 15 }}>{icon}</span>}
-                          <span style={{ fontWeight: 500 }}>{concept.name}</span>
-                          <span style={{ fontSize: 11, color: "var(--ink-faint)", fontWeight: 400 }}>{concept.count}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  {/* Concepts — vue pills ou vue bulles */}
+                  {(!isDesktop || viewMode === "pills") ? (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                      {(conceptsByDomain[activeDomain] ?? []).map((concept) => {
+                        const icon = tagIcon(concept.slug);
+                        return (
+                          <button
+                            key={concept.slug}
+                            data-testid="concept-card"
+                            onClick={() => handleConceptClick(concept)}
+                            style={{
+                              fontFamily: "var(--font-body)",
+                              fontSize: 14,
+                              padding: "6px 14px",
+                              borderRadius: "var(--r-pill)",
+                              border: "1.5px solid var(--paper-edge)",
+                              background: "var(--paper)",
+                              color: "var(--ink)",
+                              cursor: "pointer",
+                              transition: "all 120ms ease",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "0.4rem",
+                              boxShadow: "var(--shadow-postcard)",
+                            }}
+                            onMouseEnter={(e) => {
+                              const el = e.currentTarget as HTMLElement;
+                              el.style.borderColor = "var(--plum)";
+                              el.style.color = "var(--plum)";
+                              el.style.transform = "translateY(-1px)";
+                            }}
+                            onMouseLeave={(e) => {
+                              const el = e.currentTarget as HTMLElement;
+                              el.style.borderColor = "var(--paper-edge)";
+                              el.style.color = "var(--ink)";
+                              el.style.transform = "translateY(0)";
+                            }}
+                          >
+                            {icon && <span style={{ fontSize: 15 }}>{icon}</span>}
+                            <span style={{ fontWeight: 500 }}>{concept.name}</span>
+                            <span style={{ fontSize: 11, color: "var(--ink-faint)", fontWeight: 400 }}>{concept.count}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", justifyContent: "center", padding: "0.5rem 0" }}>
+                      {(conceptsByDomain[activeDomain] ?? []).map((concept) => {
+                        const icon = tagIcon(concept.slug) ?? "💡";
+                        const yShift = (concept.slug.charCodeAt(0) % 3 - 1) * 5;
+                        return (
+                          <button
+                            key={concept.slug}
+                            data-testid="concept-card"
+                            onClick={() => handleConceptClick(concept)}
+                            style={{
+                              width: 90,
+                              height: 90,
+                              borderRadius: "50%",
+                              border: "1.5px solid var(--paper-edge)",
+                              background: "var(--paper)",
+                              color: "var(--ink)",
+                              cursor: "pointer",
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: 3,
+                              boxShadow: "var(--shadow-postcard)",
+                              transition: "transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease",
+                              transform: `translateY(${yShift}px)`,
+                              padding: "0 6px",
+                            }}
+                            onMouseEnter={(e) => {
+                              const el = e.currentTarget as HTMLElement;
+                              el.style.transform = `translateY(${yShift - 4}px) scale(1.08)`;
+                              el.style.boxShadow = "0 6px 20px rgba(108,70,132,0.18)";
+                              el.style.borderColor = "var(--plum)";
+                              el.style.color = "var(--plum)";
+                            }}
+                            onMouseLeave={(e) => {
+                              const el = e.currentTarget as HTMLElement;
+                              el.style.transform = `translateY(${yShift}px)`;
+                              el.style.boxShadow = "var(--shadow-postcard)";
+                              el.style.borderColor = "var(--paper-edge)";
+                              el.style.color = "var(--ink)";
+                            }}
+                          >
+                            <span style={{ fontSize: 22, lineHeight: 1 }}>{icon}</span>
+                            <span style={{ fontSize: 10, fontWeight: 600, fontFamily: "var(--font-body)", textAlign: "center", lineHeight: 1.25, maxWidth: 72, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                              {concept.name}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
             </>

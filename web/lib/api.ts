@@ -154,7 +154,7 @@ export async function getTopTags(language = "", limit = 30, locale = "en"): Prom
 }
 
 export type ConceptItem = { slug: string; name: string; count: number; domains: string[] };
-export type ConceptsResponse = { domain_counts: Record<string, number>; concepts: ConceptItem[] };
+export type ConceptsResponse = { domain_counts: Record<string, number>; domain_expr_counts: Record<string, number>; concepts: ConceptItem[] };
 
 export async function getConcepts(
   locale = "en",

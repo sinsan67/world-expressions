@@ -803,6 +803,22 @@ def get_concepts(
         GROUP BY cd.domain_slug
     """
 
+    # Distinct expression count per domain (deduplicated — avoids double-counting
+    # expressions tagged with multiple concepts in the same domain).
+    domain_expr_counts_sql = f"""
+        SELECT cd.domain_slug, COUNT(DISTINCT e.id) AS cnt
+        FROM concept_domains cd
+        JOIN expression_tags et ON et.tag_id = cd.tag_id
+        JOIN expressions e ON e.id = et.expression_id
+        WHERE NOT EXISTS (
+            SELECT 1 FROM expression_tags et_pb
+            JOIN tags t_pb ON t_pb.id = et_pb.tag_id
+            WHERE et_pb.expression_id = e.id AND t_pb.slug = 'phrasebook'
+        )
+        {lang_clause.replace("AND e.", "AND e.")}
+        GROUP BY cd.domain_slug
+    """
+
     params: dict = {
         "locale": locale,
         "meta_tags": list(META_TAGS),
@@ -815,12 +831,14 @@ def get_concepts(
 
     with engine.connect() as conn:
         concept_rows = conn.execute(text(concepts_sql), params).fetchall()
-        # domain_counts uses same params minus domain filter
+        # domain_counts and domain_expr_counts use same params minus domain filter
         dc_params = {k: v for k, v in params.items() if k != "domain"}
         dc_rows = conn.execute(text(domain_counts_sql), dc_params).fetchall()
+        dec_rows = conn.execute(text(domain_expr_counts_sql), dc_params).fetchall()
 
     return {
         "domain_counts": {r.domain_slug: r.cnt for r in dc_rows},
+        "domain_expr_counts": {r.domain_slug: r.cnt for r in dec_rows},
         "concepts": [
             {"slug": r.slug, "name": r.name, "count": r.count, "domains": list(r.domains)}
             for r in concept_rows

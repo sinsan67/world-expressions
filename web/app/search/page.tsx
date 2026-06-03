@@ -12,6 +12,7 @@ import {
   searchExpressions, searchByConcept, searchByDomain, getRegions, getAllTagNames, Expression,
 } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
+import { DOMAIN_DEFS } from "@/lib/domainDefs";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
 const LIMIT = 20;
@@ -306,12 +307,21 @@ function SearchPageContent() {
     if (conceptParam && !qParam) setQuery(conceptDisplayName);
   }, [conceptParam, qParam, conceptDisplayName]);
 
+  // Domain name as display label in the search bar
+  const domainDisplayName = domainParam
+    ? (DOMAIN_DEFS[domainParam]?.labels[uiLang] ?? domainParam)
+    : "";
+  useEffect(() => {
+    if (domainParam && !qParam && !conceptParam) setQuery(domainDisplayName);
+  }, [domainParam, qParam, conceptParam, domainDisplayName]);
+
   // Update document title
   useEffect(() => {
     if (qParam) document.title = t.titleSearch(qParam);
     else if (conceptParam) document.title = t.titleConcept(tagNames[conceptParam] ?? conceptParam);
+    else if (domainParam) document.title = `${domainDisplayName} — World Expressions`;
     else document.title = t.titleDefault;
-  }, [qParam, conceptParam, tagNames, t]);
+  }, [qParam, conceptParam, domainParam, tagNames, domainDisplayName, t]);
 
   // Infinite scroll
   useEffect(() => {
