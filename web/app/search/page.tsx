@@ -403,7 +403,7 @@ function SearchPageContent() {
                   return (
                   <div key={type}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: `${gi === 0 ? "0" : "1.5rem"} 0 0.75rem`, color: "var(--ink-faint)", fontSize: 12, fontFamily: "var(--font-body)", letterSpacing: "0.03em" }}>
-                      <span>{{ exact: "🎯", semantic: "💡", concept: "🏷️", translation: "🌍" }[type]}</span>
+                      <span>{{ exact: "🎯", semantic: "✨", concept: "🏷️", translation: "🌍" }[type]}</span>
                       <span style={{ fontWeight: 600, color: "var(--ink-softer)" }}>{t.matchSections[type] ?? type}</span>
                       <span>· {sectionExprCount(exprs.length, uiLang)}</span>
                     </div>
