@@ -126,6 +126,23 @@ def get_tags(
     return database.get_top_tags(limit, lang, loc)
 
 
+@app.get("/concepts")
+def get_concepts_endpoint(
+    locale: str = Query("en", description="Locale for tag display names: fr, en, es, it, tr."),
+    lang: str = Query("", description="Filter expression counts by language: fr, en, es, it, tr. Empty = all."),
+    domain: str = Query("", description="Filter to a single domain slug (e.g. 'emotions'). Empty = all."),
+    min_count: int = Query(5, ge=1, description="Minimum number of expressions per concept."),
+):
+    """Return tags that have been assigned to a thematic domain, grouped with their domains.
+    Includes domain_counts (number of concepts per domain) and a flat concept list."""
+    return database.get_concepts(
+        locale=locale.strip() or "en",
+        lang=lang.strip() or None,
+        domain=domain.strip() or None,
+        min_count=min_count,
+    )
+
+
 @app.get("/random")
 def get_random(
     locale: str = Query("", description="Preferred locale for meaning (fr/en/es). Falls back to expression's language."),
