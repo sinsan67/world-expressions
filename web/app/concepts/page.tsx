@@ -410,6 +410,7 @@ export default function ConceptsPage() {
                 }}>
                   {Object.keys(DOMAIN_DEFS)
                     .filter((d) => (conceptsByDomain[d]?.length ?? 0) > 0)
+                    .sort((a, b) => (domainExprCounts[b] ?? 0) - (domainExprCounts[a] ?? 0))
                     .map((domSlug) => {
                       const def = DOMAIN_DEFS[domSlug];
                       const count = conceptsByDomain[domSlug]?.length ?? 0;
