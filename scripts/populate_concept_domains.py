@@ -52,6 +52,13 @@ DOMAINS = {
     "pleasure":  "alcohol, gluttony, lust, indulgence, leisure, sensuality",
     "travel":    "departure, return, strangeness, exile, migration, adventure, home",
     "luck":      "chance, bet, destiny, deception, risk, fortune, superstition",
+    "knowledge": "learning, curiosity, education, research, discovery, understanding, science",
+    "justice":   "law, rights, equality, revenge, punishment, fairness, order, authority",
+    "conflict":  "war, rivalry, dispute, competition, aggression, violence, power struggle",
+    "ambition":  "glory, conquest, leadership, power, social status, vanity, pride",
+    "body":      "health, illness, senses, physical appearance, aging, strength, beauty",
+    "change":    "transformation, revolution, beginning, ending, transition, adaptation, cycles",
+    "food":      "cooking, taste, hunger, feast, nourishment, appetite, drink",
 }
 
 DOMAIN_LIST = list(DOMAINS.keys())
