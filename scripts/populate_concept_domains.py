@@ -74,23 +74,32 @@ def build_prompt(tag_name: str, tag_slug: str, sample_exprs: list[str]) -> str:
     )
 
 
-def call_mistral(client: Mistral, prompt: str) -> list[str] | None:
-    try:
-        resp = client.chat.complete(
-            model=MODEL,
-            max_tokens=40,
-            temperature=0.0,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        raw = resp.choices[0].message.content.strip()
-        parsed = json.loads(raw)
-        if not isinstance(parsed, list):
-            return None
-        valid = [d for d in parsed if d in DOMAIN_LIST]
-        return valid[:2] if valid else None
-    except Exception as e:
-        print(f"  Mistral error: {e}")
-        return None
+def call_mistral(client: Mistral, prompt: str, max_retries: int = 3) -> list[str] | None:
+    """Appelle Mistral avec retry exponentiel sur erreur 429."""
+    for attempt in range(max_retries):
+        try:
+            resp = client.chat.complete(
+                model=MODEL,
+                max_tokens=40,
+                temperature=0.0,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            raw = resp.choices[0].message.content.strip()
+            parsed = json.loads(raw)
+            if not isinstance(parsed, list):
+                return None
+            valid = [d for d in parsed if d in DOMAIN_LIST]
+            return valid[:2] if valid else None
+        except Exception as e:
+            msg = str(e)
+            if "429" in msg and attempt < max_retries - 1:
+                wait = 4 * (2 ** attempt)  # 4s, 8s, 16s
+                print(f"  Rate limit — retry dans {wait}s ({attempt+1}/{max_retries})")
+                time.sleep(wait)
+            else:
+                print(f"  Mistral error: {e}")
+                return None
+    return None
 
 
 def main():
