@@ -446,6 +446,7 @@ export default function ConceptsPage() {
 
                           {/* Main clickable area */}
                           <button
+                            data-testid="domain-card"
                             onClick={() => openDomain(domSlug)}
                             style={{
                               display: "flex",

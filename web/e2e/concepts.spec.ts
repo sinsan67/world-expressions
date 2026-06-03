@@ -1,22 +1,24 @@
 import { test, expect } from '@playwright/test';
 
 const T = 90_000;
+const DOMAIN = '[data-testid="domain-card"]';
 const CONCEPT = '[data-testid="concept-card"]';
 
 test.describe('Page /concepts', () => {
-  test('#24 se charge et affiche la grille de concepts', async ({ page }) => {
+  test('#24 se charge et affiche la grille de domaines', async ({ page }) => {
     await page.goto('/concepts');
-    await page.locator(CONCEPT).first().waitFor({ timeout: T });
-    const count = await page.locator(CONCEPT).count();
-    expect(count).toBeGreaterThanOrEqual(20);
+    await page.locator(DOMAIN).first().waitFor({ timeout: T });
+    const count = await page.locator(DOMAIN).count();
+    expect(count).toBeGreaterThanOrEqual(10);
   });
 
   test('#26 filtre FR — affiche les concepts de la langue FR', async ({ page }) => {
     await page.goto('/concepts');
-    await page.locator(CONCEPT).first().waitFor({ timeout: T });
+    await page.locator(DOMAIN).first().waitFor({ timeout: T });
     const frBtn = page.locator('button').filter({ hasText: /^FR$/ }).first();
     if (await frBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
       await frBtn.click();
+      await page.locator(DOMAIN).first().click();
       await page.waitForTimeout(500);
       const concepts = await page.locator(CONCEPT).count();
       expect(concepts).toBeGreaterThan(0);
@@ -25,10 +27,11 @@ test.describe('Page /concepts', () => {
 
   test('#27 filtre EN — affiche les concepts anglais', async ({ page }) => {
     await page.goto('/concepts');
-    await page.locator(CONCEPT).first().waitFor({ timeout: T });
+    await page.locator(DOMAIN).first().waitFor({ timeout: T });
     const enBtn = page.locator('button').filter({ hasText: /^EN$/ }).first();
     if (await enBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
       await enBtn.click();
+      await page.locator(DOMAIN).first().click();
       await page.waitForTimeout(500);
       expect(await page.locator(CONCEPT).count()).toBeGreaterThan(0);
     }
@@ -36,6 +39,8 @@ test.describe('Page /concepts', () => {
 
   test('#28 filtre "Tous" restaure tous les concepts', async ({ page }) => {
     await page.goto('/concepts');
+    await page.locator(DOMAIN).first().waitFor({ timeout: T });
+    await page.locator(DOMAIN).first().click();
     await page.locator(CONCEPT).first().waitFor({ timeout: T });
     const initialCount = await page.locator(CONCEPT).count();
     const frBtn = page.locator('button').filter({ hasText: /^FR$/ }).first();
@@ -50,8 +55,10 @@ test.describe('Page /concepts', () => {
     }
   });
 
-  test('#30 clic sur un concept redirige vers homepage', async ({ page }) => {
+  test('#30 clic sur un concept redirige vers search', async ({ page }) => {
     await page.goto('/concepts');
+    await page.locator(DOMAIN).first().waitFor({ timeout: T });
+    await page.locator(DOMAIN).first().click();
     await page.locator(CONCEPT).first().waitFor({ timeout: T });
     await page.locator(CONCEPT).first().click();
     await expect(page).toHaveURL(/\/search\?concept=/, { timeout: T });
