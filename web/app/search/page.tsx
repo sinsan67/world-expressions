@@ -174,10 +174,10 @@ function SearchPageContent() {
 
   const matchTypeGroups = useMemo(() => {
     if (searchMode !== "text" || sortMode !== "relevance" || results.length === 0) return null;
-    const ORDER = ["exact", "semantic", "concept", "translation"] as const;
+    const ORDER = ["exact", "semantic", "concept"] as const;
     const map = new Map<string, Expression[]>();
     for (const expr of results) {
-      const mt = expr.match_type;
+      const mt = expr.match_type === "translation" ? "semantic" : expr.match_type;
       if (!map.has(mt)) map.set(mt, []);
       map.get(mt)!.push(expr);
     }
@@ -332,32 +332,40 @@ function SearchPageContent() {
       <LangBar uiLang={uiLang} onLangChange={changeLang} />
 
       <main className="wex-main" style={{ paddingBottom: 80 }}>
-        <div style={{ padding: "2rem 1.5rem 1rem", maxWidth: 720, margin: "0 auto" }}>
-          <SearchBar
-            value={query}
-            onChange={setQuery}
-            onSearch={() => submitSearch(query)}
-            placeholder={t.placeholder}
-            searchLabel={t.search}
-            loading={loading}
-            emoji={tagIcon(query.trim()) ?? undefined}
-          />
+        <div style={{
+          position: "sticky", top: 0, zIndex: 20,
+          background: "var(--paper)",
+          borderBottom: "1px solid var(--paper-edge)",
+          boxShadow: "0 1px 8px rgba(0,0,0,0.06)",
+        }}>
+          <div style={{ padding: "0.75rem 1.5rem", maxWidth: 720, margin: "0 auto" }}>
+            <SearchBar
+              value={query}
+              onChange={setQuery}
+              onSearch={() => submitSearch(query)}
+              placeholder={t.placeholder}
+              searchLabel={t.search}
+              loading={loading}
+              emoji={tagIcon(query.trim()) ?? undefined}
+            />
+          </div>
+          {hasResults && (
+            <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
+              <ResultsFilterBar
+                regions={regions}
+                filterRegions={filterRegions}
+                onFilterChange={handleFilterChange}
+                sortMode={sortMode}
+                onSortChange={setSortMode}
+                uiLang={uiLang}
+              />
+            </div>
+          )}
         </div>
 
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem 2rem" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "1rem 1.5rem 2rem" }}>
           {hasError && (
             <p className="text-center text-sm mb-6" style={{ color: "var(--terra)" }}>{t.serverError}</p>
-          )}
-
-          {hasResults && (
-            <ResultsFilterBar
-              regions={regions}
-              filterRegions={filterRegions}
-              onFilterChange={handleFilterChange}
-              sortMode={sortMode}
-              onSortChange={setSortMode}
-              uiLang={uiLang}
-            />
           )}
 
           {hasResults && !loading && (
@@ -395,7 +403,7 @@ function SearchPageContent() {
                   return (
                   <div key={type}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: `${gi === 0 ? "0" : "1.5rem"} 0 0.75rem`, color: "var(--ink-faint)", fontSize: 12, fontFamily: "var(--font-body)", letterSpacing: "0.03em" }}>
-                      <span>{{ exact: "🎯", semantic: "💡", concept: "🏷️", translation: "🌍" }[type]}</span>
+                      <span>{{ exact: "🎯", semantic: "✨", concept: "🏷️", translation: "🌍" }[type]}</span>
                       <span style={{ fontWeight: 600, color: "var(--ink-softer)" }}>{t.matchSections[type] ?? type}</span>
                       <span>· {sectionExprCount(exprs.length, uiLang)}</span>
                     </div>

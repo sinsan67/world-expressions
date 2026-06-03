@@ -21,6 +21,7 @@ import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
 const LIMIT = 20;
+const MAX_SECTION_PREVIEW = 6;
 const HINT_COUNT = 12;
 
 type UILang = "fr" | "en" | "es" | "it" | "tr";
@@ -52,6 +53,7 @@ const T = {
     types: { idiom: "expression", proverb: "proverbe", locution: "locution", word: "mot", expression: "expression" } as Record<string, string>,
     registers: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" } as Record<string, string>,
     matchSections: { exact: "Dans le texte", semantic: "Par le sens", translation: "Via les traductions", concept: "Par concept" } as Record<string, string>,
+    showMore: (n: number) => `Voir les ${n} autres →`,
   },
   en: {
     expressionOfDay: "Expression of the day",
@@ -79,6 +81,7 @@ const T = {
     types: { idiom: "idiom", proverb: "proverb", locution: "locution", word: "word", expression: "expression" } as Record<string, string>,
     registers: { standard: "standard", informal: "informal", slang: "slang", vulgar: "vulgar", formal: "formal" } as Record<string, string>,
     matchSections: { exact: "In the text", semantic: "By meaning", translation: "Via translations", concept: "By concept" } as Record<string, string>,
+    showMore: (n: number) => `See ${n} more →`,
   },
   es: {
     expressionOfDay: "Expresión del día",
@@ -106,6 +109,7 @@ const T = {
     types: { idiom: "modismo", proverb: "proverbio", locution: "locución", word: "palabra", expression: "expresión" } as Record<string, string>,
     registers: { standard: "estándar", informal: "coloquial", slang: "argot", vulgar: "vulgar", formal: "formal" } as Record<string, string>,
     matchSections: { exact: "En el texto", semantic: "Por el sentido", translation: "Via traducciones", concept: "Por concepto" } as Record<string, string>,
+    showMore: (n: number) => `Ver ${n} más →`,
   },
   tr: {
     expressionOfDay: "Günün deyimi",
@@ -133,6 +137,7 @@ const T = {
     types: { idiom: "deyim", proverb: "atasözü", locution: "deyiş", word: "kelime", expression: "ifade" } as Record<string, string>,
     registers: { standard: "standart", informal: "gündelik", slang: "argo", vulgar: "kaba", formal: "resmi" } as Record<string, string>,
     matchSections: { exact: "Metinde", semantic: "Anlama göre", translation: "Çeviri yoluyla", concept: "Kavram ile" } as Record<string, string>,
+    showMore: (n: number) => `${n} tanesini daha gör →`,
   },
   it: {
     expressionOfDay: "Espressione del giorno",
@@ -160,6 +165,7 @@ const T = {
     types: { idiom: "espressione", proverb: "proverbio", locution: "locuzione", word: "parola", expression: "espressione" } as Record<string, string>,
     registers: { standard: "standard", informal: "informale", slang: "gergone", vulgar: "volgare", formal: "formale" } as Record<string, string>,
     matchSections: { exact: "Nel testo", semantic: "Per il senso", translation: "Via traduzioni", concept: "Per concetto" } as Record<string, string>,
+    showMore: (n: number) => `Vedi altri ${n} →`,
   },
 };
 
@@ -204,7 +210,8 @@ export default function Home() {
   const [newsletterLang, setNewsletterLang] = useState<UILang>("en");
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
   const [filterRegions, setFilterRegions] = useState<string[]>([]);
-  const [sortMode, setSortMode] = useState<"relevance" | "country">("relevance");
+  const [sortMode, setSortMode] = useState<"relevance" | "country">("country");
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const exploreRef = useRef<HTMLDivElement>(null);
@@ -233,10 +240,10 @@ export default function Home() {
 
   const matchTypeGroups = useMemo(() => {
     if (searchMode !== "text" || sortMode !== "relevance" || results.length === 0) return null;
-    const ORDER = ["exact", "semantic", "translation", "concept"] as const;
+    const ORDER = ["exact", "semantic", "concept"] as const;
     const map = new Map<string, Expression[]>();
     for (const expr of results) {
-      const mt = expr.match_type;
+      const mt = expr.match_type === "translation" ? "semantic" : expr.match_type;
       if (!map.has(mt)) map.set(mt, []);
       map.get(mt)!.push(expr);
     }
@@ -561,56 +568,64 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Search section */}
-        <div ref={exploreRef} style={{ padding: "2rem 1.5rem 1rem", maxWidth: 720, margin: "0 auto" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <div style={{ flex: 1 }}>
-              <SearchBar
-                value={query}
-                onChange={setQuery}
-                onSearch={() => handleSearch(query)}
-                placeholder={t.placeholder}
-                searchLabel={t.search}
-                loading={loading}
-                emoji={tagIcon(query.trim()) ?? undefined}
-              />
-            </div>
-            <div
-              style={{ position: "relative", flexShrink: 0 }}
-              onMouseEnter={() => setTooltipOpen(true)}
-              onMouseLeave={() => setTooltipOpen(false)}
-            >
-              <button
-                onClick={() => setTooltipOpen((o) => !o)}
-                aria-label="Comment fonctionne la recherche ?"
-                style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid var(--paper-edge)", background: "var(--paper-deep)", color: "var(--ink-soft)", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-body)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+        {/* Sticky search + filter bar */}
+        <div style={{
+          position: "sticky", top: 0, zIndex: 20,
+          background: "var(--paper)",
+          borderBottom: searched ? "1px solid var(--paper-edge)" : "none",
+          boxShadow: searched ? "0 1px 8px rgba(0,0,0,0.06)" : "none",
+        }}>
+          <div ref={exploreRef} style={{ padding: searched ? "0.75rem 1.5rem" : "2rem 1.5rem 1rem", maxWidth: 720, margin: "0 auto" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <div style={{ flex: 1 }}>
+                <SearchBar
+                  value={query}
+                  onChange={setQuery}
+                  onSearch={() => handleSearch(query)}
+                  placeholder={t.placeholder}
+                  searchLabel={t.search}
+                  loading={loading}
+                  emoji={tagIcon(query.trim()) ?? undefined}
+                />
+              </div>
+              <div
+                style={{ position: "relative", flexShrink: 0 }}
+                onMouseEnter={() => setTooltipOpen(true)}
+                onMouseLeave={() => setTooltipOpen(false)}
               >
-                ?
-              </button>
-              {tooltipOpen && (
-                <div style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", zIndex: 100, background: "var(--paper)", border: "1px solid var(--paper-edge)", borderRadius: 10, padding: "0.75rem 1rem", width: 280, maxWidth: "calc(100vw - 2rem)", boxShadow: "0 4px 16px rgba(0,0,0,0.12)", fontSize: 12, color: "var(--ink-soft)", lineHeight: 1.6, fontFamily: "var(--font-body)" }}>
-                  {SEARCH_HELP[uiLang]}
-                </div>
-              )}
+                <button
+                  onClick={() => setTooltipOpen((o) => !o)}
+                  aria-label="Comment fonctionne la recherche ?"
+                  style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid var(--paper-edge)", background: "var(--paper-deep)", color: "var(--ink-soft)", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-body)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+                >
+                  ?
+                </button>
+                {tooltipOpen && (
+                  <div style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", zIndex: 100, background: "var(--paper)", border: "1px solid var(--paper-edge)", borderRadius: 10, padding: "0.75rem 1rem", width: 280, maxWidth: "calc(100vw - 2rem)", boxShadow: "0 4px 16px rgba(0,0,0,0.12)", fontSize: 12, color: "var(--ink-soft)", lineHeight: 1.6, fontFamily: "var(--font-body)" }}>
+                    {SEARCH_HELP[uiLang]}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
+          {searched && results.length > 0 && (
+            <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
+              <ResultsFilterBar
+                regions={regions}
+                filterRegions={filterRegions}
+                onFilterChange={handleFilterChange}
+                sortMode={sortMode}
+                onSortChange={setSortMode}
+                uiLang={uiLang}
+              />
+            </div>
+          )}
         </div>
 
         {/* Results area */}
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem 2rem" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "1rem 1.5rem 2rem" }}>
           {hasError && (
             <p className="text-center text-sm mb-6" style={{ color: "var(--terra)" }}>{t.serverError}</p>
-          )}
-
-          {searched && results.length > 0 && (
-            <ResultsFilterBar
-              regions={regions}
-              filterRegions={filterRegions}
-              onFilterChange={handleFilterChange}
-              sortMode={sortMode}
-              onSortChange={setSortMode}
-              uiLang={uiLang}
-            />
           )}
 
           {searched && !loading && !hasError && results.length > 0 && (
@@ -641,21 +656,35 @@ export default function Home() {
                   </div>
                 ))
               ) : matchTypeGroups ? (
-                matchTypeGroups.map(({ type, exprs }, gi) => (
+                matchTypeGroups.map(({ type, exprs }, gi) => {
+                  const isExpanded = expandedSections.has(type);
+                  const visible = isExpanded ? exprs : exprs.slice(0, MAX_SECTION_PREVIEW);
+                  const hidden = exprs.length - MAX_SECTION_PREVIEW;
+                  return (
                   <div key={type}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: `${gi === 0 ? "0" : "1.5rem"} 0 0.75rem`, color: "var(--ink-faint)", fontSize: 12, fontFamily: "var(--font-body)", letterSpacing: "0.03em" }}>
+                      <span>{{ exact: "🎯", semantic: "💡", concept: "🏷️", translation: "🌍" }[type]}</span>
                       <span style={{ fontWeight: 600, color: "var(--ink-softer)" }}>{t.matchSections[type] ?? type}</span>
                       <span>· {sectionExprCount(exprs.length, uiLang)}</span>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
-                      {exprs.map((expr, i) => (
+                      {visible.map((expr, i) => (
                         <div key={expr.id} style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
                           <ExpressionCard expression={expr} onTagClick={(tag) => runConceptSearch(tag)} uiLang={uiLang} tagNames={tagNames} fromSearch={searched ? query : undefined} />
                         </div>
                       ))}
                     </div>
+                    {!isExpanded && hidden > 0 && (
+                      <button
+                        onClick={() => setExpandedSections(prev => new Set(prev).add(type))}
+                        style={{ marginTop: "0.75rem", background: "none", border: "none", color: "var(--ink-soft)", fontSize: 12, fontFamily: "var(--font-body)", cursor: "pointer", padding: "0.25rem 0", textDecoration: "underline", textUnderlineOffset: 3 }}
+                      >
+                        {t.showMore(hidden)}
+                      </button>
+                    )}
                   </div>
-                ))
+                  );
+                })
               ) : (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
                   {results.map((expr, i) => (

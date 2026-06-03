@@ -22,20 +22,19 @@ const FILTER_LABEL: Record<string, string> = {
 };
 
 const CONCEPT_LABEL: Record<string, string> = {
-  fr: "Concept", en: "Concept", es: "Concepto", it: "Concetto", tr: "Kavram",
+  fr: "Concepts", en: "Concepts", es: "Conceptos", it: "Concetti", tr: "Kavramlar",
 };
 
 const ALL_LABEL: Record<string, string> = {
   fr: "Tous", en: "All", es: "Todos", it: "Tutti", tr: "Tümü",
 };
 
-// Representative region codes for each language (used as filter proxies)
 const LANG_REGIONS = [
-  { code: "fr", flag: "🇫🇷", label: "FR" },
-  { code: "uk", flag: "🇬🇧", label: "EN" },
-  { code: "es", flag: "🇪🇸", label: "ES" },
-  { code: "it", flag: "🇮🇹", label: "IT" },
-  { code: "tr", flag: "🇹🇷", label: "TR" },
+  { code: "fr", flag: "🇫🇷" },
+  { code: "uk", flag: "🇬🇧" },
+  { code: "es", flag: "🇪🇸" },
+  { code: "it", flag: "🇮🇹" },
+  { code: "tr", flag: "🇹🇷" },
 ] as const;
 
 type Props = { uiLang?: string; onClose: () => void };
@@ -43,7 +42,6 @@ type Props = { uiLang?: string; onClose: () => void };
 export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
   const [query, setQuery] = useState("");
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
-  const [selectedConcept, setSelectedConcept] = useState("");
   const [conceptTags, setConceptTags] = useState<{ slug: string; name: string }[]>([]);
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -70,22 +68,26 @@ export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
 
   const handleSearch = useCallback(() => {
     const q = query.trim();
-    if (!q && !selectedConcept) return;
+    if (!q) return;
     const params = new URLSearchParams();
-    if (q) {
-      params.set("q", q);
-    } else {
-      params.set("concept", selectedConcept);
-    }
+    params.set("q", q);
     if (selectedRegions.length) params.set("region", selectedRegions.join(","));
     router.push(`/search?${params}`);
     onClose();
-  }, [query, selectedConcept, selectedRegions, router, onClose]);
+  }, [query, selectedRegions, router, onClose]);
 
-  const canSearch = query.trim().length >= 2 || selectedConcept.length > 0;
+  const handleConceptClick = (slug: string) => {
+    const params = new URLSearchParams();
+    params.set("concept", slug);
+    if (selectedRegions.length) params.set("region", selectedRegions.join(","));
+    router.push(`/search?${params}`);
+    onClose();
+  };
 
-  const pillStyle = (active: boolean): React.CSSProperties => ({
-    padding: "3px 9px",
+  const canSearch = query.trim().length >= 2;
+
+  const countryPillStyle = (active: boolean): React.CSSProperties => ({
+    padding: "4px 10px",
     borderRadius: "var(--r-pill)",
     border: "1.5px solid",
     borderColor: active ? "var(--plum)" : "var(--paper-edge)",
@@ -98,6 +100,15 @@ export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
     transition: "all 0.12s",
     lineHeight: 1,
   });
+
+  const sectionLabel: React.CSSProperties = {
+    fontSize: 10,
+    color: "var(--ink-faint)",
+    fontFamily: "var(--font-body)",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    marginBottom: "0.4rem",
+  };
 
   return (
     <div
@@ -126,11 +137,12 @@ export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
           gap: "0.875rem",
         }}
       >
-        {/* Text input row */}
+        {/* Search input */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <Search size={18} strokeWidth={1.5} style={{ color: "var(--ink-faint)", flexShrink: 0 }} />
           <input
             ref={inputRef}
+            data-testid="overlay-input"
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -152,60 +164,72 @@ export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
           )}
         </div>
 
-        {/* Region filter row */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
-          <span style={{ fontSize: 11, color: "var(--ink-faint)", fontFamily: "var(--font-body)", textTransform: "uppercase", letterSpacing: "0.04em", flexShrink: 0 }}>
-            {FILTER_LABEL[uiLang] ?? FILTER_LABEL.en}
-          </span>
-          {LANG_REGIONS.map(({ code, flag }) => (
-            <button
-              key={code}
-              onClick={() => toggleRegion(code)}
-              style={pillStyle(selectedRegions.includes(code))}
-              title={FLAG[code]}
-            >
-              {flag} {code === "uk" ? "EN" : code.toUpperCase()}
-            </button>
-          ))}
-        </div>
+        {/* Separator */}
+        <div style={{ height: 1, background: "var(--paper-edge)", margin: "0 -1.125rem" }} />
 
-        {/* Concept filter row */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <span style={{ fontSize: 11, color: "var(--ink-faint)", fontFamily: "var(--font-body)", textTransform: "uppercase", letterSpacing: "0.04em", flexShrink: 0 }}>
-            {CONCEPT_LABEL[uiLang] ?? CONCEPT_LABEL.en}
-          </span>
-          <select
-            value={selectedConcept}
-            onChange={(e) => setSelectedConcept(e.target.value)}
-            style={{
-              flex: 1,
-              padding: "4px 8px",
-              borderRadius: "var(--r-md)",
-              border: `1.5px solid ${selectedConcept ? "var(--plum)" : "var(--paper-edge)"}`,
-              background: "var(--paper)",
-              color: selectedConcept ? "var(--ink)" : "var(--ink-faint)",
-              fontSize: 13,
-              fontFamily: "var(--font-body)",
-              cursor: "pointer",
-              outline: "none",
-            }}
-          >
-            <option value="">{ALL_LABEL[uiLang] ?? ALL_LABEL.en}</option>
-            {conceptTags.map((tag) => (
-              <option key={tag.slug} value={tag.slug}>{tag.name}</option>
+        {/* Country filter */}
+        <div>
+          <div style={sectionLabel}>{FILTER_LABEL[uiLang] ?? FILTER_LABEL.en}</div>
+          <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+            <button
+              onClick={() => setSelectedRegions([])}
+              style={countryPillStyle(selectedRegions.length === 0)}
+            >
+              {ALL_LABEL[uiLang] ?? ALL_LABEL.en}
+            </button>
+            {LANG_REGIONS.map(({ code, flag }) => (
+              <button
+                key={code}
+                onClick={() => toggleRegion(code)}
+                style={countryPillStyle(selectedRegions.includes(code))}
+                title={FLAG[code]}
+              >
+                {flag} {code === "uk" ? "EN" : code.toUpperCase()}
+              </button>
             ))}
-          </select>
-          {selectedConcept && (
-            <button
-              onClick={() => setSelectedConcept("")}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink-faint)", display: "flex", padding: 2, flexShrink: 0 }}
-            >
-              <X size={14} strokeWidth={1.5} />
-            </button>
-          )}
+          </div>
         </div>
 
-        {/* Submit button */}
+        {/* Concept chips */}
+        {conceptTags.length > 0 && (
+          <div>
+            <div style={sectionLabel}>{CONCEPT_LABEL[uiLang] ?? CONCEPT_LABEL.en}</div>
+            <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+              {conceptTags.map((tag) => (
+                <button
+                  key={tag.slug}
+                  data-testid="concept-chip"
+                  onClick={() => handleConceptClick(tag.slug)}
+                  style={{
+                    padding: "4px 10px",
+                    borderRadius: "var(--r-pill)",
+                    border: "1.5px solid var(--paper-edge)",
+                    background: "transparent",
+                    color: "var(--ink-soft)",
+                    fontSize: 12,
+                    fontWeight: 500,
+                    cursor: "pointer",
+                    fontFamily: "var(--font-body)",
+                    lineHeight: 1,
+                    transition: "border-color 0.1s, color 0.1s",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--plum)";
+                    (e.currentTarget as HTMLButtonElement).style.color = "var(--plum)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--paper-edge)";
+                    (e.currentTarget as HTMLButtonElement).style.color = "var(--ink-soft)";
+                  }}
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Submit button — only for text search */}
         {canSearch && (
           <button
             onClick={handleSearch}

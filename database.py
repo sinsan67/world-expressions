@@ -256,159 +256,180 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
     1. "exact"       : le mot apparaît dans le texte de l'expression (FTS sur expressions.text)
     2. "semantic"    : le mot apparaît dans le sens/tags/exemple/origine (FTS sur expression_content)
     3. "translation" : le mot apparaît dans une traduction (content_translations, toutes langues cibles)
-                       → permet de trouver "fuente" ou "fonte" en cherchant "source"
-                       → nécessite le GIN index idx_content_translations_fts
     4. "concept"     : le mot correspond à un tag slug ou un nom de tag localisé (tag_names)
-                       → chercher "argent" (FR) ou "money" (EN) ramène toutes les expressions
-                          taggées "money" dans toutes les langues
 
-    Utilise PostgreSQL tsvector/tsquery config 'simple'. GIN indexes sur les trois tables.
+    LIMIT/OFFSET appliqués en SQL via CTE unifiée + COUNT(*) OVER() — pas de slice Python.
     """
     region_sql, region_params = _region_clause(regions)
     type_sql, type_params = _type_clause(type_filter)
 
-    base_cte = """
-        WITH expr_full AS (
+    # Python lookup first: needed to conditionally build the concept CTE
+    matching_tags = _find_matching_tag_slugs(query)
+
+    concept_cte_sql = ""
+    concept_union_sql = ""
+    concept_params: dict = {}
+    if matching_tags:
+        concept_cte_sql = """
+        , concept_pass AS (
             SELECT
-                e.id,
-                e.text,
-                e.language,
-                e.region,
-                e.register,
-                e.illustration,
-                e.kind,
-                e.source,
-                ec.meaning,
-                ec.origin,
-                ec.example,
+                e.id, e.text, e.language, e.region, e.register,
+                e.illustration, e.kind, e.source,
+                ec.meaning, ec.origin, ec.example,
+                NULL::text AS tags_text,
+                (SELECT STRING_AGG(t2.slug, ',')
+                 FROM expression_tags et2 JOIN tags t2 ON t2.id = et2.tag_id
+                 WHERE et2.expression_id = e.id) AS tags,
+                0.0::float AS rank, 4 AS pass_order, 'concept'::text AS match_type
+            FROM expressions e
+            LEFT JOIN expression_content ec ON ec.expression_id = e.id AND ec.locale = e.language
+            WHERE EXISTS (
+                SELECT 1 FROM expression_tags et JOIN tags t ON t.id = et.tag_id
+                WHERE et.expression_id = e.id AND t.slug = ANY(:tag_set)
+            )
+            {region_clause}{exclude_phrasebook}{type_clause}
+            AND e.id NOT IN (SELECT id FROM exact_pass)
+            AND e.id NOT IN (SELECT id FROM semantic_pass)
+            AND e.id NOT IN (SELECT id FROM translation_pass)
+        )""".format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK, type_clause=type_sql)
+        concept_union_sql = """
+            UNION ALL
+            SELECT id, text, language, region, register, illustration, kind, source,
+                   meaning, origin, example, tags_text, tags, rank, pass_order, match_type
+            FROM concept_pass"""
+        concept_params = {"tag_set": list(matching_tags)}
+
+    sql = f"""
+        WITH base AS (
+            SELECT
+                e.id, e.text, e.language, e.region, e.register,
+                e.illustration, e.kind, e.source,
+                ec.meaning, ec.origin, ec.example,
                 STRING_AGG(t.slug, ' ') AS tags_text,
                 STRING_AGG(t.slug, ',') AS tags
             FROM expressions e
-            LEFT JOIN expression_content ec
-                ON ec.expression_id = e.id AND ec.locale = e.language
+            LEFT JOIN expression_content ec ON ec.expression_id = e.id AND ec.locale = e.language
             LEFT JOIN expression_tags et ON et.expression_id = e.id
             LEFT JOIN tags t ON t.id = et.tag_id
-            WHERE 1=1 {region_clause}{exclude_phrasebook}{type_clause}
+            WHERE 1=1 {region_sql}{_EXCLUDE_PHRASEBOOK}{type_sql}
             GROUP BY e.id, e.text, e.language, e.region, e.register,
                      e.illustration, e.kind, e.source, ec.meaning, ec.origin, ec.example
+        ),
+        exact_pass AS (
+            SELECT
+                id, text, language, region, register, illustration, kind, source,
+                meaning, origin, example, tags_text, tags,
+                ts_rank({_TEXT_VEC}, {_TSQ}) AS rank,
+                1 AS pass_order, 'exact'::text AS match_type
+            FROM base
+            WHERE {_TEXT_VEC} @@ {_TSQ}
+        ),
+        semantic_pass AS (
+            SELECT
+                id, text, language, region, register, illustration, kind, source,
+                meaning, origin, example, tags_text, tags,
+                ts_rank({_CONTENT_VEC}, {_TSQ}) AS rank,
+                2 AS pass_order, 'semantic'::text AS match_type
+            FROM base
+            WHERE NOT ({_TEXT_VEC} @@ {_TSQ})
+              AND {_CONTENT_VEC} @@ {_TSQ}
+        ),
+        translation_pass AS (
+            SELECT
+                e.id, e.text, e.language, e.region, e.register,
+                e.illustration, e.kind, e.source,
+                ec.meaning, ec.origin, ec.example,
+                NULL::text AS tags_text,
+                STRING_AGG(t.slug, ',') AS tags,
+                0.0::float AS rank, 3 AS pass_order, 'translation'::text AS match_type
+            FROM expressions e
+            LEFT JOIN expression_content ec ON ec.expression_id = e.id AND ec.locale = e.language
+            LEFT JOIN expression_tags et2 ON et2.expression_id = e.id
+            LEFT JOIN tags t ON t.id = et2.tag_id
+            WHERE EXISTS (
+                SELECT 1 FROM content_translations ct
+                WHERE ct.expression_id = e.id
+                  AND to_tsvector('simple',
+                          coalesce(ct.meaning,'') || ' ' ||
+                          coalesce(ct.origin,'') || ' ' ||
+                          coalesce(ct.example,''))
+                      @@ {_TSQ}
+            )
+            {region_sql}{_EXCLUDE_PHRASEBOOK}{type_sql}
+            AND e.id NOT IN (SELECT id FROM exact_pass)
+            AND e.id NOT IN (SELECT id FROM semantic_pass)
+            GROUP BY e.id, e.text, e.language, e.region, e.register,
+                     e.illustration, e.kind, e.source, ec.meaning, ec.origin, ec.example
+        ){concept_cte_sql},
+        all_results AS (
+            SELECT id, text, language, region, register, illustration, kind, source,
+                   meaning, origin, example, tags_text, tags, rank, pass_order, match_type
+            FROM exact_pass
+            UNION ALL
+            SELECT id, text, language, region, register, illustration, kind, source,
+                   meaning, origin, example, tags_text, tags, rank, pass_order, match_type
+            FROM semantic_pass
+            UNION ALL
+            SELECT id, text, language, region, register, illustration, kind, source,
+                   meaning, origin, example, tags_text, tags, rank, pass_order, match_type
+            FROM translation_pass
+            {concept_union_sql}
+        ),
+        counted AS (
+            SELECT *, COUNT(*) OVER() AS total_count
+            FROM all_results
         )
-    """.format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK, type_clause=type_sql)
-
-    exact_sql = base_cte + f"""
-        SELECT *, ts_rank({_TEXT_VEC}, {_TSQ}) AS rank
-        FROM expr_full
-        WHERE {_TEXT_VEC} @@ {_TSQ}
-        ORDER BY rank DESC, CASE WHEN kind = 'word' THEN 1 ELSE 0 END, text
+        SELECT * FROM counted
+        ORDER BY pass_order, rank DESC, CASE WHEN kind = 'word' THEN 1 ELSE 0 END, text
+        LIMIT :limit OFFSET :offset
     """
 
-    semantic_sql = base_cte + f"""
-        SELECT *, ts_rank({_CONTENT_VEC}, {_TSQ}) AS rank
-        FROM expr_full
-        WHERE NOT ({_TEXT_VEC} @@ {_TSQ})
-          AND {_CONTENT_VEC} @@ {_TSQ}
-        ORDER BY rank DESC, CASE WHEN kind = 'word' THEN 1 ELSE 0 END, text
-    """
-
-    # 3rd pass: expressions found via content_translations (cross-language search).
-    # Uses idx_content_translations_fts GIN index — fast even on 23k+ rows.
-    translation_sql = """
-        SELECT
-            e.id, e.text, e.language, e.region, e.register,
-            e.illustration, e.kind, e.source,
-            ec.meaning, ec.origin, ec.example,
-            STRING_AGG(t.slug, ',') AS tags
-        FROM expressions e
-        LEFT JOIN expression_content ec
-            ON ec.expression_id = e.id AND ec.locale = e.language
-        LEFT JOIN expression_tags et ON et.expression_id = e.id
-        LEFT JOIN tags t ON t.id = et.tag_id
-        WHERE EXISTS (
-            SELECT 1 FROM content_translations ct
-            WHERE ct.expression_id = e.id
-              AND to_tsvector('simple',
-                      coalesce(ct.meaning,'') || ' ' ||
-                      coalesce(ct.origin,'') || ' ' ||
-                      coalesce(ct.example,''))
-                  @@ {tsq}
-        )
-        {region_clause}{exclude_phrasebook}{type_clause}
-        GROUP BY e.id, e.text, e.language, e.region, e.register,
-                 e.illustration, e.kind, e.source, ec.meaning, ec.origin, ec.example
-        ORDER BY e.language, e.text
-    """.format(tsq=_TSQ, region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK, type_clause=type_sql)
-
-    params = {"q": query.strip(), **region_params, **type_params}
+    params = {"q": query.strip(), "limit": limit, "offset": offset,
+              **region_params, **type_params, **concept_params}
 
     with engine.connect() as conn:
-        exact_rows       = conn.execute(text(exact_sql),       params).fetchall()
-        semantic_rows    = conn.execute(text(semantic_sql),    params).fetchall()
-        translation_rows = conn.execute(text(translation_sql), params).fetchall()
+        rows = conn.execute(text(sql), params).fetchall()
 
-    exact       = [_build_expression_dict(r, "exact")       for r in exact_rows]
-    semantic    = [_build_expression_dict(r, "semantic")    for r in semantic_rows]
-    translation = [_build_expression_dict(r, "translation") for r in translation_rows]
+    if not rows:
+        return [], 0
 
-    # Dedup: keep translation results not already surfaced by exact or semantic
-    found_ids = {r["id"] for r in exact + semantic}
-    translation_new = [r for r in translation if r["id"] not in found_ids]
-
-    # 4th pass: concept search — if query matches a tag slug or localized tag name
-    # (e.g. "argent" → slug "money", "travail" → slug "work")
-    matching_tags = _find_matching_tag_slugs(query)
-    concept_new: list[dict] = []
-    if matching_tags:
-        concept_all, _ = search_by_concept(matching_tags, regions, limit=10000, type_filter=type_filter)
-        found_ids_3_passes = {r["id"] for r in exact + semantic + translation_new}
-        concept_new = [
-            {**r, "match_type": "concept"}
-            for r in concept_all
-            if r["id"] not in found_ids_3_passes
-        ]
-
-    all_results = exact + semantic + translation_new + concept_new
+    total = rows[0].total_count
+    results = [_build_expression_dict(r, r.match_type) for r in rows]
 
     if locale and locale.strip():
         with engine.connect() as conn:
-            preferred = _get_preferred_content([r["id"] for r in all_results], locale, conn)
-        for r in all_results:
+            preferred = _get_preferred_content([r["id"] for r in results], locale, conn)
+        for r in results:
             if r["id"] in preferred:
                 p = preferred[r["id"]]
                 if p["meaning"]: r["meaning"] = p["meaning"]
                 if p["origin"]:  r["origin"]  = p["origin"]
                 if p["example"]: r["example"] = p["example"]
 
-    return all_results[offset:offset + limit], len(all_results)
+    return results, total
 
 
 def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0, type_filter: Optional[str] = None) -> tuple[list[dict], int]:
     """
     Retourne toutes les expressions ayant au moins un tag parmi tag_set (logique OR).
     Utilisé pour la recherche cross-lingue par concept (argent + money + wealth...).
-    Le filtrage se fait en SQL via expression_tags.
+    LIMIT/OFFSET appliqués en SQL + COUNT(*) OVER() pour le total — pas de slice Python.
     """
     region_sql, region_params = _region_clause(regions)
     type_sql, type_params = _type_clause(type_filter)
 
     sql = """
         SELECT
-            e.id,
-            e.text,
-            e.language,
-            e.region,
-            e.register,
-            e.illustration,
-            e.kind,
-            e.source,
-            ec.meaning,
-            ec.origin,
-            ec.example,
+            e.id, e.text, e.language, e.region, e.register,
+            e.illustration, e.kind, e.source,
+            ec.meaning, ec.origin, ec.example,
             (SELECT STRING_AGG(t2.slug, ',')
              FROM expression_tags et2
              JOIN tags t2 ON t2.id = et2.tag_id
-             WHERE et2.expression_id = e.id) AS tags
+             WHERE et2.expression_id = e.id) AS tags,
+            COUNT(*) OVER() AS total_count
         FROM expressions e
-        LEFT JOIN expression_content ec
-            ON ec.expression_id = e.id AND ec.locale = e.language
+        LEFT JOIN expression_content ec ON ec.expression_id = e.id AND ec.locale = e.language
         WHERE EXISTS (
             SELECT 1 FROM expression_tags et
             JOIN tags t ON t.id = et.tag_id
@@ -416,15 +437,17 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, lim
         )
         {region_clause}{exclude_phrasebook}{type_clause}
         ORDER BY e.language, CASE WHEN e.kind = 'word' THEN 1 ELSE 0 END, e.text
+        LIMIT :limit OFFSET :offset
     """.format(region_clause=region_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK, type_clause=type_sql)
 
-    params = {"tag_set": list(tag_set), **region_params, **type_params}
+    params = {"tag_set": list(tag_set), **region_params, **type_params, "limit": limit, "offset": offset}
 
     with engine.connect() as conn:
         rows = conn.execute(text(sql), params).fetchall()
 
-    all_results = [_build_expression_dict(r, "tag") for r in rows]
-    return all_results[offset:offset + limit], len(all_results)
+    total = rows[0].total_count if rows else 0
+    results = [_build_expression_dict(r, "tag") for r in rows]
+    return results, total
 
 
 def browse_by_region(regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0, type_filter: Optional[str] = None) -> tuple[list[dict], int]:
