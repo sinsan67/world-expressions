@@ -101,6 +101,23 @@ export async function searchByConcept(
   return res.json();
 }
 
+export async function searchByDomain(
+  domain: string,
+  regions: string[],
+  limit = 20,
+  offset = 0
+): Promise<ConceptResponse> {
+  const params = new URLSearchParams({
+    domain,
+    region: regions.join(","),
+    limit: String(limit),
+    offset: String(offset),
+  });
+  const res = await fetch(`${API}/concept?${params}`);
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
 export async function browseByRegion(
   regions: string[],
   limit = 20,

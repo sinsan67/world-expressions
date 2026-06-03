@@ -18,6 +18,12 @@ import { TYPE_LABELS } from "@/lib/typeLabels";
 const LIMIT = 20;
 const HERO_IMAGES = new Set(["fr", "uk", "us", "au", "es", "tr", "it"]);
 
+const COUNTRY_REGIONS: Record<string, { code: string; name: string; emoji: string; bg: string; accent: string; count: number }[]> = {
+  fr: [
+    { code: "alsace", name: "Alsace", emoji: "🥨", bg: "#f5ecd0", accent: "#7a4f1e", count: 35 },
+  ],
+};
+
 const REGION_LANG: Record<string, string> = {
   fr: "fr", uk: "en", us: "en", au: "en",
   es: "es", ar: "es", mx: "es", co: "es", cl: "es", pe: "es", cu: "es", ve: "es",
@@ -50,6 +56,7 @@ const T: Record<UILang, {
   noResults: string;
   expressions: (n: number) => string;
   searchLabel: (q: string) => string;
+  exploreByRegion: string;
 }> = {
   fr: {
     backHome: "Accueil",
@@ -62,6 +69,7 @@ const T: Record<UILang, {
     noResults: "Aucun résultat.",
     expressions: (n) => `${n} expression${n > 1 ? "s" : ""}`,
     searchLabel: (q) => `Résultats pour "${q}"`,
+    exploreByRegion: "Explorer par région",
   },
   en: {
     backHome: "Home",
@@ -74,6 +82,7 @@ const T: Record<UILang, {
     noResults: "No results.",
     expressions: (n) => `${n} expression${n > 1 ? "s" : ""}`,
     searchLabel: (q) => `Results for "${q}"`,
+    exploreByRegion: "Explore by region",
   },
   es: {
     backHome: "Inicio",
@@ -86,6 +95,7 @@ const T: Record<UILang, {
     noResults: "Sin resultados.",
     expressions: (n) => `${n} expresión${n > 1 ? "es" : ""}`,
     searchLabel: (q) => `Resultados para "${q}"`,
+    exploreByRegion: "Explorar por región",
   },
   tr: {
     backHome: "Ana sayfa",
@@ -98,6 +108,7 @@ const T: Record<UILang, {
     noResults: "Sonuç yok.",
     expressions: (n) => `${n} deyim`,
     searchLabel: (q) => `"${q}" için sonuçlar`,
+    exploreByRegion: "Bölgeye göre keşfet",
   },
   it: {
     backHome: "Home",
@@ -110,6 +121,7 @@ const T: Record<UILang, {
     noResults: "Nessun risultato.",
     expressions: (n) => `${n} espression${n > 1 ? "i" : "e"}`,
     searchLabel: (q) => `Risultati per "${q}"`,
+    exploreByRegion: "Esplora per regione",
   },
 };
 
@@ -352,6 +364,73 @@ function CountryPageContent({ code }: { code: string }) {
             </div>
           </div>
         </div>
+
+        {/* Regions — France only */}
+        {COUNTRY_REGIONS[code] && (
+          <div style={{ background: "var(--paper)", padding: "1.25rem 1rem 1rem", borderBottom: "1px solid var(--paper-edge)" }}>
+            <div style={{ maxWidth: 680, margin: "0 auto" }}>
+              <p style={{
+                fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const,
+                letterSpacing: "0.07em", color: "var(--ink-faint)", marginBottom: "0.75rem",
+                fontFamily: "var(--font-body)",
+              }}>
+                {t.exploreByRegion}
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap" as const, gap: "0.75rem" }}>
+                {COUNTRY_REGIONS[code].map((region) => (
+                  <Link
+                    key={region.code}
+                    href={`/regions/${region.code}`}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column" as const,
+                      alignItems: "flex-start" as const,
+                      gap: "0.5rem",
+                      padding: "1.25rem 1.5rem 1rem",
+                      borderRadius: "var(--r-lg)",
+                      textDecoration: "none",
+                      background: region.bg,
+                      boxShadow: "0 1px 6px rgba(28,20,16,0.08)",
+                      minWidth: 160,
+                      transition: "transform 150ms ease, box-shadow 150ms ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.transform = "translateY(-4px)";
+                      el.style.boxShadow = "0 10px 28px rgba(28,20,16,0.14)";
+                    }}
+                    onMouseLeave={(e) => {
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.transform = "translateY(0)";
+                      el.style.boxShadow = "0 1px 6px rgba(28,20,16,0.08)";
+                    }}
+                  >
+                    <span style={{ fontSize: 36, lineHeight: 1 }}>{region.emoji}</span>
+                    <span style={{
+                      fontFamily: "var(--font-display)",
+                      fontStyle: "italic",
+                      fontSize: 17,
+                      fontWeight: 700,
+                      color: region.accent,
+                      lineHeight: 1.2,
+                    }}>
+                      {region.name}
+                    </span>
+                    <span style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: 12,
+                      color: region.accent,
+                      opacity: 0.7,
+                      fontWeight: 500,
+                    }}>
+                      {t.expressions(region.count)}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Filters */}
         <div style={{ background: "var(--paper)", padding: "1.5rem 1rem 1.25rem", borderBottom: "1px solid var(--paper-edge)" }}>

@@ -2,26 +2,166 @@
 
 import { use, useEffect, useState, Suspense } from "react";
 import Link from "next/link";
-import ExpressionCard from "@/components/ExpressionCard";
+import { useRouter } from "next/navigation";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
-import { browseByRegion, getAllTagNames, Expression } from "@/lib/api";
+import { toggleFavorite, isFavorite } from "@/lib/carnet";
+import { Heart } from "lucide-react";
+import { browseByRegion, Expression } from "@/lib/api";
 
 type UILang = "fr" | "en" | "es" | "tr" | "it";
 
 const SECTION_FILTERS = [
-  { key: null,              label: "Toutes" },
-  { key: "als-quotidien",   label: "Mots du quotidien" },
-  { key: "als-table",       label: "À table" },
-  { key: "als-interjection",label: "Interjections" },
-  { key: "als-calque",      label: "Français d'Alsace" },
+  { key: null,               label: "Toutes",            emoji: "✨" },
+  { key: "als-quotidien",    label: "Mots du quotidien", emoji: "💬" },
+  { key: "als-table",        label: "À table",           emoji: "🍽️" },
+  { key: "als-interjection", label: "Interjections",     emoji: "❗" },
+  { key: "als-calque",       label: "Français d'Alsace", emoji: "🗺️" },
 ];
+
+const SECTION_STYLES: Record<string, { bg: string; accent: string; strip: string }> = {
+  "als-quotidien":    { bg: "#fdf4e2", accent: "#a85c1a", strip: "#e8a84a" },
+  "als-table":        { bg: "#fef0ed", accent: "#b03a2a", strip: "#d4705a" },
+  "als-interjection": { bg: "#f0ecf8", accent: "#6a38a0", strip: "#9a70c8" },
+  "als-calque":       { bg: "#e8f5f0", accent: "#1e6b4a", strip: "#4aaa84" },
+  default:            { bg: "#f5f3ef", accent: "#5a4a3a", strip: "#b0a090" },
+};
+
+function sectionStyle(tags: string[]) {
+  const key = tags.find((t) => t.startsWith("als-"));
+  return SECTION_STYLES[key ?? "default"] ?? SECTION_STYLES.default;
+}
+
+// ─── AlsaceCard ─────────────────────────────────────────────────────────────
+
+function AlsaceCard({ expr, uiLang }: { expr: Expression; uiLang: UILang }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [fav, setFav] = useState(false);
+  const style = sectionStyle(expr.tags);
+
+  useEffect(() => { setFav(isFavorite(expr.id)); }, [expr.id]);
+
+  function handleFav(ev: React.MouseEvent) {
+    ev.stopPropagation();
+    toggleFavorite(expr.id);
+    setFav((v) => !v);
+  }
+
+  return (
+    <div
+      onClick={() => router.push(`/expression/${expr.id}?lang=${uiLang}`)}
+      style={{
+        background: style.bg,
+        borderRadius: "var(--r-lg)",
+        overflow: "hidden",
+        cursor: "pointer",
+        boxShadow: "0 1px 6px rgba(28,20,16,0.07)",
+        transition: "transform 150ms ease, box-shadow 150ms ease",
+        display: "flex",
+        flexDirection: "column",
+      }}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget as HTMLElement;
+        el.style.transform = "translateY(-3px)";
+        el.style.boxShadow = "0 8px 24px rgba(28,20,16,0.13)";
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget as HTMLElement;
+        el.style.transform = "translateY(0)";
+        el.style.boxShadow = "0 1px 6px rgba(28,20,16,0.07)";
+      }}
+    >
+      {/* Color strip */}
+      <div style={{ height: 5, background: style.strip }} />
+
+      <div style={{ padding: "1.1rem 1.25rem 1rem", display: "flex", flexDirection: "column", gap: "0.5rem", flex: 1 }}>
+
+        {/* Expression word — focal point */}
+        <p style={{
+          fontFamily: "var(--font-display)",
+          fontStyle: "italic",
+          fontSize: "1.55rem",
+          fontWeight: 800,
+          color: style.accent,
+          lineHeight: 1.15,
+          margin: 0,
+        }}>
+          {expr.expression}
+        </p>
+
+        {/* Meaning */}
+        <p style={{
+          fontFamily: "var(--font-body)",
+          fontSize: 13,
+          color: "#4a3a2a",
+          lineHeight: 1.55,
+          margin: 0,
+        }}>
+          {expr.meaning}
+        </p>
+
+        {/* Origin toggle */}
+        {expr.origin && (
+          <div style={{ marginTop: "0.1rem" }}>
+            <button
+              onClick={(ev) => { ev.stopPropagation(); setOpen((v) => !v); }}
+              style={{
+                background: "none", border: "none", cursor: "pointer",
+                fontSize: 11, color: style.accent, opacity: 0.65,
+                fontFamily: "var(--font-body)", fontWeight: 600, padding: 0,
+                letterSpacing: "0.03em",
+                transition: "opacity 120ms",
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.65"; }}
+            >
+              {open ? "▾" : "▸"} {uiLang === "fr" ? "Anecdote" : "Story"}
+            </button>
+            {open && (
+              <p style={{
+                fontFamily: "var(--font-body)",
+                fontSize: 12,
+                color: "#6a5a4a",
+                lineHeight: 1.6,
+                margin: "0.4rem 0 0",
+                borderLeft: `2px solid ${style.strip}`,
+                paddingLeft: "0.6rem",
+              }}>
+                {expr.origin}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Bottom row — fav */}
+        <div style={{ marginTop: "auto", paddingTop: "0.5rem", display: "flex", justifyContent: "flex-end" }}>
+          <button
+            onClick={handleFav}
+            title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              padding: "2px", lineHeight: 1,
+              color: fav ? style.accent : "rgba(90,70,50,0.25)",
+              transition: "color 150ms ease, transform 150ms ease",
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.2)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
+          >
+            <Heart size={15} strokeWidth={1.5} fill={fav ? style.accent : "none"} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Page ────────────────────────────────────────────────────────────────────
 
 function RegionPageContent({ code }: { code: string }) {
   const [uiLang, setUILang] = useState<UILang>("fr");
   const [expressions, setExpressions] = useState<Expression[]>([]);
-  const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
@@ -31,15 +171,6 @@ function RegionPageContent({ code }: { code: string }) {
     if (stored && valid.includes(stored)) setUILang(stored);
   }, []);
 
-  const changeLang = (lang: UILang) => {
-    setUILang(lang);
-    localStorage.setItem("wex_lang", lang);
-  };
-
-  useEffect(() => {
-    getAllTagNames(uiLang).then(setTagNames);
-  }, [uiLang]);
-
   useEffect(() => {
     browseByRegion([code], 100, 0)
       .then((r) => setExpressions(r.results))
@@ -47,15 +178,14 @@ function RegionPageContent({ code }: { code: string }) {
       .finally(() => setLoading(false));
   }, [code]);
 
+  const changeLang = (lang: UILang) => {
+    setUILang(lang);
+    localStorage.setItem("wex_lang", lang);
+  };
+
   const filtered = activeSection
     ? expressions.filter((e) => e.tags.some((t) => t === activeSection))
     : expressions;
-
-  const handleTagClick = (slug: string) => {
-    // section tags used for filtering; ignore als-* from card click
-    if (!slug.startsWith("als-")) return;
-    setActiveSection(activeSection === slug ? null : slug);
-  };
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
@@ -76,40 +206,35 @@ function RegionPageContent({ code }: { code: string }) {
           }}
         >
           <Link
-            href="/"
+            href="/country/fr"
             style={{ fontSize: 13, color: "var(--ink-softer)", textDecoration: "none", display: "flex", alignItems: "center", gap: "0.3rem", fontFamily: "var(--font-body)" }}
           >
-            ← Accueil
+            ← France
           </Link>
           <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 16, color: "var(--terra)" }}>
-            🍇 Alsace
+            🥨 Alsace
           </span>
           <div style={{ width: 48 }} />
         </div>
 
         {/* Hero */}
-        <div
-          style={{
-            minHeight: 220,
-            background: "linear-gradient(135deg, #b94b30 0%, #8b4a7a 50%, #6b4d8f 100%)",
-            position: "relative",
-          }}
-        >
+        <div style={{
+          minHeight: 200,
+          background: "linear-gradient(135deg, #b94b30 0%, #8b4a7a 50%, #6b4d8f 100%)",
+          position: "relative",
+        }}>
           <div style={{ padding: "1.25rem 2rem 3rem" }}>
-            {/* Desktop breadcrumb */}
             <div className="wex-atlas-card">
               <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "rgba(255,255,255,0.65)", margin: 0 }}>
-                <Link href="/" style={{ color: "rgba(255,255,255,0.65)", textDecoration: "none" }}>
-                  ← Accueil
+                <Link href="/country/fr" style={{ color: "rgba(255,255,255,0.65)", textDecoration: "none" }}>
+                  ← 🇫🇷 France
                 </Link>
-                {" · "}
-                <span style={{ color: "rgba(255,255,255,0.45)" }}>Régions · Alsace</span>
+                <span style={{ color: "rgba(255,255,255,0.4)" }}> · Alsace</span>
               </p>
             </div>
 
-            {/* Region identity */}
             <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
-              <div style={{ fontSize: 52, lineHeight: 1, marginBottom: "0.4rem" }}>🍇</div>
+              <div style={{ fontSize: 48, lineHeight: 1, marginBottom: "0.4rem" }}>🥨</div>
               <h1 style={{
                 fontFamily: "var(--font-display)",
                 fontStyle: "italic",
@@ -121,83 +246,55 @@ function RegionPageContent({ code }: { code: string }) {
               }}>
                 Alsace
               </h1>
-              <p style={{
-                color: "rgba(255,255,255,0.7)",
-                fontSize: 14,
-                marginTop: "0.4rem",
-                fontFamily: "var(--font-body)",
-                fontStyle: "italic",
-              }}>
+              <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 13, marginTop: "0.35rem", fontFamily: "var(--font-body)", fontStyle: "italic" }}>
                 Elsässisch · Entre Rhin et Vosges
               </p>
-              {!loading && (
-                <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 13, marginTop: "0.3rem", fontFamily: "var(--font-body)" }}>
-                  {expressions.length} expression{expressions.length > 1 ? "s" : ""}
-                </p>
-              )}
             </div>
           </div>
         </div>
 
-        {/* Content */}
-        <div style={{ maxWidth: 780, margin: "0 auto", padding: "2rem 1rem 3rem" }}>
+        <div style={{ maxWidth: 860, margin: "0 auto", padding: "1.5rem 1rem 3rem" }}>
 
-          {/* Intro */}
-          <div style={{
-            background: "var(--paper)",
-            border: "1px solid var(--paper-edge)",
-            borderRadius: "var(--r-lg)",
-            padding: "1.75rem 2.25rem",
-            marginBottom: "2rem",
+          {/* Intro — discreet */}
+          <p style={{
+            fontFamily: "var(--font-body)",
+            fontSize: 12,
+            color: "var(--ink-faint)",
+            lineHeight: 1.6,
+            marginBottom: "1.5rem",
           }}>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: "1rem", lineHeight: 1.7, color: "var(--ink)", margin: 0 }}>
-              L&apos;alsacien — <em>Elsässisch</em> — est un dialecte germanique d&apos;origine alémanique et franconienne, parlé depuis des siècles dans la plaine du Rhin et les contreforts des Vosges. Si l&apos;on compare à d&apos;autres régions, l&apos;Alsace est l&apos;une de celles qui a le plus de régionalismes en France. La raison tient à son histoire : territoire longtemps disputé entre la France et l&apos;Allemagne, elle a conservé un substrat linguistique germanique qui a coexisté avec le français pendant plusieurs décennies.
-            </p>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: "1rem", lineHeight: 1.7, color: "var(--ink)", marginTop: "0.9rem", marginBottom: 0 }}>
-              Aujourd&apos;hui, rares sont les Alsaciens à maîtriser encore le dialecte à l&apos;oral — mais ses mots n&apos;ont jamais vraiment disparu. Ils glissent quotidiennement dans le français parlé à Strasbourg, Colmar ou Mulhouse : on fait un <strong style={{ color: "var(--plum)" }}>schmutz</strong>, on prend un <strong style={{ color: "var(--plum)" }}>schluk</strong>, on lance un <strong style={{ color: "var(--plum)" }}>hopla !</strong> sans y penser. À cela s&apos;ajoutent des calques syntaxiques de l&apos;allemand — «&nbsp;il a anniversaire&nbsp;», «&nbsp;venir avec&nbsp;», «&nbsp;j&apos;attends sur le bus&nbsp;» — qui semblent fautifs au Français de l&apos;intérieur, mais sont en réalité des traductions mot-à-mot parfaitement logiques.
-            </p>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: "1rem", lineHeight: 1.7, color: "var(--ink)", marginTop: "0.9rem", marginBottom: 0 }}>
-              En Alsace, on est assez forts pour utiliser sans s&apos;en rendre compte des expressions qui feraient bégayer tout Français au-delà des Vosges. Ce n&apos;est pas une faiblesse : c&apos;est parler deux langues en même temps.
-            </p>
-          </div>
+            Mots alsaciens et calques germaniques qui glissent quotidiennement dans le français parlé à Strasbourg, Colmar ou Mulhouse.
+          </p>
 
           {/* Section filters */}
-          <div style={{ marginBottom: "1.5rem" }}>
-            <p style={{
-              fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const,
-              letterSpacing: "0.07em", color: "var(--ink-faint)", marginBottom: "0.6rem",
-              fontFamily: "var(--font-body)",
-            }}>
-              Filtrer par section
-            </p>
-            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: "0.4rem" }}>
-              {SECTION_FILTERS.map(({ key, label }) => {
-                const isActive = activeSection === key;
-                return (
-                  <button
-                    key={key ?? "all"}
-                    onClick={() => setActiveSection(isActive && key !== null ? null : key)}
-                    style={{
-                      fontSize: 13, padding: "6px 16px", borderRadius: "var(--r-pill)",
-                      background: isActive ? "var(--terra)" : "var(--paper)",
-                      border: `1.5px solid ${isActive ? "var(--terra)" : "var(--paper-edge)"}`,
-                      color: isActive ? "#fff" : "var(--terra)",
-                      cursor: "pointer", fontWeight: 500,
-                      boxShadow: isActive ? "var(--shadow-stamp)" : "none",
-                      transition: "all 0.15s",
-                      fontFamily: "var(--font-body)",
-                    }}
-                  >
-                    {label}
-                    {key !== null && !isActive && (
-                      <span style={{ marginLeft: 6, color: "var(--ink-faint)", fontSize: 12 }}>
-                        {expressions.filter((e) => e.tags.some((t) => t === key)).length}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+          <div style={{ display: "flex", flexWrap: "wrap" as const, gap: "0.4rem", marginBottom: "1.75rem" }}>
+            {SECTION_FILTERS.map(({ key, label, emoji }) => {
+              const isActive = activeSection === key;
+              const count = key !== null ? expressions.filter((e) => e.tags.some((t) => t === key)).length : expressions.length;
+              return (
+                <button
+                  key={key ?? "all"}
+                  onClick={() => setActiveSection(isActive && key !== null ? null : key)}
+                  style={{
+                    fontSize: 13, padding: "6px 14px", borderRadius: "var(--r-pill)",
+                    background: isActive ? "var(--terra)" : "var(--paper)",
+                    border: `1.5px solid ${isActive ? "var(--terra)" : "var(--paper-edge)"}`,
+                    color: isActive ? "#fff" : "var(--terra)",
+                    cursor: "pointer", fontWeight: 500,
+                    boxShadow: isActive ? "var(--shadow-stamp)" : "none",
+                    transition: "all 0.15s",
+                    fontFamily: "var(--font-body)",
+                    display: "flex", alignItems: "center", gap: "0.3rem",
+                  }}
+                >
+                  <span>{emoji}</span>
+                  {label}
+                  <span style={{ fontSize: 11, opacity: isActive ? 0.75 : 0.5, marginLeft: 2 }}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Loading */}
@@ -210,29 +307,21 @@ function RegionPageContent({ code }: { code: string }) {
             </div>
           )}
 
-          {/* Expression grid */}
+          {/* AlsaceCard grid */}
           {!loading && (
             <div style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-              gap: "1rem",
+              gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+              gap: "0.85rem",
             }}>
               {filtered.map((expr, i) => (
                 <div
                   key={expr.id}
-                  style={{
-                    animation: "fadeSlideUp 0.35s ease-out both",
-                    animationDelay: `${Math.min(i, 8) * 45}ms`,
-                  }}
+                  style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 40}ms` }}
                 >
-                  <ExpressionCard
-                    expression={{
-                      ...expr,
-                      tags: expr.tags.filter((t) => !t.startsWith("als-")),
-                    }}
-                    onTagClick={handleTagClick}
+                  <AlsaceCard
+                    expr={{ ...expr, tags: expr.tags.filter((t) => !t.startsWith("als-")) }}
                     uiLang={uiLang}
-                    tagNames={tagNames}
                   />
                 </div>
               ))}

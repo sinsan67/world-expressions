@@ -71,7 +71,8 @@ def search_expressions(
 
 @app.get("/concept")
 def search_by_concept(
-    tags: str = Query(..., description="Comma-separated tag synonyms (OR logic). e.g. 'argent,money,wealth'"),
+    tags: str = Query("", description="Comma-separated tag synonyms (OR logic). e.g. 'argent,money,wealth'"),
+    domain: str = Query("", description="Domain slug — uses all tags of that domain (overrides tags)."),
     region: str = Query("", description="Comma-separated regions. Empty = all."),
     limit: int = Query(20, ge=1, le=100, description="Number of results per page"),
     offset: int = Query(0, ge=0, description="Number of results to skip"),
@@ -80,8 +81,12 @@ def search_by_concept(
     """
     Return all expressions that have at least one of the given tags.
     Powers cross-language concept navigation: clicking 'argent' also finds 'money', 'wealth'...
+    Pass domain= to search all expressions in a thematic domain.
     """
-    tag_set = {t.lower().strip() for t in tags.split(",") if t.strip()}
+    if domain.strip():
+        tag_set = database.get_domain_tags(domain.strip())
+    else:
+        tag_set = {t.lower().strip() for t in tags.split(",") if t.strip()}
     regions = set(region.split(",")) - {""} if region else None
     tf = type_filter.strip() or None
     results, total = database.search_by_concept(tag_set, regions, limit, offset, tf)
