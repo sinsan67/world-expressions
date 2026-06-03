@@ -54,7 +54,7 @@ test.describe('Page /concepts', () => {
     await page.goto('/concepts');
     await page.locator(CONCEPT).first().waitFor({ timeout: T });
     await page.locator(CONCEPT).first().click();
-    await expect(page).toHaveURL(/\/#(q|concept)=/, { timeout: T });
+    await expect(page).toHaveURL(/\/search\?concept=/, { timeout: T });
   });
 
   test('#31 "Concepts" est en surbrillance dans la sidebar', async ({ page }) => {

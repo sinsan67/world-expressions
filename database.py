@@ -717,6 +717,117 @@ def toggle_user_favorite(user_id: str, expression_id: str) -> dict:
             return {"action": "added"}
 
 
+def get_concepts(
+    locale: str = "en",
+    lang: Optional[str] = None,
+    domain: Optional[str] = None,
+    min_count: int = 5,
+) -> dict:
+    """
+    Retourne les tags ayant un domaine assigné (concept_domains) et ≥ min_count expressions.
+
+    Params :
+      locale  — langue d'affichage du nom du tag (tag_names)
+      lang    — filtre sur la langue des expressions pour les compteurs
+      domain  — ne retourner que les tags de ce domaine
+      min_count — nb minimum d'expressions (défaut 5)
+
+    Retourne :
+      {
+        "domain_counts": {"emotions": 45, ...},
+        "concepts": [{"slug": ..., "name": ..., "count": ..., "domains": [...]}, ...]
+      }
+    """
+    lang_clause = "AND e.language = :lang" if lang else ""
+    domain_clause = """AND EXISTS (
+        SELECT 1 FROM concept_domains cd2
+        WHERE cd2.tag_id = t.id AND cd2.domain_slug = :domain
+    )""" if domain else ""
+
+    concepts_sql = f"""
+        WITH eligible AS (
+            SELECT DISTINCT
+                t.id         AS tag_id,
+                t.slug,
+                COALESCE(tn.name, t.slug) AS tag_name,
+                e.id         AS expr_id
+            FROM tags t
+            JOIN concept_domains cd ON cd.tag_id = t.id
+            JOIN expression_tags et ON et.tag_id = t.id
+            JOIN expressions e ON e.id = et.expression_id
+            LEFT JOIN tag_names tn ON tn.tag_id = t.id AND tn.locale = :locale
+            WHERE NOT (t.slug = ANY(:meta_tags))
+              {domain_clause}
+              {lang_clause}
+              AND NOT EXISTS (
+                  SELECT 1 FROM expression_tags et_pb
+                  JOIN tags t_pb ON t_pb.id = et_pb.tag_id
+                  WHERE et_pb.expression_id = e.id AND t_pb.slug = 'phrasebook'
+              )
+        ),
+        counts AS (
+            SELECT tag_id, slug, tag_name, COUNT(*) AS cnt
+            FROM eligible
+            GROUP BY tag_id, slug, tag_name
+            HAVING COUNT(*) >= :min_count
+        )
+        SELECT
+            c.slug,
+            c.tag_name                                        AS name,
+            c.cnt                                             AS count,
+            ARRAY_AGG(DISTINCT cd.domain_slug ORDER BY cd.domain_slug) AS domains
+        FROM counts c
+        JOIN concept_domains cd ON cd.tag_id = c.tag_id
+        GROUP BY c.slug, c.tag_name, c.cnt
+        ORDER BY c.cnt DESC
+    """
+
+    domain_counts_sql = f"""
+        SELECT cd.domain_slug, COUNT(DISTINCT cd.tag_id) AS cnt
+        FROM concept_domains cd
+        JOIN (
+            SELECT DISTINCT t.id AS tag_id
+            FROM tags t
+            JOIN expression_tags et ON et.tag_id = t.id
+            JOIN expressions e ON e.id = et.expression_id
+            WHERE NOT (t.slug = ANY(:meta_tags))
+              {lang_clause}
+              AND NOT EXISTS (
+                  SELECT 1 FROM expression_tags et_pb
+                  JOIN tags t_pb ON t_pb.id = et_pb.tag_id
+                  WHERE et_pb.expression_id = e.id AND t_pb.slug = 'phrasebook'
+              )
+            GROUP BY t.id
+            HAVING COUNT(DISTINCT e.id) >= :min_count
+        ) eligible ON eligible.tag_id = cd.tag_id
+        GROUP BY cd.domain_slug
+    """
+
+    params: dict = {
+        "locale": locale,
+        "meta_tags": list(META_TAGS),
+        "min_count": min_count,
+    }
+    if lang:
+        params["lang"] = lang
+    if domain:
+        params["domain"] = domain
+
+    with engine.connect() as conn:
+        concept_rows = conn.execute(text(concepts_sql), params).fetchall()
+        # domain_counts uses same params minus domain filter
+        dc_params = {k: v for k, v in params.items() if k != "domain"}
+        dc_rows = conn.execute(text(domain_counts_sql), dc_params).fetchall()
+
+    return {
+        "domain_counts": {r.domain_slug: r.cnt for r in dc_rows},
+        "concepts": [
+            {"slug": r.slug, "name": r.name, "count": r.count, "domains": list(r.domains)}
+            for r in concept_rows
+        ],
+    }
+
+
 def subscribe_newsletter(email: str, language: str) -> dict:
     """
     Enregistre un abonné à la newsletter.

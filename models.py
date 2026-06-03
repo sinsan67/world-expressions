@@ -150,6 +150,16 @@ class UserFavorite(Base):
     user = relationship("User", back_populates="favorites")
 
 
+class ConceptDomain(Base):
+    """Assigne un tag thématique à 1-2 domaines parmi 13 (populé via Mistral)."""
+    __tablename__ = "concept_domains"
+
+    tag_id      = Column(String(60), ForeignKey("tags.id", ondelete="CASCADE"), primary_key=True)
+    domain_slug = Column(String(30), nullable=False, primary_key=True)
+
+    tag = relationship("Tag")
+
+
 class NewsletterSubscriber(Base):
     """Abonné à la newsletter — une expression par jour."""
     __tablename__ = "newsletter_subscribers"

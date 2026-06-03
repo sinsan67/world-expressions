@@ -136,6 +136,23 @@ export async function getTopTags(language = "", limit = 30, locale = "en"): Prom
   return res.json();
 }
 
+export type ConceptItem = { slug: string; name: string; count: number; domains: string[] };
+export type ConceptsResponse = { domain_counts: Record<string, number>; concepts: ConceptItem[] };
+
+export async function getConcepts(
+  locale = "en",
+  lang = "",
+  domain = "",
+  minCount = 5,
+): Promise<ConceptsResponse> {
+  const params = new URLSearchParams({ locale, min_count: String(minCount) });
+  if (lang) params.set("lang", lang);
+  if (domain) params.set("domain", domain);
+  const res = await fetch(`${API}/concepts?${params}`);
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
 export async function getRandomExpression(locale = ""): Promise<Expression & { meaning_locale: string; literal: string | null }> {
   const params = locale ? `?locale=${locale}` : "";
   const res = await fetch(`${API}/random${params}`);
