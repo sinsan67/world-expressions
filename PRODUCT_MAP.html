@@ -3,15 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <title>World Expressions — Product Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  :root {
+    --paper:        #fdf8ee;
+    --paper-deep:   #f3e8d4;
+    --paper-edge:   #e8dcc4;
+    --paper-fold:   #ddd0b5;
+    --ink:          #1c1410;
+    --ink-soft:     #5c4f47;
+    --ink-softer:   #8b7d72;
+    --ink-faint:    #b8aa9b;
+    --plum:         #6b4d8f;
+    --plum-deep:    #4a3565;
+    --plum-soft:    #c9b8d9;
+    --plum-bg:      #ebe3f1;
+    --terra:        #c1543a;
+    --terra-deep:   #92341f;
+    --terra-soft:   #f0c8b8;
+    --terra-bg:     #f7e3d8;
+    --ochre:        #d4a83a;
+    --ochre-deep:   #8b6b1c;
+    --ochre-bg:     #faf2cf;
+    --green:        #166534;
+    --green-bg:     #dcfce7;
+    --green-border: #86efac;
+    --blue:         #1d4ed8;
+    --blue-bg:      #dbeafe;
+  }
+
   body {
-    font-family: 'Inter', sans-serif;
-    background: #0f0a1e;
-    color: #e2e0f0;
+    font-family: "Inter", system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
     width: 1440px;
     min-height: 900px;
     padding: 28px 36px;
@@ -22,274 +49,220 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 22px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1.5px solid var(--paper-edge);
   }
-  .header h1 {
-    font-size: 24px;
-    font-weight: 800;
-    color: #fff;
+  .header-left h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
     letter-spacing: -0.5px;
   }
-  .header h1 span { color: #a78bfa; }
+  .header-left h1 span { color: var(--plum); font-style: italic; }
   .tagline {
     font-size: 12px;
-    color: #7c6aab;
+    color: var(--ink-softer);
     margin-top: 4px;
     font-style: italic;
   }
-  .stats-bar {
-    display: flex;
-    gap: 14px;
-    align-items: center;
-  }
+  .stats-bar { display: flex; gap: 10px; align-items: center; }
   .stat {
     text-align: center;
-    background: #1a1130;
-    border: 1px solid #2d1f5e;
+    background: white;
+    border: 1px solid var(--paper-edge);
     border-radius: 10px;
-    padding: 8px 16px;
+    padding: 8px 14px;
+    box-shadow: 0 1px 3px rgba(28,20,16,0.06);
   }
-  .stat-n { font-size: 20px; font-weight: 800; color: #a78bfa; }
-  .stat-label { font-size: 10px; color: #7c6aab; margin-top: 1px; }
+  .stat-n {
+    font-size: 18px; font-weight: 700;
+    color: var(--plum);
+    font-family: "Fraunces", Georgia, serif;
+  }
+  .stat-label { font-size: 10px; color: var(--ink-softer); margin-top: 1px; }
+
+  .live-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--green-bg);
+    border: 1px solid var(--green-border);
+    color: var(--green);
+    font-size: 10px; font-weight: 700;
+    padding: 3px 10px; border-radius: 999px;
+  }
+  .live-dot {
+    width: 5px; height: 5px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:0.3; } }
+  .url { font-size: 10px; color: var(--ink-faint); margin-top: 2px; }
+  .url a { color: var(--ink-softer); text-decoration: none; }
 
   /* ── TIMELINE ── */
   .timeline {
     display: flex;
     gap: 8px;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
     align-items: stretch;
   }
   .phase {
     flex: 1;
     border-radius: 12px;
-    padding: 12px 14px;
-    position: relative;
-    border: 1px solid transparent;
+    padding: 13px 14px;
+    border: 1.5px solid transparent;
   }
-  .phase.done       { background: #0d1f0d; border-color: #1a4a1a; }
-  .phase.unblocking { background: #1a1009; border-color: #5c3a00; box-shadow: 0 0 0 1px #d9770640, 0 4px 18px #d9770618; }
-  .phase.current    { background: #160d2e; border-color: #4c1d95; box-shadow: 0 0 0 1px #7c3aed40, 0 4px 24px #7c3aed20; }
-  .phase.next       { background: #0e1a20; border-color: #1a3a4a; }
-  .phase.future     { background: #0e0e18; border-color: #1e1e3a; }
+  .phase.done    { background: #f0fdf4; border-color: #86efac; }
+  .phase.current { background: var(--plum-bg); border-color: var(--plum-soft); box-shadow: 0 0 0 1px rgba(107,77,143,0.18), 0 4px 20px rgba(107,77,143,0.10); }
+  .phase.next    { background: var(--blue-bg); border-color: #93c5fd; }
+  .phase.future  { background: var(--paper-deep); border-color: var(--paper-edge); }
 
   .phase-label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 5px;
+    font-size: 9.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 4px;
   }
-  .done .phase-label       { color: #4ade80; }
-  .unblocking .phase-label { color: #fb923c; }
-  .current .phase-label    { color: #a78bfa; }
-  .next .phase-label       { color: #38bdf8; }
-  .future .phase-label     { color: #94a3b8; }
+  .done .phase-label    { color: var(--green); }
+  .current .phase-label { color: var(--plum); }
+  .next .phase-label    { color: var(--blue); }
+  .future .phase-label  { color: var(--ink-softer); }
 
   .phase-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 6px;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 13px; font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 5px; line-height: 1.3;
   }
   .phase-badge {
     display: inline-block;
-    font-size: 9px;
-    padding: 2px 7px;
-    border-radius: 20px;
-    margin-bottom: 8px;
-    font-weight: 600;
+    font-size: 9px; font-weight: 600;
+    padding: 2px 7px; border-radius: 999px;
+    margin-bottom: 7px;
   }
-  .done .phase-badge       { background: #14532d; color: #4ade80; }
-  .unblocking .phase-badge { background: #431407; color: #fb923c; }
-  .current .phase-badge    { background: #3b0764; color: #c4b5fd; }
-  .next .phase-badge       { background: #0c2a38; color: #7dd3fc; }
-  .future .phase-badge     { background: #1e293b; color: #94a3b8; }
+  .done .phase-badge    { background: #166534; color: #dcfce7; }
+  .current .phase-badge { background: var(--plum-deep); color: #e9d8fd; }
+  .next .phase-badge    { background: #1d4ed8; color: #dbeafe; }
+  .future .phase-badge  { background: var(--ink-softer); color: var(--paper); }
 
   .phase ul { list-style: none; display: flex; flex-direction: column; gap: 3px; }
   .phase ul li {
-    font-size: 11px;
-    color: #b0a8d0;
-    padding-left: 12px;
-    position: relative;
-    line-height: 1.4;
+    font-size: 11px; color: var(--ink-soft);
+    padding-left: 11px; position: relative; line-height: 1.4;
   }
-  .phase ul li::before {
-    content: '›';
-    position: absolute;
-    left: 0;
-    color: #5b4a8a;
-  }
-  .done .phase-label + .phase-title + .phase-badge + ul li::before { color: #4ade80; }
-  .done ul li::before       { color: #4ade80; }
-  .unblocking ul li::before { color: #fb923c; }
-  .current ul li::before    { color: #a78bfa; }
-  .next ul li::before       { color: #38bdf8; }
+  .phase ul li::before { content: '›'; position: absolute; left: 0; }
+  .done ul li::before    { color: #16a34a; }
+  .current ul li::before { color: var(--plum); }
+  .next ul li::before    { color: #3b82f6; }
+  .future ul li::before  { color: var(--ink-faint); }
 
   .arrow {
-    display: flex;
-    align-items: center;
-    color: #3d2e6e;
-    font-size: 16px;
-    flex-shrink: 0;
-    padding-top: 36px;
+    display: flex; align-items: center;
+    color: var(--paper-fold);
+    font-size: 18px; flex-shrink: 0;
+    padding-top: 32px;
   }
 
-  /* ── BOTTOM SECTION ── */
+  /* ── BOTTOM GRID ── */
   .bottom {
     display: grid;
-    grid-template-columns: 1.1fr 1.5fr 1.4fr;
+    grid-template-columns: 1.05fr 1.85fr 1.1fr;
     gap: 12px;
   }
-
   .panel {
-    background: #12101e;
-    border: 1px solid #221a40;
+    background: white;
+    border: 1px solid var(--paper-edge);
     border-radius: 12px;
     padding: 14px 16px;
+    box-shadow: 0 1px 3px rgba(28,20,16,0.05);
   }
   .panel-title {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #5b4a8a;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--ink-softer);
     margin-bottom: 10px;
   }
 
   /* DATA panel */
-  .lang-row {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    margin-bottom: 6px;
-  }
+  .lang-row { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
   .lang-flag { font-size: 15px; }
-  .lang-name { font-size: 11px; color: #c4b5fd; width: 80px; }
-  .lang-bar-wrap { flex: 1; background: #1a1430; border-radius: 4px; height: 5px; }
-  .lang-bar { height: 5px; border-radius: 4px; background: #7c3aed; }
-  .lang-count { font-size: 10px; color: #7c6aab; width: 36px; text-align: right; }
-  .lang-note { font-size: 9px; color: #4a3a6e; font-style: italic; }
+  .lang-name { font-size: 11px; color: var(--plum); width: 80px; font-weight: 500; }
+  .lang-bar-wrap { flex: 1; background: var(--paper-deep); border-radius: 4px; height: 5px; }
+  .lang-bar { height: 5px; border-radius: 4px; background: var(--plum); }
+  .lang-count { font-size: 10px; color: var(--ink-softer); width: 38px; text-align: right; }
+  .sep { border: none; border-top: 1px solid var(--paper-edge); margin: 8px 0; }
+  .section-note { font-size: 10px; color: var(--ink-faint); margin-top: 8px; font-style: italic; line-height: 1.45; }
 
-  .sep { border: none; border-top: 1px solid #1a1440; margin: 8px 0; }
-  .section-note {
-    font-size: 10px;
-    color: #4a3a6e;
-    margin-top: 8px;
-    font-style: italic;
-  }
-
-  /* RENFORCEMENT TECHNIQUE */
-  .chantier-group { margin-bottom: 10px; }
-  .chantier-group-title {
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: #38bdf8;
-    margin-bottom: 5px;
-  }
-  .chantier {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 5px 7px;
-    background: #0f0a1e;
-    border-radius: 7px;
-    border: 1px solid #1e1840;
+  /* CHALLENGES panel */
+  .challenge-group { margin-bottom: 10px; }
+  .challenge-group:last-child { margin-bottom: 0; }
+  .challenge-group-title {
+    font-size: 9px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--terra);
     margin-bottom: 4px;
   }
-  .chantier-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
-  .chantier-name { font-size: 11px; font-weight: 600; color: #c4b5fd; line-height: 1.3; }
-  .chantier-desc { font-size: 10px; color: #7c6aab; margin-top: 1px; line-height: 1.3; }
-  .chantier-tag {
-    flex-shrink: 0;
-    font-size: 9px;
-    padding: 1px 6px;
+  .challenge {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 6px 8px;
+    background: var(--paper);
     border-radius: 8px;
-    font-weight: 600;
-    margin-top: 1px;
+    border: 1px solid var(--paper-edge);
+    margin-bottom: 4px;
   }
-  .tag-now    { background: #3b0764; color: #c4b5fd; }
-  .tag-soon   { background: #0c2a38; color: #7dd3fc; }
-  .tag-later  { background: #1e293b; color: #94a3b8; }
+  .challenge-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+  .challenge-name { font-size: 11px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+  .challenge-desc { font-size: 10px; color: var(--ink-soft); margin-top: 1px; line-height: 1.35; }
+  .c-tag {
+    flex-shrink: 0; font-size: 9px;
+    padding: 1px 7px; border-radius: 8px;
+    font-weight: 600; margin-top: 1px;
+    white-space: nowrap; align-self: flex-start;
+  }
+  .c-now    { background: var(--terra-bg); color: var(--terra-deep); }
+  .c-soon   { background: var(--ochre-bg); color: var(--ochre-deep); }
+  .c-later  { background: var(--paper-deep); color: var(--ink-softer); }
+  .c-watch  { background: var(--blue-bg); color: var(--blue); }
 
-  /* SOURCES */
+  /* SOURCES panel */
   .sources { display: flex; flex-direction: column; gap: 5px; }
   .source-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: flex; justify-content: space-between; align-items: center;
     padding: 5px 8px;
-    background: #0f0a1e;
-    border-radius: 6px;
-    border: 1px solid #1e1840;
+    background: var(--paper);
+    border-radius: 7px; border: 1px solid var(--paper-edge);
   }
-  .source-name { font-size: 11px; color: #c4b5fd; }
-  .source-tag {
-    font-size: 9px;
-    padding: 1px 7px;
-    border-radius: 10px;
-    font-weight: 600;
-  }
-  .tag-done    { background: #14532d; color: #4ade80; }
-  .tag-easy    { background: #14532d; color: #86efac; }
-  .tag-medium  { background: #1e3a5f; color: #93c5fd; }
-  .tag-contact { background: #451a03; color: #fcd34d; }
-  .tag-wip     { background: #3b0764; color: #c4b5fd; }
+  .source-name { font-size: 11px; color: var(--ink-soft); }
+  .source-tag { font-size: 9px; padding: 1px 7px; border-radius: 10px; font-weight: 600; }
+  .s-done    { background: var(--green-bg); color: var(--green); }
+  .s-easy    { background: var(--ochre-bg); color: var(--ochre-deep); }
+  .s-medium  { background: var(--blue-bg); color: var(--blue); }
+  .s-contact { background: var(--terra-bg); color: var(--terra-deep); }
 
-  /* LIVE badge */
-  .live-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: #14532d;
-    border: 1px solid #4ade80;
-    color: #4ade80;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 9px;
-    border-radius: 20px;
-  }
-  .live-dot {
-    width: 5px; height: 5px;
-    background: #4ade80;
-    border-radius: 50%;
-    animation: pulse 1.5s infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.3; }
-  }
-
-  .url { font-size: 10px; color: #5b4a8a; margin-top: 3px; }
-  .url a { color: #7c6aab; text-decoration: none; }
-
-  /* PRINCIPES */
-  .pillars { display: flex; flex-direction: column; gap: 6px; }
+  /* PILLARS panel */
+  .pillars { display: flex; flex-direction: column; gap: 5px; }
   .pillar {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
+    display: flex; align-items: flex-start; gap: 8px;
     padding: 6px 8px;
-    background: #0f0a1e;
-    border-radius: 7px;
-    border: 1px solid #1e1840;
+    background: var(--paper);
+    border-radius: 7px; border: 1px solid var(--paper-edge);
   }
-  .pillar-icon { font-size: 15px; flex-shrink: 0; }
-  .pillar-name { font-size: 11px; font-weight: 600; color: #c4b5fd; }
-  .pillar-desc { font-size: 10px; color: #7c6aab; margin-top: 1px; line-height: 1.3; }
+  .pillar-icon { font-size: 14px; flex-shrink: 0; }
+  .pillar-name { font-size: 11px; font-weight: 600; color: var(--ink); }
+  .pillar-desc { font-size: 10px; color: var(--ink-soft); margin-top: 1px; line-height: 1.3; }
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
 <div class="header">
-  <div>
+  <div class="header-left">
     <h1>World <span>Expressions</span></h1>
-    <div class="tagline">Every language has its own madness. — Carte produit · Mai 2026 · Priorité : renforcer l'existant avant de nouvelles features</div>
+    <div class="tagline">Every language has its own madness. — Carte produit · Juin 2026 · Sprint S59 : Bretagne 🦞 + Search Reactor</div>
   </div>
-  <div style="display:flex; flex-direction:column; align-items:flex-end; gap:7px;">
-    <div style="display:flex; gap:8px; align-items:center;">
+  <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+    <div style="display:flex; gap:10px; align-items:center;">
       <span class="live-badge"><span class="live-dot"></span> LIVE</span>
       <div>
         <div class="url"><a href="https://world-expressions.vercel.app">world-expressions.vercel.app</a></div>
@@ -300,9 +273,10 @@
     <div class="stats-bar">
       <div class="stat"><div class="stat-n">2 075</div><div class="stat-label">expressions</div></div>
       <div class="stat"><div class="stat-n">5</div><div class="stat-label">langues</div></div>
-      <div class="stat"><div class="stat-n">20</div><div class="stat-label">paires traduc.</div></div>
+      <div class="stat"><div class="stat-n">20</div><div class="stat-label">paires traductions</div></div>
       <div class="stat"><div class="stat-n">1 050</div><div class="stat-label">tags normalisés</div></div>
-      <div class="stat"><div class="stat-n">13</div><div class="stat-label">commits staging</div></div>
+      <div class="stat"><div class="stat-n">2</div><div class="stat-label">régions FR</div></div>
+      <div class="stat"><div class="stat-n">@world.expressions</div><div class="stat-label">Instagram · créé</div></div>
     </div>
   </div>
 </div>
@@ -312,14 +286,14 @@
 
   <div class="phase done">
     <div class="phase-label">Terminé</div>
-    <div class="phase-title">V1–V2 · Fondations</div>
-    <span class="phase-badge">mai 2026</span>
+    <div class="phase-title">V1–V3H · Fondations + Navigabilité</div>
+    <span class="phase-badge">janv–mai 2026</span>
     <ul>
-      <li>FastAPI → Next.js + PostgreSQL Neon</li>
-      <li>5 langues (FR/EN/ES/IT/TR) + 2 075 expressions</li>
-      <li>Traductions IA matrix complète (20 paires)</li>
-      <li>5 tables normalisées + 1 050 tags</li>
-      <li>Vercel (front) + Render (API)</li>
+      <li>FastAPI → Next.js 15 + PostgreSQL Neon</li>
+      <li>5 langues · 2 075 expr · 20 paires trad. IA</li>
+      <li>5 tables normalisées + 1 050 tags anglais</li>
+      <li>Vercel (front) + Render (API) · déployés</li>
+      <li>LangBar + Sidebar + BottomNav + SEO layouts</li>
     </ul>
   </div>
 
@@ -327,76 +301,58 @@
 
   <div class="phase done">
     <div class="phase-label">Terminé</div>
-    <div class="phase-title">V3A–V3H · Navigabilité</div>
-    <span class="phase-badge">mai 2026</span>
+    <div class="phase-title">Features V3 · Compte + Concepts + Régions</div>
+    <span class="phase-badge">mai–juin 2026 · S13–S58</span>
     <ul>
-      <li>/expression/[id] + /atlas + /concepts + /carnet ✓</li>
-      <li>/country/[code] — redesign carnet-de-voyage ✓</li>
-      <li>LangBar fixe top-right toutes pages ✓</li>
-      <li>SEO layouts + sitemap.ts ✓</li>
-      <li>Icônes Lucide + tests Playwright + pytest ✓</li>
-      <li>Sidebar count favoris dynamique ✓</li>
-    </ul>
-  </div>
-
-  <div class="arrow">→</div>
-
-  <div class="phase unblocking">
-    <div class="phase-label">À débloquer</div>
-    <div class="phase-title">Merge staging → main</div>
-    <span class="phase-badge">ce sprint</span>
-    <ul>
-      <li>Ajouter API_URL dans Vercel Dashboard</li>
-      <li>Redeploy staging pour que la var soit lue</li>
-      <li>Relancer Playwright — objectif 0 KO bloquant</li>
-      <li>git checkout main &amp;&amp; git merge staging &amp;&amp; git push</li>
-      <li>13 commits en attente de merge</li>
+      <li>Compte Google OAuth · favoris sync · Mon profil</li>
+      <li>/concepts · 20 domaines · bubble cloud toggle</li>
+      <li>/carnet + /atlas + /country redesign</li>
+      <li>/regions/alsace 🥨 · 1ʳᵉ page région FR en prod</li>
+      <li>Instagram @world.expressions · 7 posts prêts</li>
     </ul>
   </div>
 
   <div class="arrow">→</div>
 
   <div class="phase current">
-    <div class="phase-label">Priorité suivante</div>
-    <div class="phase-title">Renforcement technique</div>
-    <span class="phase-badge">sprint actuel</span>
+    <div class="phase-label">Sprint actuel — S59</div>
+    <div class="phase-title">Bretagne 🦞 + Search Reactor</div>
+    <span class="phase-badge">juin 2026</span>
     <ul>
-      <li>Recherche fulltext PostgreSQL (tsvector/tsquery)</li>
-      <li>Pagination SQL native (LIMIT/OFFSET, pas Python)</li>
-      <li>Gestion Unicode / caractères spéciaux multi-lang</li>
-      <li>Métriques qualité traductions (échantillon humain)</li>
-      <li>Analytics légères (Plausible ou simpleanalytics)</li>
-      <li>Pipeline import nouvelles langues (idempotent)</li>
+      <li>Généraliser page région → regionDefs.ts</li>
+      <li>seed_bretagne.py · 40+ expr · 4 sections brt-*</li>
+      <li>Page /regions · liste régions FR depuis /country/fr</li>
+      <li>Search Reactor : atelier logique cross-lingue + 2 bugs</li>
     </ul>
   </div>
 
   <div class="arrow">→</div>
 
   <div class="phase next">
-    <div class="phase-label">Moyen terme</div>
-    <div class="phase-title">Nouvelles langues + data</div>
-    <span class="phase-badge">après renforcement</span>
+    <div class="phase-label">Prochainement</div>
+    <div class="phase-title">Enrichissement data + Croissance</div>
+    <span class="phase-badge">été 2026</span>
     <ul>
-      <li>Enrichir IT + TR (objectif 200+ chacune)</li>
-      <li>Ajout PT / AR / DE / ZH (1 à la fois)</li>
-      <li>Sources vérifiées : kaikki.org + Wiktionary</li>
-      <li>Dataset LN-fr (3 127 expressions FR)</li>
-      <li>Qualité traductions évaluée avant publication</li>
+      <li>IT + TR · objectif 200+ expressions chacune</li>
+      <li>Dataset LN-fr · 3 127 expressions FR à importer</li>
+      <li>Analytics Vercel · activer dans Dashboard</li>
+      <li>OG meta tags · vignette WhatsApp / réseaux sociaux</li>
+      <li>Évaluation qualité traductions · score humain</li>
     </ul>
   </div>
 
   <div class="arrow">→</div>
 
   <div class="phase future">
-    <div class="phase-label">Long terme (déprioritisé)</div>
-    <div class="phase-title">Mode Jeu + PWA + Carte</div>
+    <div class="phase-label">Vision long terme</div>
+    <div class="phase-title">Mode Jeu + Carte + PWA</div>
     <span class="phase-badge">exploratoire</span>
     <ul>
       <li>Quiz emojis → deviner l'expression</li>
-      <li>Carte SVG monde / France cliquable</li>
-      <li>PWA — installation mobile, offline</li>
+      <li>Carte SVG France / Monde interactive</li>
+      <li>Nouvelles langues : PT / DE / AR / ZH</li>
+      <li>PWA · offline, installation mobile</li>
       <li>Illustrations SVG par expression</li>
-      <li>Contenu collaboratif (modéré)</li>
     </ul>
   </div>
 
@@ -405,7 +361,7 @@
 <!-- BOTTOM -->
 <div class="bottom">
 
-  <!-- DATA -->
+  <!-- COL 1 — DATA -->
   <div class="panel">
     <div class="panel-title">Base de données — état prod</div>
     <div class="lang-row">
@@ -435,101 +391,135 @@
     <div class="lang-row">
       <span class="lang-flag">🇹🇷</span>
       <span class="lang-name">Türkçe</span>
-      <div class="lang-bar-wrap"><div class="lang-bar" style="width:3%"></div></div>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:2.7%"></div></div>
       <span class="lang-count">38</span>
     </div>
     <hr class="sep">
+    <div class="lang-row" style="margin-bottom:5px">
+      <span class="lang-flag">🗺️</span>
+      <span class="lang-name" style="color:var(--terra)">Régions FR</span>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:10%; background:var(--terra)"></div></div>
+      <span class="lang-count" style="color:var(--terra)">2</span>
+    </div>
     <div class="lang-row" style="margin-bottom:0">
-      <span class="lang-flag">🔄</span>
-      <span class="lang-name" style="color:#7c6aab">Traductions IA</span>
-      <div class="lang-bar-wrap"><div class="lang-bar" style="width:100%; background:#4c1d95"></div></div>
-      <span class="lang-count" style="color:#7c6aab">20 paires</span>
+      <span class="lang-flag">💡</span>
+      <span class="lang-name" style="color:var(--plum-deep)">Concepts</span>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:60%; background:var(--plum-soft)"></div></div>
+      <span class="lang-count" style="color:var(--plum-deep)">20 dom.</span>
     </div>
-    <div class="section-note">Objectif moyen terme : 200+ expressions par langue<br>IT et TR : enrichissement prioritaire</div>
+    <div class="section-note">Objectif moyen terme : 200+ par langue<br>IT et TR : enrichissement prioritaire<br>LN-fr (3 127 expressions FR) · dataset académique prêt</div>
   </div>
 
-  <!-- RENFORCEMENT TECHNIQUE -->
+  <!-- COL 2 — CHALLENGES -->
   <div class="panel">
-    <div class="panel-title">Chantiers — Renforcement technique</div>
+    <div class="panel-title">Défis principaux</div>
 
-    <div class="chantier-group">
-      <div class="chantier-group-title">Immédiat — débloquer le merge</div>
-      <div class="chantier">
-        <div class="chantier-icon">🔑</div>
+    <div class="challenge-group">
+      <div class="challenge-group-title">Données — asymétrie et qualité</div>
+      <div class="challenge">
+        <div class="challenge-icon">📊</div>
         <div style="flex:1">
-          <div class="chantier-name">API_URL dans Vercel + redeploy</div>
-          <div class="chantier-desc">Var runtime pour /random staging. Sans ça : 13 commits bloqués.</div>
+          <div class="challenge-name">Asymétrie linguistique forte</div>
+          <div class="challenge-desc">FR (1 378) domine massivement IT (40) et TR (38). L'app se ressent comme "française par défaut". Risque pour la proposition de valeur cross-lingue. Enrichir IT+TR avant toute nouvelle langue.</div>
         </div>
-        <span class="chantier-tag tag-now">bloquant</span>
+        <span class="c-tag c-now">actif</span>
+      </div>
+      <div class="challenge">
+        <div class="challenge-icon">🧪</div>
+        <div style="flex:1">
+          <div class="challenge-name">Qualité des traductions IA jamais évaluée formellement</div>
+          <div class="challenge-desc">20 paires générées par Mistral Small — zéro validation humaine structurée. 1 erreur connue identifiée (WR) : "avoir le cœur sur la main" ≠ "wear heart on sleeve" (générosité ≠ émotivité). Déclencheur : score humain sur échantillon avant enrichissement massif.</div>
+        </div>
+        <span class="c-tag c-soon">déclencheur: enrichissement</span>
+      </div>
+      <div class="challenge">
+        <div class="challenge-icon">🏷️</div>
+        <div style="flex:1">
+          <div class="challenge-name">Coverage des tags incomplète</div>
+          <div class="challenge-desc">1 050 tags normalisés mais nombreuses expressions sans tags ou sous-taguées. Détériore la navigation /concepts et la recherche sémantique. À adresser avec chaque vague d'import.</div>
+        </div>
+        <span class="c-tag c-soon">après enrichissement</span>
       </div>
     </div>
 
-    <div class="chantier-group">
-      <div class="chantier-group-title">Infrastructure — qualité & robustesse</div>
-      <div class="chantier">
-        <div class="chantier-icon">🔍</div>
+    <div class="challenge-group">
+      <div class="challenge-group-title">Recherche — logique et cohérence</div>
+      <div class="challenge">
+        <div class="challenge-icon">🌉</div>
         <div style="flex:1">
-          <div class="chantier-name">Fulltext search PostgreSQL</div>
-          <div class="chantier-desc">Remplacer LIKE % par tsvector/tsquery. Accents, morphologie, performance à grande échelle.</div>
+          <div class="challenge-name">Concept cross-lingue non défini (Search Reactor)</div>
+          <div class="challenge-desc">Question ouverte : chercher "argent" doit-il trouver "para" (TR) via le pont concept ? La réponse détermine toute l'architecture de recherche multilingue. Atelier planifié S59.</div>
         </div>
-        <span class="chantier-tag tag-soon">prioritaire</span>
+        <span class="c-tag c-now">S59 — atelier</span>
       </div>
-      <div class="chantier">
-        <div class="chantier-icon">📄</div>
+      <div class="challenge">
+        <div class="challenge-icon">🐛</div>
         <div style="flex:1">
-          <div class="chantier-name">Pagination SQL native</div>
-          <div class="chantier-desc">LIMIT/OFFSET en SQL (pas découpage Python). Critique quand la base dépassera 3 000 expressions.</div>
+          <div class="challenge-name">2 bugs frontend identifiés (bloqués jusqu'à l'atelier)</div>
+          <div class="challenge-desc">Documentés dans search-rethink-workshop.md. Non corrigés volontairement — patcher sans stratégie = risque de régression. Résolution liée à la décision sur le concept cross-lingue.</div>
         </div>
-        <span class="chantier-tag tag-soon">déclencheur: 3k expr</span>
-      </div>
-      <div class="chantier">
-        <div class="chantier-icon">🌐</div>
-        <div style="flex:1">
-          <div class="chantier-name">Unicode & caractères spéciaux</div>
-          <div class="chantier-desc">Normalisation NFC, diacritiques, bidirectionnel (arabe, hébreu futur). Checklist par langue à définir.</div>
-        </div>
-        <span class="chantier-tag tag-soon">avant nouvelle langue</span>
-      </div>
-      <div class="chantier">
-        <div class="chantier-icon">🛢️</div>
-        <div style="flex:1">
-          <div class="chantier-name">Renommer type → kind</div>
-          <div class="chantier-desc">Mot réservé PostgreSQL — guillemets partout dans le code. Migration courte.</div>
-        </div>
-        <span class="chantier-tag tag-soon">prochaine migration</span>
+        <span class="c-tag c-now">S59 — avec atelier</span>
       </div>
     </div>
 
-    <div class="chantier-group">
-      <div class="chantier-group-title">Qualité des données & traductions</div>
-      <div class="chantier">
-        <div class="chantier-icon">📊</div>
+    <div class="challenge-group">
+      <div class="challenge-group-title">Infrastructure — dette technique</div>
+      <div class="challenge">
+        <div class="challenge-icon">⏱️</div>
         <div style="flex:1">
-          <div class="chantier-name">Métriques qualité traductions</div>
-          <div class="chantier-desc">Score humain sur échantillon (10–20 expr par paire). Avant tout enrichissement massif nouveau.</div>
+          <div class="challenge-name">Cold start Render (~15s de latence)</div>
+          <div class="challenge-desc">Render free tier "freeze" l'API après inactivité. Premier hit de la journée : ~15s de latence visible par l'utilisateur. Solution : upgrade Render ($7/mois) ou keep-alive pinger (cron toutes les 5 min).</div>
         </div>
-        <span class="chantier-tag tag-soon">avant enrichissement IT/TR</span>
+        <span class="c-tag c-watch">UX dégradée</span>
       </div>
-      <div class="chantier">
-        <div class="chantier-icon">⚡</div>
+      <div class="challenge">
+        <div class="challenge-icon">📄</div>
         <div style="flex:1">
-          <div class="chantier-name">Pre-check avant appel Mistral</div>
-          <div class="chantier-desc">populate_translations.py ne vérifie pas si expression_content couvre déjà la cible. Doublons coûteux.</div>
+          <div class="challenge-name">Pagination encore Python (pas SQL native)</div>
+          <div class="challenge-desc">LIMIT/OFFSET côté Python = requête complète chargée en mémoire. Bloquant dès que la base dépasse 3 000 expressions. Migration SQL native à faire avant d'importer LN-fr (3 127 entrées).</div>
         </div>
-        <span class="chantier-tag tag-soon">avant prochain run</span>
+        <span class="c-tag c-soon">déclencheur: 3k expressions</span>
       </div>
-      <div class="chantier">
-        <div class="chantier-icon">📈</div>
+      <div class="challenge">
+        <div class="challenge-icon">🛢️</div>
         <div style="flex:1">
-          <div class="chantier-name">Analytics légères</div>
-          <div class="chantier-desc">Plausible ou simpleanalytics — savoir ce que font les vrais utilisateurs avant d'investir en features.</div>
+          <div class="challenge-name">Colonne `type` = mot réservé PostgreSQL</div>
+          <div class="challenge-desc">Guillemets forcés partout dans le code. Fragile à la maintenance. Migration de renommage `type` → `kind` : courte mais à planifier dans un sprint calme.</div>
         </div>
-        <span class="chantier-tag tag-later">après merge main</span>
+        <span class="c-tag c-later">petite migration</span>
+      </div>
+    </div>
+
+    <div class="challenge-group">
+      <div class="challenge-group-title">Produit — croissance et expérience</div>
+      <div class="challenge">
+        <div class="challenge-icon">📈</div>
+        <div style="flex:1">
+          <div class="challenge-name">Analytics intégrées mais pas activées</div>
+          <div class="challenge-desc">Vercel Analytics est dans le code (commit f751a8b) mais pas encore activé dans le Dashboard Vercel. Sans données d'usage réel, impossible de prioriser les features par impact. 1 clic manquant.</div>
+        </div>
+        <span class="c-tag c-now">1 clic · Dashboard Vercel</span>
+      </div>
+      <div class="challenge">
+        <div class="challenge-icon">📱</div>
+        <div style="flex:1">
+          <div class="challenge-name">Bubble cloud = desktop only</div>
+          <div class="challenge-desc">Vue bulles dans /concepts uniquement sur écrans larges. Fallback pills sur mobile. Feature B-rate documentée comme limitation. À généraliser quand la priorité mobile monte.</div>
+        </div>
+        <span class="c-tag c-later">après core features</span>
+      </div>
+      <div class="challenge">
+        <div class="challenge-icon">📣</div>
+        <div style="flex:1">
+          <div class="challenge-name">Contenu réseaux sociaux sans pipeline</div>
+          <div class="challenge-desc">@world.expressions créé (2026-06-02), 7 posts prêts à publier. Mais pas de rythme de publication défini, pas de process pour générer les visuels régulièrement. Croissance organique lente sans cadence.</div>
+        </div>
+        <span class="c-tag c-soon">après Bretagne</span>
       </div>
     </div>
   </div>
 
-  <!-- SOURCES + PRINCIPES -->
+  <!-- COL 3 — Sources + Principes -->
   <div style="display:flex; flex-direction:column; gap:12px;">
 
     <div class="panel">
@@ -537,30 +527,30 @@
       <div class="sources">
         <div class="source-row">
           <span class="source-name">kaikki.org — Wiktionary JSON (FR)</span>
-          <span class="source-tag tag-done">978 importées ✓</span>
+          <span class="source-tag s-done">978 importées ✓</span>
         </div>
         <div class="source-row">
           <span class="source-name">Mistral Small (traductions IA)</span>
-          <span class="source-tag tag-done">20 paires ✓</span>
+          <span class="source-tag s-done">20 paires ✓</span>
         </div>
         <div class="source-row">
           <span class="source-name">Dataset LN-fr (3 127 expressions FR)</span>
-          <span class="source-tag tag-easy">facile · académique</span>
+          <span class="source-tag s-easy">facile · académique</span>
         </div>
         <div class="source-row">
           <span class="source-name">kaikki.org — autres langues (IT/TR/PT…)</span>
-          <span class="source-tag tag-medium">moyen terme</span>
+          <span class="source-tag s-medium">moyen terme</span>
         </div>
         <div class="source-row">
           <span class="source-name">Littré — SQLite CC-BY-SA</span>
-          <span class="source-tag tag-medium">historique · riche</span>
+          <span class="source-tag s-medium">historique · riche</span>
         </div>
         <div class="source-row">
           <span class="source-name">CNRTL / TLFi (CNRS) + Expressio.fr</span>
-          <span class="source-tag tag-contact">V4+ · partenariat</span>
+          <span class="source-tag s-contact">V4+ · partenariat</span>
         </div>
       </div>
-      <div class="section-note">Priorité : sources humaines vérifiées avec URL source cliquable par expression</div>
+      <div class="section-note">Priorité : sources humaines vérifiées · URL source cliquable par expression</div>
     </div>
 
     <div class="panel">
@@ -591,7 +581,14 @@
           <div class="pillar-icon">🎭</div>
           <div>
             <div class="pillar-name">Espièglerie & dynamisme</div>
-            <div class="pillar-desc">L'app se sent vivante. Surprises et micro-interactions bienvenues.</div>
+            <div class="pillar-desc">L'app se sent vivante. Micro-interactions et surprises bienvenues.</div>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-icon">📸</div>
+          <div>
+            <div class="pillar-name">Données > Features</div>
+            <div class="pillar-desc">Une base propre et riche vaut mieux que 10 features sur données pauvres.</div>
           </div>
         </div>
       </div>

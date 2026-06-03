@@ -9,37 +9,25 @@ import LangBar from "@/components/ui/LangBar";
 import { toggleFavorite, isFavorite } from "@/lib/carnet";
 import { Heart } from "lucide-react";
 import { browseByRegion, Expression } from "@/lib/api";
+import { REGION_DEFS, RegionDef, getSectionStyle } from "@/lib/regionDefs";
 
 type UILang = "fr" | "en" | "es" | "tr" | "it";
 
-const SECTION_FILTERS = [
-  { key: null,               label: "Toutes",            emoji: "✨" },
-  { key: "als-quotidien",    label: "Mots du quotidien", emoji: "💬" },
-  { key: "als-table",        label: "À table",           emoji: "🍽️" },
-  { key: "als-interjection", label: "Interjections",     emoji: "❗" },
-  { key: "als-calque",       label: "Français d'Alsace", emoji: "🗺️" },
-];
+// ─── RegionCard ───────────────────────────────────────────────────────────────
 
-const SECTION_STYLES: Record<string, { bg: string; accent: string; strip: string }> = {
-  "als-quotidien":    { bg: "#fdf4e2", accent: "#a85c1a", strip: "#e8a84a" },
-  "als-table":        { bg: "#fef0ed", accent: "#b03a2a", strip: "#d4705a" },
-  "als-interjection": { bg: "#f0ecf8", accent: "#6a38a0", strip: "#9a70c8" },
-  "als-calque":       { bg: "#e8f5f0", accent: "#1e6b4a", strip: "#4aaa84" },
-  default:            { bg: "#f5f3ef", accent: "#5a4a3a", strip: "#b0a090" },
-};
-
-function sectionStyle(tags: string[]) {
-  const key = tags.find((t) => t.startsWith("als-"));
-  return SECTION_STYLES[key ?? "default"] ?? SECTION_STYLES.default;
-}
-
-// ─── AlsaceCard ─────────────────────────────────────────────────────────────
-
-function AlsaceCard({ expr, uiLang }: { expr: Expression; uiLang: UILang }) {
+function RegionCard({
+  expr,
+  uiLang,
+  region,
+}: {
+  expr: Expression;
+  uiLang: UILang;
+  region: RegionDef;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [fav, setFav] = useState(false);
-  const style = sectionStyle(expr.tags);
+  const style = getSectionStyle(expr.tags, region);
 
   useEffect(() => { setFav(isFavorite(expr.id)); }, [expr.id]);
 
@@ -73,12 +61,10 @@ function AlsaceCard({ expr, uiLang }: { expr: Expression; uiLang: UILang }) {
         el.style.boxShadow = "0 1px 6px rgba(28,20,16,0.07)";
       }}
     >
-      {/* Color strip */}
       <div style={{ height: 5, background: style.strip }} />
 
       <div style={{ padding: "1.1rem 1.25rem 1rem", display: "flex", flexDirection: "column", gap: "0.5rem", flex: 1 }}>
 
-        {/* Expression word — focal point */}
         <p style={{
           fontFamily: "var(--font-display)",
           fontStyle: "italic",
@@ -91,7 +77,6 @@ function AlsaceCard({ expr, uiLang }: { expr: Expression; uiLang: UILang }) {
           {expr.expression}
         </p>
 
-        {/* Meaning */}
         <p style={{
           fontFamily: "var(--font-body)",
           fontSize: 13,
@@ -102,7 +87,6 @@ function AlsaceCard({ expr, uiLang }: { expr: Expression; uiLang: UILang }) {
           {expr.meaning}
         </p>
 
-        {/* Origin toggle */}
         {expr.origin && (
           <div style={{ marginTop: "0.1rem" }}>
             <button
@@ -135,7 +119,6 @@ function AlsaceCard({ expr, uiLang }: { expr: Expression; uiLang: UILang }) {
           </div>
         )}
 
-        {/* Bottom row — fav */}
         <div style={{ marginTop: "auto", paddingTop: "0.5rem", display: "flex", justifyContent: "flex-end" }}>
           <button
             onClick={handleFav}
@@ -157,13 +140,15 @@ function AlsaceCard({ expr, uiLang }: { expr: Expression; uiLang: UILang }) {
   );
 }
 
-// ─── Page ────────────────────────────────────────────────────────────────────
+// ─── Page content ─────────────────────────────────────────────────────────────
 
 function RegionPageContent({ code }: { code: string }) {
   const [uiLang, setUILang] = useState<UILang>("fr");
   const [expressions, setExpressions] = useState<Expression[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<string | null>(null);
+
+  const region = REGION_DEFS[code];
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
@@ -186,6 +171,14 @@ function RegionPageContent({ code }: { code: string }) {
   const filtered = activeSection
     ? expressions.filter((e) => e.tags.some((t) => t === activeSection))
     : expressions;
+
+  if (!region) {
+    return (
+      <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ color: "var(--ink-softer)" }}>Région inconnue : {code}</p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
@@ -212,7 +205,7 @@ function RegionPageContent({ code }: { code: string }) {
             ← France
           </Link>
           <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 16, color: "var(--terra)" }}>
-            🥨 Alsace
+            {region.emoji} {region.name}
           </span>
           <div style={{ width: 48 }} />
         </div>
@@ -220,7 +213,7 @@ function RegionPageContent({ code }: { code: string }) {
         {/* Hero */}
         <div style={{
           minHeight: 200,
-          background: "linear-gradient(135deg, #b94b30 0%, #8b4a7a 50%, #6b4d8f 100%)",
+          background: region.heroGradient,
           position: "relative",
         }}>
           <div style={{ padding: "1.25rem 2rem 3rem" }}>
@@ -229,12 +222,12 @@ function RegionPageContent({ code }: { code: string }) {
                 <Link href="/country/fr" style={{ color: "rgba(255,255,255,0.65)", textDecoration: "none" }}>
                   ← 🇫🇷 France
                 </Link>
-                <span style={{ color: "rgba(255,255,255,0.4)" }}> · Alsace</span>
+                <span style={{ color: "rgba(255,255,255,0.4)" }}> · {region.name}</span>
               </p>
             </div>
 
             <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
-              <div style={{ fontSize: 48, lineHeight: 1, marginBottom: "0.4rem" }}>🥨</div>
+              <div style={{ fontSize: 48, lineHeight: 1, marginBottom: "0.4rem" }}>{region.emoji}</div>
               <h1 style={{
                 fontFamily: "var(--font-display)",
                 fontStyle: "italic",
@@ -244,10 +237,10 @@ function RegionPageContent({ code }: { code: string }) {
                 margin: 0,
                 textShadow: "0 2px 16px rgba(28,20,16,0.5)",
               }}>
-                Alsace
+                {region.name}
               </h1>
               <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 13, marginTop: "0.35rem", fontFamily: "var(--font-body)", fontStyle: "italic" }}>
-                Elsässisch · Entre Rhin et Vosges
+                {region.subtitle}
               </p>
             </div>
           </div>
@@ -255,7 +248,6 @@ function RegionPageContent({ code }: { code: string }) {
 
         <div style={{ maxWidth: 860, margin: "0 auto", padding: "1.5rem 1rem 3rem" }}>
 
-          {/* Intro — discreet */}
           <p style={{
             fontFamily: "var(--font-body)",
             fontSize: 12,
@@ -263,14 +255,16 @@ function RegionPageContent({ code }: { code: string }) {
             lineHeight: 1.6,
             marginBottom: "1.5rem",
           }}>
-            Mots alsaciens et calques germaniques qui glissent quotidiennement dans le français parlé à Strasbourg, Colmar ou Mulhouse.
+            {region.intro}
           </p>
 
           {/* Section filters */}
           <div style={{ display: "flex", flexWrap: "wrap" as const, gap: "0.4rem", marginBottom: "1.75rem" }}>
-            {SECTION_FILTERS.map(({ key, label, emoji }) => {
+            {region.sections.map(({ key, label, emoji }) => {
               const isActive = activeSection === key;
-              const count = key !== null ? expressions.filter((e) => e.tags.some((t) => t === key)).length : expressions.length;
+              const count = key !== null
+                ? expressions.filter((e) => e.tags.some((t) => t === key)).length
+                : expressions.length;
               return (
                 <button
                   key={key ?? "all"}
@@ -297,7 +291,6 @@ function RegionPageContent({ code }: { code: string }) {
             })}
           </div>
 
-          {/* Loading */}
           {loading && (
             <div style={{ display: "flex", justifyContent: "center", paddingTop: "3rem" }}>
               <div
@@ -307,7 +300,6 @@ function RegionPageContent({ code }: { code: string }) {
             </div>
           )}
 
-          {/* AlsaceCard grid */}
           {!loading && (
             <div style={{
               display: "grid",
@@ -319,9 +311,10 @@ function RegionPageContent({ code }: { code: string }) {
                   key={expr.id}
                   style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 40}ms` }}
                 >
-                  <AlsaceCard
-                    expr={{ ...expr, tags: expr.tags.filter((t) => !t.startsWith("als-")) }}
+                  <RegionCard
+                    expr={{ ...expr, tags: expr.tags.filter((t) => !t.startsWith(region.tagPrefix)) }}
                     uiLang={uiLang}
+                    region={region}
                   />
                 </div>
               ))}

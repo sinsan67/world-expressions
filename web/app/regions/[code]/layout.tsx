@@ -4,6 +4,7 @@ const SITE = "https://world-expressions.vercel.app";
 
 const REGION_NAME: Record<string, string> = {
   alsace: "Alsace",
+  bretagne: "Bretagne",
 };
 
 type Props = {
@@ -15,7 +16,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { code } = await params;
   const region = REGION_NAME[code] ?? code;
   const title = `${region} — World Expressions`;
-  const description = `Explorez les expressions et régionalismes de ${region}. Mots, locutions et calques du parler alsacien.`;
+  const regionDescriptions: Record<string, string> = {
+    alsace: `Explorez les expressions et régionalismes de ${region}. Mots, locutions et calques du parler alsacien.`,
+    bretagne: `Explorez les expressions et régionalismes de ${region}. Mots bretons, termes marins et expressions du terroir breton.`,
+  };
+  const description = regionDescriptions[code] ?? `Explorez les expressions et régionalismes de ${region}.`;
   return {
     title,
     description,

@@ -20,7 +20,8 @@ const HERO_IMAGES = new Set(["fr", "uk", "us", "au", "es", "tr", "it"]);
 
 const COUNTRY_REGIONS: Record<string, { code: string; name: string; emoji: string; bg: string; accent: string; count: number }[]> = {
   fr: [
-    { code: "alsace", name: "Alsace", emoji: "🥨", bg: "#f5ecd0", accent: "#7a4f1e", count: 35 },
+    { code: "alsace",   name: "Alsace",   emoji: "🥨", bg: "#f5ecd0", accent: "#7a4f1e", count: 35 },
+    { code: "bretagne", name: "Bretagne", emoji: "🦞", bg: "#deeaf5", accent: "#1a3a5c", count: 40 },
   ],
 };
 
