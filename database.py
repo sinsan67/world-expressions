@@ -828,6 +828,16 @@ def get_concepts(
     }
 
 
+def get_domain_tags(domain: str) -> set[str]:
+    """Return all tag IDs assigned to a domain (used for domain-level search)."""
+    with engine.connect() as conn:
+        result = conn.execute(
+            text("SELECT DISTINCT tag_id FROM concept_domains WHERE domain_slug = :domain"),
+            {"domain": domain},
+        )
+        return {r.tag_id for r in result.fetchall()}
+
+
 def subscribe_newsletter(email: str, language: str) -> dict:
     """
     Enregistre un abonné à la newsletter.

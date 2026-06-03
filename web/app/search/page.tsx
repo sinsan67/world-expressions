@@ -9,7 +9,7 @@ import LangBar from "@/components/ui/LangBar";
 import SearchBar from "@/components/ui/SearchBar";
 import ResultsFilterBar from "@/components/home/ResultsFilterBar";
 import {
-  searchExpressions, searchByConcept, getRegions, getAllTagNames, Expression,
+  searchExpressions, searchByConcept, searchByDomain, getRegions, getAllTagNames, Expression,
 } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
@@ -130,6 +130,7 @@ function SearchPageContent() {
 
   const qParam = searchParams.get("q") ?? "";
   const conceptParam = searchParams.get("concept") ?? "";
+  const domainParam = searchParams.get("domain") ?? "";
   const regionParam = searchParams.get("region") ?? "";
 
   const [uiLang, setUILang] = useState<UILang>("en");
@@ -187,7 +188,7 @@ function SearchPageContent() {
 
   // ─── Handlers ───
 
-  const runSearch = useCallback(async (q: string, concept: string, rf: string[], allCodes: string[], lang: UILang) => {
+  const runSearch = useCallback(async (q: string, concept: string, domain: string, rf: string[], allCodes: string[], lang: UILang) => {
     const regionCodes = rf.length ? rf : allCodes;
     setLoading(true);
     setHasError(false);
@@ -196,7 +197,10 @@ function SearchPageContent() {
     setExpandedSections(new Set());
     try {
       let data;
-      if (concept && !q) {
+      if (domain && !q && !concept) {
+        setSearchMode("concept");
+        data = await searchByDomain(domain, regionCodes, LIMIT, 0);
+      } else if (concept && !q) {
         setSearchMode("concept");
         data = await searchByConcept([concept], regionCodes, LIMIT, 0);
       } else {
@@ -219,9 +223,14 @@ function SearchPageContent() {
     const offset = results.length;
     const activeRegions = filterRegions.length > 0 ? filterRegions : allRegionCodes;
     try {
-      const data = searchMode === "concept"
-        ? await searchByConcept([conceptParam], activeRegions, LIMIT, offset)
-        : await searchExpressions(qParam, activeRegions, LIMIT, offset, undefined, uiLang);
+      let data;
+      if (searchMode === "concept" && domainParam && !conceptParam) {
+        data = await searchByDomain(domainParam, activeRegions, LIMIT, offset);
+      } else if (searchMode === "concept") {
+        data = await searchByConcept([conceptParam], activeRegions, LIMIT, offset);
+      } else {
+        data = await searchExpressions(qParam, activeRegions, LIMIT, offset, undefined, uiLang);
+      }
       setResults((prev) => [...prev, ...data.results]);
       setHasMore(offset + data.results.length < data.total);
     } catch {
@@ -230,7 +239,7 @@ function SearchPageContent() {
       setLoadingMore(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMore, loadingMore, searchMode, qParam, conceptParam, results.length, allRegionCodes, filterRegions, uiLang]);
+  }, [hasMore, loadingMore, searchMode, qParam, conceptParam, domainParam, results.length, allRegionCodes, filterRegions, uiLang]);
 
   const submitSearch = useCallback((q: string) => {
     if (q.trim().length < 2) return;
@@ -250,9 +259,10 @@ function SearchPageContent() {
     const params = new URLSearchParams();
     if (qParam) params.set("q", qParam);
     if (conceptParam) params.set("concept", conceptParam);
+    if (domainParam) params.set("domain", domainParam);
     if (newFilter.length) params.set("region", newFilter.join(","));
     router.replace(`/search?${params}`);
-  }, [router, qParam, conceptParam]);
+  }, [router, qParam, conceptParam, domainParam]);
 
   // ─── Effects ───
 
@@ -278,12 +288,12 @@ function SearchPageContent() {
   const allRegionCodesKey = allRegionCodes.join(",");
   useEffect(() => {
     if (!allRegionCodesKey) return;
-    if (!qParam && !conceptParam) return;
+    if (!qParam && !conceptParam && !domainParam) return;
     const rf = regionParam ? regionParam.split(",").filter(Boolean) : [];
     setFilterRegions(rf);
-    runSearch(qParam, conceptParam, rf, allRegionCodes, uiLang);
+    runSearch(qParam, conceptParam, domainParam, rf, allRegionCodes, uiLang);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [qParam, conceptParam, regionParam, allRegionCodesKey, runSearch]);
+  }, [qParam, conceptParam, domainParam, regionParam, allRegionCodesKey, runSearch]);
 
   // Keep input in sync with URL (e.g. after browser back)
   useEffect(() => {
@@ -323,8 +333,8 @@ function SearchPageContent() {
   // ─── Render ───
 
   const hasResults = results.length > 0;
-  const showEmpty = !loading && !hasError && (qParam || conceptParam) && results.length === 0;
-  const showPlaceholder = !loading && !qParam && !conceptParam;
+  const showEmpty = !loading && !hasError && (qParam || conceptParam || domainParam) && results.length === 0;
+  const showPlaceholder = !loading && !qParam && !conceptParam && !domainParam;
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>

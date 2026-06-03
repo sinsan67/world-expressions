@@ -400,10 +400,10 @@ export default function ConceptsPage() {
                 <p style={{ fontFamily: "var(--font-body)", color: "var(--ink-faint)", fontSize: 14 }}>{t.noResults}</p>
               ) : activeDomain === null ? (
 
-                /* ── Grille des 13 domaines ── */
+                /* ── Grille des domaines ── */
                 <div style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(145px, 1fr))",
                   gap: "0.75rem",
                   marginBottom: "3rem",
                   animation: "fadeSlideUp 0.4s cubic-bezier(0.2, 0.7, 0.3, 1) both",
@@ -415,24 +415,20 @@ export default function ConceptsPage() {
                       const def = DOMAIN_DEFS[domSlug];
                       const count = conceptsByDomain[domSlug]?.length ?? 0;
                       const colors = DOMAIN_COLORS[domSlug] ?? { bg: "#f5f5f5", accent: "#666" };
+                      const exprCount = domainExprCounts[domSlug] ?? 0;
                       return (
-                        <button
+                        <div
                           key={domSlug}
-                          onClick={() => openDomain(domSlug)}
                           style={{
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "flex-start",
-                            gap: "0.6rem",
-                            padding: "1.5rem 1.25rem 1.25rem",
                             borderRadius: "var(--r-lg)",
                             border: "none",
                             background: colors.bg,
-                            cursor: "pointer",
-                            textAlign: "left",
-                            transition: "transform 150ms ease, box-shadow 150ms ease",
                             boxShadow: "0 1px 6px rgba(28,20,16,0.08)",
-                            minHeight: 155,
+                            overflow: "hidden",
+                            transition: "transform 150ms ease, box-shadow 150ms ease",
                           }}
                           onMouseEnter={(e) => {
                             const el = e.currentTarget as HTMLElement;
@@ -445,35 +441,70 @@ export default function ConceptsPage() {
                             el.style.boxShadow = "0 1px 6px rgba(28,20,16,0.08)";
                           }}
                         >
-                          <span style={{ fontSize: 44, lineHeight: 1 }}>{def.emoji}</span>
-                          <span style={{
-                            fontFamily: "var(--font-display)",
-                            fontStyle: "italic",
-                            fontSize: 17,
-                            fontWeight: 600,
-                            color: "#1c1410",
-                            lineHeight: 1.2,
-                          }}>
-                            {def.labels[uiLang]}
-                          </span>
-                          <span style={{
-                            fontFamily: "var(--font-body)",
-                            fontSize: 12,
-                            color: colors.accent,
-                            fontWeight: 500,
-                          }}>
-                            {t.nConcepts(count)}
-                          </span>
-                          <span style={{
-                            fontFamily: "var(--font-body)",
-                            fontSize: 11,
-                            color: colors.accent,
-                            opacity: 0.7,
-                            fontWeight: 400,
-                          }}>
-                            {t.expressions(domainExprCounts[domSlug] ?? 0)}
-                          </span>
-                        </button>
+                          {/* Accent bar */}
+                          <div style={{ height: 4, width: "100%", background: colors.accent, opacity: 0.35 }} />
+
+                          {/* Main clickable area */}
+                          <button
+                            onClick={() => openDomain(domSlug)}
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "flex-start",
+                              gap: "0.5rem",
+                              padding: "1.1rem 1.1rem 0.6rem",
+                              width: "100%",
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                              textAlign: "left",
+                            }}
+                          >
+                            <span style={{ fontSize: 40, lineHeight: 1 }}>{def.emoji}</span>
+                            <span style={{
+                              fontFamily: "var(--font-display)",
+                              fontStyle: "italic",
+                              fontSize: 16,
+                              fontWeight: 600,
+                              color: "#1c1410",
+                              lineHeight: 1.2,
+                            }}>
+                              {def.labels[uiLang]}
+                            </span>
+                            <span style={{
+                              fontFamily: "var(--font-body)",
+                              fontSize: 11,
+                              color: colors.accent,
+                              fontWeight: 500,
+                            }}>
+                              {t.nConcepts(count)}
+                            </span>
+                          </button>
+
+                          {/* Expression count — clickable → /search?domain= */}
+                          <button
+                            onClick={() => router.push(`/search?domain=${encodeURIComponent(domSlug)}`)}
+                            style={{
+                              fontFamily: "var(--font-body)",
+                              fontSize: 11,
+                              color: colors.accent,
+                              fontWeight: 500,
+                              padding: "0.4rem 1.1rem 0.8rem",
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                              textDecoration: "underline",
+                              textDecorationStyle: "dotted",
+                              textUnderlineOffset: "3px",
+                              opacity: 0.8,
+                              transition: "opacity 120ms ease",
+                            }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.8"; }}
+                          >
+                            {t.expressions(exprCount)} →
+                          </button>
+                        </div>
                       );
                     })}
                 </div>
