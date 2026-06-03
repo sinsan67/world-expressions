@@ -240,10 +240,10 @@ export default function Home() {
 
   const matchTypeGroups = useMemo(() => {
     if (searchMode !== "text" || sortMode !== "relevance" || results.length === 0) return null;
-    const ORDER = ["exact", "semantic", "translation", "concept"] as const;
+    const ORDER = ["exact", "semantic", "concept"] as const;
     const map = new Map<string, Expression[]>();
     for (const expr of results) {
-      const mt = expr.match_type;
+      const mt = expr.match_type === "translation" ? "semantic" : expr.match_type;
       if (!map.has(mt)) map.set(mt, []);
       map.get(mt)!.push(expr);
     }
