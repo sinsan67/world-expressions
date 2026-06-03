@@ -123,6 +123,13 @@ const DOMAIN_DEFS: Record<string, DomainDef> = {
   pleasure:  { emoji: "🍷", labels: { fr: "Plaisirs & excès",en: "Pleasures & excess",es: "Placeres",         it: "Piaceri",         tr: "Zevk" } },
   travel:    { emoji: "🌍", labels: { fr: "Voyage & exil",   en: "Travel & exile",    es: "Viaje & exilio",   it: "Viaggio",         tr: "Seyahat" } },
   luck:      { emoji: "🎲", labels: { fr: "Chance & risque", en: "Luck & risk",       es: "Suerte & riesgo",  it: "Fortuna",         tr: "Şans & risk" } },
+  knowledge: { emoji: "📖", labels: { fr: "Savoir",          en: "Knowledge",         es: "Saber",            it: "Sapere",          tr: "Bilgi" } },
+  justice:   { emoji: "⚔️", labels: { fr: "Justice & loi",   en: "Justice & law",     es: "Justicia & ley",   it: "Giustizia",       tr: "Adalet" } },
+  conflict:  { emoji: "🔥", labels: { fr: "Conflit",         en: "Conflict",          es: "Conflicto",        it: "Conflitto",       tr: "Çatışma" } },
+  ambition:  { emoji: "👑", labels: { fr: "Ambition",        en: "Ambition",          es: "Ambición",         it: "Ambizione",       tr: "Hırs" } },
+  body:      { emoji: "🫀", labels: { fr: "Corps & santé",   en: "Body & health",     es: "Cuerpo & salud",   it: "Corpo & salute",  tr: "Beden & sağlık" } },
+  change:    { emoji: "🌀", labels: { fr: "Changement",      en: "Change",            es: "Cambio",           it: "Cambiamento",     tr: "Değişim" } },
+  food:      { emoji: "🍽️", labels: { fr: "Nourriture",      en: "Food",              es: "Comida",           it: "Cibo",            tr: "Yemek" } },
 };
 
 // Couleur de fond + accent par domaine (palette pastel)
@@ -140,6 +147,13 @@ const DOMAIN_COLORS: Record<string, { bg: string; accent: string }> = {
   pleasure:  { bg: "linear-gradient(145deg, #fdf2f8 0%, #f5d0fe 100%)", accent: "#a21caf" },
   travel:    { bg: "linear-gradient(145deg, #ecfeff 0%, #a5f3fc 100%)", accent: "#0e7490" },
   luck:      { bg: "linear-gradient(145deg, #f0fdf4 0%, #86efac 100%)", accent: "#15803d" },
+  knowledge: { bg: "linear-gradient(145deg, #f0f9ff 0%, #bae6fd 100%)", accent: "#0369a1" },
+  justice:   { bg: "linear-gradient(145deg, #fff1f2 0%, #fda4af 100%)", accent: "#9f1239" },
+  conflict:  { bg: "linear-gradient(145deg, #fff7ed 0%, #fdba74 100%)", accent: "#c2410c" },
+  ambition:  { bg: "linear-gradient(145deg, #fefce8 0%, #fde047 100%)", accent: "#854d0e" },
+  body:      { bg: "linear-gradient(145deg, #fdf4ff 0%, #e9d5ff 100%)", accent: "#7e22ce" },
+  change:    { bg: "linear-gradient(145deg, #ecfeff 0%, #67e8f9 100%)", accent: "#0e7490" },
+  food:      { bg: "linear-gradient(145deg, #fff7ed 0%, #fcd34d 100%)", accent: "#92400e" },
 };
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
