@@ -146,7 +146,7 @@ function SearchPageContent() {
   const [filterRegions, setFilterRegions] = useState<string[]>(
     regionParam ? regionParam.split(",").filter(Boolean) : []
   );
-  const [sortMode, setSortMode] = useState<"relevance" | "country">("relevance");
+  const [sortMode, setSortMode] = useState<"relevance" | "country">("country");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const sentinelRef = useRef<HTMLDivElement>(null);
   const allRegionCodes = regions.map((r) => r.code);
