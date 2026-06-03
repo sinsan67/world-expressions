@@ -216,6 +216,29 @@ export default function ConceptsPage() {
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
     if (stored && ["fr", "en", "es", "it", "tr"].includes(stored)) setUILang(stored);
+    // Restore active domain from URL on mount (e.g. /concepts?domain=emotions)
+    const domFromUrl = new URLSearchParams(window.location.search).get("domain");
+    if (domFromUrl) setActiveDomain(domFromUrl);
+  }, []);
+
+  // Sync activeDomain with browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      const domFromUrl = new URLSearchParams(window.location.search).get("domain");
+      setActiveDomain(domFromUrl);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  const openDomain = useCallback((slug: string) => {
+    window.history.pushState({ domain: slug }, "", `/concepts?domain=${encodeURIComponent(slug)}`);
+    setActiveDomain(slug);
+  }, []);
+
+  const closeDomain = useCallback(() => {
+    window.history.pushState({}, "", "/concepts");
+    setActiveDomain(null);
   }, []);
 
   useEffect(() => {
@@ -318,7 +341,7 @@ export default function ConceptsPage() {
               {(["themes", "styles"] as const).map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => { setActiveTab(tab); setActiveDomain(null); }}
+                  onClick={() => { setActiveTab(tab); closeDomain(); }}
                   style={{
                     fontFamily: "var(--font-body)",
                     fontSize: 13,
@@ -387,6 +410,7 @@ export default function ConceptsPage() {
                 }}>
                   {Object.keys(DOMAIN_DEFS)
                     .filter((d) => (conceptsByDomain[d]?.length ?? 0) > 0)
+                    .sort((a, b) => (domainExprCounts[b] ?? 0) - (domainExprCounts[a] ?? 0))
                     .map((domSlug) => {
                       const def = DOMAIN_DEFS[domSlug];
                       const count = conceptsByDomain[domSlug]?.length ?? 0;
@@ -394,7 +418,7 @@ export default function ConceptsPage() {
                       return (
                         <button
                           key={domSlug}
-                          onClick={() => setActiveDomain(domSlug)}
+                          onClick={() => openDomain(domSlug)}
                           style={{
                             display: "flex",
                             flexDirection: "column",
@@ -461,32 +485,59 @@ export default function ConceptsPage() {
 
                   {/* Retour */}
                   <button
-                    onClick={() => setActiveDomain(null)}
+                    onClick={closeDomain}
                     style={{
-                      background: "none",
+                      background: "var(--paper-edge)",
                       border: "none",
                       cursor: "pointer",
                       fontFamily: "var(--font-body)",
-                      fontSize: 13,
-                      color: "var(--ink-softer)",
-                      display: "flex",
+                      fontSize: 14,
+                      fontWeight: 500,
+                      color: "var(--ink-soft)",
+                      display: "inline-flex",
                       alignItems: "center",
-                      gap: "0.3rem",
-                      padding: "0 0 1.5rem",
+                      gap: "0.4rem",
+                      padding: "6px 14px",
+                      borderRadius: "var(--r-pill)",
+                      marginBottom: "1.5rem",
+                      transition: "background 120ms ease, color 120ms ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.background = "var(--plum-bg)";
+                      el.style.color = "var(--plum)";
+                    }}
+                    onMouseLeave={(e) => {
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.background = "var(--paper-edge)";
+                      el.style.color = "var(--ink-soft)";
                     }}
                   >
                     ← {t.backToDomains}
                   </button>
 
-                  {/* En-tête du domaine */}
-                  <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.875rem",
-                    marginBottom: "1.75rem",
-                    paddingBottom: "1rem",
-                    borderBottom: "1px solid var(--paper-edge)",
-                  }}>
+                  {/* En-tête du domaine — cliquable pour revenir */}
+                  <button
+                    onClick={closeDomain}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.875rem",
+                      width: "100%",
+                      background: "none",
+                      border: "none",
+                      borderBottom: "1px solid var(--paper-edge)",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      padding: "0 0 1rem",
+                      marginBottom: "1.75rem",
+                      borderRadius: 0,
+                      transition: "opacity 150ms ease",
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.7"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+                    title={t.backToDomains}
+                  >
                     <span style={{ fontSize: 38 }}>{DOMAIN_DEFS[activeDomain]?.emoji}</span>
                     <div>
                       <h2 style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 22, color: "var(--ink)", margin: "0 0 0.15rem", fontWeight: 600 }}>
@@ -496,7 +547,7 @@ export default function ConceptsPage() {
                         {t.nConcepts(conceptsByDomain[activeDomain]?.length ?? 0)}
                       </p>
                     </div>
-                  </div>
+                  </button>
 
                   {/* Pills de concepts avec emojis */}
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
