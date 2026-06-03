@@ -81,6 +81,21 @@ export const TAG_ICONS: Record<string, string> = {
   amor: '❤️', amistad: '🤝', alegría: '😄', tristeza: '😢',
   comida: '🍽️', sueño: '😴', viajes: '✈️',
   esfuerzo: '💪', conflicto: '⚔️',
+  // High-usage tags — S56
+  fate: '🎲', destiny: '⭐', tradition: '🏺', trust: '🫱',
+  pride: '👑', hope: '🌱', advice: '💡', humility: '🙏',
+  loyalty: '💙', youth: '🌸', opportunity: '🚪', resilience: '🔄',
+  resignation: '🤷', marriage: '💒', truth: '✅', experience: '📖',
+  homesickness: '🏡', foolishness: '🤪', respect: '🫡', perseverance: '🏃',
+  hospitality: '🍽️', appearance: '🪞', change: '🦋', age: '⏳',
+  support: '🤲', determination: '🎯', nostalgia: '🕰️',
+  'old-age': '👴', risk: '⚠️', inevitability: '♟️', faith: '🙏',
+  despair: '😔', metaphor: '💭', motivation: '🔥', arrogance: '😤',
+  behavior: '🧠', misfortune: '☁️', justice: '⚖️', learning: '📚',
+  power: '👑', regret: '😔', honor: '🎖️', lies: '🤥', danger: '⚠️',
+  hardship: '⛰️', skill: '✨', unity: '🤝',
+  'village-life': '🏘️', phrasebook: '📚',
+  british: '🇬🇧', australian: '🦘',
 };
 
 export function tagIcon(tag: string): string {
