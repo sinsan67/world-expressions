@@ -235,6 +235,14 @@ export default function ConceptsPage() {
     return map;
   }, [concepts]);
 
+  const domainExprCounts = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const [domain, items] of Object.entries(conceptsByDomain)) {
+      map[domain] = items.reduce((sum, c) => sum + c.count, 0);
+    }
+    return map;
+  }, [conceptsByDomain]);
+
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
       <Sidebar uiLang={uiLang} />
@@ -417,6 +425,15 @@ export default function ConceptsPage() {
                             fontWeight: 500,
                           }}>
                             {t.nConcepts(count)}
+                          </span>
+                          <span style={{
+                            fontFamily: "var(--font-body)",
+                            fontSize: 11,
+                            color: colors.accent,
+                            opacity: 0.7,
+                            fontWeight: 400,
+                          }}>
+                            {t.expressions(domainExprCounts[domSlug] ?? 0)}
                           </span>
                         </button>
                       );
