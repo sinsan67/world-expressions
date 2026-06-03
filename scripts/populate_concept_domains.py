@@ -111,15 +111,23 @@ def call_mistral(client: Mistral, prompt: str, max_retries: int = 3) -> list[str
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--prod",    action="store_true", help="DB production (.env.prod)")
-    parser.add_argument("--dry-run", action="store_true", help="Affiche sans écrire en DB")
-    parser.add_argument("--limit",   type=int, default=0, help="Limiter à N tags (0 = tous)")
+    parser.add_argument("--prod",      action="store_true", help="DB production (.env.prod)")
+    parser.add_argument("--dry-run",   action="store_true", help="Affiche sans écrire en DB")
+    parser.add_argument("--limit",     type=int, default=0, help="Limiter à N tags (0 = tous)")
     parser.add_argument("--min-count", type=int, default=5, help="Nb expressions min par tag (défaut: 5)")
+    parser.add_argument("--reprocess", action="store_true", help="Retraiter les tags déjà assignés (pour ajouter de nouveaux domaines)")
     args = parser.parse_args()
 
-    # 1. Récupérer les tags éligibles (≥ min_count expressions, non encore assignés)
+    # 1. Récupérer les tags éligibles
+    # Sans --reprocess : seulement les tags sans aucune assignation (comportement par défaut)
+    # Avec --reprocess : tous les tags éligibles, même déjà assignés (ON CONFLICT DO NOTHING évite les doublons)
+    already_assigned_clause = "" if args.reprocess else """
+            AND NOT EXISTS (
+                SELECT 1 FROM concept_domains cd WHERE cd.tag_id = t.id
+            )"""
+
     with engine.connect() as conn:
-        rows = conn.execute(text("""
+        rows = conn.execute(text(f"""
             SELECT
                 t.id   AS tag_id,
                 t.slug AS tag_slug,
@@ -129,10 +137,8 @@ def main():
             JOIN expression_tags et ON et.tag_id = t.id
             LEFT JOIN tag_names tn_fr ON tn_fr.tag_id = t.id AND tn_fr.locale = 'fr'
             LEFT JOIN tag_names tn_en ON tn_en.tag_id = t.id AND tn_en.locale = 'en'
-            WHERE NOT EXISTS (
-                SELECT 1 FROM concept_domains cd WHERE cd.tag_id = t.id
-            )
-              AND NOT (t.slug = ANY(:meta_tags))
+            WHERE NOT (t.slug = ANY(:meta_tags))
+              {already_assigned_clause}
             GROUP BY t.id, t.slug, tn_fr.name, tn_en.name
             HAVING COUNT(et.expression_id) >= :min_count
             ORDER BY expr_count DESC
