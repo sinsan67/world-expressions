@@ -568,56 +568,64 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Search section */}
-        <div ref={exploreRef} style={{ padding: "2rem 1.5rem 1rem", maxWidth: 720, margin: "0 auto" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <div style={{ flex: 1 }}>
-              <SearchBar
-                value={query}
-                onChange={setQuery}
-                onSearch={() => handleSearch(query)}
-                placeholder={t.placeholder}
-                searchLabel={t.search}
-                loading={loading}
-                emoji={tagIcon(query.trim()) ?? undefined}
-              />
-            </div>
-            <div
-              style={{ position: "relative", flexShrink: 0 }}
-              onMouseEnter={() => setTooltipOpen(true)}
-              onMouseLeave={() => setTooltipOpen(false)}
-            >
-              <button
-                onClick={() => setTooltipOpen((o) => !o)}
-                aria-label="Comment fonctionne la recherche ?"
-                style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid var(--paper-edge)", background: "var(--paper-deep)", color: "var(--ink-soft)", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-body)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+        {/* Sticky search + filter bar */}
+        <div style={{
+          position: "sticky", top: 0, zIndex: 20,
+          background: "var(--paper)",
+          borderBottom: searched ? "1px solid var(--paper-edge)" : "none",
+          boxShadow: searched ? "0 1px 8px rgba(0,0,0,0.06)" : "none",
+        }}>
+          <div ref={exploreRef} style={{ padding: searched ? "0.75rem 1.5rem" : "2rem 1.5rem 1rem", maxWidth: 720, margin: "0 auto" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <div style={{ flex: 1 }}>
+                <SearchBar
+                  value={query}
+                  onChange={setQuery}
+                  onSearch={() => handleSearch(query)}
+                  placeholder={t.placeholder}
+                  searchLabel={t.search}
+                  loading={loading}
+                  emoji={tagIcon(query.trim()) ?? undefined}
+                />
+              </div>
+              <div
+                style={{ position: "relative", flexShrink: 0 }}
+                onMouseEnter={() => setTooltipOpen(true)}
+                onMouseLeave={() => setTooltipOpen(false)}
               >
-                ?
-              </button>
-              {tooltipOpen && (
-                <div style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", zIndex: 100, background: "var(--paper)", border: "1px solid var(--paper-edge)", borderRadius: 10, padding: "0.75rem 1rem", width: 280, maxWidth: "calc(100vw - 2rem)", boxShadow: "0 4px 16px rgba(0,0,0,0.12)", fontSize: 12, color: "var(--ink-soft)", lineHeight: 1.6, fontFamily: "var(--font-body)" }}>
-                  {SEARCH_HELP[uiLang]}
-                </div>
-              )}
+                <button
+                  onClick={() => setTooltipOpen((o) => !o)}
+                  aria-label="Comment fonctionne la recherche ?"
+                  style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid var(--paper-edge)", background: "var(--paper-deep)", color: "var(--ink-soft)", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-body)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+                >
+                  ?
+                </button>
+                {tooltipOpen && (
+                  <div style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", zIndex: 100, background: "var(--paper)", border: "1px solid var(--paper-edge)", borderRadius: 10, padding: "0.75rem 1rem", width: 280, maxWidth: "calc(100vw - 2rem)", boxShadow: "0 4px 16px rgba(0,0,0,0.12)", fontSize: 12, color: "var(--ink-soft)", lineHeight: 1.6, fontFamily: "var(--font-body)" }}>
+                    {SEARCH_HELP[uiLang]}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
+          {searched && results.length > 0 && (
+            <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
+              <ResultsFilterBar
+                regions={regions}
+                filterRegions={filterRegions}
+                onFilterChange={handleFilterChange}
+                sortMode={sortMode}
+                onSortChange={setSortMode}
+                uiLang={uiLang}
+              />
+            </div>
+          )}
         </div>
 
         {/* Results area */}
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem 2rem" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "1rem 1.5rem 2rem" }}>
           {hasError && (
             <p className="text-center text-sm mb-6" style={{ color: "var(--terra)" }}>{t.serverError}</p>
-          )}
-
-          {searched && results.length > 0 && (
-            <ResultsFilterBar
-              regions={regions}
-              filterRegions={filterRegions}
-              onFilterChange={handleFilterChange}
-              sortMode={sortMode}
-              onSortChange={setSortMode}
-              uiLang={uiLang}
-            />
           )}
 
           {searched && !loading && !hasError && results.length > 0 && (

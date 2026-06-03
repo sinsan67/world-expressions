@@ -332,32 +332,40 @@ function SearchPageContent() {
       <LangBar uiLang={uiLang} onLangChange={changeLang} />
 
       <main className="wex-main" style={{ paddingBottom: 80 }}>
-        <div style={{ padding: "2rem 1.5rem 1rem", maxWidth: 720, margin: "0 auto" }}>
-          <SearchBar
-            value={query}
-            onChange={setQuery}
-            onSearch={() => submitSearch(query)}
-            placeholder={t.placeholder}
-            searchLabel={t.search}
-            loading={loading}
-            emoji={tagIcon(query.trim()) ?? undefined}
-          />
+        <div style={{
+          position: "sticky", top: 0, zIndex: 20,
+          background: "var(--paper)",
+          borderBottom: "1px solid var(--paper-edge)",
+          boxShadow: "0 1px 8px rgba(0,0,0,0.06)",
+        }}>
+          <div style={{ padding: "0.75rem 1.5rem", maxWidth: 720, margin: "0 auto" }}>
+            <SearchBar
+              value={query}
+              onChange={setQuery}
+              onSearch={() => submitSearch(query)}
+              placeholder={t.placeholder}
+              searchLabel={t.search}
+              loading={loading}
+              emoji={tagIcon(query.trim()) ?? undefined}
+            />
+          </div>
+          {hasResults && (
+            <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
+              <ResultsFilterBar
+                regions={regions}
+                filterRegions={filterRegions}
+                onFilterChange={handleFilterChange}
+                sortMode={sortMode}
+                onSortChange={setSortMode}
+                uiLang={uiLang}
+              />
+            </div>
+          )}
         </div>
 
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem 2rem" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "1rem 1.5rem 2rem" }}>
           {hasError && (
             <p className="text-center text-sm mb-6" style={{ color: "var(--terra)" }}>{t.serverError}</p>
-          )}
-
-          {hasResults && (
-            <ResultsFilterBar
-              regions={regions}
-              filterRegions={filterRegions}
-              onFilterChange={handleFilterChange}
-              sortMode={sortMode}
-              onSortChange={setSortMode}
-              uiLang={uiLang}
-            />
           )}
 
           {hasResults && !loading && (
