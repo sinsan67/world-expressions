@@ -16,14 +16,11 @@ import { cap } from "@/lib/utils";
 import CountryPhotoBackdrop from "@/components/home/CountryPhotoBackdrop";
 import Eyebrow from "@/components/home/Eyebrow";
 import { recordView, toggleFavorite, isFavorite } from "@/lib/carnet";
+import { useAudio } from "@/lib/useAudio";
 import { Heart, Dice5, Search, Volume2, VolumeX } from "lucide-react";
 import SearchOverlay from "@/components/SearchOverlay";
 
 type UILang = "fr" | "en" | "es" | "tr" | "it";
-
-const SPEECH_LANG: Record<string, string> = {
-  fr: "fr-FR", en: "en-GB", es: "es-ES", it: "it-IT", tr: "tr-TR",
-};
 
 const T: Record<UILang, {
   wordForWord: string;
@@ -41,6 +38,7 @@ const T: Record<UILang, {
   sameIdea: string;
   elsewhereInTheWorld: string;
   listen: string;
+  noVoice: string;
   register: Record<string, string>;
 }> = {
   fr: {
@@ -59,6 +57,7 @@ const T: Record<UILang, {
     back: "Retour",
     searchBack: "Résultats pour",
     listen: "Écouter",
+    noVoice: "Voix non disponible sur cet appareil",
     register: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" },
   },
   en: {
@@ -77,6 +76,7 @@ const T: Record<UILang, {
     sameIdea: "The same idea",
     elsewhereInTheWorld: "...around the world",
     listen: "Listen",
+    noVoice: "Voice not available on this device",
     register: { standard: "standard", informal: "informal", slang: "slang", vulgar: "vulgar", formal: "formal" },
   },
   es: {
@@ -95,6 +95,7 @@ const T: Record<UILang, {
     sameIdea: "La misma idea",
     elsewhereInTheWorld: "...en todo el mundo",
     listen: "Escuchar",
+    noVoice: "Voz no disponible en este dispositivo",
     register: { standard: "estándar", informal: "informal", slang: "argot", vulgar: "vulgar", formal: "formal" },
   },
   tr: {
@@ -113,6 +114,7 @@ const T: Record<UILang, {
     sameIdea: "Aynı fikir",
     elsewhereInTheWorld: "...dünyada",
     listen: "Dinle",
+    noVoice: "Bu cihazda ses mevcut değil",
     register: { standard: "standart", informal: "günlük", slang: "argo", vulgar: "kaba", formal: "resmi" },
   },
   it: {
@@ -131,6 +133,7 @@ const T: Record<UILang, {
     sameIdea: "La stessa idea",
     elsewhereInTheWorld: "...nel mondo",
     listen: "Ascolta",
+    noVoice: "Voce non disponibile su questo dispositivo",
     register: { standard: "standard", informal: "informale", slang: "slang", vulgar: "volgare", formal: "formale" },
   },
 };
@@ -266,7 +269,10 @@ function ExpressionPageContent({ id }: { id: string }) {
   const [error, setError] = useState(false);
   const [fav, setFav] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const [speaking, setSpeaking] = useState(false);
+  const { speaking, voiceAvailable, handleListen: handleSpeak } = useAudio(
+    expr?.expression ?? "",
+    expr?.language ?? ""
+  );
 
   const prev = searchParams.get("prev") || null;
   const fromSearch = searchParams.get("from_search") || null;
@@ -299,21 +305,6 @@ function ExpressionPageContent({ id }: { id: string }) {
   function handleFav() {
     toggleFavorite(id);
     setFav((v) => !v);
-  }
-
-  function handleSpeak() {
-    if (typeof window === "undefined" || !window.speechSynthesis) return;
-    if (speaking) {
-      window.speechSynthesis.cancel();
-      setSpeaking(false);
-      return;
-    }
-    const utterance = new SpeechSynthesisUtterance(expr!.expression);
-    utterance.lang = SPEECH_LANG[expr!.language] || expr!.language;
-    utterance.onend = () => setSpeaking(false);
-    utterance.onerror = () => setSpeaking(false);
-    window.speechSynthesis.speak(utterance);
-    setSpeaking(true);
   }
 
   if (error) {
@@ -502,8 +493,9 @@ function ExpressionPageContent({ id }: { id: string }) {
 
           {/* Listen button */}
           <button
-            onClick={handleSpeak}
-            title={t.listen}
+            onClick={voiceAvailable === false ? undefined : handleSpeak}
+            title={voiceAvailable === false ? (t.noVoice ?? "Voice not available") : t.listen}
+            disabled={voiceAvailable === false}
             style={{
               marginTop: "1rem",
               display: "inline-flex",
@@ -517,12 +509,13 @@ function ExpressionPageContent({ id }: { id: string }) {
               fontFamily: "var(--font-body)",
               fontWeight: 500,
               padding: "6px 14px",
-              cursor: "pointer",
+              cursor: voiceAvailable === false ? "not-allowed" : "pointer",
+              opacity: voiceAvailable === false ? 0.4 : 1,
               backdropFilter: "blur(4px)",
-              transition: "background 150ms ease, transform 150ms ease",
+              transition: "background 150ms ease",
             }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.28)"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = speaking ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.15)"; }}
+            onMouseEnter={(e) => { if (voiceAvailable !== false) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.28)"; }}
+            onMouseLeave={(e) => { if (voiceAvailable !== false) (e.currentTarget as HTMLElement).style.background = speaking ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.15)"; }}
           >
             {speaking
               ? <VolumeX size={14} strokeWidth={1.5} />
