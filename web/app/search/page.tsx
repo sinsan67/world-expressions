@@ -12,20 +12,12 @@ import {
   searchExpressions, searchByConcept, searchByDomain, getRegions, getAllTagNames, Expression,
 } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
-import { DOMAIN_DEFS } from "@/lib/domainDefs";
+import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
+import { LANG_FLAG, LANG_NATIVE } from "@/lib/langDefs";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
 const LIMIT = 20;
 type UILang = "fr" | "en" | "es" | "it" | "tr";
-
-const LANG_FLAG: Record<string, string> = {
-  fr: "🇫🇷", en: "🇬🇧", uk: "🇬🇧", us: "🇺🇸", gb: "🇬🇧", au: "🇦🇺",
-  es: "🇪🇸", it: "🇮🇹", tr: "🇹🇷",
-};
-const LANG_NATIVE: Record<string, string> = {
-  fr: "Français", en: "English", uk: "English", us: "English", gb: "English", au: "English",
-  es: "Español", it: "Italiano", tr: "Türkçe",
-};
 
 const MAX_SECTION_PREVIEW = 6;
 
@@ -48,6 +40,7 @@ const T: Record<UILang, {
   mixAll: string;
   otherLangs: string;
   detected: string;
+  othersEquivalents: string;
 }> = {
   fr: {
     placeholder: "Essaie : pied, argent, animal, partir…",
@@ -68,6 +61,7 @@ const T: Record<UILang, {
     mixAll: "Tout mélanger",
     otherLangs: "Dans les autres langues",
     detected: "· détecté",
+    othersEquivalents: "Équivalents",
   },
   en: {
     placeholder: "Try: money, animal, leave, fear…",
@@ -88,6 +82,7 @@ const T: Record<UILang, {
     mixAll: "Mix all",
     otherLangs: "In other languages",
     detected: "· detected",
+    othersEquivalents: "Equivalents",
   },
   es: {
     placeholder: "Prueba: dinero, animal, partir, miedo…",
@@ -108,6 +103,7 @@ const T: Record<UILang, {
     mixAll: "Mezclar todo",
     otherLangs: "En otros idiomas",
     detected: "· detectado",
+    othersEquivalents: "Equivalentes",
   },
   it: {
     placeholder: "Prova: soldi, animale, partire, paura…",
@@ -128,6 +124,7 @@ const T: Record<UILang, {
     mixAll: "Mescola tutto",
     otherLangs: "In altre lingue",
     detected: "· rilevato",
+    othersEquivalents: "Equivalenti",
   },
   tr: {
     placeholder: "Dene: para, hayvan, korku, ayrılmak…",
@@ -148,6 +145,7 @@ const T: Record<UILang, {
     mixAll: "Tümünü karıştır",
     otherLangs: "Diğer dillerde",
     detected: "· algılandı",
+    othersEquivalents: "Eşdeğerler",
   },
 };
 
@@ -408,17 +406,20 @@ function SearchPageContent() {
   const renderSubSection = (
     type: "exact" | "semantic",
     exprs: Expression[],
-    sectionKey: string
+    sectionKey: string,
+    opts?: { icon?: string; label?: string }
   ) => {
     if (exprs.length === 0) return null;
     const isExpanded = expandedSections.has(sectionKey);
     const visible = isExpanded ? exprs : exprs.slice(0, MAX_SECTION_PREVIEW);
     const hidden = exprs.length - MAX_SECTION_PREVIEW;
+    const icon = opts?.icon ?? ({ exact: "🎯", semantic: "✨" } as Record<string, string>)[type];
+    const label = opts?.label ?? (t.matchSections[type] ?? type);
     return (
       <div key={sectionKey}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: "0.75rem 0 0.5rem", color: "var(--ink-faint)", fontSize: 12, fontFamily: "var(--font-body)", letterSpacing: "0.03em" }}>
-          <span>{{ exact: "🎯", semantic: "✨" }[type]}</span>
-          <span style={{ fontWeight: 600, color: "var(--ink-softer)" }}>{t.matchSections[type] ?? type}</span>
+          <span>{icon}</span>
+          <span style={{ fontWeight: 600, color: "var(--ink-softer)" }}>{label}</span>
           <span>· {sectionExprCount(exprs.length, uiLang)}</span>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
@@ -441,6 +442,9 @@ function SearchPageContent() {
   };
 
   // ─── Render ───
+
+  const domainDef = domainParam ? DOMAIN_DEFS[domainParam] : undefined;
+  const domainColors = domainParam ? (DOMAIN_COLORS[domainParam] ?? { bg: "var(--paper-deep)", accent: "var(--ink-soft)" }) : undefined;
 
   const hasResults = results.length > 0;
   const showEmpty = !loading && !hasError && (qParam || conceptParam || domainParam) && results.length === 0;
@@ -547,6 +551,41 @@ function SearchPageContent() {
 
           {hasResults && (
             <>
+              {searchMode === "concept" && domainDef && domainColors && (
+                <div style={{
+                  background: domainColors.bg,
+                  borderRadius: "var(--r-lg)",
+                  padding: "1.25rem 1.5rem",
+                  marginBottom: "1.5rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "1rem",
+                  animation: "fadeSlideUp 0.4s cubic-bezier(0.2, 0.7, 0.3, 1) both",
+                }}>
+                  <span style={{ fontSize: 48, lineHeight: 1 }}>{domainDef.emoji}</span>
+                  <div>
+                    <h2 style={{
+                      fontFamily: "var(--font-display)",
+                      fontStyle: "italic",
+                      fontSize: "clamp(1.25rem, 3vw, 1.75rem)",
+                      color: "#1c1410",
+                      margin: "0 0 0.2rem",
+                      fontWeight: 600,
+                    }}>
+                      {domainDef.labels[uiLang]}
+                    </h2>
+                    <p style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: 13,
+                      color: domainColors.accent,
+                      margin: 0,
+                      fontWeight: 500,
+                    }}>
+                      {sectionExprCount(total, uiLang)}
+                    </p>
+                  </div>
+                </div>
+              )}
               {langSplitSections ? (
                 <>
                   <div>
@@ -565,7 +604,7 @@ function SearchPageContent() {
                         <span style={{ fontWeight: 600 }}>{t.otherLangs}</span>
                         <span style={{ color: "var(--ink-faint)" }}>· {sectionExprCount(langSplitSections.others.exact.length + langSplitSections.others.semantic.length, uiLang)}</span>
                       </div>
-                      {renderSubSection("exact", langSplitSections.others.exact, "split-others-exact")}
+                      {renderSubSection("exact", langSplitSections.others.exact, "split-others-exact", { icon: "🔗", label: t.othersEquivalents })}
                       {renderSubSection("semantic", langSplitSections.others.semantic, "split-others-semantic")}
                     </div>
                   )}

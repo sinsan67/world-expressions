@@ -8,7 +8,7 @@ import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
 import { tagIcon } from "@/lib/tagIcons";
 import { getConcepts, ConceptItem } from "@/lib/api";
-import { DOMAIN_DEFS, DomainDef } from "@/lib/domainDefs";
+import { DOMAIN_DEFS, DOMAIN_COLORS, DomainDef } from "@/lib/domainDefs";
 
 type UILang = "fr" | "en" | "es" | "it" | "tr";
 
@@ -28,6 +28,7 @@ const T: Record<UILang, {
   noResults: string;
   backToDomains: string;
   nConcepts: (n: number) => string;
+  seeExpressions: (n: number) => string;
 }> = {
   fr: {
     eyebrow: "Explore par thème",
@@ -43,6 +44,7 @@ const T: Record<UILang, {
     noResults: "Aucun concept trouvé pour ce filtre.",
     backToDomains: "Tous les thèmes",
     nConcepts: (n) => `${n} concepts`,
+    seeExpressions: (n) => `Voir les ${n} expressions →`,
   },
   en: {
     eyebrow: "Explore by theme",
@@ -58,6 +60,7 @@ const T: Record<UILang, {
     noResults: "No concepts found for this filter.",
     backToDomains: "All themes",
     nConcepts: (n) => `${n} concepts`,
+    seeExpressions: (n) => `See ${n} expressions →`,
   },
   es: {
     eyebrow: "Explorar por tema",
@@ -73,6 +76,7 @@ const T: Record<UILang, {
     noResults: "No se encontraron conceptos para este filtro.",
     backToDomains: "Todos los temas",
     nConcepts: (n) => `${n} conceptos`,
+    seeExpressions: (n) => `Ver ${n} expresiones →`,
   },
   it: {
     eyebrow: "Esplora per tema",
@@ -88,6 +92,7 @@ const T: Record<UILang, {
     noResults: "Nessun concetto trovato per questo filtro.",
     backToDomains: "Tutti i temi",
     nConcepts: (n) => `${n} concetti`,
+    seeExpressions: (n) => `Vedi ${n} espressioni →`,
   },
   tr: {
     eyebrow: "Temaya göre keşfet",
@@ -103,33 +108,8 @@ const T: Record<UILang, {
     noResults: "Bu filtre için kavram bulunamadı.",
     backToDomains: "Tüm temalar",
     nConcepts: (n) => `${n} kavram`,
+    seeExpressions: (n) => `${n} deyimi gör →`,
   },
-};
-
-// ─── Domaines ─────────────────────────────────────────────────────────────────
-
-// Couleur de fond + accent par domaine (palette pastel)
-const DOMAIN_COLORS: Record<string, { bg: string; accent: string }> = {
-  emotions:  { bg: "linear-gradient(145deg, #fffbeb 0%, #fde68a 100%)", accent: "#b45309" },
-  relations: { bg: "linear-gradient(145deg, #eff6ff 0%, #bfdbfe 100%)", accent: "#2563eb" },
-  money:     { bg: "linear-gradient(145deg, #fefce8 0%, #fef08a 100%)", accent: "#a16207" },
-  wisdom:    { bg: "linear-gradient(145deg, #f5f3ff 0%, #ddd6fe 100%)", accent: "#7c3aed" },
-  speech:    { bg: "linear-gradient(145deg, #f0fdf4 0%, #bbf7d0 100%)", accent: "#15803d" },
-  morality:  { bg: "linear-gradient(145deg, #fff7ed 0%, #fed7aa 100%)", accent: "#c2410c" },
-  nature:    { bg: "linear-gradient(145deg, #ecfdf5 0%, #a7f3d0 100%)", accent: "#047857" },
-  time:      { bg: "linear-gradient(145deg, #faf5ff 0%, #e9d5ff 100%)", accent: "#7e22ce" },
-  work:      { bg: "linear-gradient(145deg, #fff1f2 0%, #fecdd3 100%)", accent: "#be123c" },
-  humor:     { bg: "linear-gradient(145deg, #fef3c7 0%, #fcd34d 100%)", accent: "#92400e" },
-  pleasure:  { bg: "linear-gradient(145deg, #fdf2f8 0%, #f5d0fe 100%)", accent: "#a21caf" },
-  travel:    { bg: "linear-gradient(145deg, #ecfeff 0%, #a5f3fc 100%)", accent: "#0e7490" },
-  luck:      { bg: "linear-gradient(145deg, #f0fdf4 0%, #86efac 100%)", accent: "#15803d" },
-  knowledge: { bg: "linear-gradient(145deg, #f0f9ff 0%, #bae6fd 100%)", accent: "#0369a1" },
-  justice:   { bg: "linear-gradient(145deg, #fff1f2 0%, #fda4af 100%)", accent: "#9f1239" },
-  conflict:  { bg: "linear-gradient(145deg, #fff7ed 0%, #fdba74 100%)", accent: "#c2410c" },
-  ambition:  { bg: "linear-gradient(145deg, #fefce8 0%, #fde047 100%)", accent: "#854d0e" },
-  body:      { bg: "linear-gradient(145deg, #fdf4ff 0%, #e9d5ff 100%)", accent: "#7e22ce" },
-  change:    { bg: "linear-gradient(145deg, #ecfeff 0%, #67e8f9 100%)", accent: "#0e7490" },
-  food:      { bg: "linear-gradient(145deg, #fff7ed 0%, #fcd34d 100%)", accent: "#92400e" },
 };
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
@@ -616,6 +596,32 @@ export default function ConceptsPage() {
                       </p>
                     </div>
                   </button>
+
+                  {/* Expression count → /search?domain= */}
+                  <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "-0.75rem", marginBottom: "1.25rem" }}>
+                    <button
+                      onClick={() => router.push(`/search?domain=${encodeURIComponent(activeDomain)}`)}
+                      style={{
+                        fontFamily: "var(--font-body)",
+                        fontSize: 13,
+                        color: "var(--plum)",
+                        fontWeight: 600,
+                        background: "transparent",
+                        border: "none",
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.3rem",
+                        padding: "0.25rem 0",
+                        opacity: 0.85,
+                        transition: "opacity 120ms ease",
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.85"; }}
+                    >
+                      {t.seeExpressions(domainExprCounts[activeDomain] ?? 0)}
+                    </button>
+                  </div>
 
                   {/* Concepts — vue pills ou vue bulles */}
                   {(!isDesktop || viewMode === "pills") ? (
