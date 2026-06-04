@@ -4,16 +4,16 @@ const T = 90_000;
 const DOMAIN = '[data-testid="domain-card"]';
 const CONCEPT = '[data-testid="concept-card"]';
 
-test.describe('Page /concepts', () => {
+test.describe('Page /emoji', () => {
   test('#24 se charge et affiche la grille de domaines', async ({ page }) => {
-    await page.goto('/concepts');
+    await page.goto('/emoji');
     await page.locator(DOMAIN).first().waitFor({ timeout: T });
     const count = await page.locator(DOMAIN).count();
     expect(count).toBeGreaterThanOrEqual(10);
   });
 
   test('#26 filtre FR — affiche les concepts de la langue FR', async ({ page }) => {
-    await page.goto('/concepts');
+    await page.goto('/emoji');
     await page.locator(DOMAIN).first().waitFor({ timeout: T });
     const frBtn = page.locator('button').filter({ hasText: /^FR$/ }).first();
     if (await frBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
@@ -26,7 +26,7 @@ test.describe('Page /concepts', () => {
   });
 
   test('#27 filtre EN — affiche les concepts anglais', async ({ page }) => {
-    await page.goto('/concepts');
+    await page.goto('/emoji');
     await page.locator(DOMAIN).first().waitFor({ timeout: T });
     const enBtn = page.locator('button').filter({ hasText: /^EN$/ }).first();
     if (await enBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
@@ -38,7 +38,7 @@ test.describe('Page /concepts', () => {
   });
 
   test('#28 filtre "Tous" restaure tous les concepts', async ({ page }) => {
-    await page.goto('/concepts');
+    await page.goto('/emoji');
     await page.locator(DOMAIN).first().waitFor({ timeout: T });
     await page.locator(DOMAIN).first().click();
     await page.locator(CONCEPT).first().waitFor({ timeout: T });
@@ -56,7 +56,7 @@ test.describe('Page /concepts', () => {
   });
 
   test('#30 clic sur un concept redirige vers search', async ({ page }) => {
-    await page.goto('/concepts');
+    await page.goto('/emoji');
     await page.locator(DOMAIN).first().waitFor({ timeout: T });
     await page.locator(DOMAIN).first().click();
     await page.locator(CONCEPT).first().waitFor({ timeout: T });
@@ -65,8 +65,8 @@ test.describe('Page /concepts', () => {
   });
 
   test('#31 "Concepts" est en surbrillance dans la sidebar', async ({ page }) => {
-    await page.goto('/concepts');
-    const link = page.locator('.wex-sidebar a[href="/concepts"]').first();
+    await page.goto('/emoji');
+    const link = page.locator('.wex-sidebar a[href="/emoji"]').first();
     await link.waitFor({ timeout: T });
     const color = await link.evaluate((el) => getComputedStyle(el).color);
     expect(color).not.toBe('rgb(92, 79, 58)');
@@ -74,8 +74,8 @@ test.describe('Page /concepts', () => {
 
   test('#32 icône Concepts active dans la BottomNav (mobile)', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/concepts');
-    const link = page.locator('[class*="BottomNav"] a[href="/concepts"], [class*="bottom-nav"] a[href="/concepts"]').first();
+    await page.goto('/emoji');
+    const link = page.locator('[class*="BottomNav"] a[href="/emoji"], [class*="bottom-nav"] a[href="/emoji"]').first();
     if (await link.isVisible({ timeout: T }).catch(() => false)) {
       const color = await link.evaluate((el) => getComputedStyle(el).color);
       expect(color).not.toBe('rgb(92, 79, 58)');
