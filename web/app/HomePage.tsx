@@ -20,6 +20,7 @@ import {
 } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
+import { EDITORIAL_DOMAINS } from "@/lib/editorialDomains";
 
 const LIMIT = 20;
 const MAX_SECTION_PREVIEW = 6;
@@ -196,36 +197,6 @@ const PINNED_EMOJI_WALL: Array<{ slug: string; emoji: string; labels: Record<UIL
   { slug: "clumsiness", emoji: "🤦", labels: { fr: "Maladresse", en: "Clumsiness", es: "Torpeza",   it: "Goffaggine",  tr: "Sakarlık" } },
   { slug: "secret",     emoji: "🤫", labels: { fr: "Secret",     en: "Secret",     es: "Secreto",   it: "Segreto",     tr: "Sır" } },
   { slug: "party",      emoji: "🎉", labels: { fr: "Fête",       en: "Party",      es: "Fiesta",    it: "Festa",       tr: "Parti" } },
-];
-
-const EDITORIAL_DOMAINS: Array<{
-  slug: string; emoji: string; bg: string; border: string;
-  labels: Record<UILang, string>; desc: Record<UILang, string>;
-}> = [
-  {
-    slug: "work", emoji: "😤",
-    bg: "linear-gradient(135deg, #dce8f5 0%, #c8dcee 100%)", border: "#b0cde4",
-    labels: { fr: "L'effort & les épreuves", en: "Effort & hardship",     es: "El esfuerzo",           it: "Lo sforzo & le prove",  tr: "Çaba & zorluk" },
-    desc:   { fr: "Souffrir, persévérer, tomber, se relever", en: "Suffer, persist, fall, rise", es: "Sufrir, perseverar, caer", it: "Soffrire, resistere, cadere", tr: "Acı çekmek, dayanmak, kalkmak" },
-  },
-  {
-    slug: "relations", emoji: "❤️",
-    bg: "linear-gradient(135deg, #fdecea 0%, #f7d6d3 100%)", border: "#f0b8b3",
-    labels: { fr: "L'amour & les liens",       en: "Love & bonds",          es: "El amor & los lazos",   it: "L'amore & i legami",    tr: "Aşk & bağlar" },
-    desc:   { fr: "Aimer, trahir, se perdre, s'attacher", en: "Love, betray, lose yourself", es: "Amar, traicionar, perderse", it: "Amare, tradire, perdersi", tr: "Sevmek, ihanet, kaybolmak" },
-  },
-  {
-    slug: "money", emoji: "💰",
-    bg: "linear-gradient(135deg, #fdf5dc 0%, #f7e9b8 100%)", border: "#e8d57a",
-    labels: { fr: "L'argent & la réussite",    en: "Money & success",       es: "El dinero & el éxito",  it: "I soldi & il successo",  tr: "Para & başarı" },
-    desc:   { fr: "Gagner, perdre, mériter, gaspiller", en: "Earn, lose, deserve, waste", es: "Ganar, perder, merecer", it: "Guadagnare, perdere, meritare", tr: "Kazanmak, kaybetmek, hak etmek" },
-  },
-  {
-    slug: "morality", emoji: "🤥",
-    bg: "linear-gradient(135deg, #ede8f5 0%, #dfd5f0 100%)", border: "#c9b8e8",
-    labels: { fr: "Les travers humains",        en: "Human flaws",           es: "Los defectos humanos",  it: "I difetti umani",         tr: "İnsan kusurları" },
-    desc:   { fr: "Mentir, se vanter, esquiver, se trahir", en: "Lie, boast, dodge, betray yourself", es: "Mentir, presumir, esquivar", it: "Mentire, vantarsi, eludere", tr: "Yalan söylemek, böbürlenmek" },
-  },
 ];
 
 const REGION_ORDER = ["fr", "en", "es", "it", "tr"];
@@ -813,7 +784,7 @@ export default function HomePage() {
                 {EDITORIAL_DOMAINS.map((d) => (
                   <button
                     key={d.slug}
-                    onClick={() => router.push(`/concepts?domain=${encodeURIComponent(d.slug)}`)}
+                    onClick={() => router.push(`/domain/${encodeURIComponent(d.slug)}`)}
                     style={{
                       display: "flex", flexDirection: "column", alignItems: "flex-start",
                       background: d.bg, border: `1px solid ${d.border}`, borderRadius: 16,
