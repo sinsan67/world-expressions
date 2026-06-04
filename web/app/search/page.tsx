@@ -416,7 +416,7 @@ function SearchPageContent() {
     const icon = opts?.icon ?? ({ exact: "🎯", semantic: "✨" } as Record<string, string>)[type];
     const label = opts?.label ?? (t.matchSections[type] ?? type);
     return (
-      <div key={sectionKey}>
+      <div key={sectionKey} data-testid={sectionKey}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: "0.75rem 0 0.5rem", color: "var(--ink-faint)", fontSize: 12, fontFamily: "var(--font-body)", letterSpacing: "0.03em" }}>
           <span>{icon}</span>
           <span style={{ fontWeight: 600, color: "var(--ink-softer)" }}>{label}</span>

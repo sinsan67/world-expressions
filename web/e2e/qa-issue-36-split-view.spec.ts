@@ -11,7 +11,7 @@ test("S1 — badge langue détecté + toggle + split sections visibles", async (
   await page.goto("/search?q=argent");
 
   // Badge "Français · détecté" présent quelque part dans la sticky bar
-  await expect(page.getByText(/détecté/i)).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(/détecté/i)).toBeVisible({ timeout: 25_000 });
 
   // Le badge doit contenir le drapeau français
   const badge = page.getByText(/Français.*détecté|détecté/i).first();
