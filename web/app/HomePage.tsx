@@ -10,13 +10,12 @@ import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
 import LangDropdown from "@/components/ui/LangDropdown";
 import ShareButton from "@/components/ui/ShareButton";
-import ConceptChip from "@/components/home/ConceptChip";
 import CountryStamp from "@/components/home/CountryStamp";
 import SearchBar from "@/components/ui/SearchBar";
 import ResultsFilterBar from "@/components/home/ResultsFilterBar";
 import Eyebrow from "@/components/home/Eyebrow";
 import {
-  searchExpressions, searchByConcept, browseByRegion, getTopTags,
+  searchExpressions, searchByConcept, browseByRegion,
   getRandomExpression, getExpression, getAllTagNames, getRegions, Expression,
 } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
@@ -24,7 +23,6 @@ import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
 const LIMIT = 20;
 const MAX_SECTION_PREVIEW = 6;
-const HINT_COUNT = 12;
 
 type UILang = "fr" | "en" | "es" | "it" | "tr";
 
@@ -34,8 +32,10 @@ const T = {
     anotherOne: "Une autre",
     readFile: "Lire la fiche →",
     atlasTitle: (n: number) => `${n} pays, à toi`,
-    conceptsEyebrow: "Au fil des thèmes",
-    conceptsTitle: "Les mots qui voyagent",
+    emojiEyebrow: "Par univers",
+    emojiTitle: "Clique, explore, découvre",
+    domainsEyebrow: "Grands domaines",
+    domainsTitle: "Des univers entiers à explorer",
     atlasEyebrow: "L'atlas",
     moreCountries: "autres pays",
     placeholder: "Essaie : pied, argent, animal, partir…",
@@ -62,8 +62,10 @@ const T = {
     anotherOne: "Another one",
     readFile: "Read the card →",
     atlasTitle: (n: number) => `${n} countries, yours to explore`,
-    conceptsEyebrow: "Through the themes",
-    conceptsTitle: "Words that travel",
+    emojiEyebrow: "By universe",
+    emojiTitle: "Click, explore, discover",
+    domainsEyebrow: "Major domains",
+    domainsTitle: "Entire worlds to explore",
     atlasEyebrow: "The atlas",
     moreCountries: "more countries",
     placeholder: "Try: money, animal, leave, fear…",
@@ -90,8 +92,10 @@ const T = {
     anotherOne: "Otra",
     readFile: "Ver la ficha →",
     atlasTitle: (n: number) => `${n} países, para ti`,
-    conceptsEyebrow: "A través de los temas",
-    conceptsTitle: "Las palabras que viajan",
+    emojiEyebrow: "Por universo",
+    emojiTitle: "Haz clic, explora, descubre",
+    domainsEyebrow: "Grandes dominios",
+    domainsTitle: "Mundos enteros por explorar",
     atlasEyebrow: "El atlas",
     moreCountries: "países más",
     placeholder: "Prueba: dinero, animal, partir, miedo…",
@@ -118,8 +122,10 @@ const T = {
     anotherOne: "Başka biri",
     readFile: "Kartı oku →",
     atlasTitle: (n: number) => `${n} ülke, senin için`,
-    conceptsEyebrow: "Temalar arasında",
-    conceptsTitle: "Seyahat eden kelimeler",
+    emojiEyebrow: "Evrene göre",
+    emojiTitle: "Tıkla, keşfet, keşfet",
+    domainsEyebrow: "Ana alanlar",
+    domainsTitle: "Keşfedilecek dünyalar",
     atlasEyebrow: "Atlas",
     moreCountries: "ülke daha",
     placeholder: "Dene: para, hayvan, korku, ayrılmak…",
@@ -146,8 +152,10 @@ const T = {
     anotherOne: "Un'altra",
     readFile: "Leggi la scheda →",
     atlasTitle: (n: number) => `${n} paesi, tuoi da esplorare`,
-    conceptsEyebrow: "Tra i temi",
-    conceptsTitle: "Le parole che viaggiano",
+    emojiEyebrow: "Per universo",
+    emojiTitle: "Clicca, esplora, scopri",
+    domainsEyebrow: "Grandi domini",
+    domainsTitle: "Interi mondi da esplorare",
     atlasEyebrow: "L'atlante",
     moreCountries: "altri paesi",
     placeholder: "Prova: soldi, animale, partire, paura…",
@@ -171,6 +179,55 @@ const T = {
   },
 };
 
+const PINNED_EMOJI_WALL: Array<{ slug: string; emoji: string; labels: Record<UILang, string> }> = [
+  { slug: "humor",      emoji: "😂", labels: { fr: "Humour",     en: "Humor",      es: "Humor",     it: "Umorismo",    tr: "Mizah" } },
+  { slug: "love",       emoji: "❤️", labels: { fr: "Amour",      en: "Love",       es: "Amor",      it: "Amore",       tr: "Aşk" } },
+  { slug: "money",      emoji: "💰", labels: { fr: "Argent",     en: "Money",      es: "Dinero",    it: "Denaro",      tr: "Para" } },
+  { slug: "anger",      emoji: "😠", labels: { fr: "Colère",     en: "Anger",      es: "Ira",       it: "Rabbia",      tr: "Öfke" } },
+  { slug: "travel",     emoji: "✈️", labels: { fr: "Voyage",     en: "Travel",     es: "Viaje",     it: "Viaggio",     tr: "Seyahat" } },
+  { slug: "lying",      emoji: "🤥", labels: { fr: "Mensonge",   en: "Lying",      es: "Mentira",   it: "Menzogna",    tr: "Yalan" } },
+  { slug: "fear",       emoji: "😱", labels: { fr: "Peur",       en: "Fear",       es: "Miedo",     it: "Paura",       tr: "Korku" } },
+  { slug: "death",      emoji: "💀", labels: { fr: "Mort",       en: "Death",      es: "Muerte",    it: "Morte",       tr: "Ölüm" } },
+  { slug: "laziness",   emoji: "😴", labels: { fr: "Paresse",    en: "Laziness",   es: "Pereza",    it: "Pigrizia",    tr: "Tembellik" } },
+  { slug: "work",       emoji: "💼", labels: { fr: "Travail",    en: "Work",       es: "Trabajo",   it: "Lavoro",      tr: "İş" } },
+  { slug: "wine",       emoji: "🍷", labels: { fr: "Vin",        en: "Wine",       es: "Vino",      it: "Vino",        tr: "Şarap" } },
+  { slug: "animals",    emoji: "🐾", labels: { fr: "Animaux",    en: "Animals",    es: "Animales",  it: "Animali",     tr: "Hayvanlar" } },
+  { slug: "success",    emoji: "🏆", labels: { fr: "Succès",     en: "Success",    es: "Éxito",     it: "Successo",    tr: "Başarı" } },
+  { slug: "clumsiness", emoji: "🤦", labels: { fr: "Maladresse", en: "Clumsiness", es: "Torpeza",   it: "Goffaggine",  tr: "Sakarlık" } },
+  { slug: "secret",     emoji: "🤫", labels: { fr: "Secret",     en: "Secret",     es: "Secreto",   it: "Segreto",     tr: "Sır" } },
+  { slug: "party",      emoji: "🎉", labels: { fr: "Fête",       en: "Party",      es: "Fiesta",    it: "Festa",       tr: "Parti" } },
+];
+
+const EDITORIAL_DOMAINS: Array<{
+  slug: string; emoji: string; bg: string; border: string;
+  labels: Record<UILang, string>; desc: Record<UILang, string>;
+}> = [
+  {
+    slug: "work", emoji: "😤",
+    bg: "linear-gradient(135deg, #dce8f5 0%, #c8dcee 100%)", border: "#b0cde4",
+    labels: { fr: "L'effort & les épreuves", en: "Effort & hardship",     es: "El esfuerzo",           it: "Lo sforzo & le prove",  tr: "Çaba & zorluk" },
+    desc:   { fr: "Souffrir, persévérer, tomber, se relever", en: "Suffer, persist, fall, rise", es: "Sufrir, perseverar, caer", it: "Soffrire, resistere, cadere", tr: "Acı çekmek, dayanmak, kalkmak" },
+  },
+  {
+    slug: "relations", emoji: "❤️",
+    bg: "linear-gradient(135deg, #fdecea 0%, #f7d6d3 100%)", border: "#f0b8b3",
+    labels: { fr: "L'amour & les liens",       en: "Love & bonds",          es: "El amor & los lazos",   it: "L'amore & i legami",    tr: "Aşk & bağlar" },
+    desc:   { fr: "Aimer, trahir, se perdre, s'attacher", en: "Love, betray, lose yourself", es: "Amar, traicionar, perderse", it: "Amare, tradire, perdersi", tr: "Sevmek, ihanet, kaybolmak" },
+  },
+  {
+    slug: "money", emoji: "💰",
+    bg: "linear-gradient(135deg, #fdf5dc 0%, #f7e9b8 100%)", border: "#e8d57a",
+    labels: { fr: "L'argent & la réussite",    en: "Money & success",       es: "El dinero & el éxito",  it: "I soldi & il successo",  tr: "Para & başarı" },
+    desc:   { fr: "Gagner, perdre, mériter, gaspiller", en: "Earn, lose, deserve, waste", es: "Ganar, perder, merecer", it: "Guadagnare, perdere, meritare", tr: "Kazanmak, kaybetmek, hak etmek" },
+  },
+  {
+    slug: "morality", emoji: "🤥",
+    bg: "linear-gradient(135deg, #ede8f5 0%, #dfd5f0 100%)", border: "#c9b8e8",
+    labels: { fr: "Les travers humains",        en: "Human flaws",           es: "Los defectos humanos",  it: "I difetti umani",         tr: "İnsan kusurları" },
+    desc:   { fr: "Mentir, se vanter, esquiver, se trahir", en: "Lie, boast, dodge, betray yourself", es: "Mentir, presumir, esquivar", it: "Mentire, vantarsi, eludere", tr: "Yalan söylemek, böbürlenmek" },
+  },
+];
+
 const REGION_ORDER = ["fr", "en", "es", "it", "tr"];
 
 const SEARCH_HELP: Record<UILang, string> = {
@@ -192,7 +249,6 @@ export default function HomePage() {
   const router = useRouter();
   const [uiLang, setUILang] = useState<UILang>("en");
   const [showWelcome, setShowWelcome] = useState<boolean | null>(null);
-  const [hintKey, setHintKey] = useState(0);
   const [query, setQuery] = useState("");
   const [regions, setRegions] = useState<{ code: string; label: string }[]>([]);
   const [results, setResults] = useState<Expression[]>([]);
@@ -204,7 +260,6 @@ export default function HomePage() {
   const [hasMore, setHasMore] = useState(false);
   const [searchMode, setSearchMode] = useState<"text" | "concept" | "browse">("text");
   const [searchLabel, setSearchLabel] = useState("");
-  const [hintTags, setHintTags] = useState<{ slug: string; name: string }[]>([]);
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [featured, setFeatured] = useState<(Expression & { meaning_locale: string; literal: string | null }) | null>(null);
   const [newsletterOpen, setNewsletterOpen] = useState(false);
@@ -497,14 +552,6 @@ export default function HomePage() {
   }, [uiLang]);
 
   useEffect(() => {
-    getTopTags(uiLang, 40, uiLang).then((tags) => {
-      const withEmoji = tags.filter((tag) => tagIcon(tag.slug));
-      const shuffled = withEmoji.sort(() => Math.random() - 0.5);
-      setHintTags(shuffled.slice(0, HINT_COUNT).map((tag) => ({ slug: tag.slug, name: tag.name })));
-    }).catch(() => {});
-  }, [uiLang, hintKey]);
-
-  useEffect(() => {
     const el = sentinelRef.current;
     if (!el || !hasMore || loadingMore) return;
     const observer = new IntersectionObserver(
@@ -517,7 +564,6 @@ export default function HomePage() {
 
   const changeLang = useCallback((lang: UILang) => {
     setUILang(lang);
-    setHintKey((k) => k + 1);
     localStorage.setItem("wex_lang", lang);
   }, []);
 
@@ -712,27 +758,88 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Concepts section */}
+        {/* Emoji Wall section */}
         {!searched && (
           <section style={{ background: "var(--paper-deep)", borderTop: "1px solid var(--paper-edge)", padding: "2rem 1.5rem" }}>
             <div style={{ maxWidth: 900, margin: "0 auto" }}>
-              <Eyebrow tone="plum">{t.conceptsEyebrow}</Eyebrow>
-              <h2 style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--ink)", margin: "0.4rem 0 1.25rem", fontWeight: 500 }}>
-                {t.conceptsTitle}
+              <Eyebrow tone="plum">{t.emojiEyebrow}</Eyebrow>
+              <h2 style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--ink)", margin: "0.4rem 0 1.5rem", fontWeight: 500 }}>
+                {t.emojiTitle}
               </h2>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-                {hintTags.map((tag) => {
-                  const icon = tagIcon(tag.slug) ?? "";
-                  return (
-                    <ConceptChip
-                      key={tag.slug}
-                      icon={icon}
-                      name={tag.name}
-                      tone="plain"
-                      onClick={() => { setSearchLabel(`${icon ? icon + " " : ""}${tag.name}`); runConceptSearch(tag.slug); setHintKey((k) => k + 1); }}
-                    />
-                  );
-                })}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.625rem" }}>
+                {PINNED_EMOJI_WALL.map((item) => (
+                  <button
+                    key={item.slug}
+                    onClick={() => { setSearchLabel(`${item.emoji} ${item.labels[uiLang]}`); runConceptSearch(item.slug); }}
+                    style={{
+                      display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem",
+                      background: "var(--paper)", border: "1px solid var(--paper-edge)", borderRadius: 14,
+                      padding: "0.625rem 0.875rem", cursor: "pointer", minWidth: 64,
+                      transition: "transform 0.12s, box-shadow 0.12s, border-color 0.12s",
+                    }}
+                    onMouseEnter={(e) => {
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.transform = "translateY(-3px) scale(1.05)";
+                      el.style.boxShadow = "0 6px 18px rgba(0,0,0,0.10)";
+                      el.style.borderColor = "var(--plum)";
+                    }}
+                    onMouseLeave={(e) => {
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.transform = "";
+                      el.style.boxShadow = "";
+                      el.style.borderColor = "var(--paper-edge)";
+                    }}
+                  >
+                    <span style={{ fontSize: 36, lineHeight: 1 }}>{item.emoji}</span>
+                    <span style={{ fontSize: 10, fontWeight: 500, color: "var(--ink-softer)", whiteSpace: "nowrap", fontFamily: "var(--font-body)" }}>
+                      {item.labels[uiLang]}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Editorial Domains section */}
+        {!searched && (
+          <section style={{ padding: "2rem 1.5rem 2.5rem", borderTop: "1px solid var(--paper-edge)" }}>
+            <div style={{ maxWidth: 900, margin: "0 auto" }}>
+              <Eyebrow tone="softer">{t.domainsEyebrow}</Eyebrow>
+              <h2 style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--ink)", margin: "0.4rem 0 1.25rem", fontWeight: 500 }}>
+                {t.domainsTitle}
+              </h2>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.875rem" }}>
+                {EDITORIAL_DOMAINS.map((d) => (
+                  <button
+                    key={d.slug}
+                    onClick={() => router.push(`/concepts?domain=${encodeURIComponent(d.slug)}`)}
+                    style={{
+                      display: "flex", flexDirection: "column", alignItems: "flex-start",
+                      background: d.bg, border: `1px solid ${d.border}`, borderRadius: 16,
+                      padding: "1.25rem 1rem", cursor: "pointer", textAlign: "left",
+                      transition: "transform 0.15s, box-shadow 0.15s",
+                    }}
+                    onMouseEnter={(e) => {
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.transform = "translateY(-4px)";
+                      el.style.boxShadow = "0 10px 30px rgba(0,0,0,0.12)";
+                    }}
+                    onMouseLeave={(e) => {
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.transform = "";
+                      el.style.boxShadow = "";
+                    }}
+                  >
+                    <span style={{ fontSize: 36, lineHeight: 1, marginBottom: "0.625rem" }}>{d.emoji}</span>
+                    <span style={{ fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 600, color: "var(--ink)", marginBottom: "0.3rem", fontStyle: "italic", display: "block" }}>
+                      {d.labels[uiLang]}
+                    </span>
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--ink-softer)", lineHeight: 1.4 }}>
+                      {d.desc[uiLang]}
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
           </section>
