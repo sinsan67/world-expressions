@@ -124,6 +124,7 @@ body {
 .wex-main { flex: 1; min-width: 0; }
 .wex-atlas-card { display: none; }
 .wex-mobile-header { display: flex; }
+.wex-desktop-only { display: none; }
 
 @media (min-width: 1024px) {
   .wex-sidebar { display: flex; flex-direction: column; }
@@ -131,6 +132,7 @@ body {
   .wex-main { margin-left: 220px; }
   .wex-atlas-card { display: block; }
   .wex-mobile-header { display: none; }
+  .wex-desktop-only { display: flex; }
 
   /* Hero photo bleeds full viewport width — extends 220px behind the fixed sidebar */
   .wex-main .country-photo::before {
