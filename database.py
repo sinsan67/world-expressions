@@ -406,7 +406,7 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
                 if p["origin"]:  r["origin"]  = p["origin"]
                 if p["example"]: r["example"] = p["example"]
 
-    return results, total
+    return results, total, matching_tags
 
 
 def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0, type_filter: Optional[str] = None) -> tuple[list[dict], int]:

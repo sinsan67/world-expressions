@@ -50,6 +50,7 @@ export type SearchResponse = {
   limit: number;
   exact: number;
   semantic: number;
+  detected_concepts: string[];
   results: Expression[];
 };
 

@@ -54,7 +54,7 @@ def search_expressions(
     regions = set(region.split(",")) - {""} if region else None
     tf = type_filter.strip() or None
     loc = locale.strip() or None
-    results, total = database.search_expressions(q, regions, limit, offset, tf, loc)
+    results, total, detected_concepts = database.search_expressions(q, regions, limit, offset, tf, loc)
     return {
         "query": q,
         "regions": sorted(regions) if regions else "all",
@@ -65,6 +65,7 @@ def search_expressions(
         "semantic":    sum(1 for r in results if r["match_type"] == "semantic"),
         "translation": sum(1 for r in results if r["match_type"] == "translation"),
         "concept":     sum(1 for r in results if r["match_type"] == "concept"),
+        "detected_concepts": sorted(detected_concepts),
         "results": results,
     }
 
