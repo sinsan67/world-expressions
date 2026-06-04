@@ -18,6 +18,13 @@ import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 const LIMIT = 20;
 type UILang = "fr" | "en" | "es" | "it" | "tr";
 
+const LANG_FLAG: Record<string, string> = {
+  fr: "🇫🇷", en: "🇬🇧", es: "🇪🇸", it: "🇮🇹", tr: "🇹🇷",
+};
+const LANG_NATIVE: Record<string, string> = {
+  fr: "Français", en: "English", es: "Español", it: "Italiano", tr: "Türkçe",
+};
+
 const MAX_SECTION_PREVIEW = 6;
 
 const T: Record<UILang, {
@@ -35,6 +42,10 @@ const T: Record<UILang, {
   registers: Record<string, string>;
   matchSections: Record<string, string>;
   showMore: (n: number) => string;
+  langFirst: string;
+  mixAll: string;
+  otherLangs: string;
+  detected: string;
 }> = {
   fr: {
     placeholder: "Essaie : pied, argent, animal, partir…",
@@ -51,6 +62,10 @@ const T: Record<UILang, {
     registers: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" },
     matchSections: { exact: "Dans le texte", semantic: "Par le sens", translation: "Via les traductions", concept: "Par concept" },
     showMore: (n) => `Voir les ${n} autres →`,
+    langFirst: "Langue d'abord",
+    mixAll: "Tout mélanger",
+    otherLangs: "Dans les autres langues",
+    detected: "· détecté",
   },
   en: {
     placeholder: "Try: money, animal, leave, fear…",
@@ -67,6 +82,10 @@ const T: Record<UILang, {
     registers: { standard: "standard", informal: "informal", slang: "slang", vulgar: "vulgar", formal: "formal" },
     matchSections: { exact: "In the text", semantic: "By meaning", translation: "Via translations", concept: "By concept" },
     showMore: (n) => `Show ${n} more →`,
+    langFirst: "Language first",
+    mixAll: "Mix all",
+    otherLangs: "In other languages",
+    detected: "· detected",
   },
   es: {
     placeholder: "Prueba: dinero, animal, partir, miedo…",
@@ -83,6 +102,10 @@ const T: Record<UILang, {
     registers: { standard: "estándar", informal: "coloquial", slang: "argot", vulgar: "vulgar", formal: "formal" },
     matchSections: { exact: "En el texto", semantic: "Por el sentido", translation: "Via traducciones", concept: "Por concepto" },
     showMore: (n) => `Ver ${n} más →`,
+    langFirst: "Idioma primero",
+    mixAll: "Mezclar todo",
+    otherLangs: "En otros idiomas",
+    detected: "· detectado",
   },
   it: {
     placeholder: "Prova: soldi, animale, partire, paura…",
@@ -99,6 +122,10 @@ const T: Record<UILang, {
     registers: { standard: "standard", informal: "informale", slang: "gergone", vulgar: "volgare", formal: "formale" },
     matchSections: { exact: "Nel testo", semantic: "Per il senso", translation: "Via traduzioni", concept: "Per concetto" },
     showMore: (n) => `Vedi altri ${n} →`,
+    langFirst: "Lingua prima",
+    mixAll: "Mescola tutto",
+    otherLangs: "In altre lingue",
+    detected: "· rilevato",
   },
   tr: {
     placeholder: "Dene: para, hayvan, korku, ayrılmak…",
@@ -115,6 +142,10 @@ const T: Record<UILang, {
     registers: { standard: "standart", informal: "gündelik", slang: "argo", vulgar: "kaba", formal: "resmi" },
     matchSections: { exact: "Metinde", semantic: "Anlama göre", translation: "Çeviri yoluyla", concept: "Kavram ile" },
     showMore: (n) => `${n} tane daha gör →`,
+    langFirst: "Dil önce",
+    mixAll: "Tümünü karıştır",
+    otherLangs: "Diğer dillerde",
+    detected: "· algılandı",
   },
 };
 
@@ -175,11 +206,11 @@ function SearchPageContent() {
   }, [results, sortMode, regions]);
 
   const matchTypeGroups = useMemo(() => {
-    if (searchMode !== "text" || sortMode !== "relevance" || results.length === 0) return null;
+    if (sortMode !== "relevance" || results.length === 0) return null;
     const ORDER = ["exact", "semantic", "concept"] as const;
     const map = new Map<string, Expression[]>();
     for (const expr of results) {
-      const mt = expr.match_type === "translation" ? "semantic" : expr.match_type;
+      const mt = (expr.match_type === "translation" || expr.match_type === "tag") ? "semantic" : expr.match_type;
       if (!map.has(mt)) map.set(mt, []);
       map.get(mt)!.push(expr);
     }
