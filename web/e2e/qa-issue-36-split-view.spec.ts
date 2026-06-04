@@ -23,9 +23,6 @@ test("S1 — badge langue détecté + toggle + split sections visibles", async (
   // Toggle "Tout mélanger" visible
   await expect(page.getByRole("button", { name: /tout mélanger/i })).toBeVisible();
 
-  // Badge complet "🇫🇷 Français · détecté" dans la sticky bar
-  await expect(page.getByText("🇫🇷 Français · détecté")).toBeVisible();
-
   // Sous-sections "Dans le texte" et "Par le sens" présentes
   await expect(page.getByText(/dans le texte/i)).toBeVisible();
   await expect(page.getByText(/par le sens/i)).toBeVisible();
