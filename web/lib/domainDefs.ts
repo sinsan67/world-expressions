@@ -1,5 +1,28 @@
 export type DomainDef = { emoji: string; labels: Record<string, string> };
 
+export const DOMAIN_COLORS: Record<string, { bg: string; accent: string }> = {
+  emotions:  { bg: "linear-gradient(145deg, #fffbeb 0%, #fde68a 100%)", accent: "#b45309" },
+  relations: { bg: "linear-gradient(145deg, #eff6ff 0%, #bfdbfe 100%)", accent: "#2563eb" },
+  money:     { bg: "linear-gradient(145deg, #fefce8 0%, #fef08a 100%)", accent: "#a16207" },
+  wisdom:    { bg: "linear-gradient(145deg, #f5f3ff 0%, #ddd6fe 100%)", accent: "#7c3aed" },
+  speech:    { bg: "linear-gradient(145deg, #f0fdf4 0%, #bbf7d0 100%)", accent: "#15803d" },
+  morality:  { bg: "linear-gradient(145deg, #fff7ed 0%, #fed7aa 100%)", accent: "#c2410c" },
+  nature:    { bg: "linear-gradient(145deg, #ecfdf5 0%, #a7f3d0 100%)", accent: "#047857" },
+  time:      { bg: "linear-gradient(145deg, #faf5ff 0%, #e9d5ff 100%)", accent: "#7e22ce" },
+  work:      { bg: "linear-gradient(145deg, #fff1f2 0%, #fecdd3 100%)", accent: "#be123c" },
+  humor:     { bg: "linear-gradient(145deg, #fef3c7 0%, #fcd34d 100%)", accent: "#92400e" },
+  pleasure:  { bg: "linear-gradient(145deg, #fdf2f8 0%, #f5d0fe 100%)", accent: "#a21caf" },
+  travel:    { bg: "linear-gradient(145deg, #ecfeff 0%, #a5f3fc 100%)", accent: "#0e7490" },
+  luck:      { bg: "linear-gradient(145deg, #f0fdf4 0%, #86efac 100%)", accent: "#15803d" },
+  knowledge: { bg: "linear-gradient(145deg, #f0f9ff 0%, #bae6fd 100%)", accent: "#0369a1" },
+  justice:   { bg: "linear-gradient(145deg, #fff1f2 0%, #fda4af 100%)", accent: "#9f1239" },
+  conflict:  { bg: "linear-gradient(145deg, #fff7ed 0%, #fdba74 100%)", accent: "#c2410c" },
+  ambition:  { bg: "linear-gradient(145deg, #fefce8 0%, #fde047 100%)", accent: "#854d0e" },
+  body:      { bg: "linear-gradient(145deg, #fdf4ff 0%, #e9d5ff 100%)", accent: "#7e22ce" },
+  change:    { bg: "linear-gradient(145deg, #ecfeff 0%, #67e8f9 100%)", accent: "#0e7490" },
+  food:      { bg: "linear-gradient(145deg, #fff7ed 0%, #fcd34d 100%)", accent: "#92400e" },
+};
+
 export const DOMAIN_DEFS: Record<string, DomainDef> = {
   emotions:  { emoji: "💛", labels: { fr: "Émotions",        en: "Emotions",          es: "Emociones",        it: "Emozioni",        tr: "Duygular" } },
   relations: { emoji: "🤝", labels: { fr: "Relations",       en: "Relationships",     es: "Relaciones",       it: "Relazioni",       tr: "İlişkiler" } },

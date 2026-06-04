@@ -12,7 +12,8 @@ import {
   searchExpressions, searchByConcept, searchByDomain, getRegions, getAllTagNames, Expression,
 } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
-import { DOMAIN_DEFS } from "@/lib/domainDefs";
+import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
+import { LANG_FLAG, LANG_NATIVE } from "@/lib/langDefs";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
 const LIMIT = 20;
@@ -35,6 +36,11 @@ const T: Record<UILang, {
   registers: Record<string, string>;
   matchSections: Record<string, string>;
   showMore: (n: number) => string;
+  langFirst: string;
+  mixAll: string;
+  otherLangs: string;
+  detected: string;
+  othersEquivalents: string;
 }> = {
   fr: {
     placeholder: "Essaie : pied, argent, animal, partir…",
@@ -51,6 +57,11 @@ const T: Record<UILang, {
     registers: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" },
     matchSections: { exact: "Dans le texte", semantic: "Par le sens", translation: "Via les traductions", concept: "Par concept" },
     showMore: (n) => `Voir les ${n} autres →`,
+    langFirst: "Langue d'abord",
+    mixAll: "Tout mélanger",
+    otherLangs: "Dans les autres langues",
+    detected: "· détecté",
+    othersEquivalents: "Équivalents",
   },
   en: {
     placeholder: "Try: money, animal, leave, fear…",
@@ -67,6 +78,11 @@ const T: Record<UILang, {
     registers: { standard: "standard", informal: "informal", slang: "slang", vulgar: "vulgar", formal: "formal" },
     matchSections: { exact: "In the text", semantic: "By meaning", translation: "Via translations", concept: "By concept" },
     showMore: (n) => `Show ${n} more →`,
+    langFirst: "Language first",
+    mixAll: "Mix all",
+    otherLangs: "In other languages",
+    detected: "· detected",
+    othersEquivalents: "Equivalents",
   },
   es: {
     placeholder: "Prueba: dinero, animal, partir, miedo…",
@@ -83,6 +99,11 @@ const T: Record<UILang, {
     registers: { standard: "estándar", informal: "coloquial", slang: "argot", vulgar: "vulgar", formal: "formal" },
     matchSections: { exact: "En el texto", semantic: "Por el sentido", translation: "Via traducciones", concept: "Por concepto" },
     showMore: (n) => `Ver ${n} más →`,
+    langFirst: "Idioma primero",
+    mixAll: "Mezclar todo",
+    otherLangs: "En otros idiomas",
+    detected: "· detectado",
+    othersEquivalents: "Equivalentes",
   },
   it: {
     placeholder: "Prova: soldi, animale, partire, paura…",
@@ -99,6 +120,11 @@ const T: Record<UILang, {
     registers: { standard: "standard", informal: "informale", slang: "gergone", vulgar: "volgare", formal: "formale" },
     matchSections: { exact: "Nel testo", semantic: "Per il senso", translation: "Via traduzioni", concept: "Per concetto" },
     showMore: (n) => `Vedi altri ${n} →`,
+    langFirst: "Lingua prima",
+    mixAll: "Mescola tutto",
+    otherLangs: "In altre lingue",
+    detected: "· rilevato",
+    othersEquivalents: "Equivalenti",
   },
   tr: {
     placeholder: "Dene: para, hayvan, korku, ayrılmak…",
@@ -115,6 +141,11 @@ const T: Record<UILang, {
     registers: { standard: "standart", informal: "gündelik", slang: "argo", vulgar: "kaba", formal: "resmi" },
     matchSections: { exact: "Metinde", semantic: "Anlama göre", translation: "Çeviri yoluyla", concept: "Kavram ile" },
     showMore: (n) => `${n} tane daha gör →`,
+    langFirst: "Dil önce",
+    mixAll: "Tümünü karıştır",
+    otherLangs: "Diğer dillerde",
+    detected: "· algılandı",
+    othersEquivalents: "Eşdeğerler",
   },
 };
 
@@ -150,6 +181,7 @@ function SearchPageContent() {
   );
   const [sortMode, setSortMode] = useState<"relevance" | "country">("relevance");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const [displayMode, setDisplayMode] = useState<"split" | "mix">("split");
   const sentinelRef = useRef<HTMLDivElement>(null);
   const allRegionCodes = regions.map((r) => r.code);
   const t = T[uiLang];
@@ -175,17 +207,45 @@ function SearchPageContent() {
   }, [results, sortMode, regions]);
 
   const matchTypeGroups = useMemo(() => {
-    if (searchMode !== "text" || sortMode !== "relevance" || results.length === 0) return null;
+    if (sortMode !== "relevance" || results.length === 0) return null;
     const ORDER = ["exact", "semantic", "concept"] as const;
     const map = new Map<string, Expression[]>();
     for (const expr of results) {
-      const mt = expr.match_type === "translation" ? "semantic" : expr.match_type;
+      const mt = (expr.match_type === "translation" || expr.match_type === "tag") ? "semantic" : expr.match_type;
       if (!map.has(mt)) map.set(mt, []);
       map.get(mt)!.push(expr);
     }
     const groups = ORDER.filter((mt) => map.has(mt)).map((mt) => ({ type: mt, exprs: map.get(mt)! }));
     return groups.length > 0 ? groups : null;
   }, [results, searchMode, sortMode]);
+
+  const detectedSearchLang = useMemo(() => {
+    if (searchMode !== "text" || results.length === 0) return null;
+    const exact = results.filter(r => r.match_type === "exact");
+    const counts: Record<string, number> = {};
+    for (const r of exact) counts[r.language] = (counts[r.language] ?? 0) + 1;
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    if (sorted.length === 0) return null;
+    if (sorted.length > 1 && sorted[0][1] === sorted[1][1]) return null;
+    return sorted[0][0];
+  }, [results, searchMode]);
+
+  const langSplitSections = useMemo(() => {
+    if (!detectedSearchLang || displayMode !== "split" || results.length === 0 || sortMode !== "relevance") return null;
+    const inLang = results.filter(r => r.language === detectedSearchLang);
+    const others = results.filter(r => r.language !== detectedSearchLang);
+    return {
+      main: {
+        lang: detectedSearchLang,
+        exact: inLang.filter(r => r.match_type === "exact"),
+        semantic: inLang.filter(r => r.match_type !== "exact"),
+      },
+      others: {
+        exact: others.filter(r => r.match_type === "exact" || r.match_type === "concept"),
+        semantic: others.filter(r => r.match_type === "semantic" || r.match_type === "translation"),
+      },
+    };
+  }, [results, detectedSearchLang, displayMode, sortMode]);
 
   // ─── Handlers ───
 
@@ -196,6 +256,7 @@ function SearchPageContent() {
     setResults([]);
     setHasMore(false);
     setExpandedSections(new Set());
+    setDisplayMode("split");
     try {
       let data;
       if (domain && !q && !concept) {
@@ -340,7 +401,50 @@ function SearchPageContent() {
     localStorage.setItem("wex_lang", lang);
   }, []);
 
+  // ─── Render helpers ───
+
+  const renderSubSection = (
+    type: "exact" | "semantic",
+    exprs: Expression[],
+    sectionKey: string,
+    opts?: { icon?: string; label?: string }
+  ) => {
+    if (exprs.length === 0) return null;
+    const isExpanded = expandedSections.has(sectionKey);
+    const visible = isExpanded ? exprs : exprs.slice(0, MAX_SECTION_PREVIEW);
+    const hidden = exprs.length - MAX_SECTION_PREVIEW;
+    const icon = opts?.icon ?? ({ exact: "🎯", semantic: "✨" } as Record<string, string>)[type];
+    const label = opts?.label ?? (t.matchSections[type] ?? type);
+    return (
+      <div key={sectionKey} data-testid={sectionKey}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: "0.75rem 0 0.5rem", color: "var(--ink-faint)", fontSize: 12, fontFamily: "var(--font-body)", letterSpacing: "0.03em" }}>
+          <span>{icon}</span>
+          <span style={{ fontWeight: 600, color: "var(--ink-softer)" }}>{label}</span>
+          <span>· {sectionExprCount(exprs.length, uiLang)}</span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
+          {visible.map((expr, i) => (
+            <div key={expr.id} style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
+              <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} />
+            </div>
+          ))}
+        </div>
+        {!isExpanded && hidden > 0 && (
+          <button
+            onClick={() => setExpandedSections(prev => new Set(prev).add(sectionKey))}
+            style={{ marginTop: "0.75rem", background: "none", border: "none", color: "var(--ink-soft)", fontSize: 12, fontFamily: "var(--font-body)", cursor: "pointer", padding: "0.25rem 0", textDecoration: "underline", textUnderlineOffset: 3 }}
+          >
+            {t.showMore(hidden)}
+          </button>
+        )}
+      </div>
+    );
+  };
+
   // ─── Render ───
+
+  const domainDef = domainParam ? DOMAIN_DEFS[domainParam] : undefined;
+  const domainColors = domainParam ? (DOMAIN_COLORS[domainParam] ?? { bg: "var(--paper-deep)", accent: "var(--ink-soft)" }) : undefined;
 
   const hasResults = results.length > 0;
   const showEmpty = !loading && !hasError && (qParam || conceptParam || domainParam) && results.length === 0;
@@ -396,9 +500,116 @@ function SearchPageContent() {
             </p>
           )}
 
+          {searchMode === "text" && hasResults && detectedSearchLang && (
+            <div style={{
+              display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.625rem",
+              background: "rgba(107, 77, 143, 0.06)",
+              border: "1px solid rgba(107, 77, 143, 0.18)",
+              borderRadius: "var(--r-md)",
+              padding: "0.5rem 0.875rem",
+              marginBottom: "1.25rem",
+            }}>
+              <span style={{ fontSize: 12, color: "var(--ink-softer)", fontFamily: "var(--font-body)", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                {LANG_FLAG[detectedSearchLang]} {LANG_NATIVE[detectedSearchLang]}
+                <span style={{ color: "var(--ink-faint)", fontWeight: 400 }}>{t.detected}</span>
+              </span>
+              <div style={{ width: 1, height: 14, background: "rgba(107,77,143,0.2)", flexShrink: 0 }} />
+              <div style={{
+                display: "flex", marginLeft: "auto",
+                background: "var(--paper)", border: "1px solid rgba(107,77,143,0.2)",
+                borderRadius: "var(--r-md)", overflow: "hidden",
+              }}>
+                <button
+                  onClick={() => setDisplayMode("split")}
+                  style={{
+                    fontSize: 12, fontFamily: "var(--font-body)",
+                    padding: "0.3rem 0.8rem",
+                    border: "none", borderRight: "1px solid rgba(107,77,143,0.2)",
+                    background: displayMode === "split" ? "var(--plum)" : "transparent",
+                    color: displayMode === "split" ? "white" : "var(--ink-soft)",
+                    cursor: "pointer", fontWeight: displayMode === "split" ? 600 : 400,
+                  }}
+                >
+                  {t.langFirst}
+                </button>
+                <button
+                  onClick={() => setDisplayMode("mix")}
+                  style={{
+                    fontSize: 12, fontFamily: "var(--font-body)",
+                    padding: "0.3rem 0.8rem",
+                    border: "none",
+                    background: displayMode === "mix" ? "var(--plum)" : "transparent",
+                    color: displayMode === "mix" ? "white" : "var(--ink-soft)",
+                    cursor: "pointer", fontWeight: displayMode === "mix" ? 600 : 400,
+                  }}
+                >
+                  🌍 {t.mixAll}
+                </button>
+              </div>
+            </div>
+          )}
+
           {hasResults && (
             <>
-              {groupedResults ? (
+              {searchMode === "concept" && domainDef && domainColors && (
+                <div style={{
+                  background: domainColors.bg,
+                  borderRadius: "var(--r-lg)",
+                  padding: "1.25rem 1.5rem",
+                  marginBottom: "1.5rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "1rem",
+                  animation: "fadeSlideUp 0.4s cubic-bezier(0.2, 0.7, 0.3, 1) both",
+                }}>
+                  <span style={{ fontSize: 48, lineHeight: 1 }}>{domainDef.emoji}</span>
+                  <div>
+                    <h2 style={{
+                      fontFamily: "var(--font-display)",
+                      fontStyle: "italic",
+                      fontSize: "clamp(1.25rem, 3vw, 1.75rem)",
+                      color: "#1c1410",
+                      margin: "0 0 0.2rem",
+                      fontWeight: 600,
+                    }}>
+                      {domainDef.labels[uiLang]}
+                    </h2>
+                    <p style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: 13,
+                      color: domainColors.accent,
+                      margin: 0,
+                      fontWeight: 500,
+                    }}>
+                      {sectionExprCount(total, uiLang)}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {langSplitSections ? (
+                <>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: "0 0 0.25rem", color: "var(--ink-soft)", fontSize: 13, fontFamily: "var(--font-body)" }}>
+                      <span>{LANG_FLAG[langSplitSections.main.lang]}</span>
+                      <span style={{ fontWeight: 600 }}>{LANG_NATIVE[langSplitSections.main.lang]}</span>
+                      <span style={{ color: "var(--ink-faint)" }}>· {sectionExprCount(langSplitSections.main.exact.length + langSplitSections.main.semantic.length, uiLang)}</span>
+                    </div>
+                    {renderSubSection("exact", langSplitSections.main.exact, "split-main-exact")}
+                    {renderSubSection("semantic", langSplitSections.main.semantic, "split-main-semantic")}
+                  </div>
+                  {(langSplitSections.others.exact.length > 0 || langSplitSections.others.semantic.length > 0) && (
+                    <div style={{ marginTop: "2rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: "0 0 0.25rem", color: "var(--ink-soft)", fontSize: 13, fontFamily: "var(--font-body)", borderTop: "1px solid var(--paper-edge)", paddingTop: "1.5rem" }}>
+                        <span>🌍</span>
+                        <span style={{ fontWeight: 600 }}>{t.otherLangs}</span>
+                        <span style={{ color: "var(--ink-faint)" }}>· {sectionExprCount(langSplitSections.others.exact.length + langSplitSections.others.semantic.length, uiLang)}</span>
+                      </div>
+                      {renderSubSection("exact", langSplitSections.others.exact, "split-others-exact", { icon: "🔗", label: t.othersEquivalents })}
+                      {renderSubSection("semantic", langSplitSections.others.semantic, "split-others-semantic")}
+                    </div>
+                  )}
+                </>
+              ) : groupedResults ? (
                 groupedResults.map(({ code, exprs }, gi) => (
                   <div key={code}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: `${gi === 0 ? "0" : "1.5rem"} 0 0.75rem`, color: "var(--ink-soft)", fontSize: 13, fontFamily: "var(--font-body)" }}>
