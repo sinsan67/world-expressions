@@ -469,28 +469,6 @@ function SearchPageContent() {
               emoji={tagIcon(query.trim()) ?? undefined}
             />
           </div>
-          {searchMode === "text" && hasResults && detectedSearchLang && (
-            <div style={{ maxWidth: 720, margin: "0 auto", padding: "0 1.5rem 0.5rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <span style={{ fontSize: 12, color: "var(--ink-soft)", fontFamily: "var(--font-body)" }}>
-                {LANG_FLAG[detectedSearchLang]} {LANG_NATIVE[detectedSearchLang]}{" "}
-                <span style={{ color: "var(--ink-faint)" }}>{t.detected}</span>
-              </span>
-              <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
-                <button
-                  onClick={() => setDisplayMode("split")}
-                  style={{ fontSize: 12, fontFamily: "var(--font-body)", padding: "0.2rem 0.65rem", borderRadius: "var(--r-md)", border: "1px solid var(--paper-edge)", background: displayMode === "split" ? "var(--plum)" : "transparent", color: displayMode === "split" ? "white" : "var(--ink-soft)", cursor: "pointer" }}
-                >
-                  {t.langFirst}
-                </button>
-                <button
-                  onClick={() => setDisplayMode("mix")}
-                  style={{ fontSize: 12, fontFamily: "var(--font-body)", padding: "0.2rem 0.65rem", borderRadius: "var(--r-md)", border: "1px solid var(--paper-edge)", background: displayMode === "mix" ? "var(--plum)" : "transparent", color: displayMode === "mix" ? "white" : "var(--ink-soft)", cursor: "pointer" }}
-                >
-                  🌍 {t.mixAll}
-                </button>
-              </div>
-            </div>
-          )}
           {hasResults && (
             <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
               <ResultsFilterBar
@@ -516,6 +494,55 @@ function SearchPageContent() {
                 ? `${total} expression${total > 1 ? "s" : ""}${conceptDisplayName ? ` — ${conceptDisplayName}` : ""}`
                 : t.results(total, qParam)}
             </p>
+          )}
+
+          {searchMode === "text" && hasResults && detectedSearchLang && (
+            <div style={{
+              display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.625rem",
+              background: "rgba(107, 77, 143, 0.06)",
+              border: "1px solid rgba(107, 77, 143, 0.18)",
+              borderRadius: "var(--r-md)",
+              padding: "0.5rem 0.875rem",
+              marginBottom: "1.25rem",
+            }}>
+              <span style={{ fontSize: 12, color: "var(--ink-softer)", fontFamily: "var(--font-body)", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                {LANG_FLAG[detectedSearchLang]} {LANG_NATIVE[detectedSearchLang]}
+                <span style={{ color: "var(--ink-faint)", fontWeight: 400 }}>{t.detected}</span>
+              </span>
+              <div style={{ width: 1, height: 14, background: "rgba(107,77,143,0.2)", flexShrink: 0 }} />
+              <div style={{
+                display: "flex", marginLeft: "auto",
+                background: "var(--paper)", border: "1px solid rgba(107,77,143,0.2)",
+                borderRadius: "var(--r-md)", overflow: "hidden",
+              }}>
+                <button
+                  onClick={() => setDisplayMode("split")}
+                  style={{
+                    fontSize: 12, fontFamily: "var(--font-body)",
+                    padding: "0.3rem 0.8rem",
+                    border: "none", borderRight: "1px solid rgba(107,77,143,0.2)",
+                    background: displayMode === "split" ? "var(--plum)" : "transparent",
+                    color: displayMode === "split" ? "white" : "var(--ink-soft)",
+                    cursor: "pointer", fontWeight: displayMode === "split" ? 600 : 400,
+                  }}
+                >
+                  {t.langFirst}
+                </button>
+                <button
+                  onClick={() => setDisplayMode("mix")}
+                  style={{
+                    fontSize: 12, fontFamily: "var(--font-body)",
+                    padding: "0.3rem 0.8rem",
+                    border: "none",
+                    background: displayMode === "mix" ? "var(--plum)" : "transparent",
+                    color: displayMode === "mix" ? "white" : "var(--ink-soft)",
+                    cursor: "pointer", fontWeight: displayMode === "mix" ? 600 : 400,
+                  }}
+                >
+                  🌍 {t.mixAll}
+                </button>
+              </div>
+            </div>
           )}
 
           {hasResults && (
