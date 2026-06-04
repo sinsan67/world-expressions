@@ -8,12 +8,9 @@ import { getTypeLabel } from "@/lib/typeLabels";
 import { FLAG } from "@/lib/constants";
 import { cap } from "@/lib/utils";
 import { toggleFavorite, isFavorite } from "@/lib/carnet";
+import { useAudio } from "@/lib/useAudio";
 import { Heart, Volume2, VolumeX } from "lucide-react";
 import Link from "next/link";
-
-const SPEECH_LANG: Record<string, string> = {
-  fr: "fr-FR", en: "en-GB", es: "es-ES", it: "it-IT", tr: "tr-TR",
-};
 
 const ORIGIN_EXAMPLE_LABEL: Record<string, { toggle: string; origin: string }> = {
   fr: { toggle: "Origine & exemple", origin: "Origine" },
@@ -31,6 +28,14 @@ const REGISTER_LABEL: Record<string, Record<string, string>> = {
   it: { standard: "standard", informal: "informale", slang: "slang", vulgar: "volgare", formal: "formale" },
 };
 
+const NO_VOICE_LABEL: Record<string, string> = {
+  fr: "Voix non disponible sur cet appareil",
+  en: "Voice not available on this device",
+  es: "Voz no disponible en este dispositivo",
+  it: "Voce non disponibile su questo dispositivo",
+  tr: "Bu cihazda ses mevcut değil",
+};
+
 type Props = {
   expression: Expression;
   onTagClick: (tag: string) => void;
@@ -42,19 +47,15 @@ type Props = {
 export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr", tagNames = {}, fromSearch }: Props) {
   const [showDetails, setShowDetails] = useState(false);
   const [fav, setFav] = useState(false);
-  const [speaking, setSpeaking] = useState(false);
+  const { speaking, voiceAvailable, handleListen } = useAudio(e.expression, e.language);
   const router = useRouter();
   const flag = FLAG[e.region] || "";
   const typeLabel = getTypeLabel(e.type ?? "expression", uiLang);
   const oeLabel = ORIGIN_EXAMPLE_LABEL[uiLang] ?? ORIGIN_EXAMPLE_LABEL.en;
+  const noVoiceLabel = NO_VOICE_LABEL[uiLang] ?? NO_VOICE_LABEL.en;
 
   // Read from localStorage only on the client (avoids SSR/hydration mismatch)
   useEffect(() => { setFav(isFavorite(e.id)); }, [e.id]);
-
-  // Stop speech when card unmounts
-  useEffect(() => {
-    return () => { if (typeof window !== "undefined") window.speechSynthesis?.cancel(); };
-  }, []);
 
   function handleFav(ev: React.MouseEvent) {
     ev.stopPropagation();
@@ -62,21 +63,10 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
     setFav((v) => !v);
   }
 
-  function handleListen(ev: React.MouseEvent) {
-    ev.stopPropagation();
-    if (typeof window === "undefined" || !window.speechSynthesis) return;
-    if (speaking) {
-      window.speechSynthesis.cancel();
-      setSpeaking(false);
-      return;
-    }
-    const utterance = new SpeechSynthesisUtterance(e.expression);
-    utterance.lang = SPEECH_LANG[e.language] || e.language;
-    utterance.onend = () => setSpeaking(false);
-    utterance.onerror = () => setSpeaking(false);
-    setSpeaking(true);
-    window.speechSynthesis.speak(utterance);
-  }
+  const audioDisabled = voiceAvailable === false;
+  const audioTitle = audioDisabled
+    ? noVoiceLabel
+    : speaking ? "Arrêter" : "Écouter l'expression";
 
   return (
     <div
@@ -145,19 +135,21 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
               </a>
             )}
             <button
-              onClick={handleListen}
-              title={speaking ? "Arrêter" : "Écouter l'expression"}
+              onClick={audioDisabled ? (ev) => ev.stopPropagation() : handleListen}
+              title={audioTitle}
+              disabled={audioDisabled}
               style={{
                 background: "none",
                 border: "none",
-                cursor: "pointer",
+                cursor: audioDisabled ? "not-allowed" : "pointer",
                 padding: "2px 0",
                 lineHeight: 1,
+                opacity: audioDisabled ? 0.3 : 1,
                 color: speaking ? "var(--plum)" : "var(--ink-faint)",
-                transition: "color 150ms ease, transform 150ms ease",
+                transition: "color 150ms ease",
               }}
-              onMouseEnter={(ev) => { (ev.currentTarget as HTMLElement).style.color = "var(--plum)"; }}
-              onMouseLeave={(ev) => { (ev.currentTarget as HTMLElement).style.color = speaking ? "var(--plum)" : "var(--ink-faint)"; }}
+              onMouseEnter={(ev) => { if (!audioDisabled) (ev.currentTarget as HTMLElement).style.color = "var(--plum)"; }}
+              onMouseLeave={(ev) => { if (!audioDisabled) (ev.currentTarget as HTMLElement).style.color = speaking ? "var(--plum)" : "var(--ink-faint)"; }}
             >
               {speaking
                 ? <VolumeX size={15} strokeWidth={1.5} />
