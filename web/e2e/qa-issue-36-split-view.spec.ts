@@ -24,8 +24,8 @@ test("S1 — badge langue détecté + toggle + split sections visibles", async (
   await expect(page.getByRole("button", { name: /tout mélanger/i })).toBeVisible();
 
   // Sous-sections "Dans le texte" et "Par le sens" présentes
-  await expect(page.getByText(/dans le texte/i)).toBeVisible();
-  await expect(page.getByText(/par le sens/i)).toBeVisible();
+  await expect(page.getByText(/dans le texte/i).first()).toBeVisible();
+  await expect(page.getByText(/par le sens/i).first()).toBeVisible();
 
   // Section "Dans les autres langues" présente plus bas
   await expect(page.getByText(/dans les autres langues/i)).toBeVisible();
