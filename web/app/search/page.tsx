@@ -19,10 +19,12 @@ const LIMIT = 20;
 type UILang = "fr" | "en" | "es" | "it" | "tr";
 
 const LANG_FLAG: Record<string, string> = {
-  fr: "🇫🇷", en: "🇬🇧", es: "🇪🇸", it: "🇮🇹", tr: "🇹🇷",
+  fr: "🇫🇷", en: "🇬🇧", uk: "🇬🇧", us: "🇺🇸", gb: "🇬🇧", au: "🇦🇺",
+  es: "🇪🇸", it: "🇮🇹", tr: "🇹🇷",
 };
 const LANG_NATIVE: Record<string, string> = {
-  fr: "Français", en: "English", es: "Español", it: "Italiano", tr: "Türkçe",
+  fr: "Français", en: "English", uk: "English", us: "English", gb: "English", au: "English",
+  es: "Español", it: "Italiano", tr: "Türkçe",
 };
 
 const MAX_SECTION_PREVIEW = 6;
