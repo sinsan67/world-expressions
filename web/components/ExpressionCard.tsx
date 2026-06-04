@@ -8,8 +8,12 @@ import { getTypeLabel } from "@/lib/typeLabels";
 import { FLAG } from "@/lib/constants";
 import { cap } from "@/lib/utils";
 import { toggleFavorite, isFavorite } from "@/lib/carnet";
-import { Heart } from "lucide-react";
+import { Heart, Volume2, VolumeX } from "lucide-react";
 import Link from "next/link";
+
+const SPEECH_LANG: Record<string, string> = {
+  fr: "fr-FR", en: "en-GB", es: "es-ES", it: "it-IT", tr: "tr-TR",
+};
 
 const ORIGIN_EXAMPLE_LABEL: Record<string, { toggle: string; origin: string }> = {
   fr: { toggle: "Origine & exemple", origin: "Origine" },
@@ -38,6 +42,7 @@ type Props = {
 export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr", tagNames = {}, fromSearch }: Props) {
   const [showDetails, setShowDetails] = useState(false);
   const [fav, setFav] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
   const router = useRouter();
   const flag = FLAG[e.region] || "";
   const typeLabel = getTypeLabel(e.type ?? "expression", uiLang);
@@ -46,10 +51,31 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
   // Read from localStorage only on the client (avoids SSR/hydration mismatch)
   useEffect(() => { setFav(isFavorite(e.id)); }, [e.id]);
 
+  // Stop speech when card unmounts
+  useEffect(() => {
+    return () => { if (typeof window !== "undefined") window.speechSynthesis?.cancel(); };
+  }, []);
+
   function handleFav(ev: React.MouseEvent) {
     ev.stopPropagation();
     toggleFavorite(e.id);
     setFav((v) => !v);
+  }
+
+  function handleListen(ev: React.MouseEvent) {
+    ev.stopPropagation();
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    if (speaking) {
+      window.speechSynthesis.cancel();
+      setSpeaking(false);
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(e.expression);
+    utterance.lang = SPEECH_LANG[e.language] || e.language;
+    utterance.onend = () => setSpeaking(false);
+    utterance.onerror = () => setSpeaking(false);
+    setSpeaking(true);
+    window.speechSynthesis.speak(utterance);
   }
 
   return (
@@ -118,6 +144,25 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
                 ↗
               </a>
             )}
+            <button
+              onClick={handleListen}
+              title={speaking ? "Arrêter" : "Écouter l'expression"}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: "2px 0",
+                lineHeight: 1,
+                color: speaking ? "var(--plum)" : "var(--ink-faint)",
+                transition: "color 150ms ease, transform 150ms ease",
+              }}
+              onMouseEnter={(ev) => { (ev.currentTarget as HTMLElement).style.color = "var(--plum)"; }}
+              onMouseLeave={(ev) => { (ev.currentTarget as HTMLElement).style.color = speaking ? "var(--plum)" : "var(--ink-faint)"; }}
+            >
+              {speaking
+                ? <VolumeX size={15} strokeWidth={1.5} />
+                : <Volume2 size={15} strokeWidth={1.5} />}
+            </button>
             <button
               onClick={handleFav}
               title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}

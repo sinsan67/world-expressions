@@ -41,6 +41,7 @@ const T: Record<UILang, {
   otherLangs: string;
   detected: string;
   othersEquivalents: string;
+  sameIdeaTitle: string;
 }> = {
   fr: {
     placeholder: "Essaie : pied, argent, animal, partir…",
@@ -62,6 +63,7 @@ const T: Record<UILang, {
     otherLangs: "Dans les autres langues",
     detected: "· détecté",
     othersEquivalents: "Équivalents",
+    sameIdeaTitle: "Même idée dans les autres langues",
   },
   en: {
     placeholder: "Try: money, animal, leave, fear…",
@@ -83,6 +85,7 @@ const T: Record<UILang, {
     otherLangs: "In other languages",
     detected: "· detected",
     othersEquivalents: "Equivalents",
+    sameIdeaTitle: "Same idea in other languages",
   },
   es: {
     placeholder: "Prueba: dinero, animal, partir, miedo…",
@@ -104,6 +107,7 @@ const T: Record<UILang, {
     otherLangs: "En otros idiomas",
     detected: "· detectado",
     othersEquivalents: "Equivalentes",
+    sameIdeaTitle: "La misma idea en otros idiomas",
   },
   it: {
     placeholder: "Prova: soldi, animale, partire, paura…",
@@ -125,6 +129,7 @@ const T: Record<UILang, {
     otherLangs: "In altre lingue",
     detected: "· rilevato",
     othersEquivalents: "Equivalenti",
+    sameIdeaTitle: "La stessa idea in altre lingue",
   },
   tr: {
     placeholder: "Dene: para, hayvan, korku, ayrılmak…",
@@ -146,6 +151,7 @@ const T: Record<UILang, {
     otherLangs: "Diğer dillerde",
     detected: "· algılandı",
     othersEquivalents: "Eşdeğerler",
+    sameIdeaTitle: "Diğer dillerde aynı fikir",
   },
 };
 
@@ -182,6 +188,8 @@ function SearchPageContent() {
   const [sortMode, setSortMode] = useState<"relevance" | "country">("relevance");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [displayMode, setDisplayMode] = useState<"split" | "mix">("split");
+  const [conceptBridgeResults, setConceptBridgeResults] = useState<Expression[]>([]);
+  const [detectedConceptSlugs, setDetectedConceptSlugs] = useState<string[]>([]);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const allRegionCodes = regions.map((r) => r.code);
   const t = T[uiLang];
@@ -257,6 +265,8 @@ function SearchPageContent() {
     setHasMore(false);
     setExpandedSections(new Set());
     setDisplayMode("split");
+    setConceptBridgeResults([]);
+    setDetectedConceptSlugs([]);
     try {
       let data;
       if (domain && !q && !concept) {
@@ -268,6 +278,12 @@ function SearchPageContent() {
       } else {
         setSearchMode("text");
         data = await searchExpressions(q, regionCodes, LIMIT, 0, undefined, lang);
+        if (data.detected_concepts?.length) {
+          setDetectedConceptSlugs(data.detected_concepts);
+          searchByConcept(data.detected_concepts, allCodes, 12, 0).then(bridge => {
+            setConceptBridgeResults(bridge.results);
+          }).catch(() => {});
+        }
       }
       setResults(data.results);
       setTotal(data.total);
@@ -588,6 +604,7 @@ function SearchPageContent() {
               )}
               {langSplitSections ? (
                 <>
+                  {/* Section 1: expressions dans la langue détectée */}
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: "0 0 0.25rem", color: "var(--ink-soft)", fontSize: 13, fontFamily: "var(--font-body)" }}>
                       <span>{LANG_FLAG[langSplitSections.main.lang]}</span>
@@ -597,14 +614,51 @@ function SearchPageContent() {
                     {renderSubSection("exact", langSplitSections.main.exact, "split-main-exact")}
                     {renderSubSection("semantic", langSplitSections.main.semantic, "split-main-semantic")}
                   </div>
-                  {(langSplitSections.others.exact.length > 0 || langSplitSections.others.semantic.length > 0) && (
+
+                  {/* Section 2: même idée dans les autres langues (concept bridge) */}
+                  {(() => {
+                    const existingIds = new Set(results.map(r => r.id));
+                    const bridgeExprs = conceptBridgeResults.filter(
+                      r => r.language !== langSplitSections!.main.lang && !existingIds.has(r.id)
+                    );
+                    if (bridgeExprs.length === 0) return null;
+                    const isExpanded = expandedSections.has("bridge");
+                    const visible = isExpanded ? bridgeExprs : bridgeExprs.slice(0, MAX_SECTION_PREVIEW);
+                    const hidden = bridgeExprs.length - MAX_SECTION_PREVIEW;
+                    return (
+                      <div data-testid="same-idea-section" style={{ marginTop: "2rem", borderTop: "1px solid var(--paper-edge)", paddingTop: "1.5rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: "0 0 0.75rem", color: "var(--ink-soft)", fontSize: 13, fontFamily: "var(--font-body)" }}>
+                          <span>💡</span>
+                          <span style={{ fontWeight: 600 }}>{t.sameIdeaTitle}</span>
+                          <span style={{ color: "var(--ink-faint)" }}>· {sectionExprCount(bridgeExprs.length, uiLang)}</span>
+                        </div>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
+                          {visible.map((expr, i) => (
+                            <div key={expr.id} style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
+                              <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} />
+                            </div>
+                          ))}
+                        </div>
+                        {!isExpanded && hidden > 0 && (
+                          <button
+                            onClick={() => setExpandedSections(prev => new Set(prev).add("bridge"))}
+                            style={{ marginTop: "0.75rem", background: "none", border: "none", color: "var(--ink-soft)", fontSize: 12, fontFamily: "var(--font-body)", cursor: "pointer", padding: "0.25rem 0", textDecoration: "underline", textUnderlineOffset: 3 }}
+                          >
+                            {t.showMore(hidden)}
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })()}
+
+                  {/* Section 3: autres langues via traductions */}
+                  {(langSplitSections.others.semantic.length > 0) && (
                     <div style={{ marginTop: "2rem" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: "0 0 0.25rem", color: "var(--ink-soft)", fontSize: 13, fontFamily: "var(--font-body)", borderTop: "1px solid var(--paper-edge)", paddingTop: "1.5rem" }}>
                         <span>🌍</span>
                         <span style={{ fontWeight: 600 }}>{t.otherLangs}</span>
-                        <span style={{ color: "var(--ink-faint)" }}>· {sectionExprCount(langSplitSections.others.exact.length + langSplitSections.others.semantic.length, uiLang)}</span>
+                        <span style={{ color: "var(--ink-faint)" }}>· {sectionExprCount(langSplitSections.others.semantic.length, uiLang)}</span>
                       </div>
-                      {renderSubSection("exact", langSplitSections.others.exact, "split-others-exact", { icon: "🔗", label: t.othersEquivalents })}
                       {renderSubSection("semantic", langSplitSections.others.semantic, "split-others-semantic")}
                     </div>
                   )}
@@ -636,7 +690,7 @@ function SearchPageContent() {
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: `${gi === 0 ? "0" : "1.5rem"} 0 0.75rem`, color: "var(--ink-faint)", fontSize: 12, fontFamily: "var(--font-body)", letterSpacing: "0.03em" }}>
                       <span>{{ exact: "🎯", semantic: "✨", concept: "🏷️", translation: "🌍" }[type]}</span>
                       <span style={{ fontWeight: 600, color: "var(--ink-softer)" }}>{t.matchSections[type] ?? type}</span>
-                      <span>· {sectionExprCount(exprs.length, uiLang)}</span>
+                      {searchMode !== "concept" && <span>· {sectionExprCount(exprs.length, uiLang)}</span>}
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
                       {visible.map((expr, i) => (

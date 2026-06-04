@@ -6,7 +6,7 @@ import { Home, Globe, Lightbulb, Heart } from "lucide-react";
 const NAV_ITEMS = [
   { id: "home",      icon: Home,       href: "/" },
   { id: "atlas",     icon: Globe,      href: "/atlas" },
-  { id: "concepts",  icon: Lightbulb,  href: "/concepts" },
+  { id: "concepts",  icon: Lightbulb,  href: "/emoji" },
   { id: "favorites", icon: Heart,      href: "/carnet" },
 ];
 

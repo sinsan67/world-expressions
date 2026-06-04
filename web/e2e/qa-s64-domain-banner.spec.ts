@@ -1,10 +1,10 @@
 /**
- * QA — S64 : Domain banner + fix label "Équivalents" + bouton expressions /concepts
+ * QA — S64 : Domain banner + fix label "Équivalents" + bouton expressions /emoji
  *
  * S1 — /search?domain=X : bandeau visuel visible (emoji + nom + compteur)
  * S2 — split view : sous-section "others" étiquetée "🔗 Équivalents" (pas "Dans le texte")
  * S3 — mix view : "Par concept" toujours présent (non-régression)
- * S4 — /concepts?domain=X : bouton "Voir les N expressions →" visible et fonctionnel
+ * S4 — /emoji?domain=X : bouton "Voir les N expressions →" visible et fonctionnel
  */
 
 import { test, expect } from "@playwright/test";
@@ -102,10 +102,10 @@ test("S3 — mix view : section Par concept toujours présente si résultats con
   await expect(page.getByText(/dans le texte/i)).toBeVisible({ timeout: 5_000 });
 });
 
-// ─── S4 : Bouton "Voir les N expressions" dans /concepts?domain=X ────────────
+// ─── S4 : Bouton "Voir les N expressions" dans /emoji?domain=X ────────────
 
-test("S4a — /concepts : clic domaine → bouton Voir expressions visible", async ({ page }) => {
-  await page.goto("/concepts");
+test("S4a — /emoji : clic domaine → bouton Voir expressions visible", async ({ page }) => {
+  await page.goto("/emoji");
 
   // Attendre les cartes domaines
   const domainCard = page.locator('[data-testid="domain-card"]').first();
@@ -120,7 +120,7 @@ test("S4a — /concepts : clic domaine → bouton Voir expressions visible", asy
 });
 
 test("S4b — clic bouton 'Voir expressions' navigue vers /search?domain=X", async ({ page }) => {
-  await page.goto("/concepts");
+  await page.goto("/emoji");
 
   // Attendre et cliquer sur le premier domaine
   const domainCard = page.locator('[data-testid="domain-card"]').first();
@@ -136,8 +136,8 @@ test("S4b — clic bouton 'Voir expressions' navigue vers /search?domain=X", asy
   await expect(page).toHaveURL(/\/search\?domain=\w+/, { timeout: 10_000 });
 });
 
-test("S4c — /concepts?domain=emotions direct : bouton expressions visible", async ({ page }) => {
-  await page.goto("/concepts?domain=emotions");
+test("S4c — /emoji?domain=emotions direct : bouton expressions visible", async ({ page }) => {
+  await page.goto("/emoji?domain=emotions");
 
   // Le bouton Voir expressions doit être présent (ouverture directe par URL)
   const seeExpressionsBtn = page.getByRole("button", { name: /voir les .* expressions|see .* expressions|ver .* expresiones|vedi .* espressioni|\d+ deyimi gör/i });
