@@ -9,12 +9,14 @@ const SPEECH_LANG: Record<string, string> = {
 function findVoice(language: string): SpeechSynthesisVoice | undefined {
   if (typeof window === "undefined" || !window.speechSynthesis) return undefined;
   const voices = window.speechSynthesis.getVoices();
+  if (voices.length === 0) return undefined;
   const targetCode = SPEECH_LANG[language] || language;
   const langPrefix = targetCode.split("-")[0]; // "it" from "it-IT"
   return (
     voices.find((v) => v.lang === targetCode) ??
     voices.find((v) => v.lang.startsWith(langPrefix + "-")) ??
-    voices.find((v) => v.lang.startsWith(langPrefix))
+    voices.find((v) => v.lang.startsWith(langPrefix)) ??
+    voices[0] // fallback: wrong accent is better than no audio
   );
 }
 
@@ -23,8 +25,8 @@ function findVoice(language: string): SpeechSynthesisVoice | undefined {
  *
  * voiceAvailable:
  *   null  = still checking (voices not loaded yet)
- *   true  = a voice matching the language is installed
- *   false = no matching voice found — don't fall back to a wrong accent
+ *   true  = at least one voice is available (may not match the expression's language)
+ *   false = Web Speech API absent or no voices at all on this device
  */
 export function useAudio(text: string, language: string) {
   const [speaking, setSpeaking] = useState(false);
@@ -60,7 +62,7 @@ export function useAudio(text: string, language: string) {
         return;
       }
       const voice = findVoice(language);
-      if (!voice) return; // no matching voice — refuse to play with wrong accent
+      if (!voice) return;
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.voice = voice;
       utterance.lang = voice.lang;
