@@ -107,7 +107,7 @@ export default function DomainPage() {
 
     Promise.all([
       getConcepts(uiLang, "", slug, 1),
-      searchByDomain(slug, [], LIMIT, 0),
+      searchByDomain(slug, [], LIMIT, 0, uiLang),
       getAllTagNames(uiLang),
     ])
       .then(([conceptsData, exprData, names]) => {
@@ -125,13 +125,13 @@ export default function DomainPage() {
     if (loadingMore) return;
     setLoadingMore(true);
     try {
-      const data = await searchByDomain(slug, [], LIMIT, offset);
+      const data = await searchByDomain(slug, [], LIMIT, offset, uiLang);
       setExpressions((prev) => [...prev, ...data.results]);
       setOffset((o) => o + LIMIT);
     } finally {
       setLoadingMore(false);
     }
-  }, [slug, offset, loadingMore]);
+  }, [slug, offset, loadingMore, uiLang]);
 
   const changeLang = useCallback((lang: UILang) => {
     setUILang(lang);

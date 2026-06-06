@@ -88,7 +88,8 @@ export async function searchByConcept(
   regions: string[],
   limit = 20,
   offset = 0,
-  typeFilter?: string
+  typeFilter?: string,
+  lang?: string
 ): Promise<ConceptResponse> {
   const params = new URLSearchParams({
     tags: tags.join(","),
@@ -97,6 +98,7 @@ export async function searchByConcept(
     offset: String(offset),
   });
   if (typeFilter) params.set("type_filter", typeFilter);
+  if (lang) params.set("locale", lang);
   const res = await fetch(`${API}/concept?${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();
@@ -106,7 +108,8 @@ export async function searchByDomain(
   domain: string,
   regions: string[],
   limit = 20,
-  offset = 0
+  offset = 0,
+  lang?: string
 ): Promise<ConceptResponse> {
   const params = new URLSearchParams({
     domain,
@@ -114,6 +117,7 @@ export async function searchByDomain(
     limit: String(limit),
     offset: String(offset),
   });
+  if (lang) params.set("locale", lang);
   const res = await fetch(`${API}/concept?${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();
@@ -123,7 +127,8 @@ export async function browseByRegion(
   regions: string[],
   limit = 20,
   offset = 0,
-  typeFilter?: string
+  typeFilter?: string,
+  lang?: string
 ): Promise<SearchResponse> {
   const params = new URLSearchParams({
     region: regions.join(","),
@@ -131,6 +136,7 @@ export async function browseByRegion(
     offset: String(offset),
   });
   if (typeFilter) params.set("type_filter", typeFilter);
+  if (lang) params.set("locale", lang);
   const res = await fetch(`${API}/browse?${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();

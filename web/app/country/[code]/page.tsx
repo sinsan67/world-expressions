@@ -190,17 +190,17 @@ function CountryPageContent({ code }: { code: string }) {
     async (tag: string | null, query: string | null, offset: number, tf: string | null = null) => {
       const typeParam = tf || undefined;
       if (query && query.trim()) {
-        const r = await searchExpressions(query.trim(), [code], LIMIT, offset, typeParam);
+        const r = await searchExpressions(query.trim(), [code], LIMIT, offset, typeParam, uiLang);
         return { results: r.results, total: r.total };
       }
       if (tag) {
-        const r = await searchByConcept([tag], [code], LIMIT, offset, typeParam);
+        const r = await searchByConcept([tag], [code], LIMIT, offset, typeParam, uiLang);
         return { results: r.results, total: r.total };
       }
-      const r = await browseByRegion([code], LIMIT, offset, typeParam);
+      const r = await browseByRegion([code], LIMIT, offset, typeParam, uiLang);
       return { results: r.results, total: r.total };
     },
-    [code]
+    [code, uiLang]
   );
 
   const load = useCallback(
