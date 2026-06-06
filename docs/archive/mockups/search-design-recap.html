@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atelier Search — World Expressions · S61</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --plum: #6b4d8f;
+    --plum-light: #efe0ff;
+    --terra: #c1543a;
+    --terra-light: #f5e6e3;
+    --ink: #1a1a1a;
+    --ink-soft: #555;
+    --ink-faint: #aaa;
+    --paper: #faf9f7;
+    --paper-deep: #f0ede8;
+    --paper-edge: #e5e2de;
+    --green: #4d8f6b;
+    --green-light: #e8f5ee;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    background: linear-gradient(135deg, var(--plum) 0%, #4a2d6b 60%, #2d1a45 100%);
+    color: white;
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "💬🔍💡🌍🎯💰😢❤️";
+    position: absolute;
+    font-size: 80px;
+    opacity: 0.06;
+    top: 10px;
+    left: -20px;
+    letter-spacing: 20px;
+    line-height: 1.2;
+    transform: rotate(-5deg);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 5px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.5px;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: #d4b8ff;
+  }
+  .hero p {
+    font-size: 17px;
+    opacity: 0.8;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+  .hero-meta {
+    margin-top: 2rem;
+    font-size: 13px;
+    opacity: 0.5;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Layout ── */
+  .container { max-width: 780px; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* ── Timeline ── */
+  .timeline { padding: 3rem 0; }
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    align-items: start;
+  }
+  .timeline-icon {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-top: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  .icon-plum  { background: var(--plum-light); }
+  .icon-terra { background: var(--terra-light); }
+  .icon-green { background: var(--green-light); }
+  .icon-gold  { background: #fff8e0; }
+  .icon-dark  { background: #1a1a1a; }
+
+  .timeline-content {}
+  .timeline-step {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .timeline-content h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--ink);
+  }
+  .timeline-content p {
+    font-size: 15px;
+    color: var(--ink-soft);
+    margin-bottom: 0.75rem;
+  }
+
+  /* ── Quote ── */
+  .quote {
+    border-left: 3px solid var(--plum);
+    background: var(--plum-light);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 1rem 0;
+    font-size: 14px;
+    color: var(--plum);
+    font-style: italic;
+  }
+  .quote strong { font-style: normal; font-weight: 600; color: var(--plum); }
+
+  /* ── Decision card ── */
+  .decision {
+    background: white;
+    border: 1px solid var(--paper-edge);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 1rem 0;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .decision-emoji { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .decision-body {}
+  .decision-label { font-size: 11px; font-weight: 600; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+  .decision-text { font-size: 14px; color: var(--ink); font-weight: 500; }
+  .decision-sub { font-size: 13px; color: var(--ink-soft); margin-top: 3px; }
+
+  /* ── Mockup inline ── */
+  .mockup-inline {
+    background: white;
+    border: 1px solid var(--paper-edge);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 1rem 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .mockup-bar {
+    background: var(--paper-deep);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid var(--paper-edge);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #ffbd2e; }
+  .dot-green { background: #28c840; }
+  .mockup-url { font-size: 12px; color: var(--ink-faint); margin-left: 8px; font-family: monospace; }
+  .mockup-body { padding: 16px; }
+
+  /* ── Search bar mock ── */
+  .mock-search {
+    display: flex; gap: 8px; align-items: center; margin-bottom: 10px;
+  }
+  .mock-input {
+    flex: 1; border: 1.5px solid var(--plum); border-radius: 20px;
+    padding: 8px 16px; font-size: 14px; color: var(--ink);
+    font-family: 'Inter', sans-serif;
+  }
+  .mock-chip {
+    flex: 1; border: 2px solid var(--plum); border-radius: 20px;
+    padding: 7px 14px; font-size: 14px;
+    background: var(--plum-light); color: var(--plum);
+    font-weight: 600; display: flex; align-items: center; gap: 8px;
+    font-family: 'Inter', sans-serif;
+  }
+  .mock-chip-x { margin-left: auto; color: #9b79bf; font-weight: 300; }
+  .mock-btn {
+    background: var(--plum); color: white; border: none;
+    border-radius: 20px; padding: 8px 18px; font-size: 13px;
+    font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;
+  }
+  .mock-badge {
+    font-size: 12px; color: var(--plum); background: var(--plum-light);
+    border-radius: 6px; padding: 3px 10px; font-weight: 500;
+  }
+  .mock-toggle {
+    display: flex; background: var(--paper-deep); border-radius: 8px;
+    padding: 3px; gap: 2px; margin-left: auto;
+  }
+  .mock-toggle-btn {
+    border: none; border-radius: 6px; padding: 4px 10px;
+    font-size: 12px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer;
+  }
+  .mock-toggle-btn.active {
+    background: white; color: var(--plum);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+  .mock-toggle-btn.inactive { background: transparent; color: var(--ink-faint); }
+
+  /* ── Section header mock ── */
+  .mock-section-hdr {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 0; border-bottom: 2px solid var(--paper-edge);
+    margin-bottom: 8px; font-size: 15px; font-weight: 700;
+  }
+  .mock-sub-hdr {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; color: var(--ink-faint);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    margin: 8px 0 6px;
+  }
+  .mock-card {
+    background: var(--paper); border: 1px solid var(--paper-edge);
+    border-radius: 8px; padding: 8px 12px; margin-bottom: 5px;
+    font-size: 13px;
+  }
+  .mock-card.exact { border-left: 3px solid var(--plum); }
+  .mock-card.semantic { border-left: 3px solid var(--green); }
+  .mock-card-title { font-weight: 600; color: var(--ink); }
+  .mock-card-sub { color: var(--ink-soft); font-size: 12px; }
+  .mock-card mark { background: var(--plum-light); color: var(--plum); border-radius: 3px; padding: 0 2px; }
+  .mock-card .equiv { background: var(--terra-light); color: var(--terra); border-radius: 3px; padding: 0 3px; font-weight: 600; }
+  .lang-badge {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    border-radius: 4px; padding: 1px 5px; margin-right: 4px;
+  }
+  .lang-fr { background: #eef; color: #446; }
+  .lang-tr { background: #fee; color: #844; }
+  .lang-es { background: #ffe; color: #664; }
+  .lang-it { background: #efe; color: #464; }
+  .lang-en { background: #e8f0ff; color: #336; }
+  .mock-more { font-size: 12px; color: var(--plum); margin-top: 4px; cursor: pointer; }
+  .mock-divider { border: none; border-top: 2px dashed var(--paper-edge); margin: 12px 0; }
+
+  .mock-related {
+    background: var(--paper-deep); border-radius: 8px; padding: 10px 14px; margin-bottom: 10px;
+  }
+  .mock-related-label { font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .mock-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mock-chip-sm {
+    border: 1px solid var(--paper-edge); border-radius: 20px;
+    padding: 4px 10px; font-size: 12px; cursor: pointer; background: white;
+  }
+  .mock-chip-sm:hover { background: var(--plum-light); }
+
+  .mock-domain-grid {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;
+  }
+  .mock-domain-card {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 12px; border: 1px solid var(--paper-edge);
+    border-radius: 8px; background: white; cursor: pointer; min-width: 60px;
+  }
+  .mock-domain-card.active { background: var(--plum); color: white; border-color: var(--plum); }
+  .mock-domain-card.active .domain-lbl { color: #ddd; }
+  .domain-emoji { font-size: 18px; }
+  .domain-lbl { font-size: 10px; color: var(--ink-faint); text-align: center; }
+
+  /* ── Decisions grid ── */
+  .decisions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 1rem 0;
+  }
+  @media (max-width: 600px) { .decisions-grid { grid-template-columns: 1fr; } }
+
+  /* ── Final block ── */
+  .final-block {
+    background: linear-gradient(135deg, var(--plum), #4a2d6b);
+    color: white; border-radius: 16px; padding: 2.5rem;
+    margin: 3rem 0; text-align: center;
+  }
+  .final-block h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 1rem; }
+  .final-block p { opacity: 0.8; font-size: 15px; margin-bottom: 0.5rem; }
+  .commit-badge {
+    display: inline-block; background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25); border-radius: 8px;
+    padding: 6px 14px; font-size: 13px; font-family: monospace;
+    margin-top: 1rem;
+  }
+
+  /* ── Section divider ── */
+  .section-sep {
+    display: flex; align-items: center; gap: 1rem; margin: 2rem 0;
+  }
+  .section-sep::before, .section-sep::after {
+    content: ""; flex: 1; border-top: 1px solid var(--paper-edge);
+  }
+  .section-sep span { font-size: 18px; }
+</style>
+</head>
+<body>
+
+<!-- ══════ HERO ══════ -->
+<div class="hero">
+  <div class="hero-badge">Atelier Design · S61 · 2026-06-04</div>
+  <h1>Comment on a réinventé<br><em>la recherche</em></h1>
+  <p>Une session de design en bonne compagnie, quelques mockups plus tard, et une architecture qui tient vraiment la route.</p>
+  <div class="hero-meta">World Expressions · Sinan × Claude</div>
+</div>
+
+<!-- ══════ TIMELINE ══════ -->
+<div class="container">
+<div class="timeline">
+
+  <!-- Acte 1 -->
+  <div class="timeline-item">
+    <div class="timeline-icon icon-terra">🐛</div>
+    <div class="timeline-content">
+      <div class="timeline-step">Acte 1 — L'héritage</div>
+      <h2>Deux bugs qui dormaient</h2>
+      <p>On avait identifié le problème en S58 et décidé de ne rien toucher avant d'avoir fait l'atelier complet. Sage décision — parce que derrière les deux bugs se cachait une question bien plus profonde.</p>
+      <div class="decision">
+        <div class="decision-emoji">🐛</div>
+        <div class="decision-body">
+          <div class="decision-label">Bug 1 — corrigé</div>
+          <div class="decision-text">Guard <code>searchMode !== "text"</code> bloquait les sections en mode domaine/concept</div>
+        </div>
+      </div>
+      <div class="decision">
+        <div class="decision-emoji">🐛</div>
+        <div class="decision-body">
+          <div class="decision-label">Bug 2 — corrigé</div>
+          <div class="decision-text"><code>match_type = "tag"</code> absent de l'ORDER frontend → résultats domaine invisibles</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acte 2 -->
+  <div class="timeline-item">
+    <div class="timeline-icon icon-plum">🤔</div>
+    <div class="timeline-content">
+      <div class="timeline-step">Acte 2 — La question fondamentale</div>
+      <h2>"Qu'est-ce qu'une recherche argent doit retourner ?"</h2>
+      <p>C'est la question qui a tout changé. Deux modes distincts, ou une seule recherche intelligente ? Sinan a posé le vrai problème :</p>
+      <div class="quote">
+        <strong>Sinan :</strong> "quand je recherche argent, je veux voir toutes les expressions qui contiennent le mot argent dans la langue originale et dans toutes les langues — par exemple 'para' en turc"
+      </div>
+      <p>La réponse ? Pas deux modes. Une seule recherche, avec trois niveaux de résultats — et des en-têtes qui <em>expliquent</em> pourquoi chaque résultat est là.</p>
+    </div>
+  </div>
+
+  <!-- Acte 3 : mockup 1 -->
+  <div class="timeline-item">
+    <div class="timeline-icon icon-gold">🎨</div>
+    <div class="timeline-content">
+      <div class="timeline-step">Acte 3 — Premier mockup</div>
+      <h2>Montrer plutôt qu'expliquer</h2>
+      <p>Plutôt qu'une longue description, un fichier HTML statique. Version 1 : trois sections à plat avec les emojis 🎯 💡 🌍.</p>
+      <div class="mockup-inline">
+        <div class="mockup-bar">
+          <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+          <span class="mockup-url">/search?q=argent</span>
+        </div>
+        <div class="mockup-body">
+          <div class="mock-search">
+            <div class="mock-input">argent</div>
+            <button class="mock-btn">Rechercher</button>
+          </div>
+          <div class="mock-sub-hdr"><span>🎯</span> Dans le texte <span style="color:var(--ink-faint);font-size:11px">· 14</span></div>
+          <div class="mock-card exact"><div class="mock-card-title">L'<mark>argent</mark> ne fait pas le bonheur</div></div>
+          <div class="mock-sub-hdr"><span>💡</span> Par le sens <span style="color:var(--ink-faint);font-size:11px">· 8</span></div>
+          <div class="mock-card semantic"><div class="mock-card-title">Avoir les poches percées</div></div>
+          <div class="mock-sub-hdr"><span>🌍</span> La même idée dans d'autres langues <span style="color:var(--ink-faint);font-size:11px">· 23</span></div>
+          <div class="mock-card"><div class="mock-card-title"><span class="equiv">Para</span> ile her şey olur</div><div class="mock-card-sub"><span class="lang-badge lang-tr">TR</span> para = argent</div></div>
+        </div>
+      </div>
+      <div class="quote">
+        <strong>Sinan :</strong> "J'aime beaucoup — mais on a bien les deux premières sections qui ne concernent que le français et la dernière les autres langues ?"
+      </div>
+      <p>Bonne observation. Le mockup était ambigu sur ce point. Ce qui a mené à la décision la plus structurante de la session.</p>
+    </div>
+  </div>
+
+  <!-- Acte 4 : la décision de la langue -->
+  <div class="timeline-item">
+    <div class="timeline-icon icon-plum">💡</div>
+    <div class="timeline-content">
+      <div class="timeline-step">Acte 4 — Le pivot</div>
+      <h2>La langue de la recherche, pas "ma langue"</h2>
+      <p>Deux grandes sections, pas trois. Et une précision qui change tout : si je tape "para" (turc), c'est les expressions turques qui montent en premier — même si mon interface est en français.</p>
+      <div class="decision">
+        <div class="decision-emoji">🎯</div>
+        <div class="decision-body">
+          <div class="decision-label">Décision clé</div>
+          <div class="decision-text">Le libellé "Ma langue" → remplacé par "Langue de la recherche"</div>
+          <div class="decision-sub">La distinction est fondamentale : c'est le mot tapé qui définit la langue, pas le profil utilisateur</div>
+        </div>
+      </div>
+      <div class="decision">
+        <div class="decision-emoji">🔍</div>
+        <div class="decision-body">
+          <div class="decision-label">Détection automatique</div>
+          <div class="decision-text">Post-search : majorité des résultats <code>match_type="exact"</code> → langue détectée</div>
+          <div class="decision-sub">Badge visible · Dropdown si ambiguïté · Fallback "Tout mélanger"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acte 5 : mockup 2 -->
+  <div class="timeline-item">
+    <div class="timeline-icon icon-gold">🎨</div>
+    <div class="timeline-content">
+      <div class="timeline-step">Acte 5 — Mockup v2</div>
+      <h2>Le toggle qui change tout</h2>
+      <p>Deuxième version du mockup avec les deux grandes sections + le toggle "Langue d'abord / 🌍 Tout mélanger". On peut cliquer pour voir les deux modes.</p>
+
+      <div class="mockup-inline">
+        <div class="mockup-bar">
+          <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+          <span class="mockup-url">/search?q=argent</span>
+        </div>
+        <div class="mockup-body">
+          <div class="mock-search">
+            <div class="mock-input">argent</div>
+            <span class="mock-badge">🇫🇷 Français détecté</span>
+            <button class="mock-btn">Rechercher</button>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+            <div class="mock-toggle">
+              <button class="mock-toggle-btn active">Langue d'abord</button>
+              <button class="mock-toggle-btn inactive">🌍 Tout mélanger</button>
+            </div>
+          </div>
+
+          <!-- Section 1 -->
+          <div class="mock-section-hdr">🇫🇷 Expressions françaises <span style="color:var(--ink-faint);font-size:13px;font-weight:400;margin-left:auto">22 résultats</span></div>
+          <div class="mock-sub-hdr"><span>🎯</span> Dans le texte <span style="color:var(--ink-faint);font-size:11px">14</span></div>
+          <div class="mock-card exact"><div class="mock-card-title">L'<mark>argent</mark> ne fait pas le bonheur</div></div>
+          <div class="mock-card exact"><div class="mock-card-title">Jeter l'<mark>argent</mark> par les fenêtres</div></div>
+          <div class="mock-more">Voir les 12 autres →</div>
+          <div class="mock-sub-hdr"><span>💡</span> Par le sens <span style="color:var(--ink-faint);font-size:11px">8</span></div>
+          <div class="mock-card semantic"><div class="mock-card-title">Avoir les poches percées</div></div>
+
+          <hr class="mock-divider" />
+
+          <!-- Section 2 -->
+          <div class="mock-section-hdr">🌍 Dans les autres langues <span style="color:var(--ink-faint);font-size:13px;font-weight:400;margin-left:auto">41 résultats</span></div>
+          <div class="mock-sub-hdr"><span>🎯</span> Dans le texte <span style="color:var(--ink-faint);font-size:11px">27 · via para / dinero / soldi / money</span></div>
+          <div class="mock-card exact"><div class="mock-card-title"><span class="equiv">Para</span> ile her şey olur</div><div class="mock-card-sub"><span class="lang-badge lang-tr">TR</span> para = argent</div></div>
+          <div class="mock-card exact"><div class="mock-card-title">El <span class="equiv">dinero</span> llama al dinero</div><div class="mock-card-sub"><span class="lang-badge lang-es">ES</span> dinero = argent</div></div>
+        </div>
+      </div>
+
+      <p>La réaction de Sinan : ça lui plaît beaucoup. Une seule question supplémentaire :</p>
+      <div class="quote">
+        <strong>Sinan :</strong> "plutôt que le libellé 'ma langue' il faudrait mettre 'langue de ma recherche' — même si j'ai l'interface en français, si je recherche un mot turc, les expressions turques doivent remonter en haut"
+      </div>
+    </div>
+  </div>
+
+  <!-- Acte 6 : mode emoji -->
+  <div class="timeline-item">
+    <div class="timeline-icon icon-plum">💰</div>
+    <div class="timeline-content">
+      <div class="timeline-step">Acte 6 — Le grand saut créatif</div>
+      <h2>Naissance du "mode emoji"</h2>
+      <p>On avait jusqu'ici parlé de "mode concept" — terme trop technique. Sinan a recadré l'idée d'une phrase :</p>
+      <div class="quote">
+        <strong>Sinan :</strong> "Moi je l'appelle mode emoji — c'est-à-dire que ça revient à chercher comme si on cherchait une image dans toutes les langues."
+      </div>
+      <p>Et avec ça, une vision nouvelle : les emojis comme porte d'entrée dans la base de données. Naviguer dans un univers sémantique par l'image plutôt que par le texte.</p>
+
+      <div class="decisions-grid">
+        <div class="decision">
+          <div class="decision-emoji">🔎</div>
+          <div class="decision-body">
+            <div class="decision-label">Entrée dans le mode</div>
+            <div class="decision-text">Chip dans la barre</div>
+            <div class="decision-sub">💰 Argent ✕ — violet, pas d'input texte</div>
+          </div>
+        </div>
+        <div class="decision">
+          <div class="decision-emoji">📋</div>
+          <div class="decision-body">
+            <div class="decision-label">Résultats</div>
+            <div class="decision-text">Flat, sans sous-sections</div>
+            <div class="decision-sub">Toutes langues mélangées en round-robin</div>
+          </div>
+        </div>
+        <div class="decision">
+          <div class="decision-emoji">🧭</div>
+          <div class="decision-body">
+            <div class="decision-label">Navigation latérale</div>
+            <div class="decision-text">Concepts connexes cliquables</div>
+            <div class="decision-sub">🏦 💸 💎 🎰 — sans repasser par /emoji</div>
+          </div>
+        </div>
+        <div class="decision">
+          <div class="decision-emoji">🔗</div>
+          <div class="decision-body">
+            <div class="decision-label">URL propre</div>
+            <div class="decision-text">/emoji/argent</div>
+            <div class="decision-sub">Ex-/concepts — renommage à planifier</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mockup mode emoji -->
+      <div class="mockup-inline">
+        <div class="mockup-bar">
+          <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+          <span class="mockup-url">/emoji/argent</span>
+        </div>
+        <div class="mockup-body">
+          <div class="mock-search">
+            <div class="mock-chip"><span>💰</span> <span>Argent</span> <span class="mock-chip-x">✕</span></div>
+            <button class="mock-btn">Rechercher</button>
+          </div>
+          <div class="mock-related">
+            <div class="mock-related-label">Concepts connexes</div>
+            <div class="mock-chips">
+              <span class="mock-chip-sm">🏦 Banque</span>
+              <span class="mock-chip-sm">💸 Dépense</span>
+              <span class="mock-chip-sm">💎 Richesse</span>
+              <span class="mock-chip-sm">🤑 Avarice</span>
+              <span class="mock-chip-sm">🎰 Chance</span>
+            </div>
+          </div>
+          <div style="font-size:13px;color:var(--ink-faint);margin-bottom:8px">63 expressions · toutes langues</div>
+          <div class="mock-card"><div class="mock-card-title">L'argent ne fait pas le bonheur</div><div class="mock-card-sub"><span class="lang-badge lang-fr">FR</span></div></div>
+          <div class="mock-card"><div class="mock-card-title">Para ile her şey olur</div><div class="mock-card-sub"><span class="lang-badge lang-tr">TR</span></div></div>
+          <div class="mock-card"><div class="mock-card-title">El dinero llama al dinero</div><div class="mock-card-sub"><span class="lang-badge lang-es">ES</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acte 7 : mode domaine -->
+  <div class="timeline-item">
+    <div class="timeline-icon icon-green">😢</div>
+    <div class="timeline-content">
+      <div class="timeline-step">Acte 7 — Le niveau au-dessus</div>
+      <h2>Mode domaine : la galerie d'emojis</h2>
+      <p>Un domaine (Émotions, Famille, Nourriture…) contient plusieurs concepts. La page devient une galerie d'emojis cliquables qui filtrent les résultats en temps réel.</p>
+      <div class="mockup-inline">
+        <div class="mockup-bar">
+          <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+          <span class="mockup-url">/emoji?domain=emotions</span>
+        </div>
+        <div class="mockup-body">
+          <div class="mock-search">
+            <div class="mock-chip"><span>😢</span> <span>Émotions</span> <span class="mock-chip-x">✕</span></div>
+            <button class="mock-btn">Rechercher</button>
+          </div>
+          <div style="font-size:12px;color:var(--ink-faint);margin-bottom:8px">247 expressions · cliquez un concept pour filtrer</div>
+          <div class="mock-domain-grid">
+            <div class="mock-domain-card active"><span class="domain-emoji">⭐</span><span class="domain-lbl">Tout</span></div>
+            <div class="mock-domain-card"><span class="domain-emoji">❤️</span><span class="domain-lbl">Amour</span></div>
+            <div class="mock-domain-card"><span class="domain-emoji">💔</span><span class="domain-lbl">Peine</span></div>
+            <div class="mock-domain-card"><span class="domain-emoji">😱</span><span class="domain-lbl">Peur</span></div>
+            <div class="mock-domain-card"><span class="domain-emoji">😂</span><span class="domain-lbl">Humour</span></div>
+            <div class="mock-domain-card"><span class="domain-emoji">😤</span><span class="domain-lbl">Colère</span></div>
+          </div>
+          <div class="mock-card"><div class="mock-card-title">Avoir le cœur gros</div><div class="mock-card-sub"><span class="lang-badge lang-fr">FR</span></div></div>
+          <div class="mock-card"><div class="mock-card-title">Yüreği yanmak</div><div class="mock-card-sub"><span class="lang-badge lang-tr">TR</span></div></div>
+        </div>
+      </div>
+      <div class="quote">
+        <strong>Sinan sur la galerie d'emojis :</strong> "OUI A FOND"
+      </div>
+    </div>
+  </div>
+
+  <!-- Acte 8 : le chip anti-confusion -->
+  <div class="timeline-item">
+    <div class="timeline-icon icon-terra">🧠</div>
+    <div class="timeline-content">
+      <div class="timeline-step">Acte 8 — UX anti-confusion</div>
+      <h2>Comment l'utilisateur sait où il est</h2>
+      <p>Question piège : si les tags sur les cartes d'expression sont cliquables, et que la barre de recherche affiche parfois du texte et parfois un chip violet — comment l'utilisateur ne se perd-il pas ?</p>
+      <div class="decisions-grid">
+        <div class="decision">
+          <div class="decision-emoji">📝</div>
+          <div class="decision-body">
+            <div class="decision-label">Mode texte</div>
+            <div class="decision-text">Input editable classique</div>
+            <div class="decision-sub">L'utilisateur peut modifier le mot directement</div>
+          </div>
+        </div>
+        <div class="decision">
+          <div class="decision-emoji">💜</div>
+          <div class="decision-body">
+            <div class="decision-label">Mode emoji / domaine</div>
+            <div class="decision-text">Chip violet non-editable</div>
+            <div class="decision-sub">✕ pour sortir · URL change (/emoji/slug)</div>
+          </div>
+        </div>
+      </div>
+      <p>Le chip rend le changement de mode <strong>visible au premier coup d'œil</strong>. L'URL elle-même sert d'ancre de repère.</p>
+    </div>
+  </div>
+
+  <!-- Acte 9 : les règles finales -->
+  <div class="timeline-item">
+    <div class="timeline-icon icon-plum">📋</div>
+    <div class="timeline-content">
+      <div class="timeline-step">Acte 9 — Le contrat final</div>
+      <h2>Toutes les décisions en un coup d'œil</h2>
+      <div class="decisions-grid">
+        <div class="decision">
+          <div class="decision-emoji">🔄</div>
+          <div class="decision-body">
+            <div class="decision-label">Toggle par défaut</div>
+            <div class="decision-text">"Langue d'abord" activé</div>
+          </div>
+        </div>
+        <div class="decision">
+          <div class="decision-emoji">🌐</div>
+          <div class="decision-body">
+            <div class="decision-label">Langue ambiguë</div>
+            <div class="decision-text">Dropdown + "Tout mélanger"</div>
+          </div>
+        </div>
+        <div class="decision">
+          <div class="decision-emoji">6️⃣</div>
+          <div class="decision-body">
+            <div class="decision-label">Cap par sous-section</div>
+            <div class="decision-text">6 cartes + "Voir les N autres →"</div>
+          </div>
+        </div>
+        <div class="decision">
+          <div class="decision-emoji">🫥</div>
+          <div class="decision-body">
+            <div class="decision-label">Sections vides</div>
+            <div class="decision-text">Masquées entièrement</div>
+          </div>
+        </div>
+        <div class="decision">
+          <div class="decision-emoji">🔀</div>
+          <div class="decision-body">
+            <div class="decision-label">Autres langues</div>
+            <div class="decision-text">Round-robin TR · ES · IT · EN</div>
+          </div>
+        </div>
+        <div class="decision">
+          <div class="decision-emoji">🏷️</div>
+          <div class="decision-body">
+            <div class="decision-label">Page /concepts</div>
+            <div class="decision-text">Renommée → /emoji</div>
+          </div>
+        </div>
+        <div class="decision">
+          <div class="decision-emoji">🗂️</div>
+          <div class="decision-body">
+            <div class="decision-label">Mode domaine + recherche</div>
+            <div class="decision-text">Option C : "Chercher dans X" vs "Chercher partout"</div>
+          </div>
+        </div>
+        <div class="decision">
+          <div class="decision-emoji">🔗</div>
+          <div class="decision-body">
+            <div class="decision-label">Concept bridge</div>
+            <div class="decision-text">Automatique dans /search?q=</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acte final : ce qui a été commité -->
+  <div class="final-block">
+    <h2>Ce qui est dans le code</h2>
+    <p>Bugs 1 & 2 corrigés · LANG_FLAG + LANG_NATIVE · i18n 5 langues prêt</p>
+    <p>La suite : displayMode · détection langue · split rendering · push staging</p>
+    <div class="commit-badge">10e332d fix(search): fix match_type guard + tag normalization + i18n prep</div>
+  </div>
+
+</div>
+</div>
+
+</body>
+</html>

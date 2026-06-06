@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expressions d'Alsace — Spike</title>
+  <style>
+    :root {
+      --cream: #f5f0e8;
+      --plum: #6b4d8f;
+      --plum-light: #8b6aad;
+      --plum-bg: #f0ebf7;
+      --terra: #c1543a;
+      --text: #2d2d2d;
+      --text-muted: #6b6b6b;
+      --card-bg: #ffffff;
+      --border: #e8e0d5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      height: 360px;
+      background: linear-gradient(135deg, #b94b30 0%, #6b4d8f 55%, #2e1c54 100%);
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+
+    .hero img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.42;
+    }
+
+    .hero-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 7rem;
+      opacity: 0.15;
+      user-select: none;
+    }
+
+    .hero-content {
+      position: relative;
+      width: 100%;
+      padding: 2rem 2.5rem;
+      background: linear-gradient(to top, rgba(0,0,0,0.58) 0%, transparent 100%);
+      color: white;
+    }
+
+    .hero-breadcrumb {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 500;
+      opacity: 0.8;
+      margin-bottom: 0.6rem;
+    }
+
+    .hero-title {
+      font-size: 3.2rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.01em;
+    }
+
+    .hero-subtitle {
+      margin-top: 0.5rem;
+      font-size: 1.05rem;
+      opacity: 0.82;
+      font-style: italic;
+    }
+
+    .photo-note {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      background: rgba(0,0,0,0.55);
+      color: white;
+      font-size: 0.72rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      font-family: monospace;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      text-decoration: none;
+      margin-bottom: 1.75rem;
+    }
+    .back:hover { color: var(--plum); }
+
+    /* ── Intro ── */
+    .intro {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.75rem 2.25rem;
+      margin-bottom: 2.25rem;
+      line-height: 1.75;
+      font-size: 1.02rem;
+    }
+    .intro p + p { margin-top: 0.9rem; }
+    .intro strong { color: var(--plum); }
+
+    /* ── Filtres ── */
+    .filters {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+
+    .filter-btn {
+      padding: 0.45rem 1.1rem;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: var(--card-bg);
+      cursor: pointer;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .filter-btn:hover { border-color: var(--plum-light); color: var(--plum); }
+    .filter-btn.active {
+      background: var(--plum);
+      border-color: var(--plum);
+      color: white;
+    }
+
+    .stats {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.75rem;
+    }
+
+    /* ── Section ── */
+    .expr-section { margin-bottom: 2rem; }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .section-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* ── Cards ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+      gap: 0.9rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem 1.4rem;
+      transition: box-shadow 0.15s, transform 0.15s;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .card:hover {
+      box-shadow: 0 5px 20px rgba(107, 77, 143, 0.11);
+      transform: translateY(-2px);
+    }
+
+    .card-expression {
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--plum);
+    }
+
+    .card-arrow {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .card-meaning {
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .card-note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-style: italic;
+      line-height: 1.55;
+      margin-top: 0.15rem;
+    }
+
+    .card-tags {
+      margin-top: 0.4rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      background: var(--plum-bg);
+      color: var(--plum);
+      border-radius: 999px;
+      padding: 0.15rem 0.55rem;
+      font-weight: 500;
+    }
+
+    /* ── Spike note ── */
+    .spike-note {
+      margin-top: 3rem;
+      padding: 1rem 1.5rem;
+      border: 1.5px dashed var(--border);
+      border-radius: 10px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .spike-note strong { color: var(--text); }
+
+    @media (max-width: 600px) {
+      .hero { height: 280px; }
+      .hero-title { font-size: 2.3rem; }
+      .intro { padding: 1.25rem 1.25rem; }
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <!-- <img src="alsace-photo.jpg" alt="Alsace — vignes et maisons à colombages"> -->
+  <div class="hero-placeholder">🍇</div>
+  <div class="photo-note">← remplacer par une photo</div>
+  <div class="hero-content">
+    <div class="hero-breadcrumb">🇫🇷 France · Région</div>
+    <h1 class="hero-title">Alsace</h1>
+    <div class="hero-subtitle">Elsässisch · Entre Rhin et Vosges</div>
+  </div>
+</div>
+
+<!-- ═══ CONTENU ═══ -->
+<div class="container">
+
+  <a class="back" href="#">← Toutes les régions</a>
+
+  <!-- INTRO -->
+  <div class="intro">
+    <p>L'alsacien — <em>Elsässisch</em> — est un dialecte germanique d'origine alémanique et franconienne, parlé depuis des siècles dans la plaine du Rhin et les contreforts des Vosges. Si l'on compare à d'autres régions, l'Alsace est l'une de celles qui a le plus de régionalismes en France. La raison tient à son histoire : territoire longtemps disputé entre la France et l'Allemagne, elle a conservé un substrat linguistique germanique qui a coexisté avec le français pendant plusieurs décennies.</p>
+    <p>Aujourd'hui, rares sont les Alsaciens à maîtriser encore le dialecte à l'oral — mais ses mots n'ont jamais vraiment disparu. Ils glissent quotidiennement dans le français parlé à Strasbourg, Colmar ou Mulhouse : on fait un <strong>schmutz</strong>, on prend un <strong>schluk</strong>, on lance un <strong>hopla !</strong> sans y penser. À cela s'ajoutent des calques syntaxiques de l'allemand — "il a anniversaire", "venir avec", "j'attends sur le bus" — qui semblent fautifs au Français de l'intérieur, mais sont en réalité des traductions mot-à-mot parfaitement logiques.</p>
+    <p>En Alsace, on est assez forts pour utiliser sans s'en rendre compte des expressions qui feraient bégayer tout Français au-delà des Vosges. Ce n'est pas une faiblesse : c'est parler deux langues en même temps.</p>
+  </div>
+
+  <!-- FILTRES -->
+  <div class="filters" id="filters">
+    <button class="filter-btn active" onclick="filter(this,'all')">Toutes · 42</button>
+    <button class="filter-btn" onclick="filter(this,'quotidien')">Mots du quotidien · 14</button>
+    <button class="filter-btn" onclick="filter(this,'table')">À table · 5</button>
+    <button class="filter-btn" onclick="filter(this,'interjection')">Interjections · 6</button>
+    <button class="filter-btn" onclick="filter(this,'calque')">Français d'Alsace · 11</button>
+  </div>
+
+  <div class="stats" id="stats">42 expressions</div>
+
+  <!-- ─── SECTION 1 : MOTS DU QUOTIDIEN ─── -->
+  <div class="expr-section" data-category="quotidien">
+    <div class="section-header">
+      <span class="section-title">Mots du quotidien</span>
+      <span class="section-desc">Mots alsaciens adoptés dans le français local</span>
+    </div>
+    <div class="cards-grid">
+
+      <div class="card">
+        <div class="card-expression">Faire un schmutz</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Faire un bisou, un baiser rapide</div>
+        <div class="card-note">Du germanique <em>Schmutz</em>. Un schmutz, c'est le baiser qu'on donne à mamie en partant ou à un enfant en passant. La partie gênante, c'est d'expliquer le mot à un Parisien.</div>
+        <div class="card-tags"><span class="tag">affection</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Prendre un schluk</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Boire une gorgée</div>
+        <div class="card-note">De l'allemand <em>Schluck</em>. "Tu veux un schluk de riesling ?" s'entend naturellement en français alsacien. Un Parisien entendra la question et comprendra qu'il est en voyage.</div>
+        <div class="card-tags"><span class="tag">boire</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Être schlass</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Être fatigué, mou, sans énergie</div>
+        <div class="card-note">De l'allemand <em>schlaff</em> (flasque). Peut aussi désigner un état légèrement alcoolisé — le contexte tranche. Dans les deux cas, mieux vaut ne pas avoir un rendez-vous important l'après-midi.</div>
+        <div class="card-tags"><span class="tag">état</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Le foehn</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Le sèche-cheveux</div>
+        <div class="card-note">En Alsace, le "sèche-cheveux" n'existe pas. Tout le monde a un <em>Föhn</em>. À l'origine, c'est un vent chaud et sec qui descend des Alpes — le nom a migré vers l'appareil qui fait la même chose, en plus bruyant et moins romantique.</div>
+        <div class="card-tags"><span class="tag">objet</span><span class="tag">germanisme</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Les schloppas</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Les pantoufles, les chaussons</div>
+        <div class="card-note">Incontournables dans les foyers alsaciens. On enlève ses chaussures à l'entrée et on enfile ses schloppas — règle non écrite mais absolument universelle. Variantes régionales : <em>schlappa</em>, <em>schlopp</em>.</div>
+        <div class="card-tags"><span class="tag">maison</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Ratcher</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Papoter, cancaner, tailler une bavette</div>
+        <div class="card-note">De l'alsacien <em>Ratscha</em>. "On a ratché une bonne heure devant la boulangerie." Connotation conviviale plutôt que médisante — on ratch entre voisins, pas contre eux.</div>
+        <div class="card-tags"><span class="tag">parole</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Un stück</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Un morceau, une part</div>
+        <div class="card-note">De l'allemand <em>Stück</em> (pièce). "Tu veux un stück de kugelhopf ?" — la question rituelle chez mamie alsacienne à laquelle la bonne réponse est toujours oui.</div>
+        <div class="card-tags"><span class="tag">nourriture</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Le knack</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">La saucisse de Strasbourg</div>
+        <div class="card-note">Son nom vient du bruit qu'elle fait quand on croque dans son boyau naturel. Symbole culinaire de la région, servie avec de la choucroute ou dans un petit pain — le fast food alsacien, depuis toujours.</div>
+        <div class="card-tags"><span class="tag">gastronomie</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Le cornet</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Le sac plastique (ou en papier)</div>
+        <div class="card-note">En Alsace, on met ses courses dans un cornet. Hors de la région, "tu as un cornet ?" peut déclencher des regards perplexes — voire une proposition de glace à l'italienne.</div>
+        <div class="card-tags"><span class="tag">objet</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">La tirette</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">La fermeture éclair</div>
+        <div class="card-note">"Ma tirette est cassée" — parfaitement compris par tout Alsacien, mystérieux ailleurs. Le mot décrit bien le geste : on tire. Une logique imparable que Paris n'a pas suivie.</div>
+        <div class="card-tags"><span class="tag">objet</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Süffig</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Qui se laisse boire, agréable et facile à boire</div>
+        <div class="card-note">Un riesling süffig, c'est le compliment suprême : il glisse tout seul, sans effort, presque sans s'en rendre compte — ce qui peut expliquer certaines fins de repas de famille.</div>
+        <div class="card-tags"><span class="tag">vin</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Une schnapsidee</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Une idée farfelue, un plan loufoque</div>
+        <div class="card-note">Litt. "idée de gnôle" — l'idée brillante qu'on a après le troisième verre. Utilisé avec affection autant qu'avec ironie. Si quelqu'un traite votre projet de schnapsidee, prenez-le comme un compliment ambigu.</div>
+        <div class="card-tags"><span class="tag">humour</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">La finette</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Le marcel, le maillot de corps</div>
+        <div class="card-note">Curiosité : ce mot ne vient pas de l'allemand. À l'origine, c'était le nom d'un tissu. En Alsace, on ne connaissait pas tous les mots du français parisien — "alors on a pris des mots parisiens pour 'faire français'" (Mathieu Avanzi). Un emprunt qui a manqué sa cible.</div>
+        <div class="card-tags"><span class="tag">vêtement</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Brun</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">La couleur marron</div>
+        <div class="card-note">En Alsace, on dit "brun" là où le reste de la France dit "marron". "Marron", ici, évoque spontanément les locomotives de marrons chauds du marché de Noël — une vocation bien plus noble qu'une simple couleur.</div>
+        <div class="card-tags"><span class="tag">couleur</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── SECTION 2 : À TABLE ─── -->
+  <div class="expr-section" data-category="table">
+    <div class="section-header">
+      <span class="section-title">À table</span>
+      <span class="section-desc">Le vocabulaire culinaire qui perturbe les Français de l'intérieur</span>
+    </div>
+    <div class="cards-grid">
+
+      <div class="card">
+        <div class="card-expression">Le petit pain</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Le pain au chocolat</div>
+        <div class="card-note">Le grand oublié du débat chocolatine/pain au chocolat. Pendant que le reste de la France se déchire, l'Alsace observe poliment — et appelle ça "un petit pain" depuis toujours. C'est l'usage originel, conservé en périphérie (aussi en Belgique, Suisse, Nord), pendant que Paris imposait sa nomenclature.</div>
+        <div class="card-tags"><span class="tag">boulangerie</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">L'escargot</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Le pain aux raisins</div>
+        <div class="card-note">Logique imparable : ça ressemble à un escargot. Deux bourgades bretonnes ont décidé de l'appeler "alsacienne" — et pourquoi pas ? L'Alsace l'a bien cherché avec sa façon de nommer les choses exactement pour ce qu'elles sont.</div>
+        <div class="card-tags"><span class="tag">boulangerie</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Le döner</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Le kebab</div>
+        <div class="card-note">On peut s'entendre avec une bonne partie du reste de la France : döner ou kebab, tout le monde se comprend. Par contre, "un grec" ? Jamais. Strasbourg a sa terminologie, elle s'y tient.</div>
+        <div class="card-tags"><span class="tag">restauration</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Manger des gendarmes</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Manger des saucisses</div>
+        <div class="card-note">À ne surtout pas annoncer à voix haute hors d'Alsace. "J'aurais bien mangé deux-trois gendarmes" peut générer une visite domiciliaire à six heures du matin — et le remplacement de votre porte d'entrée. En Alsace, c'est juste la collation.</div>
+        <div class="card-tags"><span class="tag">humour</span><span class="tag">saucisse</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">La tarte flambée</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">La flammekuche</div>
+        <div class="card-note">L'Alsacien a ici pris le contre-pied du reste de la France : il préfère le nom français "tarte flambée" à l'alsacien "flammekuche" — pendant que les restaurants parisiens font l'inverse pour paraître authentiques. Une inversion savoureuse.</div>
+        <div class="card-tags"><span class="tag">gastronomie</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── SECTION 3 : INTERJECTIONS ─── -->
+  <div class="expr-section" data-category="interjection">
+    <div class="section-header">
+      <span class="section-title">Interjections</span>
+      <span class="section-desc">Ces exclamations qui échappent sans qu'on y pense</span>
+    </div>
+    <div class="cards-grid">
+
+      <div class="card">
+        <div class="card-expression">Hopla !</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Allez ! En avant ! On y va !</div>
+        <div class="card-note">L'interjection alsacienne par excellence. Peut exprimer l'élan, l'entrain, la surprise bienveillante, ou simplement meubler le silence au moment d'agir. Intraduisible avec la même énergie compacte.</div>
+        <div class="card-tags"><span class="tag">élan</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Hopla Geiss !</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Allez, c'est parti ! (litt. "allez, la chèvre !")</div>
+        <div class="card-note">Version renforcée de <em>hopla</em>. La chèvre (<em>Geiss</em>) incarne l'énergie un peu brouillonne et l'enthousiasme débordant. Pour les grandes occasions qui méritent plus qu'un simple hopla.</div>
+        <div class="card-tags"><span class="tag">élan</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Gsundheit !</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">À vos souhaits ! / Santé !</div>
+        <div class="card-note">De l'allemand <em>Gesundheit</em> (santé). Après un éternuement, mais aussi pour trinquer. En Alsace, la santé est une obsession bienveillante — chaque conversation se termine souvent par "et surtout, la santé !"</div>
+        <div class="card-tags"><span class="tag">santé</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Oh bab !</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Tiens donc ! Quelle surprise !</div>
+        <div class="card-note">Interjection d'étonnement chaleureuse. "Oh bab, tu es déjà là !" — la surprise sincère de quelqu'un qui vous attendait mais pas si tôt. Toujours bienveillant, jamais accusateur.</div>
+        <div class="card-tags"><span class="tag">surprise</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">A Guata !</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Bon appétit ! (litt. "un bon !")</div>
+        <div class="card-note">Rituel de table obligatoire. La réponse codifiée est <em>A Bessra</em> — "meilleur appétit". Ne pas répondre est remarqué. Ne pas dire <em>a guata</em> est impensable.</div>
+        <div class="card-tags"><span class="tag">repas</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">Service !</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">De rien (en réponse à un merci)</div>
+        <div class="card-note">Vient probablement de l'allemand <em>Bitte</em> (je vous en prie) ou <em>Zu Diensten</em> (à votre service). Étrange la première fois qu'on l'entend, puis touchant, puis absolument indispensable. "Merci !" → "Service !" — transaction complète.</div>
+        <div class="card-tags"><span class="tag">politesse</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── SECTION 4 : CALQUES ─── -->
+  <div class="expr-section" data-category="calque">
+    <div class="section-header">
+      <span class="section-title">Français d'Alsace</span>
+      <span class="section-desc">Phrases françaises bâties sur une grammaire germanique — pas des fautes, des calques</span>
+    </div>
+    <div class="cards-grid">
+
+      <div class="card">
+        <div class="card-expression">"Ça geht's ?"</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Ça va ?</div>
+        <div class="card-note">Mélange spontané de français et d'alsacien (<em>geht's</em> = ça marche ?). Pas un effort de bilinguisme — juste la salutation naturelle entre voisins. Le "welsch-alémanique" à l'état pur.</div>
+        <div class="card-tags"><span class="tag">salutation</span><span class="tag">mélange</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">"Ou bien ?"</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">N'est-ce pas ? Tu vois ? (en fin de phrase)</div>
+        <div class="card-note">Calque de l'allemand <em>oder?</em>. Ponctue les phrases pour chercher l'approbation. "C'était bien, ou bien ?" Signature sonore absolue du parler alsacien — les Alsaciens eux-mêmes ne s'en rendent pas compte.</div>
+        <div class="card-tags"><span class="tag">grammaire</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">"Comme dit…"</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Tic verbal de transition en début de phrase</div>
+        <div class="card-note">Vient de l'allemand <em>wie gesagt</em>. 100% alsacien — "ça ne fonctionne pas du tout en français standard" (Mathieu Avanzi). "C'est pourtant une expression tellement utile, elle n'a pas forcément d'équivalent : même 'du coup' ne la remplace pas vraiment." Tellement ancré que les locaux ne l'entendent plus.</div>
+        <div class="card-tags"><span class="tag">grammaire</span><span class="tag">tic verbal</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">"Venir avec"</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Accompagner quelqu'un, venir aussi</div>
+        <div class="card-note">Calque de l'allemand <em>mitkommen</em>. "J'ai vu Marie, elle vient avec." → ça marche en français standard (l'antécédent est connu). "Je vais au ciné tu viens avec ?" → le "avec" orphelin laisse le Français de l'intérieur dans un vide grammatical inconfortable. La nuance est subtile. L'erreur, invisible.</div>
+        <div class="card-tags"><span class="tag">grammaire</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">"Tenir les pouces"</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Croiser les doigts (pour porter chance)</div>
+        <div class="card-note">Calque de l'allemand <em>Daumen drücken</em> (presser le pouce). Le geste est différent : on serre le pouce dans la paume. Pas de croisement de doigts — la même intention, un autre geste.</div>
+        <div class="card-tags"><span class="tag">superstition</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">"Avoir un plat"</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Avoir un pneu crevé</div>
+        <div class="card-note">De l'allemand <em>einen Platten haben</em>. Hors d'Alsace, "j'ai un plat" évoque la cuisine. En Alsace, ça veut dire qu'on va être en retard et qu'on doit appeler quelqu'un.</div>
+        <div class="card-tags"><span class="tag">voiture</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">"Il a anniversaire"</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">C'est son anniversaire</div>
+        <div class="card-note">Calque direct de <em>Er hat Geburtstag</em>. En allemand, on "a" un anniversaire ; en français standard, on "fête" le sien. L'Alsace, elle, l'a — et trouve la question absurde, ou bien ?</div>
+        <div class="card-tags"><span class="tag">grammaire</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">"Chercher quelqu'un"</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Aller chercher quelqu'un, le récupérer</div>
+        <div class="card-note">De l'allemand <em>jemanden abholen</em>. "Je viens te chercher à 18h" = je passe te prendre. En français standard, "chercher seul" est ambigu — en Alsace, le sens est limpide et la voiture est garée devant.</div>
+        <div class="card-tags"><span class="tag">grammaire</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">"J'attends sur le bus"</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">J'attends le bus</div>
+        <div class="card-note">Calque de l'allemand <em>ich warte auf den Bus</em> — "auf" (sur) se traduit littéralement. En français standard, ça implique d'être monté dessus. Si vous dites ça à Lyon, on vous suggérera poliment de descendre.</div>
+        <div class="card-tags"><span class="tag">grammaire</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">"Ça tire"</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Il y a un courant d'air</div>
+        <div class="card-note">De l'allemand <em>es zieht</em> (ça tire, ça tire). À utiliser impérativement avec un regard vers la fenêtre ouverte et un léger frémissement. La réponse habituelle : "c'est égal" — qui signifie "ça m'est égal, j'ai froid aussi".</div>
+        <div class="card-tags"><span class="tag">grammaire</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-expression">"Ils veulent de la pluie"</div>
+        <div class="card-arrow">→</div>
+        <div class="card-meaning">Il va pleuvoir (dit par la météo)</div>
+        <div class="card-note">Construction impersonnelle calquée de l'allemand où "ils" peut renvoyer à un sujet imprécis (les météorologues, le ciel, les autorités compétentes). En Alsace, "ils veulent de la pluie" s'entend sans que personne demande qui sont ces "ils" mystérieux assis autour d'une table dans une pièce sombre.</div>
+        <div class="card-tags"><span class="tag">grammaire</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- NOTE SPIKE -->
+  <div class="spike-note">
+    <strong>Page expérimentale (spike)</strong> — données statiques, non connectées à la base.<br>
+    Sources : <em>argentoratum-app.alsace</em> · <em>lalsaciennesepromene.com</em> · <em>alsacesaveurs.com</em> · <em>pokaa.fr</em> (Martin Savail / Mathieu Avanzi — "Français de nos régions")<br>
+    Prochaine étape envisagée : intégrer ces expressions en DB avec <code>region = "alsace"</code>, créer la route <code>/regions/alsace</code>, et étendre la feature à d'autres régions françaises.
+  </div>
+
+</div>
+
+<script>
+  function filter(btn, cat) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const sections = document.querySelectorAll('.expr-section');
+    let total = 0;
+
+    sections.forEach(section => {
+      if (cat === 'all' || section.dataset.category === cat) {
+        section.style.display = '';
+        total += section.querySelectorAll('.card').length;
+      } else {
+        section.style.display = 'none';
+      }
+    });
+
+    document.getElementById('stats').textContent =
+      total + ' expression' + (total > 1 ? 's' : '');
+  }
+</script>
+
+</body>
+</html>

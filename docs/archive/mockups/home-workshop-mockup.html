@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Mockup — Home Workshop</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f7f5f2;
+      color: #1c1410;
+      min-height: 100vh;
+    }
+
+    /* ---- Tokens approchés du vrai design ---- */
+    :root {
+      --paper-deep: #eeeae5;
+      --paper-edge: #d4cdc4;
+      --ink: #1c1410;
+      --ink-softer: #6b5e52;
+      --ink-faint: #a49388;
+      --plum: #7c4dbd;
+      --plum-bg: #f0eaf9;
+      --font-display: Georgia, serif;
+    }
+
+    .label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--plum);
+      margin-bottom: 0.35rem;
+    }
+
+    /* =============================================
+       SECTION 1 — EMOJI WALL
+       ============================================= */
+    .section-emoji {
+      background: var(--paper-deep);
+      border-top: 1px solid var(--paper-edge);
+      padding: 2.5rem 1.5rem;
+    }
+    .section-inner {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 1.75rem;
+    }
+
+    /* Grille d'emojis */
+    .emoji-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .emoji-btn {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      background: #fff;
+      border: 1px solid var(--paper-edge);
+      border-radius: 14px;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s;
+      min-width: 68px;
+      user-select: none;
+    }
+    .emoji-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+      border-color: var(--plum);
+    }
+    .emoji-btn:active {
+      transform: translateY(0) scale(0.97);
+    }
+    .emoji-glyph {
+      font-size: 36px;
+      line-height: 1;
+    }
+    .emoji-name {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--ink-softer);
+      text-align: center;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    /* =============================================
+       SECTION 2 — DOMAINES (cartes éditoriales)
+       ============================================= */
+    .section-domains {
+      padding: 2.5rem 1.5rem 3rem;
+      border-top: 1px solid var(--paper-edge);
+    }
+
+    .domains-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .domain-card {
+      border-radius: 16px;
+      padding: 1.5rem 1.25rem;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      border: 1px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+    .domain-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    }
+
+    /* Couleurs des 4 cartes */
+    .domain-card.effort {
+      background: linear-gradient(135deg, #dce8f5 0%, #c8dcee 100%);
+      border-color: #b0cde4;
+    }
+    .domain-card.amour {
+      background: linear-gradient(135deg, #fdecea 0%, #f7d6d3 100%);
+      border-color: #f0b8b3;
+    }
+    .domain-card.argent {
+      background: linear-gradient(135deg, #fdf5dc 0%, #f7e9b8 100%);
+      border-color: #e8d57a;
+    }
+    .domain-card.travers {
+      background: linear-gradient(135deg, #ede8f5 0%, #dfd5f0 100%);
+      border-color: #c9b8e8;
+    }
+
+    .domain-emoji {
+      font-size: 40px;
+      line-height: 1;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+    .domain-name {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 0.3rem;
+    }
+    .domain-desc {
+      font-size: 12px;
+      color: var(--ink-softer);
+      margin-bottom: 0.75rem;
+      line-height: 1.5;
+    }
+    .domain-count {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-faint);
+      letter-spacing: 0.04em;
+    }
+    .domain-arrow {
+      position: absolute;
+      right: 1.25rem;
+      bottom: 1.25rem;
+      font-size: 18px;
+      opacity: 0.35;
+    }
+
+    /* ---- Note atelier ---- */
+    .note {
+      max-width: 860px;
+      margin: 2rem auto 0;
+      padding: 1rem 1.25rem;
+      background: #fff8e6;
+      border: 1px solid #e8d57a;
+      border-radius: 10px;
+      font-size: 12px;
+      color: #6b5e52;
+      line-height: 1.6;
+    }
+    .note strong { color: #1c1410; }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================
+       SECTION 1 — PAR UNIVERS (Emoji Wall)
+       ========================================== -->
+  <div class="section-emoji">
+    <div class="section-inner">
+      <div class="label">Par univers</div>
+      <h2 class="section-title">Clique, explore, découvre</h2>
+
+      <div class="emoji-grid">
+
+        <button class="emoji-btn">
+          <span class="emoji-glyph">😂</span>
+          <span class="emoji-name">Humour</span>
+        </button>
+
+        <button class="emoji-btn">
+          <span class="emoji-glyph">❤️</span>
+          <span class="emoji-name">Amour</span>
+        </button>
+
+        <button class="emoji-btn">
+          <span class="emoji-glyph">💰</span>
+          <span class="emoji-name">Argent</span>
+        </button>
+
+        <button class="emoji-btn">
+          <span class="emoji-glyph">😠</span>
+          <span class="emoji-name">Colère</span>
+        </button>
+
+        <button class="emoji-btn">
+          <span class="emoji-glyph">✈️</span>
+          <span class="emoji-name">Voyage</span>
+        </button>
+
+        <button class="emoji-btn">
+          <span class="emoji-glyph">🤥</span>
+          <span class="emoji-name">Mensonge</span>
+        </button>
+
+        <button class="emoji-btn">
+          <span class="emoji-glyph">😱</span>
+          <span class="emoji-name">Peur</span>
+        </button>
+
+        <button class="emoji-btn">
+          <span class="emoji-glyph">💀</span>
+          <span class="emoji-name">Mort</span>
+        </button>
+
+        <button class="emoji-btn">
+          <span class="emoji-glyph">😴</span>
+          <span class="emoji-name">Paresse</span>
+        </button>
+
+        <button class="emoji-btn">
+          <span class="emoji-glyph">💼</span>
+          <span class="emoji-name">Travail</span>
+        </button>
+
+        <button class="emoji-btn">
+          <span class="emoji-glyph">🍷</span>
+          <span class="emoji-name">Vin</span>
+        </button>
+
+        <button class="emoji-btn">
+          <span class="emoji-glyph">🐾</span>
+          <span class="emoji-name">Animaux</span>
+        </button>
+
+        <button class="emoji-btn">
+          <span class="emoji-glyph">🏆</span>
+          <span class="emoji-name">Succès</span>
+        </button>
+
+        <button class="emoji-btn">
+          <span class="emoji-glyph">🤦</span>
+          <span class="emoji-name">Maladresse</span>
+        </button>
+
+        <button class="emoji-btn">
+          <span class="emoji-glyph">🤫</span>
+          <span class="emoji-name">Secret</span>
+        </button>
+
+        <button class="emoji-btn">
+          <span class="emoji-glyph">🎉</span>
+          <span class="emoji-name">Fête</span>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       SECTION 2 — DOMAINES (cartes éditoriales)
+       ========================================== -->
+  <div class="section-domains">
+    <div class="section-inner">
+      <div class="label">Grands domaines</div>
+      <h2 class="section-title" style="margin-bottom: 1.25rem;">Des univers entiers à explorer</h2>
+
+      <div class="domains-grid">
+
+        <div class="domain-card effort">
+          <span class="domain-emoji">😤</span>
+          <div class="domain-name">L'effort & les épreuves</div>
+          <div class="domain-desc">Souffrir, persévérer, tomber, se relever</div>
+          <div class="domain-count">~60 expressions</div>
+          <span class="domain-arrow">→</span>
+        </div>
+
+        <div class="domain-card amour">
+          <span class="domain-emoji">❤️</span>
+          <div class="domain-name">L'amour & les liens</div>
+          <div class="domain-desc">Aimer, trahir, se perdre, s'attacher</div>
+          <div class="domain-count">~45 expressions</div>
+          <span class="domain-arrow">→</span>
+        </div>
+
+        <div class="domain-card argent">
+          <span class="domain-emoji">💰</span>
+          <div class="domain-name">L'argent & la réussite</div>
+          <div class="domain-desc">Gagner, perdre, mériter, gaspiller</div>
+          <div class="domain-count">~55 expressions</div>
+          <span class="domain-arrow">→</span>
+        </div>
+
+        <div class="domain-card travers">
+          <span class="domain-emoji">🤥</span>
+          <div class="domain-name">Les travers humains</div>
+          <div class="domain-desc">Mentir, se vanter, esquiver, se trahir</div>
+          <div class="domain-count">~70 expressions</div>
+          <span class="domain-arrow">→</span>
+        </div>
+
+      </div>
+
+      <div class="note" style="margin-top: 1.5rem;">
+        <strong>Note atelier :</strong> Les noms dans "emoji-name" s'affichent en permanence ici pour la maquette.
+        Dans l'app réelle, 2 options possibles — <strong>A)</strong> le nom est toujours visible (comme ici),
+        <strong>B)</strong> le nom apparaît seulement au survol (hover).
+        Quelle version tu préfères ?
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

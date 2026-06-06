@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Share Button + Lang Switcher — Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&family=Inter:wght@400;500;600&family=Caveat:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper:        #fdf8ee;
+      --paper-deep:   #f3e8d4;
+      --paper-edge:   #e8dcc4;
+      --ink:          #1c1410;
+      --ink-soft:     #5c4f47;
+      --ink-softer:   #8b7d72;
+      --ink-faint:    #b8aa9b;
+      --plum:         #6b4d8f;
+      --plum-deep:    #4a3565;
+      --plum-soft:    #c9b8d9;
+      --plum-bg:      #ebe3f1;
+      --terra:        #c1543a;
+      --terra-soft:   #f0c8b8;
+      --terra-bg:     #f7e3d8;
+      --ochre:        #d4a83a;
+      --shadow-card:  0 1px 2px rgba(28,20,16,0.05), 0 4px 12px rgba(28,20,16,0.06);
+      --r-sm: 6px;
+      --r-md: 10px;
+      --r-lg: 18px;
+      --r-pill: 999px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #e8e0d4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+      gap: 3rem;
+    }
+
+    /* ── PAGE TITLE ── */
+    .page-title {
+      text-align: center;
+      font-family: 'Fraunces', serif;
+      font-size: 1.125rem;
+      color: var(--ink-soft);
+      background: white;
+      border-radius: var(--r-md);
+      padding: 0.6rem 1.4rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    /* ── SECTION LABELS ── */
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── CARD WRAPPER ── */
+    .card-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+      max-width: 340px;
+    }
+
+    /* ── PHONE FRAME ── */
+    .phone {
+      width: 340px;
+      background: var(--paper);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(28,20,16,0.22);
+      border: 1px solid var(--paper-edge);
+      position: relative;
+    }
+
+    /* ── HEADER ── */
+    .phone-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: var(--paper);
+      border-bottom: 1px solid var(--paper-edge);
+    }
+    .lang-pills {
+      display: flex;
+      gap: 4px;
+    }
+    .lang-pill {
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: var(--r-pill);
+      border: 1px solid var(--paper-edge);
+      background: var(--paper);
+      color: var(--ink-softer);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .lang-pill.active {
+      background: var(--plum);
+      color: white;
+      border-color: var(--plum);
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* ── SHARE BUTTON (THE FEATURE) ── */
+    .share-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: var(--r-pill);
+      border: 1.5px solid var(--paper-edge);
+      background: var(--paper);
+      color: var(--ink-soft);
+      font-size: 0.72rem;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .share-btn:hover {
+      border-color: var(--plum-soft);
+      background: var(--plum-bg);
+      color: var(--plum);
+    }
+    .share-btn svg {
+      flex-shrink: 0;
+    }
+    /* Copied state */
+    .share-btn.copied {
+      border-color: #86a87a;
+      background: #eef5eb;
+      color: #4a7c41;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1.5rem 1.5rem;
+      gap: 0.5rem;
+      text-align: center;
+    }
+    .globe { font-size: 2.5rem; margin-bottom: 0.25rem; }
+    .hero h1 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.7rem;
+      line-height: 1.1;
+      color: var(--ink);
+    }
+    .hero h1 span { color: var(--plum); }
+    .hero-divider {
+      width: 40px;
+      height: 2.5px;
+      background: var(--terra);
+      border-radius: 2px;
+      margin: 0.4rem auto;
+    }
+    .hero-tagline {
+      font-size: 0.9rem;
+      color: var(--ink-softer);
+      font-style: italic;
+    }
+
+    /* ── SEARCH BAR ── */
+    .search-bar {
+      margin: 0 1rem 1.25rem;
+      display: flex;
+      gap: 8px;
+    }
+    .search-input {
+      flex: 1;
+      padding: 9px 14px;
+      border-radius: var(--r-pill);
+      border: 1.5px solid var(--paper-edge);
+      background: white;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      color: var(--ink-faint);
+      outline: none;
+    }
+    .search-submit {
+      padding: 9px 16px;
+      border-radius: var(--r-pill);
+      background: var(--plum);
+      color: white;
+      border: none;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    /* ── CHIPS ── */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 0 1rem 1.5rem;
+      justify-content: center;
+    }
+    .chip {
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: var(--r-pill);
+      background: var(--plum-bg);
+      color: var(--plum);
+      border: 1px solid var(--plum-soft);
+    }
+
+    /* ── TOAST ── */
+    .toast-wrap {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .toast-wrap.visible { opacity: 1; }
+    .toast {
+      background: var(--ink);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: var(--r-pill);
+      white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(28,20,16,0.25);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .toast-icon { font-size: 0.9rem; }
+
+    /* ── ANNOTATION ── */
+    .annotation {
+      font-size: 0.72rem;
+      color: var(--ink-softer);
+      background: white;
+      border-radius: var(--r-md);
+      padding: 0.75rem 1rem;
+      max-width: 340px;
+      line-height: 1.55;
+      box-shadow: var(--shadow-card);
+      border-left: 3px solid var(--plum-soft);
+    }
+    .annotation strong { color: var(--plum); }
+
+    /* ── WA PREVIEW ── */
+    .wa-preview-wrap {
+      width: 100%;
+      max-width: 340px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .wa-screen {
+      background: #0b141a;
+      border-radius: 20px;
+      padding: 1rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .wa-bubble {
+      background: #1f2c33;
+      border-radius: 12px 12px 12px 4px;
+      overflow: hidden;
+      max-width: 260px;
+    }
+    .wa-link-preview {
+      background: white;
+    }
+    .wa-preview-img {
+      height: 120px;
+      background: linear-gradient(135deg, var(--plum-bg) 0%, var(--paper-deep) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+    }
+    .wa-preview-meta {
+      padding: 8px 10px;
+      border-top: 1px solid #f0e8df;
+    }
+    .wa-preview-site {
+      font-size: 0.6rem;
+      color: #8a7d74;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 2px;
+    }
+    .wa-preview-title {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+    .wa-preview-desc {
+      font-size: 0.72rem;
+      color: var(--ink-soft);
+      font-style: italic;
+    }
+    .wa-caption {
+      font-size: 0.75rem;
+      color: #e9edef;
+      padding: 6px 10px 8px;
+    }
+    .wa-caption-small {
+      font-size: 0.6rem;
+      color: #8a9599;
+      text-align: right;
+      margin-top: 2px;
+    }
+    .wa-annotation {
+      font-size: 0.7rem;
+      color: white;
+      background: rgba(255,255,255,0.1);
+      border-radius: var(--r-sm);
+      padding: 0.4rem 0.7rem;
+      text-align: center;
+    }
+    .wa-annotation .arrow { color: var(--plum-soft); }
+
+    /* ── LANG DROPDOWN BUTTON ── */
+    .lang-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px 5px 8px;
+      border-radius: var(--r-pill);
+      border: 1.5px solid var(--paper-edge);
+      background: var(--paper);
+      color: var(--ink-soft);
+      font-size: 0.72rem;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.18s;
+      position: relative;
+    }
+    .lang-btn:hover {
+      border-color: var(--plum-soft);
+      background: var(--plum-bg);
+      color: var(--plum);
+    }
+    .lang-btn .flag { font-size: 0.85rem; line-height: 1; }
+    .lang-btn .code { font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+    .lang-btn .chevron {
+      font-size: 0.6rem;
+      opacity: 0.6;
+      transition: transform 0.15s;
+    }
+    .lang-btn.open .chevron { transform: rotate(180deg); }
+    .lang-btn.open {
+      border-color: var(--plum-soft);
+      background: var(--plum-bg);
+      color: var(--plum);
+    }
+
+    /* Dropdown */
+    .lang-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: white;
+      border: 1px solid var(--paper-edge);
+      border-radius: var(--r-md);
+      box-shadow: 0 8px 24px rgba(28,20,16,0.14);
+      overflow: hidden;
+      min-width: 148px;
+      z-index: 100;
+      display: none;
+    }
+    .lang-dropdown.open { display: block; }
+    .dd-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: background 0.1s;
+      border-bottom: 1px solid var(--paper-edge);
+    }
+    .dd-item:last-child { border-bottom: none; }
+    .dd-item:hover { background: var(--plum-bg); color: var(--plum); }
+    .dd-item.active { background: var(--plum-bg); color: var(--plum); font-weight: 600; }
+    .dd-item .dd-flag { font-size: 1rem; }
+    .dd-item .dd-name { flex: 1; }
+    .dd-item .dd-check { font-size: 0.7rem; color: var(--plum); }
+
+    /* ── VARIANT COMPARISON ── */
+    .variants-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+      max-width: 340px;
+    }
+    .variant-card {
+      background: white;
+      border-radius: var(--r-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    .variant-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      padding: 0.5rem 1rem 0;
+    }
+    .variant-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 1rem;
+    }
+    .variant-header-left { font-size: 0.8rem; color: var(--ink-faint); font-style: italic; }
+
+    /* ── LANG TABLE ── */
+    .lang-table {
+      width: 100%;
+      max-width: 340px;
+      background: white;
+      border-radius: var(--r-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      font-size: 0.75rem;
+    }
+    .lang-table-header {
+      background: var(--plum);
+      color: white;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .lang-row {
+      display: flex;
+      align-items: center;
+      padding: 0.55rem 1rem;
+      border-bottom: 1px solid var(--paper-edge);
+      gap: 0.75rem;
+    }
+    .lang-row:last-child { border-bottom: none; }
+    .lang-flag { font-size: 1rem; }
+    .lang-name { color: var(--ink-softer); width: 60px; font-size: 0.65rem; }
+    .lang-text { color: var(--ink); font-style: italic; flex: 1; }
+  </style>
+</head>
+<body>
+
+  <div class="page-title">Share Button — Mockup statique</div>
+
+  <!-- SECTION 1: Le bouton dans la page -->
+  <p class="section-label">1 — Le bouton dans la page (état normal)</p>
+  <div class="card-wrap">
+    <div class="phone">
+      <div class="phone-header">
+        <div class="lang-pills">
+          <span class="lang-pill active" onclick="setLang('fr')">fr</span>
+          <span class="lang-pill" onclick="setLang('en')">en</span>
+          <span class="lang-pill" onclick="setLang('es')">es</span>
+          <span class="lang-pill" onclick="setLang('it')">it</span>
+          <span class="lang-pill" onclick="setLang('tr')">tr</span>
+        </div>
+        <div class="header-right">
+          <!-- ★ LE BOUTON PARTAGER -->
+          <button class="share-btn" id="shareBtn" onclick="handleShare()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            <span id="shareBtnLabel">Partager</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Toast de confirmation -->
+      <div class="toast-wrap" id="toast">
+        <div class="toast">
+          <span class="toast-icon">✓</span>
+          <span id="toastMsg">Lien copié !</span>
+        </div>
+      </div>
+
+      <div class="hero">
+        <div class="globe">🌍</div>
+        <h1>World <span>Expressions</span></h1>
+        <div class="hero-divider"></div>
+        <p class="hero-tagline" id="tagline">Chaque langue a sa propre folie.</p>
+      </div>
+      <div class="search-bar">
+        <input class="search-input" type="text" placeholder="Essaie : argent, animal, partir…" readonly />
+        <button class="search-submit">Chercher</button>
+      </div>
+      <div class="chips">
+        <span class="chip">pied</span>
+        <span class="chip">argent</span>
+        <span class="chip">animal</span>
+        <span class="chip">mentir</span>
+        <span class="chip">partir</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="annotation">
+    <strong>Comportement :</strong> Le bouton est dans le header, à côté du sélecteur de langue. Un clic copie l'URL dans le presse-papier et affiche un toast de confirmation dans la langue active (<em>Lien copié !</em> / <em>Link copied!</em> / etc.).<br/><br/>
+    Clique sur les flags <strong>fr / en / es / it / tr</strong> ci-dessus pour voir le bouton et le toast changer de langue.
+  </div>
+
+  <!-- SECTION 2: L'aperçu WhatsApp -->
+  <p class="section-label" style="margin-top:1rem">2 — Ce que voit le destinataire sur WhatsApp</p>
+
+  <div class="wa-preview-wrap">
+    <div class="wa-screen">
+      <div class="wa-bubble">
+        <div class="wa-link-preview">
+          <div class="wa-preview-img">🌍</div>
+          <div class="wa-preview-meta">
+            <div class="wa-preview-site">world-expressions.vercel.app</div>
+            <div class="wa-preview-title">World Expressions</div>
+            <div class="wa-preview-desc" id="ogDesc">Chaque langue a sa propre folie.</div>
+          </div>
+        </div>
+        <div class="wa-caption">
+          la page d'accueil du site c'est ça
+          <div class="wa-caption-small">15:12 ✓✓</div>
+        </div>
+      </div>
+      <div class="wa-annotation" style="margin-top:0.75rem">
+        <span class="arrow">↑</span> La description change selon la langue du partage
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Les taglines par langue -->
+  <p class="section-label" style="margin-top:1rem">3 — Taglines par langue (meta OG description)</p>
+
+  <div class="lang-table">
+    <div class="lang-table-header">OG Description — par langue d'interface</div>
+    <div class="lang-row"><span class="lang-flag">🇫🇷</span><span class="lang-name">Français</span><span class="lang-text">Chaque langue a sa propre folie.</span></div>
+    <div class="lang-row"><span class="lang-flag">🇬🇧</span><span class="lang-name">English</span><span class="lang-text">Every language has its own madness.</span></div>
+    <div class="lang-row"><span class="lang-flag">🇪🇸</span><span class="lang-name">Español</span><span class="lang-text">Cada idioma tiene su propia locura.</span></div>
+    <div class="lang-row"><span class="lang-flag">🇮🇹</span><span class="lang-name">Italiano</span><span class="lang-text">Ogni lingua ha la sua follia.</span></div>
+    <div class="lang-row"><span class="lang-flag">🇹🇷</span><span class="lang-name">Türkçe</span><span class="lang-text">Her dilin kendine özgü çılgınlığı vardır.</span></div>
+  </div>
+
+  <div class="annotation" style="max-width:340px">
+    <strong>Mécanisme technique :</strong> Quand tu cliques sur Partager en mode français, le bouton copie <code style="font-size:0.7rem;background:#f0e8df;padding:1px 4px;border-radius:3px">https://world-expressions.vercel.app?og_lang=fr</code>. Next.js génère les balises OG dynamiquement selon ce paramètre. WhatsApp lit la meta description localisée.
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 4 : LANG SWITCHER REDESIGN -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+
+  <p class="section-label" style="margin-top:2.5rem">4 — Sélecteur de langue discret (3 variantes)</p>
+
+  <div class="variants-grid">
+
+    <!-- VARIANTE A : Flag + code + chevron -->
+    <div class="variant-card">
+      <div class="variant-label">A — Drapeau + code langue</div>
+      <div class="variant-header">
+        <span class="variant-header-left">header de la page</span>
+        <div style="display:flex;gap:6px;align-items:center;position:relative">
+          <!-- share btn -->
+          <button class="share-btn" style="pointer-events:none">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Partager
+          </button>
+          <!-- lang btn A -->
+          <button class="lang-btn" id="langBtnA" onclick="toggleDropdown('A')">
+            <span class="flag" id="langFlagA">🇫🇷</span>
+            <span class="code" id="langCodeA">fr</span>
+            <span class="chevron">▾</span>
+            <div class="lang-dropdown" id="dropdownA">
+              <div class="dd-item active" onclick="pickLang('A','fr','🇫🇷','Français')"><span class="dd-flag">🇫🇷</span><span class="dd-name">Français</span><span class="dd-check">✓</span></div>
+              <div class="dd-item" onclick="pickLang('A','en','🇬🇧','English')"><span class="dd-flag">🇬🇧</span><span class="dd-name">English</span></div>
+              <div class="dd-item" onclick="pickLang('A','es','🇪🇸','Español')"><span class="dd-flag">🇪🇸</span><span class="dd-name">Español</span></div>
+              <div class="dd-item" onclick="pickLang('A','it','🇮🇹','Italiano')"><span class="dd-flag">🇮🇹</span><span class="dd-name">Italiano</span></div>
+              <div class="dd-item" onclick="pickLang('A','tr','🇹🇷','Türkçe')"><span class="dd-flag">🇹🇷</span><span class="dd-name">Türkçe</span></div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VARIANTE B : Globe + code -->
+    <div class="variant-card">
+      <div class="variant-label">B — Globe + code langue (plus neutre)</div>
+      <div class="variant-header">
+        <span class="variant-header-left">header de la page</span>
+        <div style="display:flex;gap:6px;align-items:center;position:relative">
+          <button class="share-btn" style="pointer-events:none">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Partager
+          </button>
+          <button class="lang-btn" id="langBtnB" onclick="toggleDropdown('B')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span class="code" id="langCodeB">fr</span>
+            <span class="chevron">▾</span>
+            <div class="lang-dropdown" id="dropdownB">
+              <div class="dd-item active" onclick="pickLang('B','fr','','Français')"><span class="dd-flag">🇫🇷</span><span class="dd-name">Français</span><span class="dd-check">✓</span></div>
+              <div class="dd-item" onclick="pickLang('B','en','','English')"><span class="dd-flag">🇬🇧</span><span class="dd-name">English</span></div>
+              <div class="dd-item" onclick="pickLang('B','es','','Español')"><span class="dd-flag">🇪🇸</span><span class="dd-name">Español</span></div>
+              <div class="dd-item" onclick="pickLang('B','it','','Italiano')"><span class="dd-flag">🇮🇹</span><span class="dd-name">Italiano</span></div>
+              <div class="dd-item" onclick="pickLang('B','tr','','Türkçe')"><span class="dd-flag">🇹🇷</span><span class="dd-name">Türkçe</span></div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VARIANTE C : Icône seule (le plus minimaliste) -->
+    <div class="variant-card">
+      <div class="variant-label">C — Icône seule (ultra-discret)</div>
+      <div class="variant-header">
+        <span class="variant-header-left">header de la page</span>
+        <div style="display:flex;gap:6px;align-items:center;position:relative">
+          <button class="share-btn" style="pointer-events:none">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Partager
+          </button>
+          <button class="lang-btn" id="langBtnC" onclick="toggleDropdown('C')" style="padding:5px 9px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span class="chevron" style="opacity:0.5">▾</span>
+            <div class="lang-dropdown" id="dropdownC">
+              <div class="dd-item active" onclick="pickLang('C','fr','','Français')"><span class="dd-flag">🇫🇷</span><span class="dd-name">Français</span><span class="dd-check">✓</span></div>
+              <div class="dd-item" onclick="pickLang('C','en','','English')"><span class="dd-flag">🇬🇧</span><span class="dd-name">English</span></div>
+              <div class="dd-item" onclick="pickLang('C','es','','Español')"><span class="dd-flag">🇪🇸</span><span class="dd-name">Español</span></div>
+              <div class="dd-item" onclick="pickLang('C','it','','Italiano')"><span class="dd-flag">🇮🇹</span><span class="dd-name">Italiano</span></div>
+              <div class="dd-item" onclick="pickLang('C','tr','','Türkçe')"><span class="dd-flag">🇹🇷</span><span class="dd-name">Türkçe</span></div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="annotation" style="max-width:340px">
+    <strong>Clique sur les boutons</strong> pour tester les 3 variantes — le dropdown s'ouvre, on choisit une langue, le bouton se met à jour.<br/><br/>
+    Dans tous les cas : la barre fixe en haut à droite <em>(fr en es it tr toujours visible)</em> et le header mobile <em>(même barre)</em> sont <strong>remplacés</strong> par ce seul bouton discret.
+  </div>
+
+  <script>
+    const LABELS = {
+      fr: { btn: "Partager", toast: "Lien copié !", tagline: "Chaque langue a sa propre folie.", og: "Chaque langue a sa propre folie." },
+      en: { btn: "Share",    toast: "Link copied!", tagline: "Every language has its own madness.", og: "Every language has its own madness." },
+      es: { btn: "Compartir",toast: "¡Enlace copiado!", tagline: "Cada idioma tiene su propia locura.", og: "Cada idioma tiene su propia locura." },
+      it: { btn: "Condividi",toast: "Link copiato!", tagline: "Ogni lingua ha la sua follia.", og: "Ogni lingua ha la sua follia." },
+      tr: { btn: "Paylaş",   toast: "Bağlantı kopyalandı!", tagline: "Her dilin kendine özgü çılgınlığı vardır.", og: "Her dilin kendine özgü çılgınlığı vardır." },
+    };
+
+    let currentLang = "fr";
+
+    function setLang(lang) {
+      currentLang = lang;
+      const labels = LABELS[lang];
+      document.querySelectorAll(".lang-pill").forEach(el => el.classList.remove("active"));
+      document.querySelector(`.lang-pill[onclick="setLang('${lang}')"]`).classList.add("active");
+      document.getElementById("shareBtnLabel").textContent = labels.btn;
+      document.getElementById("tagline").textContent = labels.tagline;
+      document.getElementById("ogDesc").textContent = labels.og;
+      document.getElementById("toastMsg").textContent = labels.toast;
+    }
+
+    // ── Lang dropdown logic ──
+    function toggleDropdown(variant) {
+      const btn = document.getElementById(`langBtn${variant}`);
+      const dropdown = document.getElementById(`dropdown${variant}`);
+      const isOpen = dropdown.classList.contains('open');
+      // close all
+      document.querySelectorAll('.lang-dropdown').forEach(d => d.classList.remove('open'));
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('open'));
+      if (!isOpen) {
+        dropdown.classList.add('open');
+        btn.classList.add('open');
+      }
+    }
+
+    function pickLang(variant, code, flag, name) {
+      const btn = document.getElementById(`langBtn${variant}`);
+      const dropdown = document.getElementById(`dropdown${variant}`);
+      const flagEl = document.getElementById(`langFlag${variant}`);
+      const codeEl = document.getElementById(`langCode${variant}`);
+      if (flagEl) flagEl.textContent = flag;
+      if (codeEl) codeEl.textContent = code;
+      dropdown.querySelectorAll('.dd-item').forEach(item => {
+        item.classList.remove('active');
+        item.querySelector('.dd-check')?.remove();
+      });
+      event.currentTarget.classList.add('active');
+      const check = document.createElement('span');
+      check.className = 'dd-check';
+      check.textContent = '✓';
+      event.currentTarget.appendChild(check);
+      dropdown.classList.remove('open');
+      btn.classList.remove('open');
+    }
+
+    // Close dropdowns on outside click
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.lang-btn')) {
+        document.querySelectorAll('.lang-dropdown').forEach(d => d.classList.remove('open'));
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('open'));
+      }
+    });
+
+    let toastTimer;
+    function handleShare() {
+      const btn = document.getElementById("shareBtn");
+      const toast = document.getElementById("toast");
+
+      // Simulate copy
+      btn.classList.add("copied");
+      toast.classList.add("visible");
+
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        btn.classList.remove("copied");
+        toast.classList.remove("visible");
+      }, 2200);
+    }
+  </script>
+</body>
+</html>
