@@ -78,6 +78,7 @@ def search_by_concept(
     limit: int = Query(20, ge=1, le=100, description="Number of results per page"),
     offset: int = Query(0, ge=0, description="Number of results to skip"),
     type_filter: str = Query("", description="Filter by expression type: idiom, proverb, locution, word"),
+    locale: str = Query("", description="UI locale for translated meanings: fr, en, es, it, tr."),
 ):
     """
     Return all expressions that have at least one of the given tags.
@@ -90,7 +91,8 @@ def search_by_concept(
         tag_set = {t.lower().strip() for t in tags.split(",") if t.strip()}
     regions = set(region.split(",")) - {""} if region else None
     tf = type_filter.strip() or None
-    results, total = database.search_by_concept(tag_set, regions, limit, offset, tf)
+    loc = locale.strip() or None
+    results, total = database.search_by_concept(tag_set, regions, limit, offset, tf, loc)
     return {
         "concept_tags": sorted(tag_set),
         "total": total,
@@ -106,11 +108,13 @@ def browse_expressions(
     limit: int = Query(20, ge=1, le=100, description="Number of results per page"),
     offset: int = Query(0, ge=0, description="Number of results to skip"),
     type_filter: str = Query("", description="Filter by expression type: idiom, proverb, locution, word"),
+    locale: str = Query("", description="UI locale for translated meanings: fr, en, es, it, tr."),
 ):
     """Return all expressions for given regions, sorted alphabetically. No query needed."""
     regions = set(region.split(",")) - {""} if region else None
     tf = type_filter.strip() or None
-    results, total = database.browse_by_region(regions, limit, offset, tf)
+    loc = locale.strip() or None
+    results, total = database.browse_by_region(regions, limit, offset, tf, loc)
     return {
         "regions": sorted(regions) if regions else "all",
         "total": total,

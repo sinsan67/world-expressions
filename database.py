@@ -409,7 +409,7 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
     return results, total, matching_tags
 
 
-def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0, type_filter: Optional[str] = None) -> tuple[list[dict], int]:
+def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0, type_filter: Optional[str] = None, locale: Optional[str] = None) -> tuple[list[dict], int]:
     """
     Retourne toutes les expressions ayant au moins un tag parmi tag_set (logique OR).
     Utilisé pour la recherche cross-lingue par concept (argent + money + wealth...).
@@ -447,10 +447,21 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, lim
 
     total = rows[0].total_count if rows else 0
     results = [_build_expression_dict(r, "tag") for r in rows]
+
+    if locale and locale.strip():
+        with engine.connect() as conn:
+            preferred = _get_preferred_content([r["id"] for r in results], locale, conn)
+        for r in results:
+            if r["id"] in preferred:
+                p = preferred[r["id"]]
+                if p["meaning"]: r["meaning"] = p["meaning"]
+                if p["origin"]:  r["origin"]  = p["origin"]
+                if p["example"]: r["example"] = p["example"]
+
     return results, total
 
 
-def browse_by_region(regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0, type_filter: Optional[str] = None) -> tuple[list[dict], int]:
+def browse_by_region(regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0, type_filter: Optional[str] = None, locale: Optional[str] = None) -> tuple[list[dict], int]:
     """Retourne toutes les expressions d'une ou plusieurs régions, dans un ordre aléatoire."""
     region_sql, region_params = _region_clause(regions)
     type_sql, type_params = _type_clause(type_filter)
@@ -484,6 +495,17 @@ def browse_by_region(regions: Optional[set[str]] = None, limit: int = 20, offset
         total = conn.execute(text(count_sql), count_params).scalar() or 0
 
     results = [_build_expression_dict(r, "browse") for r in rows]
+
+    if locale and locale.strip():
+        with engine.connect() as conn:
+            preferred = _get_preferred_content([r["id"] for r in results], locale, conn)
+        for r in results:
+            if r["id"] in preferred:
+                p = preferred[r["id"]]
+                if p["meaning"]: r["meaning"] = p["meaning"]
+                if p["origin"]:  r["origin"]  = p["origin"]
+                if p["example"]: r["example"] = p["example"]
+
     return results, total
 
 

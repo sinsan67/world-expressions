@@ -271,16 +271,16 @@ function SearchPageContent() {
       let data;
       if (domain && !q && !concept) {
         setSearchMode("concept");
-        data = await searchByDomain(domain, regionCodes, LIMIT, 0);
+        data = await searchByDomain(domain, regionCodes, LIMIT, 0, lang);
       } else if (concept && !q) {
         setSearchMode("concept");
-        data = await searchByConcept([concept], regionCodes, LIMIT, 0);
+        data = await searchByConcept([concept], regionCodes, LIMIT, 0, undefined, lang);
       } else {
         setSearchMode("text");
         data = await searchExpressions(q, regionCodes, LIMIT, 0, undefined, lang);
         if (data.detected_concepts?.length) {
           setDetectedConceptSlugs(data.detected_concepts);
-          searchByConcept(data.detected_concepts, allCodes, 12, 0).then(bridge => {
+          searchByConcept(data.detected_concepts, allCodes, 12, 0, undefined, lang).then(bridge => {
             setConceptBridgeResults(bridge.results);
           }).catch(() => {});
         }
@@ -303,9 +303,9 @@ function SearchPageContent() {
     try {
       let data;
       if (searchMode === "concept" && domainParam && !conceptParam) {
-        data = await searchByDomain(domainParam, activeRegions, LIMIT, offset);
+        data = await searchByDomain(domainParam, activeRegions, LIMIT, offset, uiLang);
       } else if (searchMode === "concept") {
-        data = await searchByConcept([conceptParam], activeRegions, LIMIT, offset);
+        data = await searchByConcept([conceptParam], activeRegions, LIMIT, offset, undefined, uiLang);
       } else {
         data = await searchExpressions(qParam, activeRegions, LIMIT, offset, undefined, uiLang);
       }
