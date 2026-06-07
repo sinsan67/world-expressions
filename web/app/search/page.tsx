@@ -171,6 +171,7 @@ function SearchPageContent() {
   const conceptParam = searchParams.get("concept") ?? "";
   const domainParam = searchParams.get("domain") ?? "";
   const regionParam = searchParams.get("region") ?? "";
+  const typeParam = searchParams.get("type_filter") ?? "";
 
   const [uiLang, setUILang] = useState<UILang>("en");
   const [query, setQuery] = useState(qParam);
@@ -191,7 +192,7 @@ function SearchPageContent() {
   const [displayMode, setDisplayMode] = useState<"split" | "mix">("split");
   const [conceptBridgeResults, setConceptBridgeResults] = useState<Expression[]>([]);
   const [detectedConceptSlugs, setDetectedConceptSlugs] = useState<string[]>([]);
-  const [typeFilter, setTypeFilter] = useState<string | null>(null);
+  const [typeFilter, setTypeFilter] = useState<string | null>(typeParam || null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const allRegionCodes = regions.map((r) => r.code);
   const t = T[uiLang];
@@ -279,7 +280,7 @@ function SearchPageContent() {
         data = await searchByConcept([concept], regionCodes, LIMIT, 0, tf ?? undefined, lang);
       } else {
         setSearchMode("text");
-        data = await searchExpressions(q, regionCodes, LIMIT, 0, undefined, lang);
+        data = await searchExpressions(q, regionCodes, LIMIT, 0, tf ?? undefined, lang);
         if (data.detected_concepts?.length) {
           setDetectedConceptSlugs(data.detected_concepts);
           searchByConcept(data.detected_concepts, allCodes, 12, 0, undefined, lang).then(bridge => {
@@ -376,11 +377,12 @@ function SearchPageContent() {
     if (!allRegionCodesKey) return;
     if (!qParam && !conceptParam && !domainParam) return;
     const rf = regionParam ? regionParam.split(",").filter(Boolean) : [];
+    const tf = typeParam || null;
     setFilterRegions(rf);
-    setTypeFilter(null);
-    runSearch(qParam, conceptParam, domainParam, rf, allRegionCodes, uiLang);
+    setTypeFilter(tf);
+    runSearch(qParam, conceptParam, domainParam, rf, allRegionCodes, uiLang, tf);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [qParam, conceptParam, domainParam, regionParam, allRegionCodesKey, runSearch]);
+  }, [qParam, conceptParam, domainParam, regionParam, typeParam, allRegionCodesKey, runSearch]);
 
   // Keep input in sync with URL (e.g. after browser back)
   useEffect(() => {
@@ -507,37 +509,37 @@ function SearchPageContent() {
                 sortMode={sortMode}
                 onSortChange={setSortMode}
                 uiLang={uiLang}
+                typeSlot={
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                    {([null, "idiom", "proverb", "locution"] as const).map((type) => {
+                      const isActive = typeFilter === type;
+                      const label = type === null
+                        ? (uiLang === "fr" ? "Tous" : uiLang === "es" ? "Todos" : uiLang === "it" ? "Tutti" : uiLang === "tr" ? "Tümü" : "All")
+                        : (TYPE_LABELS[type]?.[uiLang] ?? TYPE_LABELS[type]?.["en"] ?? type);
+                      return (
+                        <button
+                          key={type ?? "all"}
+                          onClick={() => handleTypeFilter(type)}
+                          style={{
+                            fontSize: 12,
+                            padding: "4px 12px",
+                            borderRadius: "var(--r-pill)",
+                            background: isActive ? "var(--terra)" : "var(--paper)",
+                            border: `1.5px solid ${isActive ? "var(--terra)" : "var(--paper-edge)"}`,
+                            color: isActive ? "#fff" : "var(--terra)",
+                            cursor: "pointer",
+                            fontWeight: 500,
+                            transition: "all 0.15s",
+                            fontFamily: "var(--font-body)",
+                          }}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                }
               />
-              {searchMode === "concept" && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "0.75rem" }}>
-                  {([null, "idiom", "proverb", "locution"] as const).map((type) => {
-                    const isActive = typeFilter === type;
-                    const label = type === null
-                      ? (uiLang === "fr" ? "Tous" : uiLang === "es" ? "Todos" : uiLang === "it" ? "Tutti" : uiLang === "tr" ? "Tümü" : "All")
-                      : (TYPE_LABELS[type]?.[uiLang] ?? TYPE_LABELS[type]?.["en"] ?? type);
-                    return (
-                      <button
-                        key={type ?? "all"}
-                        onClick={() => handleTypeFilter(type)}
-                        style={{
-                          fontSize: 12,
-                          padding: "4px 12px",
-                          borderRadius: "var(--r-pill)",
-                          background: isActive ? "var(--terra)" : "var(--paper)",
-                          border: `1.5px solid ${isActive ? "var(--terra)" : "var(--paper-edge)"}`,
-                          color: isActive ? "#fff" : "var(--terra)",
-                          cursor: "pointer",
-                          fontWeight: 500,
-                          transition: "all 0.15s",
-                          fontFamily: "var(--font-body)",
-                        }}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
             </div>
           )}
         </div>

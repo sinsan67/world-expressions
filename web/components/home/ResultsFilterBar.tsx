@@ -20,9 +20,10 @@ interface Props {
   sortMode: "relevance" | "country";
   onSortChange: (mode: "relevance" | "country") => void;
   uiLang: UILang;
+  typeSlot?: React.ReactNode;
 }
 
-export default function ResultsFilterBar({ regions, filterRegions, onFilterChange, sortMode, onSortChange, uiLang }: Props) {
+export default function ResultsFilterBar({ regions, filterRegions, onFilterChange, sortMode, onSortChange, uiLang, typeSlot }: Props) {
   const t = T[uiLang];
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -122,6 +123,14 @@ export default function ResultsFilterBar({ regions, filterRegions, onFilterChang
           {t.sortCountry}
         </button>
       </div>
+
+      {/* Type pills slot (optional — same row) */}
+      {typeSlot && (
+        <>
+          <div style={{ width: 1, height: 18, background: "var(--paper-edge)", flexShrink: 0 }} />
+          {typeSlot}
+        </>
+      )}
     </div>
   );
 }

@@ -35,7 +35,7 @@ const T = {
     atlasTitle: (n: number) => `${n} pays, à toi`,
     emojiEyebrow: "Par emoji",
     emojiTitle: "Clique, explore, découvre",
-    domainsEyebrow: "Grands domaines",
+    domainsEyebrow: "Univers",
     domainsTitle: "Des univers entiers à explorer",
     atlasEyebrow: "L'atlas",
     moreCountries: "autres pays",
@@ -65,7 +65,7 @@ const T = {
     atlasTitle: (n: number) => `${n} countries, yours to explore`,
     emojiEyebrow: "By emoji",
     emojiTitle: "Click, explore, discover",
-    domainsEyebrow: "Major domains",
+    domainsEyebrow: "Universes",
     domainsTitle: "Entire worlds to explore",
     atlasEyebrow: "The atlas",
     moreCountries: "more countries",
@@ -95,7 +95,7 @@ const T = {
     atlasTitle: (n: number) => `${n} países, para ti`,
     emojiEyebrow: "Por emoji",
     emojiTitle: "Haz clic, explora, descubre",
-    domainsEyebrow: "Grandes dominios",
+    domainsEyebrow: "Universos",
     domainsTitle: "Mundos enteros por explorar",
     atlasEyebrow: "El atlas",
     moreCountries: "países más",
@@ -125,7 +125,7 @@ const T = {
     atlasTitle: (n: number) => `${n} ülke, senin için`,
     emojiEyebrow: "Emoji ile keşfet",
     emojiTitle: "Tıkla, keşfet, keşfet",
-    domainsEyebrow: "Ana alanlar",
+    domainsEyebrow: "Evrenler",
     domainsTitle: "Keşfedilecek dünyalar",
     atlasEyebrow: "Atlas",
     moreCountries: "ülke daha",
@@ -155,7 +155,7 @@ const T = {
     atlasTitle: (n: number) => `${n} paesi, tuoi da esplorare`,
     emojiEyebrow: "Per emoji",
     emojiTitle: "Clicca, esplora, scopri",
-    domainsEyebrow: "Grandi domini",
+    domainsEyebrow: "Universi",
     domainsTitle: "Interi mondi da esplorare",
     atlasEyebrow: "L'atlante",
     moreCountries: "altri paesi",
@@ -768,21 +768,21 @@ export default function HomePage() {
               <h2 style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--ink)", margin: "0.4rem 0 1.25rem", fontWeight: 500 }}>
                 {t.domainsTitle}
               </h2>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.875rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(145px, 1fr))", gap: "0.75rem" }}>
                 {EDITORIAL_DOMAINS.map((d) => (
                   <button
                     key={d.slug}
                     onClick={() => router.push(`/domain/${encodeURIComponent(d.slug)}`)}
                     style={{
                       display: "flex", flexDirection: "column", alignItems: "flex-start",
-                      background: d.bg, border: `1px solid ${d.border}`, borderRadius: 16,
-                      padding: "1.25rem 1rem", cursor: "pointer", textAlign: "left",
+                      background: d.bg, border: `1px solid ${d.border}`, borderRadius: 14,
+                      padding: "1rem 0.875rem", cursor: "pointer", textAlign: "left",
                       transition: "transform 0.15s, box-shadow 0.15s",
                     }}
                     onMouseEnter={(e) => {
                       const el = e.currentTarget as HTMLElement;
-                      el.style.transform = "translateY(-4px)";
-                      el.style.boxShadow = "0 10px 30px rgba(0,0,0,0.12)";
+                      el.style.transform = "translateY(-3px)";
+                      el.style.boxShadow = "0 8px 24px rgba(0,0,0,0.10)";
                     }}
                     onMouseLeave={(e) => {
                       const el = e.currentTarget as HTMLElement;
@@ -790,12 +790,9 @@ export default function HomePage() {
                       el.style.boxShadow = "";
                     }}
                   >
-                    <span style={{ fontSize: 36, lineHeight: 1, marginBottom: "0.625rem" }}>{d.emoji}</span>
-                    <span style={{ fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 600, color: "var(--ink)", marginBottom: "0.3rem", fontStyle: "italic", display: "block" }}>
+                    <span style={{ fontSize: 28, lineHeight: 1, marginBottom: "0.5rem" }}>{d.emoji}</span>
+                    <span style={{ fontFamily: "var(--font-display)", fontSize: 14, fontWeight: 600, color: "var(--ink)", fontStyle: "italic", display: "block", lineHeight: 1.3 }}>
                       {d.labels[uiLang]}
-                    </span>
-                    <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--ink-softer)", lineHeight: 1.4 }}>
-                      {d.desc[uiLang]}
                     </span>
                   </button>
                 ))}

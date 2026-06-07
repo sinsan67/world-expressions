@@ -37,11 +37,23 @@ const LANG_REGIONS = [
   { code: "tr", flag: "🇹🇷" },
 ] as const;
 
+const TYPE_LABEL: Record<string, string> = {
+  fr: "Type", en: "Type", es: "Tipo", it: "Tipo", tr: "Tür",
+};
+
+const TYPES: { value: string | null; labels: Record<string, string> }[] = [
+  { value: null,       labels: { fr: "Tous",       en: "All",       es: "Todos",    it: "Tutti",     tr: "Tümü" } },
+  { value: "idiom",    labels: { fr: "Expression",  en: "Expression",es: "Expresión",it: "Espressione",tr: "İfade" } },
+  { value: "proverb",  labels: { fr: "Proverbe",    en: "Proverb",   es: "Proverbio",it: "Proverbio", tr: "Atasözü" } },
+  { value: "locution", labels: { fr: "Locution",    en: "Set phrase", es: "Locución",it: "Locuzione", tr: "Deyim" } },
+];
+
 type Props = { uiLang?: string; onClose: () => void };
 
 export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
   const [query, setQuery] = useState("");
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
+  const [selectedType, setSelectedType] = useState<string | null>(null);
   const [conceptTags, setConceptTags] = useState<{ slug: string; name: string }[]>([]);
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -72,14 +84,16 @@ export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
     const params = new URLSearchParams();
     params.set("q", q);
     if (selectedRegions.length) params.set("region", selectedRegions.join(","));
+    if (selectedType) params.set("type_filter", selectedType);
     router.push(`/search?${params}`);
     onClose();
-  }, [query, selectedRegions, router, onClose]);
+  }, [query, selectedRegions, selectedType, router, onClose]);
 
   const handleConceptClick = (slug: string) => {
     const params = new URLSearchParams();
     params.set("concept", slug);
     if (selectedRegions.length) params.set("region", selectedRegions.join(","));
+    if (selectedType) params.set("type_filter", selectedType);
     router.push(`/search?${params}`);
     onClose();
   };
@@ -187,6 +201,37 @@ export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
                 {flag} {code === "uk" ? "EN" : code.toUpperCase()}
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* Type filter */}
+        <div>
+          <div style={sectionLabel}>{TYPE_LABEL[uiLang] ?? TYPE_LABEL.en}</div>
+          <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+            {TYPES.map((t) => {
+              const isActive = selectedType === t.value;
+              return (
+                <button
+                  key={t.value ?? "all"}
+                  onClick={() => setSelectedType(t.value)}
+                  style={{
+                    padding: "4px 10px",
+                    borderRadius: "var(--r-pill)",
+                    border: `1.5px solid ${isActive ? "var(--terra)" : "var(--paper-edge)"}`,
+                    background: isActive ? "var(--terra)" : "transparent",
+                    color: isActive ? "#fff" : "var(--ink-soft)",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    fontFamily: "var(--font-body)",
+                    transition: "all 0.12s",
+                    lineHeight: 1,
+                  }}
+                >
+                  {t.labels[uiLang] ?? t.labels.en}
+                </button>
+              );
+            })}
           </div>
         </div>
 
