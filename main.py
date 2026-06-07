@@ -206,8 +206,15 @@ class UpsertUserRequest(BaseModel):
     avatar_url: str | None = None
 
 
+_VALID_EXPLORE_MODES = {"multilingual", "single"}
+_VALID_CONTENT_TYPES = {"all", "proverbs", "everyday", "slang"}
+
+
 class PreferencesRequest(BaseModel):
     ui_lang: str
+    explore_mode: str = "multilingual"
+    learning_langs: list[str] = []
+    content_type: str = "all"
 
 
 class FavoriteRequest(BaseModel):
@@ -234,7 +241,16 @@ def update_preferences(user_id: str, body: PreferencesRequest):
     """Met à jour les préférences d'un utilisateur."""
     if body.ui_lang not in _VALID_LANGS:
         raise HTTPException(status_code=422, detail=f"ui_lang must be one of {sorted(_VALID_LANGS)}")
-    prefs = database.update_user_preferences(user_id, body.ui_lang)
+    if body.explore_mode not in _VALID_EXPLORE_MODES:
+        raise HTTPException(status_code=422, detail=f"explore_mode must be one of {sorted(_VALID_EXPLORE_MODES)}")
+    if body.content_type not in _VALID_CONTENT_TYPES:
+        raise HTTPException(status_code=422, detail=f"content_type must be one of {sorted(_VALID_CONTENT_TYPES)}")
+    invalid_langs = [l for l in body.learning_langs if l not in _VALID_LANGS]
+    if invalid_langs:
+        raise HTTPException(status_code=422, detail=f"learning_langs contains invalid values: {invalid_langs}")
+    prefs = database.update_user_preferences(
+        user_id, body.ui_lang, body.explore_mode, body.learning_langs, body.content_type
+    )
     if prefs is None:
         raise HTTPException(status_code=404, detail="User not found")
     return prefs

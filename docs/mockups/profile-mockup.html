@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Expressions — Mockup : Mon profil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --paper: #faf7f2;
+    --paper-edge: #e8e0d0;
+    --ink: #1a1208;
+    --ink-soft: #6b5f4a;
+    --plum: #6b4d8f;
+    --plum-bg: #f3eef9;
+    --terra: #c1543a;
+    --terra-bg: #fdf0ec;
+    --ochre: #c4882f;
+    --ochre-bg: #fdf5e6;
+    --sage: #4a7c59;
+    --sage-bg: #eef5f1;
+    --r-sm: 6px;
+    --r-md: 10px;
+    --r-lg: 16px;
+    --r-pill: 999px;
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'IBM Plex Sans', sans-serif;
+    --shadow: 0 2px 12px rgba(26,18,8,0.08);
+    --shadow-card: 0 4px 24px rgba(26,18,8,0.10);
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* Layout */
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 100vh;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    padding: 32px 16px;
+    border-right: 1px solid var(--paper-edge);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .sidebar-logo {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--plum);
+    padding: 0 12px 24px;
+    border-bottom: 1px solid var(--paper-edge);
+    margin-bottom: 16px;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: var(--r-md);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .sidebar-item.active {
+    background: var(--plum-bg);
+    color: var(--plum);
+    font-weight: 600;
+  }
+  .sidebar-item .icon { font-size: 16px; }
+
+  /* Main content */
+  .main {
+    padding: 40px 48px;
+    max-width: 660px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 28px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  /* User card */
+  .user-card {
+    background: white;
+    border: 1px solid var(--paper-edge);
+    border-radius: var(--r-lg);
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow);
+  }
+  .avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--plum);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 28px;
+    color: white;
+    flex-shrink: 0;
+  }
+  .user-info-name {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .user-info-email {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .user-meta {
+    display: flex;
+    gap: 12px;
+  }
+  .meta-chip {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    background: var(--paper);
+    border: 1px solid var(--paper-edge);
+    color: var(--ink-soft);
+  }
+  .meta-chip.highlight {
+    background: var(--terra-bg);
+    border-color: #e8c0b4;
+    color: var(--terra);
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 28px;
+  }
+  .section-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--terra);
+    margin-bottom: 4px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+
+  /* Setting block */
+  .setting-block {
+    background: white;
+    border: 1px solid var(--paper-edge);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+  .setting-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--paper-edge);
+  }
+  .setting-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .setting-desc {
+    font-size: 11px;
+    color: var(--ink-soft);
+    line-height: 1.4;
+  }
+  .setting-body {
+    padding: 14px 20px 16px;
+  }
+
+  /* Lang pills */
+  .lang-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .lang-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: var(--r-pill);
+    border: 1.5px solid var(--paper-edge);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    cursor: pointer;
+    background: transparent;
+  }
+  .lang-pill.active {
+    border-color: var(--plum);
+    background: var(--plum-bg);
+    color: var(--plum);
+    font-weight: 600;
+  }
+
+  /* Radio group */
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .radio-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: var(--r-md);
+    border: 1.5px solid var(--paper-edge);
+    cursor: pointer;
+    transition: all 100ms ease;
+  }
+  .radio-option.active {
+    border-color: var(--plum);
+    background: var(--plum-bg);
+  }
+  .radio-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--paper-edge);
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .radio-option.active .radio-dot {
+    border-color: var(--plum);
+    background: var(--plum);
+    box-shadow: inset 0 0 0 3px white;
+  }
+  .radio-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .radio-sub {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+  .radio-option.active .radio-text { color: var(--plum); font-weight: 600; }
+
+  /* Target lang grid */
+  .lang-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .lang-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: var(--r-md);
+    border: 1.5px solid var(--paper-edge);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+  .lang-option.active {
+    border-color: var(--plum);
+    background: var(--plum-bg);
+    color: var(--plum);
+    font-weight: 600;
+  }
+  .lang-option .flag { font-size: 18px; }
+
+  /* Content type chips */
+  .content-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .content-chip {
+    padding: 8px 16px;
+    border-radius: var(--r-pill);
+    border: 1.5px solid var(--paper-edge);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .content-chip.active {
+    border-color: var(--plum);
+    background: var(--plum-bg);
+    color: var(--plum);
+    font-weight: 600;
+  }
+
+  /* Save button */
+  .save-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .btn-save {
+    padding: 10px 24px;
+    border-radius: var(--r-pill);
+    border: none;
+    background: var(--ink);
+    color: white;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-save:hover { opacity: 0.85; }
+
+  /* Stats mini section */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  .stat-tile {
+    background: white;
+    border: 1px solid var(--paper-edge);
+    border-radius: var(--r-lg);
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .stat-value {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .stat-value.plum { color: var(--plum); }
+  .stat-value.terra { color: var(--terra); }
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Account section */
+  .account-block {
+    background: white;
+    border: 1px solid var(--paper-edge);
+    border-radius: var(--r-lg);
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .account-block-text {}
+  .account-block-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .account-block-desc {
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+  .btn-signout {
+    padding: 8px 18px;
+    border-radius: var(--r-pill);
+    border: 1.5px solid var(--paper-edge);
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-danger {
+    font-size: 12px;
+    color: var(--terra);
+    font-weight: 500;
+    text-decoration: underline;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: var(--font-body);
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--paper-edge);
+    margin: 28px 0;
+  }
+
+  /* Annotation — for mockup clarity */
+  .annotation {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: var(--r-pill);
+    background: #fff8e6;
+    border: 1px solid #f0d080;
+    color: var(--ochre);
+    margin-left: 8px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">World Expressions</div>
+    <a class="sidebar-item" href="#"><span class="icon">🏠</span> Accueil</a>
+    <a class="sidebar-item" href="#"><span class="icon">🗺️</span> Atlas</a>
+    <a class="sidebar-item" href="#"><span class="icon">💡</span> Concepts</a>
+    <a class="sidebar-item" href="#"><span class="icon">♥</span> Mon carnet</a>
+    <a class="sidebar-item" href="#"><span class="icon">🎲</span> Au hasard</a>
+    <a class="sidebar-item active" href="#"><span class="icon">👤</span> Mon profil</a>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <a class="back-link" href="#">← Accueil</a>
+
+    <!-- User card -->
+    <div class="user-card">
+      <div class="avatar">S</div>
+      <div>
+        <div class="user-info-name">Sinan</div>
+        <div class="user-info-email">ssinan.usa@gmail.com</div>
+        <div class="user-meta">
+          <span class="meta-chip">Membre depuis mai 2026</span>
+          <span class="meta-chip highlight">♥ 14 favoris</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-tile">
+        <div class="stat-value">128</div>
+        <div class="stat-label">Expressions vues</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-value plum">7/14</div>
+        <div class="stat-label">Pays explorés</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-value terra">🔥 4</div>
+        <div class="stat-label">Jours d'affilée</div>
+      </div>
+    </div>
+
+    <!-- ── SECTION : INTERFACE ── -->
+    <div class="section">
+      <div class="section-eyebrow">Préférences</div>
+      <div class="section-title">Ton expérience</div>
+
+      <!-- Q0 — Langue UI (déjà implémenté) -->
+      <div class="setting-block">
+        <div class="setting-header">
+          <div class="setting-label">Langue de l'interface</div>
+          <div class="setting-desc">Dans quelle langue tu veux lire les explications et l'interface.</div>
+        </div>
+        <div class="setting-body">
+          <div class="lang-pills">
+            <button class="lang-pill active">🇫🇷 Français</button>
+            <button class="lang-pill">🇺🇸 English</button>
+            <button class="lang-pill">🇪🇸 Español</button>
+            <button class="lang-pill">🇮🇹 Italiano</button>
+            <button class="lang-pill">🇹🇷 Türkçe</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q1 — Mode multilingue / mono-langue -->
+      <div class="setting-block">
+        <div class="setting-header">
+          <div class="setting-label">Comment tu explores <span class="annotation">Question 1</span></div>
+          <div class="setting-desc">Change la façon dont l'app met en avant les expressions.</div>
+        </div>
+        <div class="setting-body">
+          <div class="radio-group">
+            <div class="radio-option active">
+              <div class="radio-dot"></div>
+              <div>
+                <div class="radio-text">Explorer plusieurs langues et les comparer</div>
+                <div class="radio-sub">Tu vois les équivalents cross-langues, les filtres pays, la section "La même idée" bien visible.</div>
+              </div>
+            </div>
+            <div class="radio-option">
+              <div class="radio-dot"></div>
+              <div>
+                <div class="radio-text">Me concentrer sur une seule langue</div>
+                <div class="radio-sub">L'app se simplifie — moins de bruit multilingue, une langue au premier plan. Idéal si tu viens chercher la beauté du français.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q2 — Langues en apprentissage (multi-sélection) -->
+      <div class="setting-block">
+        <div class="setting-header">
+          <div class="setting-label">Tu apprends une langue ? <span class="annotation">Question 2 · multi-sélection</span></div>
+          <div class="setting-desc">Sélectionne une ou plusieurs langues — l'app met en avant leurs équivalents et traductions. Rien de sélectionné = pas de mise en avant spécifique.</div>
+        </div>
+        <div class="setting-body">
+          <div class="lang-pills">
+            <button class="lang-pill" onclick="toggleChip(this)">🇫🇷 Français</button>
+            <button class="lang-pill active" onclick="toggleChip(this)">🇺🇸 English</button>
+            <button class="lang-pill active" onclick="toggleChip(this)">🇮🇹 Italiano</button>
+            <button class="lang-pill" onclick="toggleChip(this)">🇪🇸 Español</button>
+            <button class="lang-pill" onclick="toggleChip(this)">🇹🇷 Türkçe</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q3 — Type d'expressions -->
+      <div class="setting-block">
+        <div class="setting-header">
+          <div class="setting-label">Quelles expressions t'intéressent ? <span class="annotation">Question 3</span></div>
+          <div class="setting-desc">Ce filtre s'applique à tous tes résultats de recherche, pas besoin de le remettre à chaque fois.</div>
+        </div>
+        <div class="setting-body">
+          <div class="content-chips">
+            <button class="content-chip active">Toutes</button>
+            <button class="content-chip">🏛️ Proverbes et sagesse</button>
+            <button class="content-chip">💬 Expressions du quotidien</button>
+            <button class="content-chip">🔥 Argot et familier</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save bar -->
+      <div class="save-bar">
+        <button class="btn-save">Enregistrer mes préférences</button>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- ── SECTION : COMPTE ── -->
+    <div class="section">
+      <div class="section-eyebrow">Compte</div>
+      <div class="section-title">Connexion & données</div>
+
+      <div class="account-block">
+        <div class="account-block-text">
+          <div class="account-block-label">Connecté via Google</div>
+          <div class="account-block-desc">ssinan.usa@gmail.com — tes favoris se synchronisent automatiquement.</div>
+        </div>
+        <button class="btn-signout">Se déconnecter</button>
+      </div>
+
+      <div style="padding: 4px 4px 0; display: flex; justify-content: flex-end;">
+        <button class="btn-danger">Supprimer mon compte et mes données</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Q1 — radio (mono-sélection)
+  document.querySelectorAll('.radio-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      opt.closest('.radio-group').querySelectorAll('.radio-option').forEach(o => o.classList.remove('active'));
+      opt.classList.add('active');
+    });
+  });
+
+  // Q2 — chips langue UI (mono) + chips apprentissage (multi)
+  document.querySelectorAll('.lang-pill[onclick]').forEach(pill => {
+    // handled by inline onclick
+  });
+  // Langue UI : mono-sélection (pas d'onclick inline — géré ici)
+  document.querySelectorAll('.setting-body .lang-pills:not([id])').forEach(group => {
+    group.querySelectorAll('.lang-pill').forEach(pill => {
+      if (!pill.getAttribute('onclick')) {
+        pill.addEventListener('click', () => {
+          group.querySelectorAll('.lang-pill').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+        });
+      }
+    });
+  });
+
+  // Q3 — content chips (multi-sélection, "Toutes" exclusif)
+  const contentChips = document.querySelectorAll('.content-chip');
+  contentChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      if (chip.textContent.trim() === 'Toutes') {
+        contentChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      } else {
+        document.querySelector('.content-chip').classList.remove('active'); // deselect "Toutes"
+        chip.classList.toggle('active');
+        if (![...contentChips].some(c => c.classList.contains('active'))) {
+          document.querySelector('.content-chip').classList.add('active'); // re-select "Toutes" si rien
+        }
+      }
+    });
+  });
+
+  function toggleChip(el) { el.classList.toggle('active'); }
+</script>
+</body>
+</html>

@@ -684,27 +684,58 @@ def upsert_user(google_id: str, email: str, name: Optional[str], avatar_url: Opt
 
 
 def get_user_preferences(user_id: str) -> Optional[dict]:
-    """Retourne les préférences d'un utilisateur (ui_lang)."""
-    sql = text("SELECT id::text, ui_lang FROM users WHERE id = :user_id::uuid")
+    """Retourne les préférences d'un utilisateur."""
+    sql = text("""
+        SELECT id::text, ui_lang, explore_mode, learning_langs, content_type
+        FROM users WHERE id = :user_id::uuid
+    """)
     with engine.connect() as conn:
         row = conn.execute(sql, {"user_id": user_id}).fetchone()
     if row is None:
         return None
-    return {"id": row.id, "ui_lang": row.ui_lang}
+    return {
+        "id": row.id,
+        "ui_lang": row.ui_lang,
+        "explore_mode": row.explore_mode,
+        "learning_langs": list(row.learning_langs) if row.learning_langs else [],
+        "content_type": row.content_type,
+    }
 
 
-def update_user_preferences(user_id: str, ui_lang: str) -> Optional[dict]:
+def update_user_preferences(
+    user_id: str,
+    ui_lang: str,
+    explore_mode: str = "multilingual",
+    learning_langs: list[str] | None = None,
+    content_type: str = "all",
+) -> Optional[dict]:
     """Met à jour les préférences d'un utilisateur. Retourne les nouvelles valeurs."""
     sql = text("""
-        UPDATE users SET ui_lang = :ui_lang
+        UPDATE users
+        SET ui_lang = :ui_lang,
+            explore_mode = :explore_mode,
+            learning_langs = :learning_langs,
+            content_type = :content_type
         WHERE id = :user_id::uuid
-        RETURNING id::text, ui_lang
+        RETURNING id::text, ui_lang, explore_mode, learning_langs, content_type
     """)
     with engine.begin() as conn:
-        row = conn.execute(sql, {"user_id": user_id, "ui_lang": ui_lang}).fetchone()
+        row = conn.execute(sql, {
+            "user_id": user_id,
+            "ui_lang": ui_lang,
+            "explore_mode": explore_mode,
+            "learning_langs": learning_langs or [],
+            "content_type": content_type,
+        }).fetchone()
     if row is None:
         return None
-    return {"id": row.id, "ui_lang": row.ui_lang}
+    return {
+        "id": row.id,
+        "ui_lang": row.ui_lang,
+        "explore_mode": row.explore_mode,
+        "learning_langs": list(row.learning_langs) if row.learning_langs else [],
+        "content_type": row.content_type,
+    }
 
 
 def get_user_favorites(user_id: str) -> list[dict]:
