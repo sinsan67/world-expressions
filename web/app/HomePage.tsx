@@ -33,9 +33,9 @@ const T = {
     anotherOne: "Une autre",
     readFile: "Lire la fiche →",
     atlasTitle: (n: number) => `${n} pays, à toi`,
-    emojiEyebrow: "Par univers",
+    emojiEyebrow: "Par emoji",
     emojiTitle: "Clique, explore, découvre",
-    domainsEyebrow: "Grands domaines",
+    domainsEyebrow: "Univers",
     domainsTitle: "Des univers entiers à explorer",
     atlasEyebrow: "L'atlas",
     moreCountries: "autres pays",
@@ -63,9 +63,9 @@ const T = {
     anotherOne: "Another one",
     readFile: "Read the card →",
     atlasTitle: (n: number) => `${n} countries, yours to explore`,
-    emojiEyebrow: "By universe",
+    emojiEyebrow: "By emoji",
     emojiTitle: "Click, explore, discover",
-    domainsEyebrow: "Major domains",
+    domainsEyebrow: "Universes",
     domainsTitle: "Entire worlds to explore",
     atlasEyebrow: "The atlas",
     moreCountries: "more countries",
@@ -93,9 +93,9 @@ const T = {
     anotherOne: "Otra",
     readFile: "Ver la ficha →",
     atlasTitle: (n: number) => `${n} países, para ti`,
-    emojiEyebrow: "Por universo",
+    emojiEyebrow: "Por emoji",
     emojiTitle: "Haz clic, explora, descubre",
-    domainsEyebrow: "Grandes dominios",
+    domainsEyebrow: "Universos",
     domainsTitle: "Mundos enteros por explorar",
     atlasEyebrow: "El atlas",
     moreCountries: "países más",
@@ -123,9 +123,9 @@ const T = {
     anotherOne: "Başka biri",
     readFile: "Kartı oku →",
     atlasTitle: (n: number) => `${n} ülke, senin için`,
-    emojiEyebrow: "Evrene göre",
+    emojiEyebrow: "Emoji ile keşfet",
     emojiTitle: "Tıkla, keşfet, keşfet",
-    domainsEyebrow: "Ana alanlar",
+    domainsEyebrow: "Evrenler",
     domainsTitle: "Keşfedilecek dünyalar",
     atlasEyebrow: "Atlas",
     moreCountries: "ülke daha",
@@ -153,9 +153,9 @@ const T = {
     anotherOne: "Un'altra",
     readFile: "Leggi la scheda →",
     atlasTitle: (n: number) => `${n} paesi, tuoi da esplorare`,
-    emojiEyebrow: "Per universo",
+    emojiEyebrow: "Per emoji",
     emojiTitle: "Clicca, esplora, scopri",
-    domainsEyebrow: "Grandi domini",
+    domainsEyebrow: "Universi",
     domainsTitle: "Interi mondi da esplorare",
     atlasEyebrow: "L'atlante",
     moreCountries: "altri paesi",
@@ -201,6 +201,16 @@ const PINNED_EMOJI_WALL: Array<{ slug: string; emoji: string; labels: Record<UIL
 
 const REGION_ORDER = ["fr", "en", "es", "it", "tr"];
 
+const COUNTRY_SUB_REGIONS: Record<string, { code: string; name: string; emoji: string }[]> = {
+  fr: [
+    { code: "alsace",   name: "Alsace",   emoji: "🥨" },
+    { code: "bretagne", name: "Bretagne", emoji: "🦞" },
+  ],
+};
+const ALL_SUB_REGION_CODES = new Set(
+  Object.values(COUNTRY_SUB_REGIONS).flat().map((r) => r.code)
+);
+
 const SEARCH_HELP: Record<UILang, string> = {
   fr: "Recherche en plusieurs passes : le mot exact, puis synonymes et tags, puis concepts multilingues. Exemple : « industrie » remonte aussi des expressions en anglais ou turc liées à « work » ou « business ».",
   en: "Search runs in multiple passes: exact word, then synonyms and tags, then multilingual concepts. Example: «industry» also surfaces Spanish or Turkish expressions tagged «work» or «business».",
@@ -233,12 +243,14 @@ export default function HomePage() {
   const [searchLabel, setSearchLabel] = useState("");
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [featured, setFeatured] = useState<(Expression & { meaning_locale: string; literal: string | null }) | null>(null);
+  const [coldStart, setColdStart] = useState(false);
   const [newsletterOpen, setNewsletterOpen] = useState(false);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterLang, setNewsletterLang] = useState<UILang>("en");
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
   const [filterRegions, setFilterRegions] = useState<string[]>([]);
   const [sortMode, setSortMode] = useState<"relevance" | "country">("country");
+  const [expandedRegion, setExpandedRegion] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -472,10 +484,15 @@ export default function HomePage() {
     }
     let cancelled = false;
     let attempt = 0;
+    // Show cold start message if backend doesn't respond within 5s (Render free tier)
+    const coldTimer = setTimeout(() => {
+      if (!featuredLoadedRef.current) setColdStart(true);
+    }, 5000);
     const tryFetch = () => {
       getRandomExpression(uiLang).then((expr) => {
         if (cancelled) return;
         setFeatured(expr);
+        setColdStart(false);
         featuredLoadedRef.current = true;
         sessionStorage.setItem("featured_expression", JSON.stringify(expr));
         sessionStorage.setItem("featured_lang", uiLang);
@@ -487,7 +504,7 @@ export default function HomePage() {
       });
     };
     tryFetch();
-    return () => { cancelled = true; };
+    return () => { cancelled = true; clearTimeout(coldTimer); };
   }, [uiLang]);
 
   // When UI language changes on an already-loaded expression, re-fetch translation
@@ -557,12 +574,12 @@ export default function HomePage() {
         {!searched && (
           <HeroSection
             featured={featured}
+            coldStart={coldStart}
             uiLang={uiLang}
-            regions={regions}
             tagNames={tagNames}
             onRefresh={refreshFeatured}
             onConceptClick={(tag) => { const icon = tagIcon(tag) ?? ""; const name = tagNames[tag] ?? tag; setSearchLabel(`${icon ? icon + " " : ""}${name}`); runConceptSearch(tag); }}
-            t={{ expressionOfDay: t.expressionOfDay, anotherOne: t.anotherOne, readFile: t.readFile, atlasTitle: t.atlasTitle(regions.length), atlasEyebrow: t.atlasEyebrow, moreCountries: t.moreCountries, types: t.types, registers: t.registers }}
+            t={{ expressionOfDay: t.expressionOfDay, anotherOne: t.anotherOne, readFile: t.readFile, types: t.types, registers: t.registers }}
           />
         )}
 
@@ -729,6 +746,138 @@ export default function HomePage() {
           )}
         </div>
 
+        {/* Atlas section */}
+        {!searched && (
+          <section style={{ padding: "2rem 1.5rem 2.5rem", borderTop: "1px solid var(--paper-edge)" }}>
+            <div style={{ maxWidth: 900, margin: "0 auto" }}>
+              <Eyebrow tone="softer">{t.atlasEyebrow}</Eyebrow>
+              <h2 style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--ink)", margin: "0.4rem 0 1.25rem", fontWeight: 500 }}>
+                {t.atlasTitle(regions.filter((r) => !ALL_SUB_REGION_CODES.has(r.code)).length)}
+              </h2>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "flex-start" }}>
+                {regions.filter((r) => !ALL_SUB_REGION_CODES.has(r.code)).map((r, i) => {
+                  const hasSubRegions = !!COUNTRY_SUB_REGIONS[r.code];
+                  const isExpanded = expandedRegion === r.code;
+                  const isGrayed = expandedRegion !== null && !isExpanded;
+                  return (
+                    <div key={r.code} style={{ opacity: isGrayed ? 0.3 : 1, transition: "opacity 200ms ease" }}>
+                      <CountryStamp
+                        country={r.code}
+                        flag={FLAG[r.code] ?? "🌍"}
+                        name={COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}
+                        size="sm"
+                        tilt={i % 2 === 0 ? 0.8 : -0.6}
+                        onClick={() => {
+                          if (hasSubRegions) {
+                            setExpandedRegion(isExpanded ? null : r.code);
+                          } else {
+                            router.push(`/country/${r.code}`);
+                          }
+                        }}
+                      />
+                    </div>
+                  );
+                })}
+
+                {/* Sub-regions panel — shown below all stamps when a country is expanded */}
+                {expandedRegion && COUNTRY_SUB_REGIONS[expandedRegion] && (
+                  <div style={{
+                    flexBasis: "100%",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "0.625rem",
+                    alignItems: "center",
+                    marginTop: "0.5rem",
+                    paddingLeft: "0.75rem",
+                    borderLeft: "2px solid var(--paper-edge)",
+                  }}>
+                    {COUNTRY_SUB_REGIONS[expandedRegion].map((sub) => (
+                      <button
+                        key={sub.code}
+                        onClick={() => router.push(`/regions/${sub.code}`)}
+                        style={{
+                          display: "flex", alignItems: "center", gap: "0.4rem",
+                          padding: "0.4rem 0.875rem",
+                          borderRadius: "var(--r-pill)",
+                          border: "1.5px solid var(--paper-edge)",
+                          background: "var(--paper-deep)",
+                          color: "var(--ink-soft)",
+                          fontSize: 13, fontWeight: 600, cursor: "pointer",
+                          fontFamily: "var(--font-body)",
+                          transition: "border-color 150ms ease, background 150ms ease, color 150ms ease",
+                        }}
+                        onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--plum)"; el.style.background = "var(--plum-bg)"; el.style.color = "var(--plum)"; }}
+                        onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--paper-edge)"; el.style.background = "var(--paper-deep)"; el.style.color = "var(--ink-soft)"; }}
+                      >
+                        <span>{sub.emoji}</span>
+                        <span>{sub.name}</span>
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => { setExpandedRegion(null); router.push(`/country/${expandedRegion}`); }}
+                      style={{
+                        padding: "0.4rem 0.75rem",
+                        borderRadius: "var(--r-pill)",
+                        border: "none",
+                        background: "none",
+                        color: "var(--ink-faint)",
+                        fontSize: 12, cursor: "pointer",
+                        fontFamily: "var(--font-body)",
+                        transition: "color 150ms ease",
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-soft)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-faint)"; }}
+                    >
+                      → {COUNTRY_NAME[expandedRegion] ?? expandedRegion} (tous)
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Editorial Domains section */}
+        {!searched && (
+          <section style={{ padding: "2rem 1.5rem 2.5rem", borderTop: "1px solid var(--paper-edge)" }}>
+            <div style={{ maxWidth: 900, margin: "0 auto" }}>
+              <Eyebrow tone="softer">{t.domainsEyebrow}</Eyebrow>
+              <h2 style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--ink)", margin: "0.4rem 0 1.25rem", fontWeight: 500 }}>
+                {t.domainsTitle}
+              </h2>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(145px, 1fr))", gap: "0.75rem" }}>
+                {EDITORIAL_DOMAINS.map((d) => (
+                  <button
+                    key={d.slug}
+                    onClick={() => router.push(`/domain/${encodeURIComponent(d.slug)}`)}
+                    style={{
+                      display: "flex", flexDirection: "column", alignItems: "flex-start",
+                      background: d.bg, border: `1px solid ${d.border}`, borderRadius: 14,
+                      padding: "1rem 0.875rem", cursor: "pointer", textAlign: "left",
+                      transition: "transform 0.15s, box-shadow 0.15s",
+                    }}
+                    onMouseEnter={(e) => {
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.transform = "translateY(-3px)";
+                      el.style.boxShadow = "0 8px 24px rgba(0,0,0,0.10)";
+                    }}
+                    onMouseLeave={(e) => {
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.transform = "";
+                      el.style.boxShadow = "";
+                    }}
+                  >
+                    <span style={{ fontSize: 28, lineHeight: 1, marginBottom: "0.5rem" }}>{d.emoji}</span>
+                    <span style={{ fontFamily: "var(--font-display)", fontSize: 14, fontWeight: 600, color: "var(--ink)", fontStyle: "italic", display: "block", lineHeight: 1.3 }}>
+                      {d.labels[uiLang]}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Emoji Wall section */}
         {!searched && (
           <section style={{ background: "var(--paper-deep)", borderTop: "1px solid var(--paper-edge)", padding: "2rem 1.5rem" }}>
@@ -768,73 +917,6 @@ export default function HomePage() {
                   </button>
                 ))}
               </div>
-            </div>
-          </section>
-        )}
-
-        {/* Editorial Domains section */}
-        {!searched && (
-          <section style={{ padding: "2rem 1.5rem 2.5rem", borderTop: "1px solid var(--paper-edge)" }}>
-            <div style={{ maxWidth: 900, margin: "0 auto" }}>
-              <Eyebrow tone="softer">{t.domainsEyebrow}</Eyebrow>
-              <h2 style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--ink)", margin: "0.4rem 0 1.25rem", fontWeight: 500 }}>
-                {t.domainsTitle}
-              </h2>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.875rem" }}>
-                {EDITORIAL_DOMAINS.map((d) => (
-                  <button
-                    key={d.slug}
-                    onClick={() => router.push(`/domain/${encodeURIComponent(d.slug)}`)}
-                    style={{
-                      display: "flex", flexDirection: "column", alignItems: "flex-start",
-                      background: d.bg, border: `1px solid ${d.border}`, borderRadius: 16,
-                      padding: "1.25rem 1rem", cursor: "pointer", textAlign: "left",
-                      transition: "transform 0.15s, box-shadow 0.15s",
-                    }}
-                    onMouseEnter={(e) => {
-                      const el = e.currentTarget as HTMLElement;
-                      el.style.transform = "translateY(-4px)";
-                      el.style.boxShadow = "0 10px 30px rgba(0,0,0,0.12)";
-                    }}
-                    onMouseLeave={(e) => {
-                      const el = e.currentTarget as HTMLElement;
-                      el.style.transform = "";
-                      el.style.boxShadow = "";
-                    }}
-                  >
-                    <span style={{ fontSize: 36, lineHeight: 1, marginBottom: "0.625rem" }}>{d.emoji}</span>
-                    <span style={{ fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 600, color: "var(--ink)", marginBottom: "0.3rem", fontStyle: "italic", display: "block" }}>
-                      {d.labels[uiLang]}
-                    </span>
-                    <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--ink-softer)", lineHeight: 1.4 }}>
-                      {d.desc[uiLang]}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Atlas section — mobile only (desktop has atlas card in hero) */}
-        {!searched && (
-          <section className="wex-mobile-header" style={{ flexDirection: "column", padding: "2rem 1.5rem", borderTop: "1px solid var(--paper-edge)" }}>
-            <Eyebrow tone="softer">{t.atlasEyebrow}</Eyebrow>
-            <h2 style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--ink)", margin: "0.4rem 0 1.25rem", fontWeight: 500 }}>
-              {t.atlasTitle(regions.length)}
-            </h2>
-            <div style={{ display: "flex", gap: "0.75rem", overflowX: "auto", paddingBottom: "0.5rem" }}>
-              {regions.map((r, i) => (
-                <CountryStamp
-                  key={r.code}
-                  country={r.code}
-                  flag={FLAG[r.code] ?? "🌍"}
-                  name={COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}
-                  size="sm"
-                  tilt={i % 2 === 0 ? 0.8 : -0.6}
-                  onClick={() => router.push(`/country/${r.code}`)}
-                />
-              ))}
             </div>
           </section>
         )}

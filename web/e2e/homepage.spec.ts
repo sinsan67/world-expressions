@@ -40,7 +40,7 @@ test.describe('Homepage — modal bienvenue', () => {
     await page.goto('/');
     await page.evaluate(() => localStorage.setItem('wex_lang', 'fr'));
     await page.reload();
-    await page.waitForLoadState('networkidle');
+    await page.locator('input.wex-input').first().waitFor({ timeout: T });
     const modal = page.locator('[role="dialog"]').first();
     await expect(modal).not.toBeVisible();
   });

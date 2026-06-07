@@ -15,6 +15,7 @@ import { tagIcon } from "@/lib/tagIcons";
 import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { LANG_FLAG, LANG_NATIVE } from "@/lib/langDefs";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
+import { TYPE_LABELS } from "@/lib/typeLabels";
 
 const LIMIT = 20;
 type UILang = "fr" | "en" | "es" | "it" | "tr";
@@ -170,6 +171,7 @@ function SearchPageContent() {
   const conceptParam = searchParams.get("concept") ?? "";
   const domainParam = searchParams.get("domain") ?? "";
   const regionParam = searchParams.get("region") ?? "";
+  const typeParam = searchParams.get("type_filter") ?? "";
 
   const [uiLang, setUILang] = useState<UILang>("en");
   const [query, setQuery] = useState(qParam);
@@ -190,6 +192,7 @@ function SearchPageContent() {
   const [displayMode, setDisplayMode] = useState<"split" | "mix">("split");
   const [conceptBridgeResults, setConceptBridgeResults] = useState<Expression[]>([]);
   const [detectedConceptSlugs, setDetectedConceptSlugs] = useState<string[]>([]);
+  const [typeFilter, setTypeFilter] = useState<string | null>(typeParam || null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const allRegionCodes = regions.map((r) => r.code);
   const t = T[uiLang];
@@ -257,7 +260,7 @@ function SearchPageContent() {
 
   // ─── Handlers ───
 
-  const runSearch = useCallback(async (q: string, concept: string, domain: string, rf: string[], allCodes: string[], lang: UILang) => {
+  const runSearch = useCallback(async (q: string, concept: string, domain: string, rf: string[], allCodes: string[], lang: UILang, tf: string | null = null) => {
     const regionCodes = rf.length ? rf : allCodes;
     setLoading(true);
     setHasError(false);
@@ -271,13 +274,13 @@ function SearchPageContent() {
       let data;
       if (domain && !q && !concept) {
         setSearchMode("concept");
-        data = await searchByDomain(domain, regionCodes, LIMIT, 0, lang);
+        data = await searchByDomain(domain, regionCodes, LIMIT, 0, lang, tf ?? undefined);
       } else if (concept && !q) {
         setSearchMode("concept");
-        data = await searchByConcept([concept], regionCodes, LIMIT, 0, undefined, lang);
+        data = await searchByConcept([concept], regionCodes, LIMIT, 0, tf ?? undefined, lang);
       } else {
         setSearchMode("text");
-        data = await searchExpressions(q, regionCodes, LIMIT, 0, undefined, lang);
+        data = await searchExpressions(q, regionCodes, LIMIT, 0, tf ?? undefined, lang);
         if (data.detected_concepts?.length) {
           setDetectedConceptSlugs(data.detected_concepts);
           searchByConcept(data.detected_concepts, allCodes, 12, 0, undefined, lang).then(bridge => {
@@ -342,6 +345,12 @@ function SearchPageContent() {
     router.replace(`/search?${params}`);
   }, [router, qParam, conceptParam, domainParam]);
 
+  const handleTypeFilter = useCallback((newType: string | null) => {
+    setTypeFilter(newType);
+    const rf = filterRegions.length > 0 ? filterRegions : allRegionCodes;
+    runSearch(qParam, conceptParam, domainParam, rf, allRegionCodes, uiLang, newType);
+  }, [filterRegions, allRegionCodes, qParam, conceptParam, domainParam, uiLang, runSearch]);
+
   // ─── Effects ───
 
   useEffect(() => {
@@ -368,10 +377,12 @@ function SearchPageContent() {
     if (!allRegionCodesKey) return;
     if (!qParam && !conceptParam && !domainParam) return;
     const rf = regionParam ? regionParam.split(",").filter(Boolean) : [];
+    const tf = typeParam || null;
     setFilterRegions(rf);
-    runSearch(qParam, conceptParam, domainParam, rf, allRegionCodes, uiLang);
+    setTypeFilter(tf);
+    runSearch(qParam, conceptParam, domainParam, rf, allRegionCodes, uiLang, tf);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [qParam, conceptParam, domainParam, regionParam, allRegionCodesKey, runSearch]);
+  }, [qParam, conceptParam, domainParam, regionParam, typeParam, allRegionCodesKey, runSearch]);
 
   // Keep input in sync with URL (e.g. after browser back)
   useEffect(() => {
@@ -498,6 +509,36 @@ function SearchPageContent() {
                 sortMode={sortMode}
                 onSortChange={setSortMode}
                 uiLang={uiLang}
+                typeSlot={
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                    {([null, "idiom", "proverb", "locution"] as const).map((type) => {
+                      const isActive = typeFilter === type;
+                      const label = type === null
+                        ? (uiLang === "fr" ? "Tous" : uiLang === "es" ? "Todos" : uiLang === "it" ? "Tutti" : uiLang === "tr" ? "Tümü" : "All")
+                        : (TYPE_LABELS[type]?.[uiLang] ?? TYPE_LABELS[type]?.["en"] ?? type);
+                      return (
+                        <button
+                          key={type ?? "all"}
+                          onClick={() => handleTypeFilter(type)}
+                          style={{
+                            fontSize: 12,
+                            padding: "4px 12px",
+                            borderRadius: "var(--r-pill)",
+                            background: isActive ? "var(--terra)" : "var(--paper)",
+                            border: `1.5px solid ${isActive ? "var(--terra)" : "var(--paper-edge)"}`,
+                            color: isActive ? "#fff" : "var(--terra)",
+                            cursor: "pointer",
+                            fontWeight: 500,
+                            transition: "all 0.15s",
+                            fontFamily: "var(--font-body)",
+                          }}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                }
               />
             </div>
           )}

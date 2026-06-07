@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Mockup — Options design Postmark</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f5f0e8;
+    font-family: Georgia, serif;
+    padding: 2rem;
+    color: #2a1f14;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 400;
+    font-style: italic;
+    margin-bottom: 0.25rem;
+    color: #2a1f14;
+  }
+  .subtitle {
+    font-size: 0.8rem;
+    color: #888;
+    font-family: system-ui, sans-serif;
+    letter-spacing: 0.04em;
+    margin-bottom: 2.5rem;
+    text-transform: uppercase;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 2rem;
+  }
+  .option {
+    background: #fffdf8;
+    border-radius: 16px;
+    border: 1px solid #e8e0d0;
+    padding: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .option-label {
+    font-family: system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #a0896a;
+    margin-bottom: 0.5rem;
+  }
+  .option-title {
+    font-size: 1rem;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    color: #2a1f14;
+  }
+  .option-desc {
+    font-family: system-ui, sans-serif;
+    font-size: 12px;
+    color: #888;
+    margin-top: 1rem;
+    line-height: 1.5;
+    border-top: 1px dashed #e0d8c8;
+    padding-top: 0.75rem;
+  }
+  .demo-area {
+    background: #fdf8ee;
+    border-radius: 12px;
+    border: 1px solid #e8e0d0;
+    padding: 1.25rem;
+    position: relative;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── OPTION A — actuel : implémenté ── */
+  .stamp-a {
+    position: relative;
+    width: 72px;
+    height: 72px;
+  }
+  .stamp-a__gradient {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    background: linear-gradient(90deg, #c60b1e 25%, #f1bf00 25% 75%, #c60b1e 75%);
+    opacity: 0.10;
+  }
+  .stamp-a__circle {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    border: 2px solid #b85c3a;
+    box-shadow: inset 0 0 0 3px rgba(184,92,58,0.2);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .stamp-a__flag {
+    position: absolute;
+    top: -10px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 22px;
+    line-height: 1;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.2));
+    z-index: 2;
+  }
+  .stamp-date {
+    font-size: 15px; font-weight: 700;
+    color: #b85c3a; line-height: 1.1;
+  }
+  .stamp-month {
+    font-size: 9px; font-weight: 600;
+    color: #8a3a1a;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── OPTION B — rectangle tampon postal ── */
+  .stamp-b {
+    position: relative;
+    width: 80px;
+    height: 52px;
+    transform: rotate(10deg);
+  }
+  .stamp-b__bg {
+    position: absolute; inset: 0;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #c60b1e 25%, #f1bf00 25% 75%, #c60b1e 75%);
+    opacity: 0.08;
+  }
+  .stamp-b__border {
+    position: absolute; inset: 0;
+    border-radius: 6px;
+    border: 2px solid #b85c3a;
+    box-shadow: inset 0 0 0 2px rgba(184,92,58,0.2);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1px;
+  }
+  .stamp-b__flag {
+    font-size: 14px; line-height: 1;
+  }
+  .stamp-b__date {
+    font-size: 12px; font-weight: 700;
+    color: #b85c3a; line-height: 1;
+    font-family: Georgia, serif;
+  }
+  .stamp-b__month {
+    font-size: 8px; font-weight: 600;
+    color: #8a3a1a; letter-spacing: 0.05em;
+  }
+
+  /* ── OPTION C — bandeau drapeau diagonal ── */
+  .stamp-c-wrap {
+    position: relative;
+    width: 72px;
+    height: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: rotate(8deg);
+  }
+  .stamp-c__ribbon {
+    font-size: 28px;
+    line-height: 1;
+    margin-bottom: -6px;
+    position: relative;
+    z-index: 2;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.18));
+  }
+  .stamp-c__circle {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    border: 2px solid #b85c3a;
+    box-shadow: inset 0 0 0 3px rgba(184,92,58,0.2);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: #fffdf8;
+  }
+  /* Diagonal stripe through circle */
+  .stamp-c__stripe {
+    position: absolute;
+    top: -8px; left: -8px; right: -8px;
+    height: 14px;
+    background: linear-gradient(90deg, #c60b1e 25%, #f1bf00 25% 75%, #c60b1e 75%);
+    opacity: 0.18;
+    transform: rotate(-15deg);
+  }
+
+  /* ── OPTION D — minimaliste, sans cercle ── */
+  .stamp-d {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    transform: rotate(6deg);
+  }
+  .stamp-d__flag {
+    font-size: 28px;
+    line-height: 1;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.15));
+  }
+  .stamp-d__line {
+    width: 48px;
+    height: 1.5px;
+    background: #b85c3a;
+    opacity: 0.5;
+  }
+  .stamp-d__date {
+    font-size: 14px; font-weight: 700;
+    color: #b85c3a; line-height: 1;
+    font-family: Georgia, serif;
+  }
+  .stamp-d__month {
+    font-size: 9px; font-weight: 600;
+    color: #8a3a1a; letter-spacing: 0.06em;
+  }
+
+  .implemented-badge {
+    display: inline-block;
+    background: #e8f5e8;
+    color: #3a8a3a;
+    font-family: system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid #b8d8b8;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+
+<h1>Options design — Tampon postal (Postmark)</h1>
+<p class="subtitle">World Expressions · Juin 2026 · Choisir une option</p>
+
+<div class="grid">
+
+  <!-- OPTION A — implémenté -->
+  <div class="option">
+    <div class="option-label">Option A <span class="implemented-badge">Implémenté</span></div>
+    <div class="option-title">Cercle + emoji au-dessus + gradient très transparent</div>
+    <div class="demo-area">
+      <div class="stamp-a">
+        <div class="stamp-a__flag">🇪🇸</div>
+        <div class="stamp-a__gradient"></div>
+        <div class="stamp-a__circle">
+          <span class="stamp-date">08</span>
+          <span class="stamp-month">JUN '26</span>
+        </div>
+      </div>
+    </div>
+    <div class="option-desc">
+      Le drapeau sort du cercle par le haut (emoji flottant). Le cercle garde les couleurs du pays en très légère teinte (10% opacity). Texte en terra, lisible. <strong>C'est le design actuellement en ligne.</strong>
+    </div>
+  </div>
+
+  <!-- OPTION B — rectangle tampon postal -->
+  <div class="option">
+    <div class="option-label">Option B</div>
+    <div class="option-title">Rectangle incliné — style tampon de bureau</div>
+    <div class="demo-area">
+      <div class="stamp-b">
+        <div class="stamp-b__bg"></div>
+        <div class="stamp-b__border">
+          <span class="stamp-b__flag">🇪🇸</span>
+          <span class="stamp-b__date">08</span>
+          <span class="stamp-b__month">JUN '26</span>
+        </div>
+      </div>
+    </div>
+    <div class="option-desc">
+      Forme rectangulaire, très inclinée (10°), comme un tampon encreur. Le drapeau est à l'intérieur, le gradient national est très discret en fond. Evoque un vrai tampon de correspondance.
+    </div>
+  </div>
+
+  <!-- OPTION C — cercle + stripe diagonale -->
+  <div class="option">
+    <div class="option-label">Option C</div>
+    <div class="option-title">Cercle + bande diagonale du drapeau</div>
+    <div class="demo-area">
+      <div class="stamp-c-wrap">
+        <div class="stamp-c__ribbon">🇪🇸</div>
+        <div class="stamp-c__circle">
+          <div class="stamp-c__stripe"></div>
+          <span class="stamp-date" style="position:relative;z-index:1;">08</span>
+          <span class="stamp-month" style="position:relative;z-index:1;">JUN '26</span>
+        </div>
+      </div>
+    </div>
+    <div class="option-desc">
+      Cercle classique avec une bande diagonale aux couleurs du pays qui traverse le cercle en oblique — effet "cachet officiel". L'emoji sort du cercle par le haut.
+    </div>
+  </div>
+
+  <!-- OPTION D — minimaliste sans cercle -->
+  <div class="option">
+    <div class="option-label">Option D</div>
+    <div class="option-title">Minimaliste — drapeau + date, sans cercle</div>
+    <div class="demo-area">
+      <div class="stamp-d">
+        <span class="stamp-d__flag">🇪🇸</span>
+        <div class="stamp-d__line"></div>
+        <span class="stamp-d__date">08</span>
+        <span class="stamp-d__month">JUN '26</span>
+      </div>
+    </div>
+    <div class="option-desc">
+      Plus épuré : on supprime le cercle. Juste le drapeau, un trait horizontal, et la date. Léger et lisible, sans surcharge. Le plus "typographie" des quatre.
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

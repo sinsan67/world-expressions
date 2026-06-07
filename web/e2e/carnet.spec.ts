@@ -36,7 +36,7 @@ test.describe('Page /carnet', () => {
     await page.goto('/');
     await seedCarnet(page);
     await page.goto('/carnet');
-    await page.waitForLoadState('networkidle');
+    await page.locator('main, [role="main"]').first().waitFor({ timeout: T });
     // Au moins une tuile de stat visible (wrapped in .wex-atlas-card)
     await expect(page.locator('.wex-atlas-card').first()).toBeVisible({ timeout: T });
   });
@@ -45,7 +45,7 @@ test.describe('Page /carnet', () => {
     await page.goto('/');
     await seedCarnet(page);
     await page.goto('/carnet');
-    await page.waitForLoadState('networkidle');
+    await page.locator('main, [role="main"]').first().waitFor({ timeout: T });
     const historyTab = page.locator('[role="tab"]').filter({ hasText: /historique|history/i }).first();
     if (await historyTab.isVisible({ timeout: T }).catch(() => false)) {
       await historyTab.click();
@@ -60,7 +60,7 @@ test.describe('Page /carnet', () => {
     await page.goto('/');
     await seedCarnet(page);
     await page.goto('/carnet');
-    await page.waitForLoadState('networkidle');
+    await page.locator('main, [role="main"]').first().waitFor({ timeout: T });
     const notesTab = page.locator('[role="tab"]').filter({ hasText: /notes?/i }).first();
     if (await notesTab.isVisible({ timeout: T }).catch(() => false)) {
       await notesTab.click();
@@ -80,7 +80,7 @@ test.describe('Page /carnet', () => {
       localStorage.setItem('wex_carnet', JSON.stringify(carnet));
     });
     await page.goto('/carnet');
-    await page.waitForLoadState('networkidle');
+    await page.locator('main, [role="main"]').first().waitFor({ timeout: T });
     const closeBtn = page.locator('button[aria-label*="fermer"], button[aria-label*="close"], button').filter({ hasText: /✕|×|close|fermer/i }).first();
     if (await closeBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
       await closeBtn.click();
@@ -92,7 +92,7 @@ test.describe('Page /carnet', () => {
     await page.goto('/');
     await seedCarnet(page);
     await page.goto('/carnet');
-    await page.waitForLoadState('networkidle');
+    await page.locator('main, [role="main"]').first().waitFor({ timeout: T });
     const downloadPromise = page.waitForEvent('download', { timeout: 10000 }).catch(() => null);
     const exportBtn = page.locator('button').filter({ hasText: /json/i }).first();
     if (await exportBtn.isVisible({ timeout: T }).catch(() => false)) {
@@ -108,7 +108,7 @@ test.describe('Page /carnet', () => {
     await page.goto('/');
     await seedCarnet(page);
     await page.goto('/carnet');
-    await page.waitForLoadState('networkidle');
+    await page.locator('main, [role="main"]').first().waitFor({ timeout: T });
     const downloadPromise = page.waitForEvent('download', { timeout: 10000 }).catch(() => null);
     const exportBtn = page.locator('button').filter({ hasText: /csv/i }).first();
     if (await exportBtn.isVisible({ timeout: T }).catch(() => false)) {

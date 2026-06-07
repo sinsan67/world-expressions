@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
@@ -8,12 +8,15 @@ import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
 import ExpressionCard from "@/components/ExpressionCard";
 import { tagIcon } from "@/lib/tagIcons";
-import { searchByDomain, getConcepts, getAllTagNames, ConceptItem, Expression } from "@/lib/api";
+import { searchByDomain, getConcepts, getAllTagNames, getRegions, ConceptItem, Expression } from "@/lib/api";
 import { EDITORIAL_DOMAIN_MAP } from "@/lib/editorialDomains";
+import { TYPE_LABELS } from "@/lib/typeLabels";
+import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
 type UILang = "fr" | "en" | "es" | "it" | "tr";
 
 const LIMIT = 30;
+const CONCEPTS_PREVIEW = 6;
 
 const T: Record<UILang, {
   back: string;
@@ -24,6 +27,11 @@ const T: Record<UILang, {
   concepts: string;
   expressions: string;
   nExpressions: (n: number) => string;
+  showMore: (n: number) => string;
+  showLess: string;
+  filterByType: string;
+  allTypes: string;
+  allCountries: string;
 }> = {
   fr: {
     back: "Accueil",
@@ -34,6 +42,11 @@ const T: Record<UILang, {
     concepts: "Thèmes",
     expressions: "Expressions",
     nExpressions: (n) => `${n} expression${n > 1 ? "s" : ""}`,
+    showMore: (n) => `Voir les ${n} autres →`,
+    showLess: "Voir moins",
+    filterByType: "Filtrer par type",
+    allTypes: "Tous",
+    allCountries: "Tous les pays",
   },
   en: {
     back: "Home",
@@ -44,6 +57,11 @@ const T: Record<UILang, {
     concepts: "Themes",
     expressions: "Expressions",
     nExpressions: (n) => `${n} expression${n > 1 ? "s" : ""}`,
+    showMore: (n) => `Show ${n} more →`,
+    showLess: "Show less",
+    filterByType: "Filter by type",
+    allTypes: "All",
+    allCountries: "All countries",
   },
   es: {
     back: "Inicio",
@@ -54,6 +72,11 @@ const T: Record<UILang, {
     concepts: "Temas",
     expressions: "Expresiones",
     nExpressions: (n) => `${n} expresion${n > 1 ? "es" : ""}`,
+    showMore: (n) => `Ver ${n} más →`,
+    showLess: "Ver menos",
+    filterByType: "Filtrar por tipo",
+    allTypes: "Todos",
+    allCountries: "Todos los países",
   },
   it: {
     back: "Home",
@@ -64,6 +87,11 @@ const T: Record<UILang, {
     concepts: "Temi",
     expressions: "Espressioni",
     nExpressions: (n) => `${n} espression${n > 1 ? "i" : "e"}`,
+    showMore: (n) => `Vedi altri ${n} →`,
+    showLess: "Vedi meno",
+    filterByType: "Filtra per tipo",
+    allTypes: "Tutti",
+    allCountries: "Tutti i paesi",
   },
   tr: {
     back: "Ana sayfa",
@@ -74,6 +102,11 @@ const T: Record<UILang, {
     concepts: "Temalar",
     expressions: "Deyimler",
     nExpressions: (n) => `${n} deyim`,
+    showMore: (n) => `${n} tanesini daha gör →`,
+    showLess: "Daha az göster",
+    filterByType: "Türe göre filtrele",
+    allTypes: "Tümü",
+    allCountries: "Tüm ülkeler",
   },
 };
 
@@ -86,17 +119,36 @@ export default function DomainPage() {
 
   const [uiLang, setUILang] = useState<UILang>("en");
   const [concepts, setConcepts] = useState<ConceptItem[]>([]);
+  const [conceptsExpanded, setConceptsExpanded] = useState(false);
   const [expressions, setExpressions] = useState<Expression[]>([]);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
+  const [typeFilter, setTypeFilter] = useState<string | null>(null);
+  const [regions, setRegions] = useState<{ code: string }[]>([]);
+  const [filterRegions, setFilterRegions] = useState<string[]>([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
     if (stored && ["fr", "en", "es", "it", "tr"].includes(stored)) setUILang(stored);
   }, []);
+
+  useEffect(() => {
+    getRegions().then((data) => setRegions(data.map((r) => ({ code: r.code }))));
+  }, []);
+
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setDropdownOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [dropdownOpen]);
 
   // Fetch concepts and initial expressions
   useEffect(() => {
@@ -104,6 +156,8 @@ export default function DomainPage() {
     setLoading(true);
     setExpressions([]);
     setOffset(0);
+    setTypeFilter(null);
+    setConceptsExpanded(false);
 
     Promise.all([
       getConcepts(uiLang, "", slug, 1),
@@ -121,17 +175,51 @@ export default function DomainPage() {
       .finally(() => setLoading(false));
   }, [slug, uiLang]);
 
+  const applyTypeFilter = useCallback(async (newType: string | null) => {
+    setTypeFilter(newType);
+    setLoading(true);
+    setExpressions([]);
+    setOffset(0);
+    try {
+      const data = await searchByDomain(slug, filterRegions, LIMIT, 0, uiLang, newType ?? undefined);
+      setExpressions(data.results);
+      setTotal(data.total);
+      setOffset(LIMIT);
+    } catch {
+      // silent
+    } finally {
+      setLoading(false);
+    }
+  }, [slug, filterRegions, uiLang]);
+
+  const applyCountryFilter = useCallback(async (newRegions: string[]) => {
+    setFilterRegions(newRegions);
+    setLoading(true);
+    setExpressions([]);
+    setOffset(0);
+    try {
+      const data = await searchByDomain(slug, newRegions, LIMIT, 0, uiLang, typeFilter ?? undefined);
+      setExpressions(data.results);
+      setTotal(data.total);
+      setOffset(LIMIT);
+    } catch {
+      // silent
+    } finally {
+      setLoading(false);
+    }
+  }, [slug, typeFilter, uiLang]);
+
   const loadMore = useCallback(async () => {
     if (loadingMore) return;
     setLoadingMore(true);
     try {
-      const data = await searchByDomain(slug, [], LIMIT, offset, uiLang);
+      const data = await searchByDomain(slug, filterRegions, LIMIT, offset, uiLang, typeFilter ?? undefined);
       setExpressions((prev) => [...prev, ...data.results]);
       setOffset((o) => o + LIMIT);
     } finally {
       setLoadingMore(false);
     }
-  }, [slug, offset, loadingMore, uiLang]);
+  }, [slug, offset, filterRegions, loadingMore, uiLang, typeFilter]);
 
   const changeLang = useCallback((lang: UILang) => {
     setUILang(lang);
@@ -147,6 +235,8 @@ export default function DomainPage() {
 
   const t = T[uiLang];
   const hasMore = expressions.length < total;
+  const visibleConcepts = conceptsExpanded ? concepts : concepts.slice(0, CONCEPTS_PREVIEW);
+  const hiddenCount = concepts.length - CONCEPTS_PREVIEW;
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
@@ -234,27 +324,30 @@ export default function DomainPage() {
           </div>
 
           {loading ? (
-            <p style={{ fontFamily: "var(--font-body)", color: "var(--ink-faint)", fontSize: 14 }}>
-              {t.loading}
-            </p>
+            <div style={{ display: "flex", justifyContent: "center", paddingTop: "3rem" }}>
+              <div
+                className="w-7 h-7 rounded-full border-2 border-t-transparent animate-spin"
+                style={{ borderColor: "var(--plum-bg)", borderTopColor: "var(--plum)" }}
+              />
+            </div>
           ) : (
             <>
-              {/* Concept pills */}
+              {/* Concept chips — collapsed by default */}
               {concepts.length > 0 && (
-                <section style={{ marginBottom: "2rem" }}>
-                  <h2 style={{
-                    fontFamily: "var(--font-body)",
+                <section style={{ marginBottom: "1.75rem" }}>
+                  <p style={{
                     fontSize: 11,
                     fontWeight: 700,
                     textTransform: "uppercase",
-                    letterSpacing: "0.1em",
-                    color: "var(--plum)",
-                    marginBottom: "0.75rem",
+                    letterSpacing: "0.07em",
+                    color: "var(--ink-faint)",
+                    marginBottom: "0.6rem",
+                    fontFamily: "var(--font-body)",
                   }}>
                     {t.concepts}
-                  </h2>
+                  </p>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-                    {concepts.map((c) => {
+                    {visibleConcepts.map((c) => {
                       const icon = tagIcon(c.slug);
                       return (
                         <button
@@ -263,69 +356,194 @@ export default function DomainPage() {
                           style={{
                             fontFamily: "var(--font-body)",
                             fontSize: 13,
-                            padding: "5px 12px",
+                            padding: "6px 14px",
                             borderRadius: "var(--r-pill)",
                             border: "1.5px solid var(--paper-edge)",
                             background: "var(--paper)",
-                            color: "var(--ink)",
+                            color: "var(--plum)",
                             cursor: "pointer",
-                            display: "flex",
+                            display: "inline-flex",
                             alignItems: "center",
                             gap: "0.35rem",
-                            boxShadow: "var(--shadow-postcard)",
+                            fontWeight: 500,
+                            boxShadow: "none",
                             transition: "all 120ms ease",
                           }}
                           onMouseEnter={(e) => {
                             const el = e.currentTarget as HTMLElement;
                             el.style.borderColor = "var(--plum)";
-                            el.style.color = "var(--plum)";
+                            el.style.background = "var(--plum-bg)";
                             el.style.transform = "translateY(-1px)";
                           }}
                           onMouseLeave={(e) => {
                             const el = e.currentTarget as HTMLElement;
                             el.style.borderColor = "var(--paper-edge)";
-                            el.style.color = "var(--ink)";
+                            el.style.background = "var(--paper)";
                             el.style.transform = "translateY(0)";
                           }}
                         >
                           {icon && <span style={{ fontSize: 14 }}>{icon}</span>}
-                          <span style={{ fontWeight: 500 }}>{c.name}</span>
-                          <span style={{ fontSize: 11, color: "var(--ink-faint)", fontWeight: 400 }}>{c.count}</span>
+                          <span>{c.name}</span>
+                          {c.count > 0 && (
+                            <span style={{ fontSize: 11, color: "var(--ink-faint)", fontWeight: 400 }}>{c.count}</span>
+                          )}
                         </button>
                       );
                     })}
+
+                    {/* Show more / less button */}
+                    {hiddenCount > 0 && (
+                      <button
+                        onClick={() => setConceptsExpanded((e) => !e)}
+                        style={{
+                          fontFamily: "var(--font-body)",
+                          fontSize: 13,
+                          padding: "6px 14px",
+                          borderRadius: "var(--r-pill)",
+                          border: "1.5px dashed var(--paper-edge)",
+                          background: "transparent",
+                          color: "var(--ink-softer)",
+                          cursor: "pointer",
+                          fontWeight: 500,
+                          transition: "all 120ms ease",
+                        }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--plum)"; (e.currentTarget as HTMLElement).style.borderColor = "var(--plum-soft)"; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-softer)"; (e.currentTarget as HTMLElement).style.borderColor = "var(--paper-edge)"; }}
+                      >
+                        {conceptsExpanded ? t.showLess : t.showMore(hiddenCount)}
+                      </button>
+                    )}
                   </div>
                 </section>
               )}
 
+              {/* Type filter pills */}
+              <section style={{ marginBottom: "1.75rem" }}>
+                <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.4rem" }}>
+
+                  {/* Country dropdown */}
+                  <div ref={dropdownRef} style={{ position: "relative", flexShrink: 0 }}>
+                    <button
+                      onClick={() => setDropdownOpen((o) => !o)}
+                      style={{
+                        display: "inline-flex", alignItems: "center", gap: 5,
+                        padding: "6px 12px", borderRadius: "var(--r-pill)",
+                        border: `1.5px solid ${filterRegions.length > 0 ? "var(--plum)" : "var(--paper-edge)"}`,
+                        background: filterRegions.length > 0 ? "rgba(107,77,143,0.08)" : "var(--paper)",
+                        color: filterRegions.length > 0 ? "var(--plum)" : "var(--ink-soft)",
+                        fontSize: 13, fontWeight: 600, cursor: "pointer",
+                        fontFamily: "var(--font-body)", transition: "all 0.15s",
+                      }}
+                    >
+                      {filterRegions.length === 0
+                        ? t.allCountries
+                        : filterRegions.map((c) => FLAG[c] ?? c.toUpperCase()).join(" ")}
+                      <span style={{ fontSize: 9, opacity: 0.5 }}>{dropdownOpen ? "▲" : "▼"}</span>
+                    </button>
+                    {dropdownOpen && (
+                      <div style={{
+                        position: "absolute", top: "calc(100% + 4px)", left: 0, zIndex: 50,
+                        background: "var(--paper)", border: "1px solid var(--paper-edge)",
+                        borderRadius: 10, padding: "0.4rem 0", minWidth: 180,
+                        boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+                      }}>
+                        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.3rem 0.7rem", cursor: "pointer", fontSize: 13, color: "var(--ink)" }}>
+                          <input type="checkbox" checked={filterRegions.length === 0}
+                            onChange={() => { applyCountryFilter([]); setDropdownOpen(false); }}
+                            style={{ accentColor: "var(--plum)", width: 14, height: 14 }} />
+                          {t.allCountries}
+                        </label>
+                        <div style={{ height: 1, background: "var(--paper-edge)", margin: "0.2rem 0" }} />
+                        {regions.map((r) => (
+                          <label key={r.code} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.3rem 0.7rem", cursor: "pointer", fontSize: 13, color: "var(--ink)" }}>
+                            <input type="checkbox" checked={filterRegions.includes(r.code)}
+                              onChange={() => {
+                                const next = filterRegions.includes(r.code)
+                                  ? filterRegions.filter((c) => c !== r.code)
+                                  : [...filterRegions, r.code];
+                                applyCountryFilter(next);
+                              }}
+                              style={{ accentColor: "var(--plum)", width: 14, height: 14 }} />
+                            {FLAG[r.code] ?? ""} {COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Separator */}
+                  <div style={{ width: 1, height: 18, background: "var(--paper-edge)", flexShrink: 0, margin: "0 0.1rem" }} />
+
+                  {/* Type pills */}
+                  {([null, "idiom", "proverb", "locution"] as const).map((type) => {
+                    const isActive = typeFilter === type;
+                    const label = type === null
+                      ? t.allTypes
+                      : (TYPE_LABELS[type]?.[uiLang] ?? TYPE_LABELS[type]?.["en"] ?? type);
+                    return (
+                      <button
+                        key={type ?? "all"}
+                        onClick={() => applyTypeFilter(type)}
+                        style={{
+                          fontSize: 13,
+                          padding: "6px 14px",
+                          borderRadius: "var(--r-pill)",
+                          background: isActive ? "var(--terra)" : "var(--paper)",
+                          border: `1.5px solid ${isActive ? "var(--terra)" : "var(--paper-edge)"}`,
+                          color: isActive ? "#fff" : "var(--terra)",
+                          cursor: "pointer",
+                          fontWeight: 500,
+                          boxShadow: isActive ? "var(--shadow-stamp)" : "none",
+                          transition: "all 0.15s",
+                          fontFamily: "var(--font-body)",
+                        }}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+
               {/* Expression list */}
               <section>
-                <h2 style={{
-                  fontFamily: "var(--font-body)",
+                <p style={{
                   fontSize: 11,
                   fontWeight: 700,
                   textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                  color: "var(--plum)",
+                  letterSpacing: "0.07em",
+                  color: "var(--ink-faint)",
                   marginBottom: "1rem",
+                  fontFamily: "var(--font-body)",
                 }}>
                   {t.expressions}
-                </h2>
+                </p>
 
                 {expressions.length === 0 ? (
                   <p style={{ fontFamily: "var(--font-body)", color: "var(--ink-faint)", fontSize: 14 }}>
                     {t.noResults}
                   </p>
                 ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                    {expressions.map((expr) => (
-                      <ExpressionCard
+                  <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+                    gap: "1rem",
+                  }}>
+                    {expressions.map((expr, i) => (
+                      <div
                         key={expr.id}
-                        expression={expr}
-                        onTagClick={(tag) => router.push(`/search?concept=${encodeURIComponent(tag)}`)}
-                        uiLang={uiLang}
-                        tagNames={tagNames}
-                      />
+                        style={{
+                          animation: "fadeSlideUp 0.35s ease-out both",
+                          animationDelay: `${Math.min(i % LIMIT, 8) * 45}ms`,
+                        }}
+                      >
+                        <ExpressionCard
+                          expression={expr}
+                          onTagClick={(tag) => router.push(`/search?concept=${encodeURIComponent(tag)}`)}
+                          uiLang={uiLang}
+                          tagNames={tagNames}
+                        />
+                      </div>
                     ))}
                   </div>
                 )}

@@ -158,6 +158,9 @@ export default function Sidebar({ uiLang }: Props) {
         <a href="https://www.instagram.com/world.expressions" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: "var(--ink-softer)", textDecoration: "none", fontFamily: "var(--font-body)" }}>
           Instagram
         </a>
+        <a href="/about" style={{ fontSize: 12, color: "var(--ink-softer)", textDecoration: "none", fontFamily: "var(--font-body)" }}>
+          About
+        </a>
       </div>
       <p style={{ fontSize: 11, color: "var(--ink-faint)", marginTop: "0.75rem", fontFamily: "var(--font-body)", lineHeight: 1.5 }}>
         1 580+ expressions<br />5 langues · 7 pays

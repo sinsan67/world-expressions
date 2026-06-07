@@ -2,8 +2,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
-import { getTopTags } from "@/lib/api";
 import { FLAG } from "@/lib/constants";
+import { DOMAIN_DEFS } from "@/lib/domainDefs";
 
 const PLACEHOLDER: Record<string, string> = {
   fr: "Essaie : pied, argent, animal…",
@@ -21,8 +21,8 @@ const FILTER_LABEL: Record<string, string> = {
   fr: "Pays", en: "Country", es: "País", it: "Paese", tr: "Ülke",
 };
 
-const CONCEPT_LABEL: Record<string, string> = {
-  fr: "Concepts", en: "Concepts", es: "Conceptos", it: "Concetti", tr: "Kavramlar",
+const EXPLORE_LABEL: Record<string, string> = {
+  fr: "Explorer", en: "Explore", es: "Explorar", it: "Esplora", tr: "Keşfet",
 };
 
 const ALL_LABEL: Record<string, string> = {
@@ -37,14 +37,27 @@ const LANG_REGIONS = [
   { code: "tr", flag: "🇹🇷" },
 ] as const;
 
+const TYPE_LABEL: Record<string, string> = {
+  fr: "Type", en: "Type", es: "Tipo", it: "Tipo", tr: "Tür",
+};
+
+const TYPES: { value: string | null; labels: Record<string, string> }[] = [
+  { value: null,       labels: { fr: "Tous",       en: "All",       es: "Todos",    it: "Tutti",     tr: "Tümü" } },
+  { value: "idiom",    labels: { fr: "Expression",  en: "Expression",es: "Expresión",it: "Espressione",tr: "İfade" } },
+  { value: "proverb",  labels: { fr: "Proverbe",    en: "Proverb",   es: "Proverbio",it: "Proverbio", tr: "Atasözü" } },
+  { value: "locution", labels: { fr: "Locution",    en: "Set phrase", es: "Locución",it: "Locuzione", tr: "Deyim" } },
+];
+
 type Props = { uiLang?: string; onClose: () => void };
 
 export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
   const [query, setQuery] = useState("");
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
-  const [conceptTags, setConceptTags] = useState<{ slug: string; name: string }[]>([]);
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [tappedDomain, setTappedDomain] = useState<string | null>(null);
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
@@ -55,10 +68,8 @@ export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
   }, [onClose]);
 
   useEffect(() => {
-    getTopTags("", 20, uiLang).then((tags) => {
-      setConceptTags(tags.map((t) => ({ slug: t.slug, name: t.name })));
-    }).catch(() => {});
-  }, [uiLang]);
+    return () => { if (tapTimerRef.current) clearTimeout(tapTimerRef.current); };
+  }, []);
 
   const toggleRegion = (code: string) => {
     setSelectedRegions((prev) =>
@@ -72,16 +83,33 @@ export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
     const params = new URLSearchParams();
     params.set("q", q);
     if (selectedRegions.length) params.set("region", selectedRegions.join(","));
+    if (selectedType) params.set("type_filter", selectedType);
     router.push(`/search?${params}`);
     onClose();
-  }, [query, selectedRegions, router, onClose]);
+  }, [query, selectedRegions, selectedType, router, onClose]);
 
-  const handleConceptClick = (slug: string) => {
+  const handleDomainClick = useCallback((slug: string) => {
     const params = new URLSearchParams();
     params.set("concept", slug);
     if (selectedRegions.length) params.set("region", selectedRegions.join(","));
+    if (selectedType) params.set("type_filter", selectedType);
     router.push(`/search?${params}`);
     onClose();
+  }, [selectedRegions, selectedType, router, onClose]);
+
+  const handleEmojiTouch = (slug: string) => {
+    if (tappedDomain === slug) {
+      if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+      setTappedDomain(null);
+      handleDomainClick(slug);
+      return;
+    }
+    if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+    setTappedDomain(slug);
+    tapTimerRef.current = setTimeout(() => {
+      setTappedDomain(null);
+      handleDomainClick(slug);
+    }, 1000);
   };
 
   const canSearch = query.trim().length >= 2;
@@ -190,44 +218,99 @@ export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
           </div>
         </div>
 
-        {/* Concept chips */}
-        {conceptTags.length > 0 && (
-          <div>
-            <div style={sectionLabel}>{CONCEPT_LABEL[uiLang] ?? CONCEPT_LABEL.en}</div>
-            <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
-              {conceptTags.map((tag) => (
+        {/* Type filter */}
+        <div>
+          <div style={sectionLabel}>{TYPE_LABEL[uiLang] ?? TYPE_LABEL.en}</div>
+          <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+            {TYPES.map((t) => {
+              const isActive = selectedType === t.value;
+              return (
                 <button
-                  key={tag.slug}
-                  data-testid="concept-chip"
-                  onClick={() => handleConceptClick(tag.slug)}
+                  key={t.value ?? "all"}
+                  onClick={() => setSelectedType(t.value)}
                   style={{
                     padding: "4px 10px",
                     borderRadius: "var(--r-pill)",
-                    border: "1.5px solid var(--paper-edge)",
-                    background: "transparent",
-                    color: "var(--ink-soft)",
+                    border: `1.5px solid ${isActive ? "var(--terra)" : "var(--paper-edge)"}`,
+                    background: isActive ? "var(--terra)" : "transparent",
+                    color: isActive ? "#fff" : "var(--ink-soft)",
                     fontSize: 12,
-                    fontWeight: 500,
+                    fontWeight: 600,
                     cursor: "pointer",
                     fontFamily: "var(--font-body)",
+                    transition: "all 0.12s",
                     lineHeight: 1,
-                    transition: "border-color 0.1s, color 0.1s",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--plum)";
-                    (e.currentTarget as HTMLButtonElement).style.color = "var(--plum)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--paper-edge)";
-                    (e.currentTarget as HTMLButtonElement).style.color = "var(--ink-soft)";
                   }}
                 >
-                  {tag.name}
+                  {t.labels[uiLang] ?? t.labels.en}
                 </button>
-              ))}
-            </div>
+              );
+            })}
           </div>
-        )}
+        </div>
+
+        {/* Emoji domain grid */}
+        <div>
+          <div style={sectionLabel}>{EXPLORE_LABEL[uiLang] ?? EXPLORE_LABEL.en}</div>
+          <div style={{ display: "flex", gap: "0.25rem", flexWrap: "wrap" }}>
+            {Object.entries(DOMAIN_DEFS).map(([slug, def]) => {
+              const label = def.labels[uiLang] ?? def.labels.en;
+              const isActive = tappedDomain === slug;
+              return (
+                <div key={slug} style={{ position: "relative" }}>
+                  {isActive && (
+                    <div style={{
+                      position: "absolute",
+                      bottom: "calc(100% + 4px)",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      background: "var(--ink)",
+                      color: "#fff",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      padding: "3px 8px",
+                      borderRadius: "var(--r-pill)",
+                      whiteSpace: "nowrap",
+                      pointerEvents: "none",
+                      fontFamily: "var(--font-body)",
+                      zIndex: 10,
+                    }}>
+                      {label}
+                    </div>
+                  )}
+                  <button
+                    data-testid="concept-chip"
+                    title={label}
+                    onClick={() => handleDomainClick(slug)}
+                    onTouchStart={(e) => { e.preventDefault(); handleEmojiTouch(slug); }}
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: 8,
+                      border: "none",
+                      background: isActive ? "var(--paper-edge)" : "transparent",
+                      cursor: "pointer",
+                      fontSize: "1.375rem",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transition: "background 0.1s",
+                      lineHeight: 1,
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.background = "var(--paper-edge)";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.background = isActive ? "var(--paper-edge)" : "transparent";
+                    }}
+                  >
+                    {def.emoji}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
         {/* Submit button — only for text search */}
         {canSearch && (

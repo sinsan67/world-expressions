@@ -142,7 +142,14 @@ const LANGUAGE_NAME: Record<string, string> = {
   fr: "Français", en: "English", es: "Español", it: "Italiano", tr: "Türkçe",
 };
 
+function confidenceBadge(score: number) {
+  if (score >= 1.0)  return { label: "Miroir",     bg: "#ede8f5", color: "#6b4d8f", border: "#c9b8e8" };
+  if (score >= 0.90) return { label: "Équivalent", bg: "#e8f3e8", color: "#2d7a3a", border: "#a8d4a8" };
+  return                    { label: "Proche",     bg: "#fef5e7", color: "#92400e", border: "#f0d090" };
+}
+
 function ConceptCard({ eq, onNavigate }: { eq: ConceptEquivalent; onNavigate: (url: string) => void }) {
+  const badge = confidenceBadge(eq.concept_confidence ?? 0.65);
   return (
     <div
       onClick={() => onNavigate(`/expression/${eq.id}`)}
@@ -153,6 +160,7 @@ function ConceptCard({ eq, onNavigate }: { eq: ConceptEquivalent; onNavigate: (u
         overflow: "hidden",
         cursor: "pointer",
         transition: "box-shadow 150ms ease, border-color 150ms ease",
+        position: "relative",
       }}
       onMouseEnter={(e) => {
         const el = e.currentTarget as HTMLElement;
@@ -167,6 +175,15 @@ function ConceptCard({ eq, onNavigate }: { eq: ConceptEquivalent; onNavigate: (u
     >
       <div style={{ height: 3, background: "var(--terra)" }} />
       <div style={{ padding: "0.75rem 1rem" }}>
+        <span style={{
+          position: "absolute", top: "0.6rem", right: "0.6rem",
+          fontSize: 10, fontWeight: 700, padding: "2px 7px",
+          borderRadius: 10, border: `1px solid ${badge.border}`,
+          background: badge.bg, color: badge.color,
+          fontFamily: "var(--font-body)", lineHeight: 1.4,
+        }}>
+          {badge.label}
+        </span>
         <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink-faint)", marginBottom: "0.4rem", fontFamily: "var(--font-body)" }}>
           <Link
             href={`/country/${eq.region || eq.language}`}

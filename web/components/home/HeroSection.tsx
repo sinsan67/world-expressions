@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import CountryPhotoBackdrop from "./CountryPhotoBackdrop";
 import Postcard from "./Postcard";
 import Postmark from "./Postmark";
-import Eyebrow from "./Eyebrow";
-import CountryStamp from "./CountryStamp";
+import ColdStartCard from "./ColdStartCard";
 import { Expression } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { tagIcon } from "@/lib/tagIcons";
@@ -17,8 +16,8 @@ type Featured = Expression & { meaning_locale: string; literal: string | null };
 
 type Props = {
   featured: Featured | null;
+  coldStart?: boolean;
   uiLang: string;
-  regions: { code: string; label: string }[];
   tagNames: Record<string, string>;
   onRefresh: () => void;
   onConceptClick: (tag: string) => void;
@@ -26,15 +25,12 @@ type Props = {
     expressionOfDay: string;
     anotherOne: string;
     readFile: string;
-    atlasTitle: string;
-    atlasEyebrow: string;
-    moreCountries: string;
     types: Record<string, string>;
     registers: Record<string, string>;
   };
 };
 
-export default function HeroSection({ featured, uiLang, regions, tagNames, onRefresh, onConceptClick, t }: Props) {
+export default function HeroSection({ featured, coldStart, uiLang, tagNames, onRefresh, onConceptClick, t }: Props) {
   const router = useRouter();
   const [fav, setFav] = useState(false);
 
@@ -54,9 +50,9 @@ export default function HeroSection({ featured, uiLang, regions, tagNames, onRef
   const month = now.toLocaleString("en", { month: "short" }).toUpperCase();
   const year = String(now.getFullYear());
 
-  const photo = featured?.region ? `/images/${featured.region}.jpg` : undefined;
-  const countryName = featured?.region ? (COUNTRY_NAME[featured.region] ?? featured.region.toUpperCase()) : "";
-  const stampCountries = regions.slice(0, 6);
+  const effectiveRegion = featured?.region || featured?.language || null;
+  const photo = effectiveRegion ? `/images/${effectiveRegion}.jpg` : undefined;
+  const countryName = effectiveRegion ? (COUNTRY_NAME[effectiveRegion] ?? effectiveRegion.toUpperCase()) : "";
 
   return (
     <CountryPhotoBackdrop photo={photo} fadeBottom>
@@ -70,12 +66,6 @@ export default function HeroSection({ featured, uiLang, regions, tagNames, onRef
           </a>
         </div>
 
-        {/* Eyebrow */}
-        {featured && (
-          <Eyebrow tone="on-photo">
-            ✦ {t.expressionOfDay}{countryName ? ` · ${countryName}` : ""}
-          </Eyebrow>
-        )}
 
         {/* Two-column grid */}
         <div style={{
@@ -90,14 +80,40 @@ export default function HeroSection({ featured, uiLang, regions, tagNames, onRef
           {featured ? (
             <div style={{ flex: "1 1 320px", maxWidth: 520, animation: "fadeSlideUp 0.5s ease-out both" }}>
               <Postcard tilt={-0.4} large>
-                <Postmark date={day} month={month} year={year} />
+                <Postmark date={day} month={month} year={year} region={effectiveRegion} />
 
-                {/* Meta */}
-                <div style={{ marginBottom: "0.5rem", marginRight: 88 }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-softer)", fontFamily: "var(--font-body)" }}>
-                    {t.types[featured.type] ?? featured.type} · {t.registers[featured.register] ?? featured.register}
+                {/* Expression du jour label */}
+                <div style={{ marginBottom: "0.4rem", marginRight: 88 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--terra)", fontFamily: "var(--font-body)" }}>
+                    ✦ {t.expressionOfDay}
                   </span>
                 </div>
+
+                {/* Country — flag + name, clickable → /country/[code] */}
+                {effectiveRegion && (
+                  <div style={{ marginBottom: "0.6rem", marginRight: 88 }}>
+                    <a
+                      href={`/country/${effectiveRegion}`}
+                      onClick={(e) => { e.preventDefault(); router.push(`/country/${effectiveRegion}`); }}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.4rem",
+                        fontSize: 15,
+                        fontWeight: 600,
+                        color: "var(--ink)",
+                        textDecoration: "none",
+                        fontFamily: "var(--font-body)",
+                        transition: "color 120ms ease",
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--plum)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--ink)"; }}
+                    >
+                      <span style={{ fontSize: 20, lineHeight: 1 }}>{FLAG[effectiveRegion] ?? "🌍"}</span>
+                      {countryName}
+                    </a>
+                  </div>
+                )}
 
                 {/* Expression title */}
                 <h2
@@ -225,55 +241,14 @@ export default function HeroSection({ featured, uiLang, regions, tagNames, onRef
                 </div>
               </Postcard>
             </div>
+          ) : coldStart ? (
+            <div style={{ flex: "1 1 320px", maxWidth: 520, animation: "fadeSlideUp 0.5s ease-out both" }}>
+              <ColdStartCard uiLang={uiLang} />
+            </div>
           ) : (
             /* Loading skeleton */
             <div className="wex-skeleton" style={{ flex: "1 1 320px", maxWidth: 520, height: 280, background: "rgba(253,248,238,0.5)", borderRadius: "var(--r-lg)", border: "1px solid var(--paper-edge)" }} />
           )}
-
-          {/* RIGHT: Atlas card — desktop only */}
-          <div className="wex-atlas-card" style={{ flex: "1 1 240px", maxWidth: 300 }}>
-            <div style={{
-              background: "rgba(253,248,238,0.92)",
-              backdropFilter: "blur(12px)",
-              WebkitBackdropFilter: "blur(12px)",
-              borderRadius: "var(--r-lg)",
-              border: "1px solid var(--paper-edge)",
-              boxShadow: "var(--shadow-postcard)",
-              padding: "1.25rem",
-            }}>
-              <Eyebrow tone="plum">{t.atlasEyebrow}</Eyebrow>
-              <h3 style={{
-                fontFamily: "var(--font-display)",
-                fontSize: 20,
-                color: "var(--ink)",
-                margin: "0.4rem 0 1rem",
-                lineHeight: 1.2,
-              }}>
-                {t.atlasTitle}
-              </h3>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.5rem", justifyItems: "center" }}>
-                {stampCountries.map((r, i) => (
-                  <CountryStamp
-                    key={r.code}
-                    country={r.code}
-                    flag={FLAG[r.code] ?? "🌍"}
-                    name={COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}
-                    size="sm"
-                    tilt={i % 2 === 0 ? 0.8 : -0.6}
-                    onClick={() => router.push(`/country/${r.code}`)}
-                  />
-                ))}
-              </div>
-              {regions.length > 6 && (
-                <>
-                  <hr style={{ border: "none", borderTop: "1px dashed var(--paper-edge)", margin: "0.75rem 0 0.5rem" }} />
-                  <p style={{ fontFamily: "var(--font-hand)", fontSize: 15, color: "var(--ink-softer)" }}>
-                    + {regions.length - 6} {t.moreCountries}
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
 
         </div>
       </div>
