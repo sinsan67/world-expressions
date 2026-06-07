@@ -93,7 +93,7 @@ export default function HeroSection({ featured, coldStart, uiLang, regions, tagN
           {featured ? (
             <div style={{ flex: "1 1 320px", maxWidth: 520, animation: "fadeSlideUp 0.5s ease-out both" }}>
               <Postcard tilt={-0.4} large>
-                <Postmark date={day} month={month} year={year} />
+                <Postmark date={day} month={month} year={year} region={effectiveRegion} />
 
                 {/* Meta */}
                 <div style={{ marginBottom: "0.4rem", marginRight: 88 }}>
