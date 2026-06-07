@@ -201,6 +201,16 @@ const PINNED_EMOJI_WALL: Array<{ slug: string; emoji: string; labels: Record<UIL
 
 const REGION_ORDER = ["fr", "en", "es", "it", "tr"];
 
+const COUNTRY_SUB_REGIONS: Record<string, { code: string; name: string; emoji: string }[]> = {
+  fr: [
+    { code: "alsace",   name: "Alsace",   emoji: "🥨" },
+    { code: "bretagne", name: "Bretagne", emoji: "🦞" },
+  ],
+};
+const ALL_SUB_REGION_CODES = new Set(
+  Object.values(COUNTRY_SUB_REGIONS).flat().map((r) => r.code)
+);
+
 const SEARCH_HELP: Record<UILang, string> = {
   fr: "Recherche en plusieurs passes : le mot exact, puis synonymes et tags, puis concepts multilingues. Exemple : « industrie » remonte aussi des expressions en anglais ou turc liées à « work » ou « business ».",
   en: "Search runs in multiple passes: exact word, then synonyms and tags, then multilingual concepts. Example: «industry» also surfaces Spanish or Turkish expressions tagged «work» or «business».",
@@ -240,6 +250,7 @@ export default function HomePage() {
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
   const [filterRegions, setFilterRegions] = useState<string[]>([]);
   const [sortMode, setSortMode] = useState<"relevance" | "country">("country");
+  const [expandedRegion, setExpandedRegion] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -741,20 +752,86 @@ export default function HomePage() {
             <div style={{ maxWidth: 900, margin: "0 auto" }}>
               <Eyebrow tone="softer">{t.atlasEyebrow}</Eyebrow>
               <h2 style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--ink)", margin: "0.4rem 0 1.25rem", fontWeight: 500 }}>
-                {t.atlasTitle(regions.length)}
+                {t.atlasTitle(regions.filter((r) => !ALL_SUB_REGION_CODES.has(r.code)).length)}
               </h2>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
-                {regions.map((r, i) => (
-                  <CountryStamp
-                    key={r.code}
-                    country={r.code}
-                    flag={FLAG[r.code] ?? "🌍"}
-                    name={COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}
-                    size="sm"
-                    tilt={i % 2 === 0 ? 0.8 : -0.6}
-                    onClick={() => router.push(`/country/${r.code}`)}
-                  />
-                ))}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "flex-start" }}>
+                {regions.filter((r) => !ALL_SUB_REGION_CODES.has(r.code)).map((r, i) => {
+                  const hasSubRegions = !!COUNTRY_SUB_REGIONS[r.code];
+                  const isExpanded = expandedRegion === r.code;
+                  const isGrayed = expandedRegion !== null && !isExpanded;
+                  return (
+                    <div key={r.code} style={{ opacity: isGrayed ? 0.3 : 1, transition: "opacity 200ms ease" }}>
+                      <CountryStamp
+                        country={r.code}
+                        flag={FLAG[r.code] ?? "🌍"}
+                        name={COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}
+                        size="sm"
+                        tilt={i % 2 === 0 ? 0.8 : -0.6}
+                        onClick={() => {
+                          if (hasSubRegions) {
+                            setExpandedRegion(isExpanded ? null : r.code);
+                          } else {
+                            router.push(`/country/${r.code}`);
+                          }
+                        }}
+                      />
+                    </div>
+                  );
+                })}
+
+                {/* Sub-regions panel — shown below all stamps when a country is expanded */}
+                {expandedRegion && COUNTRY_SUB_REGIONS[expandedRegion] && (
+                  <div style={{
+                    flexBasis: "100%",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "0.625rem",
+                    alignItems: "center",
+                    marginTop: "0.5rem",
+                    paddingLeft: "0.75rem",
+                    borderLeft: "2px solid var(--paper-edge)",
+                  }}>
+                    {COUNTRY_SUB_REGIONS[expandedRegion].map((sub) => (
+                      <button
+                        key={sub.code}
+                        onClick={() => router.push(`/regions/${sub.code}`)}
+                        style={{
+                          display: "flex", alignItems: "center", gap: "0.4rem",
+                          padding: "0.4rem 0.875rem",
+                          borderRadius: "var(--r-pill)",
+                          border: "1.5px solid var(--paper-edge)",
+                          background: "var(--paper-deep)",
+                          color: "var(--ink-soft)",
+                          fontSize: 13, fontWeight: 600, cursor: "pointer",
+                          fontFamily: "var(--font-body)",
+                          transition: "border-color 150ms ease, background 150ms ease, color 150ms ease",
+                        }}
+                        onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--plum)"; el.style.background = "var(--plum-bg)"; el.style.color = "var(--plum)"; }}
+                        onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--paper-edge)"; el.style.background = "var(--paper-deep)"; el.style.color = "var(--ink-soft)"; }}
+                      >
+                        <span>{sub.emoji}</span>
+                        <span>{sub.name}</span>
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => { setExpandedRegion(null); router.push(`/country/${expandedRegion}`); }}
+                      style={{
+                        padding: "0.4rem 0.75rem",
+                        borderRadius: "var(--r-pill)",
+                        border: "none",
+                        background: "none",
+                        color: "var(--ink-faint)",
+                        fontSize: 12, cursor: "pointer",
+                        fontFamily: "var(--font-body)",
+                        transition: "color 150ms ease",
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-soft)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-faint)"; }}
+                    >
+                      → {COUNTRY_NAME[expandedRegion] ?? expandedRegion} (tous)
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </section>

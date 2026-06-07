@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import CountryPhotoBackdrop from "./CountryPhotoBackdrop";
 import Postcard from "./Postcard";
 import Postmark from "./Postmark";
-import Eyebrow from "./Eyebrow";
 import ColdStartCard from "./ColdStartCard";
 import { Expression } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
@@ -51,7 +50,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
   const month = now.toLocaleString("en", { month: "short" }).toUpperCase();
   const year = String(now.getFullYear());
 
-  const effectiveRegion = featured?.region ?? featured?.language ?? null;
+  const effectiveRegion = featured?.region || featured?.language || null;
   const photo = effectiveRegion ? `/images/${effectiveRegion}.jpg` : undefined;
   const countryName = effectiveRegion ? (COUNTRY_NAME[effectiveRegion] ?? effectiveRegion.toUpperCase()) : "";
 
@@ -67,12 +66,6 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
           </a>
         </div>
 
-        {/* Eyebrow */}
-        {featured && (
-          <Eyebrow tone="on-photo">
-            ✦ {t.expressionOfDay}
-          </Eyebrow>
-        )}
 
         {/* Two-column grid */}
         <div style={{
@@ -89,10 +82,10 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
               <Postcard tilt={-0.4} large>
                 <Postmark date={day} month={month} year={year} region={effectiveRegion} />
 
-                {/* Meta */}
+                {/* Expression du jour label */}
                 <div style={{ marginBottom: "0.4rem", marginRight: 88 }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-softer)", fontFamily: "var(--font-body)" }}>
-                    {t.types[featured.type] ?? featured.type} · {t.registers[featured.register] ?? featured.register}
+                  <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--terra)", fontFamily: "var(--font-body)" }}>
+                    ✦ {t.expressionOfDay}
                   </span>
                 </div>
 
