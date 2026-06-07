@@ -109,7 +109,8 @@ export async function searchByDomain(
   regions: string[],
   limit = 20,
   offset = 0,
-  lang?: string
+  lang?: string,
+  typeFilter?: string,
 ): Promise<ConceptResponse> {
   const params = new URLSearchParams({
     domain,
@@ -118,6 +119,7 @@ export async function searchByDomain(
     offset: String(offset),
   });
   if (lang) params.set("locale", lang);
+  if (typeFilter) params.set("type_filter", typeFilter);
   const res = await fetch(`${API}/concept?${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();
