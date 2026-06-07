@@ -73,7 +73,7 @@ export default function HeroSection({ featured, uiLang, regions, tagNames, onRef
         {/* Eyebrow */}
         {featured && (
           <Eyebrow tone="on-photo">
-            ✦ {t.expressionOfDay}{countryName ? ` · ${countryName}` : ""}
+            ✦ {t.expressionOfDay}
           </Eyebrow>
         )}
 
@@ -93,11 +93,37 @@ export default function HeroSection({ featured, uiLang, regions, tagNames, onRef
                 <Postmark date={day} month={month} year={year} />
 
                 {/* Meta */}
-                <div style={{ marginBottom: "0.5rem", marginRight: 88 }}>
+                <div style={{ marginBottom: "0.4rem", marginRight: 88 }}>
                   <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-softer)", fontFamily: "var(--font-body)" }}>
                     {t.types[featured.type] ?? featured.type} · {t.registers[featured.register] ?? featured.register}
                   </span>
                 </div>
+
+                {/* Country — flag + name, clickable → /country/[code] */}
+                {featured.region && (
+                  <div style={{ marginBottom: "0.6rem", marginRight: 88 }}>
+                    <a
+                      href={`/country/${featured.region}`}
+                      onClick={(e) => { e.preventDefault(); router.push(`/country/${featured.region}`); }}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.4rem",
+                        fontSize: 15,
+                        fontWeight: 600,
+                        color: "var(--ink)",
+                        textDecoration: "none",
+                        fontFamily: "var(--font-body)",
+                        transition: "color 120ms ease",
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--plum)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--ink)"; }}
+                    >
+                      <span style={{ fontSize: 20, lineHeight: 1 }}>{FLAG[featured.region] ?? "🌍"}</span>
+                      {countryName}
+                    </a>
+                  </div>
+                )}
 
                 {/* Expression title */}
                 <h2
