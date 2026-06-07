@@ -6,7 +6,6 @@ import Postcard from "./Postcard";
 import Postmark from "./Postmark";
 import Eyebrow from "./Eyebrow";
 import ColdStartCard from "./ColdStartCard";
-import CountryStamp from "./CountryStamp";
 import { Expression } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { tagIcon } from "@/lib/tagIcons";
@@ -20,7 +19,6 @@ type Props = {
   featured: Featured | null;
   coldStart?: boolean;
   uiLang: string;
-  regions: { code: string; label: string }[];
   tagNames: Record<string, string>;
   onRefresh: () => void;
   onConceptClick: (tag: string) => void;
@@ -28,15 +26,12 @@ type Props = {
     expressionOfDay: string;
     anotherOne: string;
     readFile: string;
-    atlasTitle: string;
-    atlasEyebrow: string;
-    moreCountries: string;
     types: Record<string, string>;
     registers: Record<string, string>;
   };
 };
 
-export default function HeroSection({ featured, coldStart, uiLang, regions, tagNames, onRefresh, onConceptClick, t }: Props) {
+export default function HeroSection({ featured, coldStart, uiLang, tagNames, onRefresh, onConceptClick, t }: Props) {
   const router = useRouter();
   const [fav, setFav] = useState(false);
 
@@ -59,7 +54,6 @@ export default function HeroSection({ featured, coldStart, uiLang, regions, tagN
   const effectiveRegion = featured?.region ?? featured?.language ?? null;
   const photo = effectiveRegion ? `/images/${effectiveRegion}.jpg` : undefined;
   const countryName = effectiveRegion ? (COUNTRY_NAME[effectiveRegion] ?? effectiveRegion.toUpperCase()) : "";
-  const stampCountries = regions.slice(0, 6);
 
   return (
     <CountryPhotoBackdrop photo={photo} fadeBottom>
@@ -262,51 +256,6 @@ export default function HeroSection({ featured, coldStart, uiLang, regions, tagN
             /* Loading skeleton */
             <div className="wex-skeleton" style={{ flex: "1 1 320px", maxWidth: 520, height: 280, background: "rgba(253,248,238,0.5)", borderRadius: "var(--r-lg)", border: "1px solid var(--paper-edge)" }} />
           )}
-
-          {/* RIGHT: Atlas card — desktop only */}
-          <div className="wex-atlas-card" style={{ flex: "1 1 240px", maxWidth: 300 }}>
-            <div style={{
-              background: "rgba(253,248,238,0.92)",
-              backdropFilter: "blur(12px)",
-              WebkitBackdropFilter: "blur(12px)",
-              borderRadius: "var(--r-lg)",
-              border: "1px solid var(--paper-edge)",
-              boxShadow: "var(--shadow-postcard)",
-              padding: "1.25rem",
-            }}>
-              <Eyebrow tone="plum">{t.atlasEyebrow}</Eyebrow>
-              <h3 style={{
-                fontFamily: "var(--font-display)",
-                fontSize: 20,
-                color: "var(--ink)",
-                margin: "0.4rem 0 1rem",
-                lineHeight: 1.2,
-              }}>
-                {t.atlasTitle}
-              </h3>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.5rem", justifyItems: "center" }}>
-                {stampCountries.map((r, i) => (
-                  <CountryStamp
-                    key={r.code}
-                    country={r.code}
-                    flag={FLAG[r.code] ?? "🌍"}
-                    name={COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}
-                    size="sm"
-                    tilt={i % 2 === 0 ? 0.8 : -0.6}
-                    onClick={() => router.push(`/country/${r.code}`)}
-                  />
-                ))}
-              </div>
-              {regions.length > 6 && (
-                <>
-                  <hr style={{ border: "none", borderTop: "1px dashed var(--paper-edge)", margin: "0.75rem 0 0.5rem" }} />
-                  <p style={{ fontFamily: "var(--font-hand)", fontSize: 15, color: "var(--ink-softer)" }}>
-                    + {regions.length - 6} {t.moreCountries}
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
 
         </div>
       </div>

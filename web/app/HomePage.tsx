@@ -33,7 +33,7 @@ const T = {
     anotherOne: "Une autre",
     readFile: "Lire la fiche →",
     atlasTitle: (n: number) => `${n} pays, à toi`,
-    emojiEyebrow: "Par univers",
+    emojiEyebrow: "Par emoji",
     emojiTitle: "Clique, explore, découvre",
     domainsEyebrow: "Grands domaines",
     domainsTitle: "Des univers entiers à explorer",
@@ -63,7 +63,7 @@ const T = {
     anotherOne: "Another one",
     readFile: "Read the card →",
     atlasTitle: (n: number) => `${n} countries, yours to explore`,
-    emojiEyebrow: "By universe",
+    emojiEyebrow: "By emoji",
     emojiTitle: "Click, explore, discover",
     domainsEyebrow: "Major domains",
     domainsTitle: "Entire worlds to explore",
@@ -93,7 +93,7 @@ const T = {
     anotherOne: "Otra",
     readFile: "Ver la ficha →",
     atlasTitle: (n: number) => `${n} países, para ti`,
-    emojiEyebrow: "Por universo",
+    emojiEyebrow: "Por emoji",
     emojiTitle: "Haz clic, explora, descubre",
     domainsEyebrow: "Grandes dominios",
     domainsTitle: "Mundos enteros por explorar",
@@ -123,7 +123,7 @@ const T = {
     anotherOne: "Başka biri",
     readFile: "Kartı oku →",
     atlasTitle: (n: number) => `${n} ülke, senin için`,
-    emojiEyebrow: "Evrene göre",
+    emojiEyebrow: "Emoji ile keşfet",
     emojiTitle: "Tıkla, keşfet, keşfet",
     domainsEyebrow: "Ana alanlar",
     domainsTitle: "Keşfedilecek dünyalar",
@@ -153,7 +153,7 @@ const T = {
     anotherOne: "Un'altra",
     readFile: "Leggi la scheda →",
     atlasTitle: (n: number) => `${n} paesi, tuoi da esplorare`,
-    emojiEyebrow: "Per universo",
+    emojiEyebrow: "Per emoji",
     emojiTitle: "Clicca, esplora, scopri",
     domainsEyebrow: "Grandi domini",
     domainsTitle: "Interi mondi da esplorare",
@@ -565,11 +565,10 @@ export default function HomePage() {
             featured={featured}
             coldStart={coldStart}
             uiLang={uiLang}
-            regions={regions}
             tagNames={tagNames}
             onRefresh={refreshFeatured}
             onConceptClick={(tag) => { const icon = tagIcon(tag) ?? ""; const name = tagNames[tag] ?? tag; setSearchLabel(`${icon ? icon + " " : ""}${name}`); runConceptSearch(tag); }}
-            t={{ expressionOfDay: t.expressionOfDay, anotherOne: t.anotherOne, readFile: t.readFile, atlasTitle: t.atlasTitle(regions.length), atlasEyebrow: t.atlasEyebrow, moreCountries: t.moreCountries, types: t.types, registers: t.registers }}
+            t={{ expressionOfDay: t.expressionOfDay, anotherOne: t.anotherOne, readFile: t.readFile, types: t.types, registers: t.registers }}
           />
         )}
 
@@ -736,43 +735,25 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Emoji Wall section */}
+        {/* Atlas section */}
         {!searched && (
-          <section style={{ background: "var(--paper-deep)", borderTop: "1px solid var(--paper-edge)", padding: "2rem 1.5rem" }}>
+          <section style={{ padding: "2rem 1.5rem 2.5rem", borderTop: "1px solid var(--paper-edge)" }}>
             <div style={{ maxWidth: 900, margin: "0 auto" }}>
-              <Eyebrow tone="plum">{t.emojiEyebrow}</Eyebrow>
-              <h2 style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--ink)", margin: "0.4rem 0 1.5rem", fontWeight: 500 }}>
-                {t.emojiTitle}
+              <Eyebrow tone="softer">{t.atlasEyebrow}</Eyebrow>
+              <h2 style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--ink)", margin: "0.4rem 0 1.25rem", fontWeight: 500 }}>
+                {t.atlasTitle(regions.length)}
               </h2>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.625rem" }}>
-                {PINNED_EMOJI_WALL.map((item) => (
-                  <button
-                    key={item.slug}
-                    onClick={() => { setSearchLabel(`${item.emoji} ${item.labels[uiLang]}`); runConceptSearch(item.slug); }}
-                    style={{
-                      display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem",
-                      background: "var(--paper)", border: "1px solid var(--paper-edge)", borderRadius: 14,
-                      padding: "0.625rem 0.875rem", cursor: "pointer", minWidth: 64,
-                      transition: "transform 0.12s, box-shadow 0.12s, border-color 0.12s",
-                    }}
-                    onMouseEnter={(e) => {
-                      const el = e.currentTarget as HTMLElement;
-                      el.style.transform = "translateY(-3px) scale(1.05)";
-                      el.style.boxShadow = "0 6px 18px rgba(0,0,0,0.10)";
-                      el.style.borderColor = "var(--plum)";
-                    }}
-                    onMouseLeave={(e) => {
-                      const el = e.currentTarget as HTMLElement;
-                      el.style.transform = "";
-                      el.style.boxShadow = "";
-                      el.style.borderColor = "var(--paper-edge)";
-                    }}
-                  >
-                    <span style={{ fontSize: 36, lineHeight: 1 }}>{item.emoji}</span>
-                    <span style={{ fontSize: 10, fontWeight: 500, color: "var(--ink-softer)", whiteSpace: "nowrap", fontFamily: "var(--font-body)" }}>
-                      {item.labels[uiLang]}
-                    </span>
-                  </button>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
+                {regions.map((r, i) => (
+                  <CountryStamp
+                    key={r.code}
+                    country={r.code}
+                    flag={FLAG[r.code] ?? "🌍"}
+                    name={COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}
+                    size="sm"
+                    tilt={i % 2 === 0 ? 0.8 : -0.6}
+                    onClick={() => router.push(`/country/${r.code}`)}
+                  />
                 ))}
               </div>
             </div>
@@ -823,25 +804,45 @@ export default function HomePage() {
           </section>
         )}
 
-        {/* Atlas section — mobile only (desktop has atlas card in hero) */}
+        {/* Emoji Wall section */}
         {!searched && (
-          <section className="wex-mobile-header" style={{ flexDirection: "column", padding: "2rem 1.5rem", borderTop: "1px solid var(--paper-edge)" }}>
-            <Eyebrow tone="softer">{t.atlasEyebrow}</Eyebrow>
-            <h2 style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--ink)", margin: "0.4rem 0 1.25rem", fontWeight: 500 }}>
-              {t.atlasTitle(regions.length)}
-            </h2>
-            <div style={{ display: "flex", gap: "0.75rem", overflowX: "auto", paddingBottom: "0.5rem" }}>
-              {regions.map((r, i) => (
-                <CountryStamp
-                  key={r.code}
-                  country={r.code}
-                  flag={FLAG[r.code] ?? "🌍"}
-                  name={COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}
-                  size="sm"
-                  tilt={i % 2 === 0 ? 0.8 : -0.6}
-                  onClick={() => router.push(`/country/${r.code}`)}
-                />
-              ))}
+          <section style={{ background: "var(--paper-deep)", borderTop: "1px solid var(--paper-edge)", padding: "2rem 1.5rem" }}>
+            <div style={{ maxWidth: 900, margin: "0 auto" }}>
+              <Eyebrow tone="plum">{t.emojiEyebrow}</Eyebrow>
+              <h2 style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--ink)", margin: "0.4rem 0 1.5rem", fontWeight: 500 }}>
+                {t.emojiTitle}
+              </h2>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.625rem" }}>
+                {PINNED_EMOJI_WALL.map((item) => (
+                  <button
+                    key={item.slug}
+                    onClick={() => { setSearchLabel(`${item.emoji} ${item.labels[uiLang]}`); runConceptSearch(item.slug); }}
+                    style={{
+                      display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem",
+                      background: "var(--paper)", border: "1px solid var(--paper-edge)", borderRadius: 14,
+                      padding: "0.625rem 0.875rem", cursor: "pointer", minWidth: 64,
+                      transition: "transform 0.12s, box-shadow 0.12s, border-color 0.12s",
+                    }}
+                    onMouseEnter={(e) => {
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.transform = "translateY(-3px) scale(1.05)";
+                      el.style.boxShadow = "0 6px 18px rgba(0,0,0,0.10)";
+                      el.style.borderColor = "var(--plum)";
+                    }}
+                    onMouseLeave={(e) => {
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.transform = "";
+                      el.style.boxShadow = "";
+                      el.style.borderColor = "var(--paper-edge)";
+                    }}
+                  >
+                    <span style={{ fontSize: 36, lineHeight: 1 }}>{item.emoji}</span>
+                    <span style={{ fontSize: 10, fontWeight: 500, color: "var(--ink-softer)", whiteSpace: "nowrap", fontFamily: "var(--font-body)" }}>
+                      {item.labels[uiLang]}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
           </section>
         )}
