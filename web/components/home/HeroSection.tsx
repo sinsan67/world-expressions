@@ -56,8 +56,9 @@ export default function HeroSection({ featured, coldStart, uiLang, regions, tagN
   const month = now.toLocaleString("en", { month: "short" }).toUpperCase();
   const year = String(now.getFullYear());
 
-  const photo = featured?.region ? `/images/${featured.region}.jpg` : undefined;
-  const countryName = featured?.region ? (COUNTRY_NAME[featured.region] ?? featured.region.toUpperCase()) : "";
+  const effectiveRegion = featured?.region ?? featured?.language ?? null;
+  const photo = effectiveRegion ? `/images/${effectiveRegion}.jpg` : undefined;
+  const countryName = effectiveRegion ? (COUNTRY_NAME[effectiveRegion] ?? effectiveRegion.toUpperCase()) : "";
   const stampCountries = regions.slice(0, 6);
 
   return (
@@ -102,11 +103,11 @@ export default function HeroSection({ featured, coldStart, uiLang, regions, tagN
                 </div>
 
                 {/* Country — flag + name, clickable → /country/[code] */}
-                {featured.region && (
+                {effectiveRegion && (
                   <div style={{ marginBottom: "0.6rem", marginRight: 88 }}>
                     <a
-                      href={`/country/${featured.region}`}
-                      onClick={(e) => { e.preventDefault(); router.push(`/country/${featured.region}`); }}
+                      href={`/country/${effectiveRegion}`}
+                      onClick={(e) => { e.preventDefault(); router.push(`/country/${effectiveRegion}`); }}
                       style={{
                         display: "inline-flex",
                         alignItems: "center",
@@ -121,7 +122,7 @@ export default function HeroSection({ featured, coldStart, uiLang, regions, tagN
                       onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--plum)"; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--ink)"; }}
                     >
-                      <span style={{ fontSize: 20, lineHeight: 1 }}>{FLAG[featured.region] ?? "🌍"}</span>
+                      <span style={{ fontSize: 20, lineHeight: 1 }}>{FLAG[effectiveRegion] ?? "🌍"}</span>
                       {countryName}
                     </a>
                   </div>
