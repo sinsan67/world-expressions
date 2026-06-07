@@ -233,6 +233,7 @@ export default function HomePage() {
   const [searchLabel, setSearchLabel] = useState("");
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [featured, setFeatured] = useState<(Expression & { meaning_locale: string; literal: string | null }) | null>(null);
+  const [coldStart, setColdStart] = useState(false);
   const [newsletterOpen, setNewsletterOpen] = useState(false);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterLang, setNewsletterLang] = useState<UILang>("en");
@@ -472,10 +473,15 @@ export default function HomePage() {
     }
     let cancelled = false;
     let attempt = 0;
+    // Show cold start message if backend doesn't respond within 5s (Render free tier)
+    const coldTimer = setTimeout(() => {
+      if (!featuredLoadedRef.current) setColdStart(true);
+    }, 5000);
     const tryFetch = () => {
       getRandomExpression(uiLang).then((expr) => {
         if (cancelled) return;
         setFeatured(expr);
+        setColdStart(false);
         featuredLoadedRef.current = true;
         sessionStorage.setItem("featured_expression", JSON.stringify(expr));
         sessionStorage.setItem("featured_lang", uiLang);
@@ -487,7 +493,7 @@ export default function HomePage() {
       });
     };
     tryFetch();
-    return () => { cancelled = true; };
+    return () => { cancelled = true; clearTimeout(coldTimer); };
   }, [uiLang]);
 
   // When UI language changes on an already-loaded expression, re-fetch translation
@@ -557,6 +563,7 @@ export default function HomePage() {
         {!searched && (
           <HeroSection
             featured={featured}
+            coldStart={coldStart}
             uiLang={uiLang}
             regions={regions}
             tagNames={tagNames}

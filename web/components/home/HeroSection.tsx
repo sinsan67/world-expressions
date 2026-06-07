@@ -5,6 +5,7 @@ import CountryPhotoBackdrop from "./CountryPhotoBackdrop";
 import Postcard from "./Postcard";
 import Postmark from "./Postmark";
 import Eyebrow from "./Eyebrow";
+import ColdStartCard from "./ColdStartCard";
 import CountryStamp from "./CountryStamp";
 import { Expression } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
@@ -17,6 +18,7 @@ type Featured = Expression & { meaning_locale: string; literal: string | null };
 
 type Props = {
   featured: Featured | null;
+  coldStart?: boolean;
   uiLang: string;
   regions: { code: string; label: string }[];
   tagNames: Record<string, string>;
@@ -34,7 +36,7 @@ type Props = {
   };
 };
 
-export default function HeroSection({ featured, uiLang, regions, tagNames, onRefresh, onConceptClick, t }: Props) {
+export default function HeroSection({ featured, coldStart, uiLang, regions, tagNames, onRefresh, onConceptClick, t }: Props) {
   const router = useRouter();
   const [fav, setFav] = useState(false);
 
@@ -250,6 +252,10 @@ export default function HeroSection({ featured, uiLang, regions, tagNames, onRef
                   </div>
                 </div>
               </Postcard>
+            </div>
+          ) : coldStart ? (
+            <div style={{ flex: "1 1 320px", maxWidth: 520, animation: "fadeSlideUp 0.5s ease-out both" }}>
+              <ColdStartCard uiLang={uiLang} />
             </div>
           ) : (
             /* Loading skeleton */
