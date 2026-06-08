@@ -437,36 +437,6 @@ function CountryPageContent({ code }: { code: string }) {
         <div style={{ background: "var(--paper)", padding: "1.5rem 1rem 1.25rem", borderBottom: "1px solid var(--paper-edge)" }}>
           <div style={{ maxWidth: 680, margin: "0 auto" }}>
 
-            {/* Mode toggle */}
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.25rem", flexWrap: "wrap", gap: "0.5rem" }}>
-              <div style={{
-                display: "inline-flex", borderRadius: "var(--r-lg)",
-                background: "var(--plum-bg)", padding: 4, gap: 2,
-              }}>
-                <button
-                  style={{
-                    padding: "8px 16px", borderRadius: "var(--r-md)", fontSize: 13, fontWeight: 600,
-                    border: "none", cursor: "default",
-                    background: "var(--plum)", color: "#fff",
-                    fontFamily: "var(--font-body)",
-                  }}
-                >
-                  {flag} {t.countryOnly(countryName)}
-                </button>
-                <button
-                  onClick={goExploreAll}
-                  style={{
-                    padding: "8px 16px", borderRadius: "var(--r-md)", fontSize: 13, fontWeight: 600,
-                    border: "none", cursor: "pointer", transition: "all 0.15s",
-                    background: "transparent", color: "var(--plum)",
-                    fontFamily: "var(--font-body)",
-                  }}
-                >
-                  🌍 {t.exploreAll}
-                </button>
-              </div>
-            </div>
-
             {/* Search bar */}
             <form onSubmit={handleSearch} style={{ marginBottom: "1.25rem", position: "relative" }}>
               <input

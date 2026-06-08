@@ -62,6 +62,7 @@ const T: Record<UILang, {
 };
 
 const HERO_IMAGES = new Set(["fr", "uk", "us", "au", "es", "tr", "it"]);
+const SUB_REGION_CODES = new Set(["alsace", "bretagne"]);
 
 const PASTEL_GRADIENTS: Record<string, string> = {
   ar: "linear-gradient(135deg, #74acdf 0%, #e8f4fc 50%, #74acdf 100%)",
@@ -200,7 +201,7 @@ export default function AtlasPage() {
                 marginBottom: "3rem",
               }}
             >
-              {regions.map((r, i) => {
+              {regions.filter((r) => !SUB_REGION_CODES.has(r.code)).map((r, i) => {
                 const hasPhoto = HERO_IMAGES.has(r.code);
                 const bg = hasPhoto
                   ? `url('/images/${r.code}.jpg')`
