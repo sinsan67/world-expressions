@@ -9,7 +9,7 @@ import database
 app = FastAPI(title="Expressions du Monde API")
 
 _default_origins = "https://world-expressions.vercel.app,http://localhost:3000"
-_cors_origins = os.getenv("CORS_ORIGINS", _default_origins).split(",")
+_cors_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", _default_origins).split(",")]
 
 app.add_middleware(
     CORSMiddleware,
