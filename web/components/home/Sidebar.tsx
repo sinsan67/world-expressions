@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Home, Globe, Lightbulb, Search, Heart, User } from "lucide-react";
+import { Home, Globe, Lightbulb, Search, Heart } from "lucide-react";
 import { getCarnet } from "@/lib/carnet";
 import SearchOverlay from "@/components/SearchOverlay";
 
@@ -11,8 +11,7 @@ const BASE_NAV_ITEMS = [
   { id: "atlas",     icon: Globe,      href: "/atlas",    count: 7 },
   { id: "concepts",  icon: Lightbulb,  href: "/emoji", count: 1050 },
   { id: "search",    icon: Search,     href: null,        count: undefined as number | undefined },
-  { id: "favorites", icon: Heart,      href: "/carnet",   count: undefined as number | undefined },
-  { id: "profile",   icon: User,       href: "/profile",  count: undefined as number | undefined },
+  { id: "carnet",    icon: Heart,      href: "/profile",  count: undefined as number | undefined },
 ];
 
 const NAV_LABELS: Record<string, Record<string, string>> = {
@@ -20,8 +19,7 @@ const NAV_LABELS: Record<string, Record<string, string>> = {
   atlas:     { fr: "Atlas",        en: "Atlas",       es: "Atlas",      it: "Atlante",   tr: "Atlas" },
   concepts:  { fr: "Concepts",     en: "Concepts",    es: "Conceptos",  it: "Concetti",  tr: "Kavramlar" },
   search:    { fr: "Rechercher",   en: "Search",      es: "Buscar",     it: "Cerca",     tr: "Ara" },
-  favorites: { fr: "Favoris",      en: "Favourites",  es: "Favoritos",  it: "Preferiti", tr: "Favoriler" },
-  profile:   { fr: "Mon profil",   en: "My Profile",  es: "Mi perfil",  it: "Il mio profilo", tr: "Profilim" },
+  carnet:    { fr: "Mon carnet",   en: "My notebook", es: "Mi cuaderno", it: "Il mio taccuino", tr: "Defterim" },
 };
 
 const TAGLINE: Record<string, string> = {
