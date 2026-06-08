@@ -490,15 +490,24 @@ function SearchPageContent() {
           boxShadow: "0 1px 8px rgba(0,0,0,0.06)",
         }}>
           <div style={{ padding: "0.75rem 1.5rem", maxWidth: 720, margin: "0 auto" }}>
-            <SearchBar
-              value={query}
-              onChange={setQuery}
-              onSearch={() => submitSearch(query)}
-              placeholder={t.placeholder}
-              searchLabel={t.search}
-              loading={loading}
-              emoji={tagIcon(query.trim()) ?? undefined}
-            />
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              {conceptParam && DOMAIN_DEFS[conceptParam]?.emoji && (
+                <span style={{ fontSize: "2.5rem", lineHeight: 1, flexShrink: 0, userSelect: "none" }}>
+                  {DOMAIN_DEFS[conceptParam].emoji}
+                </span>
+              )}
+              <div style={{ flex: 1 }}>
+                <SearchBar
+                  value={query}
+                  onChange={setQuery}
+                  onSearch={() => submitSearch(query)}
+                  placeholder={t.placeholder}
+                  searchLabel={t.search}
+                  loading={loading}
+                  emoji={tagIcon(query.trim()) ?? undefined}
+                />
+              </div>
+            </div>
           </div>
           {hasResults && (
             <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
