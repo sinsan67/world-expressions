@@ -73,6 +73,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
           gap: "2rem",
           marginTop: "1.25rem",
           alignItems: "flex-start",
+          justifyContent: "center",
           flexWrap: "wrap",
         }}>
 
