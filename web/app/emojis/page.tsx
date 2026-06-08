@@ -6,6 +6,7 @@ import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
+import EmojiKeyboard from "@/components/EmojiKeyboard";
 import { tagIcon } from "@/lib/tagIcons";
 import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { LANG_FLAG, LANG_NATIVE } from "@/lib/langDefs";
@@ -43,6 +44,8 @@ const T: Record<UILang, {
   viewExpressions: string;
   langFilter: string;
   typeFilter: string;
+  viewDomains: string;
+  viewKeyboard: string;
 }> = {
   fr: {
     eyebrow: "Référence",
@@ -57,6 +60,8 @@ const T: Record<UILang, {
     viewExpressions: "Voir les expressions →",
     langFilter: "Langue",
     typeFilter: "Type",
+    viewDomains: "Par domaine",
+    viewKeyboard: "🎲 Clavier",
   },
   en: {
     eyebrow: "Reference",
@@ -71,6 +76,8 @@ const T: Record<UILang, {
     viewExpressions: "See expressions →",
     langFilter: "Language",
     typeFilter: "Type",
+    viewDomains: "By domain",
+    viewKeyboard: "🎲 Keyboard",
   },
   es: {
     eyebrow: "Referencia",
@@ -85,6 +92,8 @@ const T: Record<UILang, {
     viewExpressions: "Ver las expresiones →",
     langFilter: "Idioma",
     typeFilter: "Tipo",
+    viewDomains: "Por dominio",
+    viewKeyboard: "🎲 Teclado",
   },
   it: {
     eyebrow: "Riferimento",
@@ -99,6 +108,8 @@ const T: Record<UILang, {
     viewExpressions: "Vedi le espressioni →",
     langFilter: "Lingua",
     typeFilter: "Tipo",
+    viewDomains: "Per dominio",
+    viewKeyboard: "🎲 Tastiera",
   },
   tr: {
     eyebrow: "Referans",
@@ -113,12 +124,15 @@ const T: Record<UILang, {
     viewExpressions: "İfadeleri gör →",
     langFilter: "Dil",
     typeFilter: "Tür",
+    viewDomains: "Alana göre",
+    viewKeyboard: "🎲 Klavye",
   },
 };
 
 export default function EmojisPage() {
   const router = useRouter();
   const [uiLang, setUILang] = useState<UILang>("fr");
+  const [viewMode, setViewMode] = useState<"domains" | "keyboard">("domains");
   const [activeDomain, setActiveDomain] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterLang, setFilterLang] = useState("");
@@ -238,7 +252,47 @@ export default function EmojisPage() {
             </p>
           </div>
 
-          {/* Search + filters + domain chips */}
+          {/* View mode toggle */}
+          <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1.25rem" }}>
+            {(["domains", "keyboard"] as const).map((mode) => {
+              const label = mode === "domains" ? t.viewDomains : t.viewKeyboard;
+              const isActive = viewMode === mode;
+              return (
+                <button
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: 13,
+                    fontWeight: isActive ? 600 : 400,
+                    padding: "5px 14px",
+                    borderRadius: "var(--r-pill)",
+                    border: `1.5px solid ${isActive ? "var(--plum)" : "var(--paper-edge)"}`,
+                    background: isActive ? "var(--plum-bg)" : "transparent",
+                    color: isActive ? "var(--plum)" : "var(--ink-soft)",
+                    cursor: "pointer",
+                    transition: "all 120ms ease",
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Keyboard mode */}
+          {viewMode === "keyboard" && (
+            <div style={{ marginBottom: "3rem" }}>
+              <EmojiKeyboard
+                size={48}
+                onSelect={(slug) => router.push(`/search?concept=${encodeURIComponent(slug)}`)}
+              />
+            </div>
+          )}
+
+          {/* Search + filters + domain chips + domain sections */}
+          {viewMode === "domains" && (
+          <div>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "1.75rem" }}>
 
             {/* Search */}
@@ -515,6 +569,8 @@ export default function EmojisPage() {
                 );
               })}
             </div>
+          )}
+          </div>
           )}
 
         </div>
