@@ -211,6 +211,8 @@ const ALL_SUB_REGION_CODES = new Set(
   Object.values(COUNTRY_SUB_REGIONS).flat().map((r) => r.code)
 );
 
+const STATIC_REGIONS = Object.entries(COUNTRY_NAME).map(([code, label]) => ({ code, label }));
+
 const SEARCH_HELP: Record<UILang, string> = {
   fr: "Recherche en plusieurs passes : le mot exact, puis synonymes et tags, puis concepts multilingues. Exemple : « industrie » remonte aussi des expressions en anglais ou turc liées à « work » ou « business ».",
   en: "Search runs in multiple passes: exact word, then synonyms and tags, then multilingual concepts. Example: «industry» also surfaces Spanish or Turkish expressions tagged «work» or «business».",
@@ -372,6 +374,7 @@ export default function HomePage() {
 
   const handleFilterChange = useCallback(async (newFilter: string[]) => {
     setFilterRegions(newFilter);
+    if (!searched) return;
     const regionCodes = newFilter.length > 0 ? newFilter : allRegionCodes;
     setLoading(true);
     setHasError(false);
@@ -394,7 +397,7 @@ export default function HomePage() {
       setLoading(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchMode, query, allRegionCodes, typeFilter, uiLang]);
+  }, [searchMode, query, allRegionCodes, typeFilter, uiLang, searched]);
 
   const handleTypeChange = useCallback(async (newType: string | null) => {
     setTypeFilter(newType);
@@ -653,20 +656,19 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          {searched && results.length > 0 && (
-            <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
-              <ResultsFilterBar
-                regions={regions}
-                filterRegions={filterRegions}
-                onFilterChange={handleFilterChange}
-                sortMode={sortMode}
-                onSortChange={setSortMode}
-                uiLang={uiLang}
-                typeFilter={typeFilter}
-                onTypeChange={handleTypeChange}
-              />
-            </div>
-          )}
+          <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
+            <ResultsFilterBar
+              regions={regions.length > 0 ? regions : STATIC_REGIONS}
+              filterRegions={filterRegions}
+              onFilterChange={handleFilterChange}
+              sortMode={sortMode}
+              onSortChange={setSortMode}
+              uiLang={uiLang}
+              typeFilter={typeFilter}
+              onTypeChange={handleTypeChange}
+              showSort={searched}
+            />
+          </div>
         </div>
 
         {/* Results area */}

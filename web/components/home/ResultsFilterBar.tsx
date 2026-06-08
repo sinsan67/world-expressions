@@ -23,6 +23,7 @@ interface Props {
   uiLang: UILang;
   typeFilter?: string | null;
   onTypeChange?: (type: string | null) => void;
+  showSort?: boolean;
 }
 
 export default function ResultsFilterBar({
@@ -30,6 +31,7 @@ export default function ResultsFilterBar({
   sortMode, onSortChange,
   uiLang,
   typeFilter, onTypeChange,
+  showSort = true,
 }: Props) {
   const t = T[uiLang];
   const [open, setOpen] = useState(false);
@@ -157,18 +159,18 @@ export default function ResultsFilterBar({
         );
       })}
 
-      {sep}
-
-      {/* Sort toggle */}
-      <span style={{ fontSize: 12, color: "var(--ink-faint)", fontFamily: "var(--font-body)", whiteSpace: "nowrap" }}>
-        {t.sortLabel}
-      </span>
-      <button onClick={() => onSortChange("relevance")} style={sortMode === "relevance" ? pillSortActive : pillBase}>
-        {t.sortRelevance}
-      </button>
-      <button onClick={() => onSortChange("country")} style={sortMode === "country" ? pillSortActive : pillBase}>
-        {t.sortCountry}
-      </button>
+      {showSort && (<>
+        {sep}
+        <span style={{ fontSize: 12, color: "var(--ink-faint)", fontFamily: "var(--font-body)", whiteSpace: "nowrap" }}>
+          {t.sortLabel}
+        </span>
+        <button onClick={() => onSortChange("relevance")} style={sortMode === "relevance" ? pillSortActive : pillBase}>
+          {t.sortRelevance}
+        </button>
+        <button onClick={() => onSortChange("country")} style={sortMode === "country" ? pillSortActive : pillBase}>
+          {t.sortCountry}
+        </button>
+      </>)}
     </div>
   );
 }
