@@ -2,15 +2,16 @@
 
 import { useState, useEffect, useRef } from "react";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
+import { TYPE_LABELS } from "@/lib/typeLabels";
 
 type UILang = "fr" | "en" | "es" | "it" | "tr";
 
 const T = {
-  fr: { filterAll: "Tous les pays", sortLabel: "Trier :", sortRelevance: "Pertinence", sortCountry: "Par pays" },
-  en: { filterAll: "All countries", sortLabel: "Sort:", sortRelevance: "Relevance", sortCountry: "By country" },
-  es: { filterAll: "Todos los países", sortLabel: "Ordenar:", sortRelevance: "Relevancia", sortCountry: "Por país" },
-  it: { filterAll: "Tutti i paesi", sortLabel: "Ordina:", sortRelevance: "Rilevanza", sortCountry: "Per paese" },
-  tr: { filterAll: "Tüm ülkeler", sortLabel: "Sırala:", sortRelevance: "Alaka", sortCountry: "Ülkeye göre" },
+  fr: { filterAll: "Tous les pays", sortLabel: "Trier :", sortRelevance: "Pertinence", sortCountry: "Par pays", allTypes: "Tous" },
+  en: { filterAll: "All countries", sortLabel: "Sort:", sortRelevance: "Relevance", sortCountry: "By country", allTypes: "All" },
+  es: { filterAll: "Todos los países", sortLabel: "Ordenar:", sortRelevance: "Relevancia", sortCountry: "Por país", allTypes: "Todos" },
+  it: { filterAll: "Tutti i paesi", sortLabel: "Ordina:", sortRelevance: "Rilevanza", sortCountry: "Per paese", allTypes: "Tutti" },
+  tr: { filterAll: "Tüm ülkeler", sortLabel: "Sırala:", sortRelevance: "Alaka", sortCountry: "Ülkeye göre", allTypes: "Tümü" },
 };
 
 interface Props {
@@ -20,10 +21,16 @@ interface Props {
   sortMode: "relevance" | "country";
   onSortChange: (mode: "relevance" | "country") => void;
   uiLang: UILang;
-  typeSlot?: React.ReactNode;
+  typeFilter?: string | null;
+  onTypeChange?: (type: string | null) => void;
 }
 
-export default function ResultsFilterBar({ regions, filterRegions, onFilterChange, sortMode, onSortChange, uiLang, typeSlot }: Props) {
+export default function ResultsFilterBar({
+  regions, filterRegions, onFilterChange,
+  sortMode, onSortChange,
+  uiLang,
+  typeFilter, onTypeChange,
+}: Props) {
   const t = T[uiLang];
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -48,36 +55,49 @@ export default function ResultsFilterBar({ regions, filterRegions, onFilterChang
     ? t.filterAll
     : filterRegions.map((c) => FLAG[c] ?? c.toUpperCase()).join(" ");
 
-  const btnBase: React.CSSProperties = {
-    padding: "0.3rem 0.75rem",
-    borderRadius: 20,
-    border: "1px solid var(--paper-edge)",
+  const pillBase: React.CSSProperties = {
+    padding: "6px 14px",
+    borderRadius: "var(--r-pill)",
+    border: "1.5px solid var(--paper-edge)",
     background: "var(--paper)",
     color: "var(--ink-soft)",
     fontSize: 13,
     cursor: "pointer",
-    transition: "background 0.15s, color 0.15s",
+    fontWeight: 500,
+    transition: "all 0.15s",
     fontFamily: "var(--font-body)",
   };
 
-  const btnActive: React.CSSProperties = {
-    ...btnBase,
+  const pillSortActive: React.CSSProperties = {
+    ...pillBase,
     background: "var(--plum)",
     color: "#fff",
-    border: "1px solid var(--plum)",
+    border: "1.5px solid var(--plum)",
   };
 
+  const sep = (
+    <div style={{ width: 1, height: 18, background: "var(--paper-edge)", flexShrink: 0, margin: "0 0.15rem" }} />
+  );
+
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginBottom: "1rem" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap", marginBottom: "1rem" }}>
 
       {/* Country dropdown */}
-      <div ref={dropdownRef} style={{ position: "relative" }}>
+      <div ref={dropdownRef} style={{ position: "relative", flexShrink: 0 }}>
         <button
           onClick={() => setOpen((o) => !o)}
-          style={{ ...btnBase, ...(filterRegions.length > 0 ? { background: "var(--paper-deep)", color: "var(--ink)" } : {}), display: "flex", alignItems: "center", gap: "0.4rem" }}
+          style={{
+            ...pillBase,
+            ...(filterRegions.length > 0 ? {
+              background: "rgba(107,77,143,0.08)",
+              borderColor: "var(--plum)",
+              color: "var(--plum)",
+            } : {}),
+            display: "flex", alignItems: "center", gap: "0.4rem",
+          }}
         >
           <span>{activeLabel}</span>
-          <span style={{ fontSize: 10, opacity: 0.6 }}>{open ? "▲" : "▼"}</span>
+          <span style={{ fontSize: 9, opacity: 0.5 }}>{open ? "▲" : "▼"}</span>
         </button>
 
         {open && (
@@ -87,7 +107,6 @@ export default function ResultsFilterBar({ regions, filterRegions, onFilterChang
             borderRadius: 10, padding: "0.4rem 0", minWidth: 190,
             boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
           }}>
-            {/* All */}
             <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.35rem 0.75rem", cursor: "pointer", fontSize: 13, color: "var(--ink)" }}>
               <input
                 type="checkbox"
@@ -113,24 +132,43 @@ export default function ResultsFilterBar({ regions, filterRegions, onFilterChang
         )}
       </div>
 
-      {/* Sort toggle */}
-      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-        <span style={{ fontSize: 12, color: "var(--ink-faint)", fontFamily: "var(--font-body)" }}>{t.sortLabel}</span>
-        <button onClick={() => onSortChange("relevance")} style={sortMode === "relevance" ? btnActive : btnBase}>
-          {t.sortRelevance}
-        </button>
-        <button onClick={() => onSortChange("country")} style={sortMode === "country" ? btnActive : btnBase}>
-          {t.sortCountry}
-        </button>
-      </div>
+      {sep}
 
-      {/* Type pills slot (optional — same row) */}
-      {typeSlot && (
-        <>
-          <div style={{ width: 1, height: 18, background: "var(--paper-edge)", flexShrink: 0 }} />
-          {typeSlot}
-        </>
-      )}
+      {/* Type pills */}
+      {([null, "idiom", "proverb", "locution"] as const).map((type) => {
+        const isActive = (typeFilter ?? null) === type;
+        const label = type === null
+          ? t.allTypes
+          : (TYPE_LABELS[type]?.[uiLang] ?? TYPE_LABELS[type]?.["en"] ?? type);
+        return (
+          <button
+            key={type ?? "all"}
+            onClick={() => onTypeChange?.(type)}
+            style={{
+              ...pillBase,
+              background: isActive ? "var(--terra)" : "var(--paper)",
+              border: `1.5px solid ${isActive ? "var(--terra)" : "var(--paper-edge)"}`,
+              color: isActive ? "#fff" : "var(--terra)",
+              boxShadow: isActive ? "var(--shadow-stamp)" : "none",
+            }}
+          >
+            {label}
+          </button>
+        );
+      })}
+
+      {sep}
+
+      {/* Sort toggle */}
+      <span style={{ fontSize: 12, color: "var(--ink-faint)", fontFamily: "var(--font-body)", whiteSpace: "nowrap" }}>
+        {t.sortLabel}
+      </span>
+      <button onClick={() => onSortChange("relevance")} style={sortMode === "relevance" ? pillSortActive : pillBase}>
+        {t.sortRelevance}
+      </button>
+      <button onClick={() => onSortChange("country")} style={sortMode === "country" ? pillSortActive : pillBase}>
+        {t.sortCountry}
+      </button>
     </div>
   );
 }

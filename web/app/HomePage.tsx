@@ -249,6 +249,7 @@ export default function HomePage() {
   const [newsletterLang, setNewsletterLang] = useState<UILang>("en");
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
   const [filterRegions, setFilterRegions] = useState<string[]>([]);
+  const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<"relevance" | "country">("country");
   const [expandedRegion, setExpandedRegion] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
@@ -324,6 +325,7 @@ export default function HomePage() {
     if (q.trim().length < 2) return;
     setSearchLabel("");
     setFilterRegions([]);
+    setTypeFilter(null);
     setSortMode("relevance");
     setSearchMode("text");
     setLoading(true);
@@ -357,7 +359,7 @@ export default function HomePage() {
           ? await browseByRegion(activeRegions, LIMIT, offset)
           : searchMode === "concept"
           ? await searchByConcept([query], activeRegions, LIMIT, offset)
-          : await searchExpressions(query, activeRegions, LIMIT, offset, undefined, uiLang);
+          : await searchExpressions(query, activeRegions, LIMIT, offset, typeFilter ?? undefined, uiLang);
       setResults((prev) => [...prev, ...data.results]);
       setHasMore(offset + data.results.length < data.total);
     } catch {
@@ -366,7 +368,7 @@ export default function HomePage() {
       setLoadingMore(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMore, loadingMore, searchMode, query, results.length, allRegionCodes, filterRegions, uiLang]);
+  }, [hasMore, loadingMore, searchMode, query, results.length, allRegionCodes, filterRegions, typeFilter, uiLang]);
 
   const handleFilterChange = useCallback(async (newFilter: string[]) => {
     setFilterRegions(newFilter);
@@ -381,7 +383,7 @@ export default function HomePage() {
           ? await browseByRegion(regionCodes, LIMIT, 0)
           : searchMode === "concept"
           ? await searchByConcept([query], regionCodes, LIMIT, 0)
-          : await searchExpressions(query, regionCodes, LIMIT, 0, undefined, uiLang);
+          : await searchExpressions(query, regionCodes, LIMIT, 0, typeFilter ?? undefined, uiLang);
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
@@ -392,7 +394,29 @@ export default function HomePage() {
       setLoading(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchMode, query, allRegionCodes, uiLang]);
+  }, [searchMode, query, allRegionCodes, typeFilter, uiLang]);
+
+  const handleTypeChange = useCallback(async (newType: string | null) => {
+    setTypeFilter(newType);
+    if (!query) return;
+    const regionCodes = filterRegions.length > 0 ? filterRegions : allRegionCodes;
+    setLoading(true);
+    setHasError(false);
+    setResults([]);
+    setHasMore(false);
+    try {
+      const data = await searchExpressions(query, regionCodes, LIMIT, 0, newType ?? undefined, uiLang);
+      setResults(data.results);
+      setTotal(data.total);
+      setHasMore(data.results.length < data.total);
+    } catch {
+      setHasError(true);
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchMode, query, allRegionCodes, filterRegions, uiLang]);
 
   const refreshFeatured = useCallback(() => {
     getRandomExpression(uiLang).then((expr) => {
@@ -638,6 +662,8 @@ export default function HomePage() {
                 sortMode={sortMode}
                 onSortChange={setSortMode}
                 uiLang={uiLang}
+                typeFilter={typeFilter}
+                onTypeChange={handleTypeChange}
               />
             </div>
           )}

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
 import { FLAG } from "@/lib/constants";
 import { DOMAIN_DEFS } from "@/lib/domainDefs";
+import EmojiKeyboard from "@/components/EmojiKeyboard";
 
 const PLACEHOLDER: Record<string, string> = {
   fr: "Essaie : pied, argent, animal…",
@@ -22,7 +23,11 @@ const FILTER_LABEL: Record<string, string> = {
 };
 
 const EXPLORE_LABEL: Record<string, string> = {
-  fr: "Explorer", en: "Explore", es: "Explorar", it: "Esplora", tr: "Keşfet",
+  fr: "Explorer par domaine", en: "Explore by domain", es: "Explorar por dominio", it: "Esplora per dominio", tr: "Alana göre keşfet",
+};
+
+const EMOJI_TAB_LABEL: Record<string, string> = {
+  fr: "🎲 Par emoji", en: "🎲 By emoji", es: "🎲 Por emoji", it: "🎲 Per emoji", tr: "🎲 Emoji ile",
 };
 
 const ALL_LABEL: Record<string, string> = {
@@ -55,6 +60,7 @@ export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [tappedDomain, setTappedDomain] = useState<string | null>(null);
+  const [exploreTab, setExploreTab] = useState<"domains" | "emojis">("domains");
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -249,67 +255,106 @@ export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
           </div>
         </div>
 
-        {/* Emoji domain grid */}
+        {/* Explorer — tabs: domain grid | emoji keyboard */}
         <div>
-          <div style={sectionLabel}>{EXPLORE_LABEL[uiLang] ?? EXPLORE_LABEL.en}</div>
-          <div style={{ display: "flex", gap: "0.25rem", flexWrap: "wrap" }}>
-            {Object.entries(DOMAIN_DEFS).map(([slug, def]) => {
-              const label = def.labels[uiLang] ?? def.labels.en;
-              const isActive = tappedDomain === slug;
+          {/* Tab switcher */}
+          <div style={{ display: "flex", gap: "0.35rem", marginBottom: "0.6rem" }}>
+            {(["domains", "emojis"] as const).map((tab) => {
+              const label = tab === "domains"
+                ? (EXPLORE_LABEL[uiLang] ?? EXPLORE_LABEL.en)
+                : (EMOJI_TAB_LABEL[uiLang] ?? EMOJI_TAB_LABEL.en);
+              const isActive = exploreTab === tab;
               return (
-                <div key={slug} style={{ position: "relative" }}>
-                  {isActive && (
-                    <div style={{
-                      position: "absolute",
-                      bottom: "calc(100% + 4px)",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      background: "var(--ink)",
-                      color: "#fff",
-                      fontSize: 11,
-                      fontWeight: 600,
-                      padding: "3px 8px",
-                      borderRadius: "var(--r-pill)",
-                      whiteSpace: "nowrap",
-                      pointerEvents: "none",
-                      fontFamily: "var(--font-body)",
-                      zIndex: 10,
-                    }}>
-                      {label}
-                    </div>
-                  )}
-                  <button
-                    data-testid="concept-chip"
-                    title={label}
-                    onClick={() => handleDomainClick(slug)}
-                    onTouchStart={(e) => { e.preventDefault(); handleEmojiTouch(slug); }}
-                    style={{
-                      width: 38,
-                      height: 38,
-                      borderRadius: 8,
-                      border: "none",
-                      background: isActive ? "var(--paper-edge)" : "transparent",
-                      cursor: "pointer",
-                      fontSize: "1.375rem",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      transition: "background 0.1s",
-                      lineHeight: 1,
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.background = "var(--paper-edge)";
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.background = isActive ? "var(--paper-edge)" : "transparent";
-                    }}
-                  >
-                    {def.emoji}
-                  </button>
-                </div>
+                <button
+                  key={tab}
+                  onClick={() => setExploreTab(tab)}
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: 11,
+                    fontWeight: isActive ? 700 : 500,
+                    padding: "3px 10px",
+                    borderRadius: "var(--r-pill)",
+                    border: `1.5px solid ${isActive ? "var(--plum)" : "var(--paper-edge)"}`,
+                    background: isActive ? "var(--plum-bg)" : "transparent",
+                    color: isActive ? "var(--plum)" : "var(--ink-soft)",
+                    cursor: "pointer",
+                    transition: "all 0.12s",
+                    textTransform: "uppercase" as const,
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  {label}
+                </button>
               );
             })}
           </div>
+
+          {/* Tab content */}
+          {exploreTab === "domains" ? (
+            <div style={{ display: "flex", gap: "0.25rem", flexWrap: "wrap" }}>
+              {Object.entries(DOMAIN_DEFS).map(([slug, def]) => {
+                const label = def.labels[uiLang] ?? def.labels.en;
+                const isActive = tappedDomain === slug;
+                return (
+                  <div key={slug} style={{ position: "relative" }}>
+                    {isActive && (
+                      <div style={{
+                        position: "absolute",
+                        bottom: "calc(100% + 4px)",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        background: "var(--ink)",
+                        color: "#fff",
+                        fontSize: 11,
+                        fontWeight: 600,
+                        padding: "3px 8px",
+                        borderRadius: "var(--r-pill)",
+                        whiteSpace: "nowrap",
+                        pointerEvents: "none",
+                        fontFamily: "var(--font-body)",
+                        zIndex: 10,
+                      }}>
+                        {label}
+                      </div>
+                    )}
+                    <button
+                      data-testid="concept-chip"
+                      title={label}
+                      onClick={() => handleDomainClick(slug)}
+                      onTouchStart={(e) => { e.preventDefault(); handleEmojiTouch(slug); }}
+                      style={{
+                        width: 38,
+                        height: 38,
+                        borderRadius: 8,
+                        border: "none",
+                        background: isActive ? "var(--paper-edge)" : "transparent",
+                        cursor: "pointer",
+                        fontSize: "1.375rem",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "background 0.1s",
+                        lineHeight: 1,
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLButtonElement).style.background = "var(--paper-edge)";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLButtonElement).style.background = isActive ? "var(--paper-edge)" : "transparent";
+                      }}
+                    >
+                      {def.emoji}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <EmojiKeyboard
+              size={38}
+              onSelect={(slug) => { handleDomainClick(slug); }}
+            />
+          )}
         </div>
 
         {/* Submit button — only for text search */}

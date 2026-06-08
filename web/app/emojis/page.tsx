@@ -6,11 +6,30 @@ import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
+import EmojiKeyboard from "@/components/EmojiKeyboard";
 import { tagIcon } from "@/lib/tagIcons";
 import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
-import { DOMAIN_TAGS } from "@/lib/domainTags";
+import { LANG_FLAG, LANG_NATIVE } from "@/lib/langDefs";
+import { getConcepts } from "@/lib/api";
 
 type UILang = "fr" | "en" | "es" | "it" | "tr";
+type TagEntry = { slug: string; name: string; count: number };
+
+const LANG_FILTER_OPTIONS: { value: string }[] = [
+  { value: "" },
+  { value: "fr" },
+  { value: "en" },
+  { value: "es" },
+  { value: "it" },
+  { value: "tr" },
+];
+
+const KIND_OPTIONS: { value: string; labels: Record<UILang, string> }[] = [
+  { value: "", labels: { fr: "Tous", en: "All", es: "Todos", it: "Tutti", tr: "Tümü" } },
+  { value: "idiom", labels: { fr: "Expression", en: "Expression", es: "Expresión", it: "Espressione", tr: "İfade" } },
+  { value: "proverb", labels: { fr: "Proverbe", en: "Proverb", es: "Proverbio", it: "Proverbio", tr: "Atasözü" } },
+  { value: "locution", labels: { fr: "Locution", en: "Set phrase", es: "Locución", it: "Locuzione", tr: "Deyim" } },
+];
 
 const T: Record<UILang, {
   eyebrow: string;
@@ -21,6 +40,12 @@ const T: Record<UILang, {
   searchPlaceholder: string;
   noResults: string;
   tagCount: (n: number) => string;
+  domainsLabel: string;
+  viewExpressions: string;
+  langFilter: string;
+  typeFilter: string;
+  viewDomains: string;
+  viewKeyboard: string;
 }> = {
   fr: {
     eyebrow: "Référence",
@@ -31,6 +56,12 @@ const T: Record<UILang, {
     searchPlaceholder: "Filtrer par mot-clé…",
     noResults: "Aucun tag trouvé.",
     tagCount: (n) => `${n} concepts`,
+    domainsLabel: "domaines",
+    viewExpressions: "Voir les expressions →",
+    langFilter: "Langue",
+    typeFilter: "Type",
+    viewDomains: "Par domaine",
+    viewKeyboard: "🎲 Clavier",
   },
   en: {
     eyebrow: "Reference",
@@ -41,6 +72,12 @@ const T: Record<UILang, {
     searchPlaceholder: "Filter by keyword…",
     noResults: "No tags found.",
     tagCount: (n) => `${n} concepts`,
+    domainsLabel: "domains",
+    viewExpressions: "See expressions →",
+    langFilter: "Language",
+    typeFilter: "Type",
+    viewDomains: "By domain",
+    viewKeyboard: "🎲 Keyboard",
   },
   es: {
     eyebrow: "Referencia",
@@ -51,6 +88,12 @@ const T: Record<UILang, {
     searchPlaceholder: "Filtrar por palabra clave…",
     noResults: "No se encontraron etiquetas.",
     tagCount: (n) => `${n} conceptos`,
+    domainsLabel: "dominios",
+    viewExpressions: "Ver las expresiones →",
+    langFilter: "Idioma",
+    typeFilter: "Tipo",
+    viewDomains: "Por dominio",
+    viewKeyboard: "🎲 Teclado",
   },
   it: {
     eyebrow: "Riferimento",
@@ -61,6 +104,12 @@ const T: Record<UILang, {
     searchPlaceholder: "Filtra per parola chiave…",
     noResults: "Nessun tag trovato.",
     tagCount: (n) => `${n} concetti`,
+    domainsLabel: "domini",
+    viewExpressions: "Vedi le espressioni →",
+    langFilter: "Lingua",
+    typeFilter: "Tipo",
+    viewDomains: "Per dominio",
+    viewKeyboard: "🎲 Tastiera",
   },
   tr: {
     eyebrow: "Referans",
@@ -71,23 +120,44 @@ const T: Record<UILang, {
     searchPlaceholder: "Anahtar kelimeyle filtrele…",
     noResults: "Etiket bulunamadı.",
     tagCount: (n) => `${n} kavram`,
+    domainsLabel: "alan",
+    viewExpressions: "İfadeleri gör →",
+    langFilter: "Dil",
+    typeFilter: "Tür",
+    viewDomains: "Alana göre",
+    viewKeyboard: "🎲 Klavye",
   },
 };
-
-function formatLabel(slug: string): string {
-  return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
 
 export default function EmojisPage() {
   const router = useRouter();
   const [uiLang, setUILang] = useState<UILang>("fr");
+  const [viewMode, setViewMode] = useState<"domains" | "keyboard">("domains");
   const [activeDomain, setActiveDomain] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [filterLang, setFilterLang] = useState("");
+  const [filterKind, setFilterKind] = useState("");
+  const [domainTagMap, setDomainTagMap] = useState<Record<string, TagEntry[]>>({});
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
     if (stored && ["fr", "en", "es", "it", "tr"].includes(stored)) setUILang(stored);
   }, []);
+
+  useEffect(() => {
+    getConcepts(uiLang, filterLang, "", 1, filterKind).then(({ concepts }) => {
+      const map: Record<string, TagEntry[]> = {};
+      for (const c of concepts) {
+        for (const domain of c.domains) {
+          if (!map[domain]) map[domain] = [];
+          if (!map[domain].find((t) => t.slug === c.slug)) {
+            map[domain].push({ slug: c.slug, name: c.name, count: c.count });
+          }
+        }
+      }
+      setDomainTagMap(map);
+    });
+  }, [uiLang, filterLang, filterKind]);
 
   const changeLang = (lang: UILang) => {
     setUILang(lang);
@@ -96,26 +166,35 @@ export default function EmojisPage() {
 
   const t = T[uiLang];
 
-  const visibleDomains = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    const domains = activeDomain ? [activeDomain] : Object.keys(DOMAIN_DEFS);
-    if (!q) return domains;
-    return domains.filter((d) =>
-      (DOMAIN_TAGS[d] ?? []).some((tag) => tag.toLowerCase().includes(q))
-    );
-  }, [activeDomain, search]);
+  const totalTags = useMemo(
+    () => {
+      const seen = new Set<string>();
+      Object.values(domainTagMap).flat().forEach((t) => seen.add(t.slug));
+      return seen.size;
+    },
+    [domainTagMap]
+  );
 
-  const filteredTagsFor = (domain: string): string[] => {
+  const filteredTagsFor = (domain: string): TagEntry[] => {
     const q = search.trim().toLowerCase();
-    const tags = DOMAIN_TAGS[domain] ?? [];
+    const tags = domainTagMap[domain] ?? [];
     if (!q) return tags;
-    return tags.filter((tag) => tag.toLowerCase().includes(q));
+    return tags.filter((t) =>
+      t.slug.toLowerCase().includes(q) || t.name.toLowerCase().includes(q)
+    );
   };
 
-  const totalTags = useMemo(
-    () => Object.values(DOMAIN_TAGS).flat().filter((v, i, a) => a.indexOf(v) === i).length,
-    []
-  );
+  const visibleDomains = useMemo(() => {
+    const allDomains = Object.keys(DOMAIN_DEFS);
+    const domains = activeDomain ? [activeDomain] : allDomains;
+    const q = search.trim().toLowerCase();
+    if (!q) return domains;
+    return domains.filter((d) =>
+      (domainTagMap[d] ?? []).some(
+        (t) => t.slug.toLowerCase().includes(q) || t.name.toLowerCase().includes(q)
+      )
+    );
+  }, [activeDomain, search, domainTagMap]);
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
@@ -169,11 +248,51 @@ export default function EmojisPage() {
               {t.subtitle}
             </p>
             <p style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--ink-faint)", margin: 0 }}>
-              {t.tagCount(totalTags)} · {Object.keys(DOMAIN_DEFS).length} domaines
+              {t.tagCount(totalTags)} · {Object.keys(DOMAIN_DEFS).length} {t.domainsLabel}
             </p>
           </div>
 
-          {/* Search + domain filter row */}
+          {/* View mode toggle */}
+          <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1.25rem" }}>
+            {(["domains", "keyboard"] as const).map((mode) => {
+              const label = mode === "domains" ? t.viewDomains : t.viewKeyboard;
+              const isActive = viewMode === mode;
+              return (
+                <button
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: 13,
+                    fontWeight: isActive ? 600 : 400,
+                    padding: "5px 14px",
+                    borderRadius: "var(--r-pill)",
+                    border: `1.5px solid ${isActive ? "var(--plum)" : "var(--paper-edge)"}`,
+                    background: isActive ? "var(--plum-bg)" : "transparent",
+                    color: isActive ? "var(--plum)" : "var(--ink-soft)",
+                    cursor: "pointer",
+                    transition: "all 120ms ease",
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Keyboard mode */}
+          {viewMode === "keyboard" && (
+            <div style={{ marginBottom: "3rem" }}>
+              <EmojiKeyboard
+                size={48}
+                onSelect={(slug) => router.push(`/search?concept=${encodeURIComponent(slug)}`)}
+              />
+            </div>
+          )}
+
+          {/* Search + filters + domain chips + domain sections */}
+          {viewMode === "domains" && (
+          <div>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "1.75rem" }}>
 
             {/* Search */}
@@ -198,6 +317,74 @@ export default function EmojisPage() {
               onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = "var(--plum)"; }}
               onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = "var(--paper-edge)"; }}
             />
+
+            {/* Language filter */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem", alignItems: "center" }}>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--ink-softer)", minWidth: 52 }}>
+                {t.langFilter}
+              </span>
+              {LANG_FILTER_OPTIONS.map(({ value }) => {
+                const isActive = filterLang === value;
+                return (
+                  <button
+                    key={value || "all"}
+                    onClick={() => setFilterLang(value)}
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: 13,
+                      fontWeight: isActive ? 600 : 400,
+                      padding: "4px 10px",
+                      borderRadius: "var(--r-pill)",
+                      border: `1.5px solid ${isActive ? "var(--plum)" : "var(--paper-edge)"}`,
+                      background: isActive ? "var(--plum-bg)" : "transparent",
+                      color: isActive ? "var(--plum)" : "var(--ink-soft)",
+                      cursor: "pointer",
+                      transition: "all 120ms ease",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.3rem",
+                    }}
+                  >
+                    {value ? (
+                      <><span>{LANG_FLAG[value]}</span><span>{value.toUpperCase()}</span></>
+                    ) : (
+                      <span>{t.all}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Type filter */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem", alignItems: "center" }}>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--ink-softer)", minWidth: 52 }}>
+                {t.typeFilter}
+              </span>
+              {KIND_OPTIONS.map(({ value, labels }) => {
+                const isActive = filterKind === value;
+                return (
+                  <button
+                    key={value || "all"}
+                    onClick={() => setFilterKind(value)}
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: 13,
+                      fontWeight: isActive ? 600 : 500,
+                      padding: "4px 10px",
+                      borderRadius: "var(--r-pill)",
+                      border: `1.5px solid ${isActive ? "var(--terra)" : "var(--paper-edge)"}`,
+                      background: isActive ? "var(--terra)" : "var(--paper)",
+                      color: isActive ? "#fff" : "var(--terra)",
+                      cursor: "pointer",
+                      transition: "all 120ms ease",
+                      boxShadow: isActive ? "var(--shadow-stamp)" : "none",
+                    }}
+                  >
+                    {labels[uiLang]}
+                  </button>
+                );
+              })}
+            </div>
 
             {/* Domain chips */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
@@ -332,18 +519,18 @@ export default function EmojisPage() {
                         onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
                         onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.75"; }}
                       >
-                        Voir les expressions →
+                        {t.viewExpressions}
                       </button>
                     </div>
 
                     {/* Tags */}
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "0.45rem" }}>
-                      {tags.map((tag) => {
-                        const icon = tagIcon(tag);
+                      {tags.map(({ slug, name, count }) => {
+                        const icon = tagIcon(slug);
                         return (
                           <button
-                            key={tag}
-                            onClick={() => router.push(`/search?concept=${encodeURIComponent(tag)}`)}
+                            key={slug}
+                            onClick={() => router.push(`/search?concept=${encodeURIComponent(slug)}`)}
                             style={{
                               fontFamily: "var(--font-body)",
                               fontSize: 13,
@@ -373,7 +560,8 @@ export default function EmojisPage() {
                             }}
                           >
                             {icon && <span style={{ fontSize: 14, lineHeight: 1 }}>{icon}</span>}
-                            <span style={{ fontWeight: 500 }}>{formatLabel(tag)}</span>
+                            <span style={{ fontWeight: 500 }}>{name}</span>
+                            <span style={{ fontSize: 11, color: "var(--ink-faint)", fontWeight: 400 }}>{count}</span>
                           </button>
                         );
                       })}
@@ -382,6 +570,8 @@ export default function EmojisPage() {
                 );
               })}
             </div>
+          )}
+          </div>
           )}
 
         </div>

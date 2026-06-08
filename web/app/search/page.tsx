@@ -15,7 +15,6 @@ import { tagIcon } from "@/lib/tagIcons";
 import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { LANG_FLAG, LANG_NATIVE } from "@/lib/langDefs";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
-import { TYPE_LABELS } from "@/lib/typeLabels";
 
 const LIMIT = 20;
 type UILang = "fr" | "en" | "es" | "it" | "tr";
@@ -518,36 +517,8 @@ function SearchPageContent() {
                 sortMode={sortMode}
                 onSortChange={setSortMode}
                 uiLang={uiLang}
-                typeSlot={
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-                    {([null, "idiom", "proverb", "locution"] as const).map((type) => {
-                      const isActive = typeFilter === type;
-                      const label = type === null
-                        ? (uiLang === "fr" ? "Tous" : uiLang === "es" ? "Todos" : uiLang === "it" ? "Tutti" : uiLang === "tr" ? "Tümü" : "All")
-                        : (TYPE_LABELS[type]?.[uiLang] ?? TYPE_LABELS[type]?.["en"] ?? type);
-                      return (
-                        <button
-                          key={type ?? "all"}
-                          onClick={() => handleTypeFilter(type)}
-                          style={{
-                            fontSize: 12,
-                            padding: "4px 12px",
-                            borderRadius: "var(--r-pill)",
-                            background: isActive ? "var(--terra)" : "var(--paper)",
-                            border: `1.5px solid ${isActive ? "var(--terra)" : "var(--paper-edge)"}`,
-                            color: isActive ? "#fff" : "var(--terra)",
-                            cursor: "pointer",
-                            fontWeight: 500,
-                            transition: "all 0.15s",
-                            fontFamily: "var(--font-body)",
-                          }}
-                        >
-                          {label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                }
+                typeFilter={typeFilter}
+                onTypeChange={handleTypeFilter}
               />
             </div>
           )}

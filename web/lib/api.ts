@@ -170,10 +170,12 @@ export async function getConcepts(
   lang = "",
   domain = "",
   minCount = 5,
+  kind = "",
 ): Promise<ConceptsResponse> {
   const params = new URLSearchParams({ locale, min_count: String(minCount) });
   if (lang) params.set("lang", lang);
   if (domain) params.set("domain", domain);
+  if (kind) params.set("kind", kind);
   const res = await fetch(`${API}/concepts?${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();

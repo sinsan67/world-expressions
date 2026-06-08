@@ -775,6 +775,7 @@ def get_concepts(
     lang: Optional[str] = None,
     domain: Optional[str] = None,
     min_count: int = 5,
+    kind: Optional[str] = None,
 ) -> dict:
     """
     Retourne les tags ayant un domaine assigné (concept_domains) et ≥ min_count expressions.
@@ -792,6 +793,7 @@ def get_concepts(
       }
     """
     lang_clause = "AND e.language = :lang" if lang else ""
+    kind_clause = "AND e.kind = :kind" if kind else ""
     domain_clause = """AND EXISTS (
         SELECT 1 FROM concept_domains cd2
         WHERE cd2.tag_id = t.id AND cd2.domain_slug = :domain
@@ -812,6 +814,7 @@ def get_concepts(
             WHERE NOT (t.slug = ANY(:meta_tags))
               {domain_clause}
               {lang_clause}
+              {kind_clause}
               AND NOT EXISTS (
                   SELECT 1 FROM expression_tags et_pb
                   JOIN tags t_pb ON t_pb.id = et_pb.tag_id
@@ -845,6 +848,7 @@ def get_concepts(
             JOIN expressions e ON e.id = et.expression_id
             WHERE NOT (t.slug = ANY(:meta_tags))
               {lang_clause}
+              {kind_clause}
               AND NOT EXISTS (
                   SELECT 1 FROM expression_tags et_pb
                   JOIN tags t_pb ON t_pb.id = et_pb.tag_id
@@ -868,7 +872,8 @@ def get_concepts(
             JOIN tags t_pb ON t_pb.id = et_pb.tag_id
             WHERE et_pb.expression_id = e.id AND t_pb.slug = 'phrasebook'
         )
-        {lang_clause.replace("AND e.", "AND e.")}
+        {lang_clause}
+        {kind_clause}
         GROUP BY cd.domain_slug
     """
 
@@ -879,6 +884,8 @@ def get_concepts(
     }
     if lang:
         params["lang"] = lang
+    if kind:
+        params["kind"] = kind
     if domain:
         params["domain"] = domain
 

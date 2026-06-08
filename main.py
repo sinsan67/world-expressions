@@ -142,6 +142,7 @@ def get_concepts_endpoint(
     lang: str = Query("", description="Filter expression counts by language: fr, en, es, it, tr. Empty = all."),
     domain: str = Query("", description="Filter to a single domain slug (e.g. 'emotions'). Empty = all."),
     min_count: int = Query(5, ge=1, description="Minimum number of expressions per concept."),
+    kind: str = Query("", description="Filter by expression kind: idiom, proverb, locution. Empty = all."),
 ):
     """Return tags that have been assigned to a thematic domain, grouped with their domains.
     Includes domain_counts (number of concepts per domain) and a flat concept list."""
@@ -150,6 +151,7 @@ def get_concepts_endpoint(
         lang=lang.strip() or None,
         domain=domain.strip() or None,
         min_count=min_count,
+        kind=kind.strip() or None,
     )
 
 
