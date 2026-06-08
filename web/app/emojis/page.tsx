@@ -9,6 +9,7 @@ import LangBar from "@/components/ui/LangBar";
 import { tagIcon } from "@/lib/tagIcons";
 import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { DOMAIN_TAGS } from "@/lib/domainTags";
+import { getAllTagNames } from "@/lib/api";
 
 type UILang = "fr" | "en" | "es" | "it" | "tr";
 
@@ -21,6 +22,8 @@ const T: Record<UILang, {
   searchPlaceholder: string;
   noResults: string;
   tagCount: (n: number) => string;
+  domainsLabel: string;
+  viewExpressions: string;
 }> = {
   fr: {
     eyebrow: "Référence",
@@ -31,6 +34,8 @@ const T: Record<UILang, {
     searchPlaceholder: "Filtrer par mot-clé…",
     noResults: "Aucun tag trouvé.",
     tagCount: (n) => `${n} concepts`,
+    domainsLabel: "domaines",
+    viewExpressions: "Voir les expressions →",
   },
   en: {
     eyebrow: "Reference",
@@ -41,6 +46,8 @@ const T: Record<UILang, {
     searchPlaceholder: "Filter by keyword…",
     noResults: "No tags found.",
     tagCount: (n) => `${n} concepts`,
+    domainsLabel: "domains",
+    viewExpressions: "See expressions →",
   },
   es: {
     eyebrow: "Referencia",
@@ -51,6 +58,8 @@ const T: Record<UILang, {
     searchPlaceholder: "Filtrar por palabra clave…",
     noResults: "No se encontraron etiquetas.",
     tagCount: (n) => `${n} conceptos`,
+    domainsLabel: "dominios",
+    viewExpressions: "Ver las expresiones →",
   },
   it: {
     eyebrow: "Riferimento",
@@ -61,6 +70,8 @@ const T: Record<UILang, {
     searchPlaceholder: "Filtra per parola chiave…",
     noResults: "Nessun tag trovato.",
     tagCount: (n) => `${n} concetti`,
+    domainsLabel: "domini",
+    viewExpressions: "Vedi le espressioni →",
   },
   tr: {
     eyebrow: "Referans",
@@ -71,6 +82,8 @@ const T: Record<UILang, {
     searchPlaceholder: "Anahtar kelimeyle filtrele…",
     noResults: "Etiket bulunamadı.",
     tagCount: (n) => `${n} kavram`,
+    domainsLabel: "alan",
+    viewExpressions: "İfadeleri gör →",
   },
 };
 
@@ -83,11 +96,16 @@ export default function EmojisPage() {
   const [uiLang, setUILang] = useState<UILang>("fr");
   const [activeDomain, setActiveDomain] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [tagNames, setTagNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
     if (stored && ["fr", "en", "es", "it", "tr"].includes(stored)) setUILang(stored);
   }, []);
+
+  useEffect(() => {
+    getAllTagNames(uiLang).then(setTagNames);
+  }, [uiLang]);
 
   const changeLang = (lang: UILang) => {
     setUILang(lang);
@@ -101,15 +119,21 @@ export default function EmojisPage() {
     const domains = activeDomain ? [activeDomain] : Object.keys(DOMAIN_DEFS);
     if (!q) return domains;
     return domains.filter((d) =>
-      (DOMAIN_TAGS[d] ?? []).some((tag) => tag.toLowerCase().includes(q))
+      (DOMAIN_TAGS[d] ?? []).some((tag) =>
+        tag.toLowerCase().includes(q) ||
+        (tagNames[tag] ?? "").toLowerCase().includes(q)
+      )
     );
-  }, [activeDomain, search]);
+  }, [activeDomain, search, tagNames]);
 
   const filteredTagsFor = (domain: string): string[] => {
     const q = search.trim().toLowerCase();
     const tags = DOMAIN_TAGS[domain] ?? [];
     if (!q) return tags;
-    return tags.filter((tag) => tag.toLowerCase().includes(q));
+    return tags.filter((tag) =>
+      tag.toLowerCase().includes(q) ||
+      (tagNames[tag] ?? "").toLowerCase().includes(q)
+    );
   };
 
   const totalTags = useMemo(
@@ -169,7 +193,7 @@ export default function EmojisPage() {
               {t.subtitle}
             </p>
             <p style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--ink-faint)", margin: 0 }}>
-              {t.tagCount(totalTags)} · {Object.keys(DOMAIN_DEFS).length} domaines
+              {t.tagCount(totalTags)} · {Object.keys(DOMAIN_DEFS).length} {t.domainsLabel}
             </p>
           </div>
 
@@ -332,7 +356,7 @@ export default function EmojisPage() {
                         onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
                         onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.75"; }}
                       >
-                        Voir les expressions →
+                        {t.viewExpressions}
                       </button>
                     </div>
 
@@ -373,7 +397,7 @@ export default function EmojisPage() {
                             }}
                           >
                             {icon && <span style={{ fontSize: 14, lineHeight: 1 }}>{icon}</span>}
-                            <span style={{ fontWeight: 500 }}>{formatLabel(tag)}</span>
+                            <span style={{ fontWeight: 500 }}>{tagNames[tag] ?? formatLabel(tag)}</span>
                           </button>
                         );
                       })}
