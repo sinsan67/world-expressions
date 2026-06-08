@@ -12,6 +12,8 @@ import CarnetTab from "@/components/profile/CarnetTab";
 import PreferencesTab from "@/components/profile/PreferencesTab";
 import AuthModal from "@/components/profile/AuthModal";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
 type UILang = "fr" | "en" | "es" | "it" | "tr";
 type TopTab = "carnet" | "preferences" | "account";
 
@@ -26,6 +28,7 @@ export default function ProfilePage() {
   const [uiLang, setUiLang] = useState<UILang>("en");
   const [activeTab, setActiveTab] = useState<TopTab>("carnet");
   const [authModal, setAuthModal] = useState(false);
+  const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
   const [nameInput, setNameInput] = useState("");
   const [nameSaving, setNameSaving] = useState(false);
   const [nameSaved, setNameSaved] = useState(false);
@@ -44,6 +47,14 @@ export default function ProfilePage() {
   useEffect(() => {
     setNameInput(session?.user?.name ?? "");
   }, [session?.user?.name]);
+
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    fetch(`${API_URL}/users/${session.user.id}/preferences`)
+      .then((r) => r.json())
+      .then((d) => { if (typeof d.email_verified === "boolean") setEmailVerified(d.email_verified); })
+      .catch(() => {});
+  }, [session?.user?.id]);
 
   async function handleSaveName() {
     if (!session?.user?.id) return;
@@ -156,6 +167,13 @@ export default function ProfilePage() {
             {activeTab === "account" && (
               session ? (
                 <div style={{ maxWidth: 560 }}>
+                  {/* Unverified email banner */}
+                  {emailVerified === false && (
+                    <div style={{ background: "#fffbeb", border: "1px solid #fcd34d", borderRadius: "var(--r-md)", padding: "0.75rem 1rem", marginBottom: "1.25rem", fontFamily: "var(--font-body)", fontSize: 13, color: "#92400e", lineHeight: 1.5 }}>
+                      Your email address is not verified yet. Check your inbox (and spam folder) for the verification link.
+                    </div>
+                  )}
+
                   {/* User card */}
                   <div style={{ background: "var(--paper)", border: "1px solid var(--paper-edge)", borderRadius: "var(--r-lg)", boxShadow: "var(--shadow-postcard)", padding: "1.5rem", marginBottom: "1.25rem", display: "flex", gap: "1rem", alignItems: "center" }}>
                     {session.user?.image ? (

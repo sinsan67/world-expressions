@@ -1,34 +1,39 @@
 "use client";
 
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
+import AuthModal from "@/components/profile/AuthModal";
 
 export default function AuthButton() {
   const { data: session, status } = useSession();
   const [imgError, setImgError] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   if (status === "loading") return null;
 
   if (!session) {
     return (
-      <button
-        onClick={() => signIn("google")}
-        style={{
-          fontSize: 11,
-          fontWeight: 700,
-          padding: "2px 9px",
-          borderRadius: "var(--r-pill)",
-          border: "1.5px solid var(--paper-edge)",
-          background: "transparent",
-          color: "var(--ink-soft)",
-          cursor: "pointer",
-          fontFamily: "var(--font-body)",
-          transition: "all 120ms ease",
-          whiteSpace: "nowrap",
-        }}
-      >
-        Sign in
-      </button>
+      <>
+        <button
+          onClick={() => setShowModal(true)}
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            padding: "2px 9px",
+            borderRadius: "var(--r-pill)",
+            border: "1.5px solid var(--paper-edge)",
+            background: "transparent",
+            color: "var(--ink-soft)",
+            cursor: "pointer",
+            fontFamily: "var(--font-body)",
+            transition: "all 120ms ease",
+            whiteSpace: "nowrap",
+          }}
+        >
+          Sign in
+        </button>
+        {showModal && <AuthModal onClose={() => setShowModal(false)} />}
+      </>
     );
   }
 

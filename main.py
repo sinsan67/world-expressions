@@ -374,7 +374,10 @@ def auth_register(body: RegisterRequest):
         f"<p><a href='{verify_url}'>Verify your email address</a></p>"
         f"<p>This link expires in 48 hours.</p>"
     )
-    database.send_transactional_email(email, "Verify your World Expressions account", html)
+    try:
+        database.send_transactional_email(email, "Verify your World Expressions account", html)
+    except Exception as e:
+        print(f"[email error] Failed to send verification email to {email}: {e}")
 
     return {"status": "registered", "message": "Check your email to verify your account"}
 

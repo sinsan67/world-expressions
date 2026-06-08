@@ -751,7 +751,7 @@ def upsert_user(google_id: str, email: str, name: Optional[str], avatar_url: Opt
 def get_user_preferences(user_id: str) -> Optional[dict]:
     """Retourne les préférences d'un utilisateur."""
     sql = text("""
-        SELECT id::text, ui_lang, explore_mode, learning_langs, content_type
+        SELECT id::text, ui_lang, explore_mode, learning_langs, content_type, email_verified
         FROM users WHERE id = :user_id::uuid
     """)
     with engine.connect() as conn:
@@ -764,6 +764,7 @@ def get_user_preferences(user_id: str) -> Optional[dict]:
         "explore_mode": row.explore_mode,
         "learning_langs": list(row.learning_langs) if row.learning_langs else [],
         "content_type": row.content_type,
+        "email_verified": row.email_verified,
     }
 
 
