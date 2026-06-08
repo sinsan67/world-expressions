@@ -289,3 +289,126 @@ def newsletter_subscribe(body: SubscribeRequest):
     lang = body.language if body.language in _VALID_LANGS else "en"
     result = database.subscribe_newsletter(email, lang)
     return result
+
+
+# ---------------------------------------------------------------------------
+# Email / password auth
+# ---------------------------------------------------------------------------
+
+_APP_URL = os.getenv("APP_URL", "https://world-expressions.vercel.app")
+
+
+class RegisterRequest(BaseModel):
+    email: str
+    password: str
+    name: str | None = None
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    password: str
+
+
+def _validate_email(email: str) -> str:
+    email = email.strip().lower()
+    if not _EMAIL_RE.match(email):
+        raise HTTPException(status_code=422, detail="Invalid email address")
+    return email
+
+
+def _validate_password(password: str) -> None:
+    if len(password) < 8:
+        raise HTTPException(status_code=422, detail="Password must be at least 8 characters")
+
+
+@app.post("/auth/register")
+def auth_register(body: RegisterRequest):
+    """
+    Inscrit un nouvel utilisateur avec email + mot de passe.
+    Envoie un email de vérification via Resend.
+    """
+    email = _validate_email(body.email)
+    _validate_password(body.password)
+    name = body.name.strip() if body.name else None
+
+    user = database.register_email_user(email, body.password, name)
+    if user is None:
+        raise HTTPException(status_code=409, detail="An account with this email already exists")
+
+    token = database.create_email_token(user["id"], "verify", expires_hours=48)
+    verify_url = f"{_APP_URL}/verify-email?token={token}"
+    html = (
+        f"<p>Welcome to World Expressions!</p>"
+        f"<p><a href='{verify_url}'>Verify your email address</a></p>"
+        f"<p>This link expires in 48 hours.</p>"
+    )
+    database.send_transactional_email(email, "Verify your World Expressions account", html)
+
+    return {"status": "registered", "message": "Check your email to verify your account"}
+
+
+@app.post("/auth/login")
+def auth_login(body: LoginRequest):
+    """
+    Vérifie email + mot de passe. Retourne le profil si valide.
+    Utilisé par le provider Credentials de NextAuth.
+    """
+    email = _validate_email(body.email)
+    user = database.login_email_user(email, body.password)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    return user
+
+
+@app.get("/auth/verify-email")
+def auth_verify_email(token: str = Query(..., description="Verification token from email")):
+    """
+    Valide le token de vérification d'email et marque l'adresse comme vérifiée.
+    """
+    user_id = database.consume_email_token(token, "verify")
+    if user_id is None:
+        raise HTTPException(status_code=400, detail="Invalid or expired verification link")
+    database.set_email_verified(user_id)
+    return {"status": "verified"}
+
+
+@app.post("/auth/forgot-password")
+def auth_forgot_password(body: ForgotPasswordRequest):
+    """
+    Envoie un lien de réinitialisation de mot de passe.
+    Retourne toujours 200 pour ne pas exposer les emails inscrits.
+    """
+    email = _validate_email(body.email)
+    user = database.get_user_by_email(email)
+    if user and user.get("password_hash"):
+        token = database.create_email_token(user["id"], "reset", expires_hours=2)
+        reset_url = f"{_APP_URL}/reset-password?token={token}"
+        html = (
+            f"<p>Reset your World Expressions password:</p>"
+            f"<p><a href='{reset_url}'>Choose a new password</a></p>"
+            f"<p>This link expires in 2 hours. If you didn't request this, ignore this email.</p>"
+        )
+        database.send_transactional_email(email, "Reset your World Expressions password", html)
+    return {"status": "sent", "message": "If that email exists, a reset link has been sent"}
+
+
+@app.post("/auth/reset-password")
+def auth_reset_password(body: ResetPasswordRequest):
+    """
+    Valide le token de réinitialisation et met à jour le mot de passe.
+    """
+    _validate_password(body.password)
+    user_id = database.consume_email_token(body.token, "reset")
+    if user_id is None:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset link")
+    database.update_password_hash(user_id, body.password)
+    return {"status": "reset", "message": "Password updated successfully"}

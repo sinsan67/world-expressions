@@ -7,3 +7,4 @@ pydantic==2.13.4
 python-dotenv==1.2.2
 anthropic>=0.103.0
 mistralai>=2.0.0
+bcrypt==4.2.1

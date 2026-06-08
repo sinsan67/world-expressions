@@ -9,7 +9,14 @@ Ce fichier les assemble et retourne des dicts au même format qu'avant,
 pour que main.py et le frontend n'aient pas besoin de changer.
 """
 
+import json
+import os
+import secrets
+import urllib.error
+import urllib.request
 from typing import Optional
+
+import bcrypt
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from config import engine
@@ -930,3 +937,170 @@ def subscribe_newsletter(email: str, language: str) -> dict:
     with engine.begin() as conn:
         row = conn.execute(sql_insert, {"email": email, "language": language}).fetchone()
     return {"status": "created" if row else "already_subscribed"}
+
+
+# ---------------------------------------------------------------------------
+# Email / password auth
+# ---------------------------------------------------------------------------
+
+def _hash_password(plain: str) -> str:
+    return bcrypt.hashpw(plain.encode(), bcrypt.gensalt(rounds=12)).decode()
+
+
+def _check_password(plain: str, hashed: str) -> bool:
+    return bcrypt.checkpw(plain.encode(), hashed.encode())
+
+
+def register_email_user(email: str, password: str, name: Optional[str]) -> Optional[dict]:
+    """
+    Crée un utilisateur avec email + mot de passe.
+    Retourne le profil si créé, None si l'email est déjà utilisé.
+    """
+    password_hash = _hash_password(password)
+    sql = text("""
+        INSERT INTO users (id, email, name, password_hash, email_verified, created_at)
+        VALUES (gen_random_uuid(), :email, :name, :password_hash, false, NOW())
+        ON CONFLICT (email) DO NOTHING
+        RETURNING id::text, email, name, avatar_url, ui_lang
+    """)
+    with engine.begin() as conn:
+        row = conn.execute(sql, {"email": email, "name": name, "password_hash": password_hash}).fetchone()
+    if row is None:
+        return None  # email already taken
+    return {"id": row.id, "email": row.email, "name": row.name, "avatar_url": row.avatar_url, "ui_lang": row.ui_lang}
+
+
+def get_user_by_email(email: str) -> Optional[dict]:
+    """Retourne le profil + password_hash + email_verified pour la connexion email."""
+    sql = text("""
+        SELECT id::text, email, name, avatar_url, ui_lang, password_hash, email_verified
+        FROM users WHERE email = :email
+    """)
+    with engine.connect() as conn:
+        row = conn.execute(sql, {"email": email}).fetchone()
+    if row is None:
+        return None
+    return {
+        "id": row.id,
+        "email": row.email,
+        "name": row.name,
+        "avatar_url": row.avatar_url,
+        "ui_lang": row.ui_lang,
+        "password_hash": row.password_hash,
+        "email_verified": row.email_verified,
+    }
+
+
+def login_email_user(email: str, password: str) -> Optional[dict]:
+    """
+    Vérifie email + mot de passe.
+    Retourne le profil public si valide, None sinon.
+    """
+    user = get_user_by_email(email)
+    if user is None or not user["password_hash"]:
+        return None
+    if not _check_password(password, user["password_hash"]):
+        return None
+    return {k: v for k, v in user.items() if k not in ("password_hash",)}
+
+
+def create_email_token(user_id: str, purpose: str, expires_hours: int = 48) -> str:
+    """
+    Génère et persiste un token à usage unique.
+    purpose: 'verify' | 'reset'
+    """
+    token = secrets.token_urlsafe(32)
+    # CAST(...AS uuid) avoids psycopg2 confusion with :param::uuid syntax
+    sql = text("""
+        INSERT INTO email_tokens (id, user_id, token, purpose, created_at, expires_at, used)
+        VALUES (
+            gen_random_uuid(),
+            CAST(:user_id AS uuid),
+            :token,
+            :purpose,
+            NOW(),
+            NOW() + CAST(:hours || ' hours' AS INTERVAL),
+            false
+        )
+    """)
+    with engine.begin() as conn:
+        conn.execute(sql, {"user_id": user_id, "token": token, "purpose": purpose, "hours": expires_hours})
+    return token
+
+
+def consume_email_token(token: str, purpose: str) -> Optional[str]:
+    """
+    Valide un token (non expiré, non utilisé, bon purpose) et le marque comme utilisé.
+    Retourne l'user_id (str) si valide, None sinon.
+    Opération atomique — CTE UPDATE + RETURNING.
+    """
+    sql = text("""
+        WITH updated AS (
+            UPDATE email_tokens
+            SET used = true
+            WHERE token = :token
+              AND purpose = :purpose
+              AND used = false
+              AND expires_at > NOW()
+            RETURNING user_id::text
+        )
+        SELECT user_id FROM updated
+    """)
+    with engine.begin() as conn:
+        row = conn.execute(sql, {"token": token, "purpose": purpose}).fetchone()
+    return row.user_id if row else None
+
+
+def set_email_verified(user_id: str) -> None:
+    """Marque l'adresse email d'un utilisateur comme vérifiée."""
+    sql = text("""
+        UPDATE users SET email_verified = true WHERE id = CAST(:uid AS uuid)
+    """)
+    with engine.begin() as conn:
+        conn.execute(sql, {"uid": user_id})
+
+
+def update_password_hash(user_id: str, new_password: str) -> None:
+    """Remplace le mot de passe d'un utilisateur (flow reset)."""
+    password_hash = _hash_password(new_password)
+    sql = text("""
+        UPDATE users SET password_hash = :ph WHERE id = CAST(:uid AS uuid)
+    """)
+    with engine.begin() as conn:
+        conn.execute(sql, {"ph": password_hash, "uid": user_id})
+
+
+def send_transactional_email(to: str, subject: str, html_body: str) -> None:
+    """
+    Envoie un email via l'API Resend (urllib — pas de dépendance externe).
+    Nécessite RESEND_API_KEY et APP_URL dans les variables d'environnement.
+    En l'absence de clé API, log vers stdout (mode dev).
+    """
+    api_key = os.getenv("RESEND_API_KEY", "")
+    if not api_key:
+        print(f"[email dev] To: {to} | Subject: {subject}\n{html_body}")
+        return
+
+    from_address = os.getenv("RESEND_FROM", "World Expressions <noreply@worldexpressions.app>")
+    payload = json.dumps({
+        "from": from_address,
+        "to": [to],
+        "subject": subject,
+        "html": html_body,
+    }).encode()
+
+    req = urllib.request.Request(
+        "https://api.resend.com/emails",
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            resp.read()
+    except urllib.error.HTTPError as e:
+        body = e.read().decode(errors="replace")
+        raise RuntimeError(f"Resend API error {e.code}: {body}") from e
