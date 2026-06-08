@@ -10,7 +10,7 @@ import SearchOverlay from "@/components/SearchOverlay";
 const BASE_NAV_ITEMS = [
   { id: "home",      icon: Home,       href: "/",         count: undefined as number | undefined },
   { id: "atlas",     icon: Globe,      href: "/atlas",    count: undefined as number | undefined },
-  { id: "concepts",  icon: Lightbulb,  href: "/emoji", count: 1050 },
+  { id: "concepts",  icon: Lightbulb,  href: "/emoji", count: undefined as number | undefined },
   { id: "search",    icon: Search,     href: null,        count: undefined as number | undefined },
   { id: "carnet",    icon: Heart,      href: "/profile",  count: undefined as number | undefined },
 ];
@@ -56,7 +56,6 @@ export default function Sidebar({ uiLang }: Props) {
   }, []);
 
   const navItems = BASE_NAV_ITEMS.map((item) => {
-    if (item.id === "atlas") return { ...item, count: countryCount };
     if (item.id === "favorites") return { ...item, count: favCount };
     return item;
   });

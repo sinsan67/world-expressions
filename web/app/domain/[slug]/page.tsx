@@ -8,7 +8,7 @@ import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
 import ExpressionCard from "@/components/ExpressionCard";
 import { tagIcon } from "@/lib/tagIcons";
-import { searchByDomain, getConcepts, getAllTagNames, getRegions, ConceptItem, Expression } from "@/lib/api";
+import { searchByDomain, getConcepts, getAllTagNames, getRegions, getFacets, ConceptItem, Expression, Facets } from "@/lib/api";
 import { EDITORIAL_DOMAIN_MAP } from "@/lib/editorialDomains";
 import { TYPE_LABELS } from "@/lib/typeLabels";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
@@ -127,6 +127,7 @@ export default function DomainPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
+  const [facets, setFacets] = useState<Facets | undefined>(undefined);
   const [regions, setRegions] = useState<{ code: string }[]>([]);
   const [filterRegions, setFilterRegions] = useState<string[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -170,6 +171,7 @@ export default function DomainPage() {
         setTotal(exprData.total);
         setOffset(LIMIT);
         setTagNames(names);
+        getFacets([], "", null).then(setFacets);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -185,6 +187,7 @@ export default function DomainPage() {
       setExpressions(data.results);
       setTotal(data.total);
       setOffset(LIMIT);
+      getFacets(filterRegions, "", newType).then(setFacets);
     } catch {
       // silent
     } finally {
@@ -202,6 +205,7 @@ export default function DomainPage() {
       setExpressions(data.results);
       setTotal(data.total);
       setOffset(LIMIT);
+      getFacets(newRegions, "", typeFilter).then(setFacets);
     } catch {
       // silent
     } finally {
@@ -454,19 +458,23 @@ export default function DomainPage() {
                           {t.allCountries}
                         </label>
                         <div style={{ height: 1, background: "var(--paper-edge)", margin: "0.2rem 0" }} />
-                        {regions.map((r) => (
-                          <label key={r.code} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.3rem 0.7rem", cursor: "pointer", fontSize: 13, color: "var(--ink)" }}>
-                            <input type="checkbox" checked={filterRegions.includes(r.code)}
-                              onChange={() => {
-                                const next = filterRegions.includes(r.code)
-                                  ? filterRegions.filter((c) => c !== r.code)
-                                  : [...filterRegions, r.code];
-                                applyCountryFilter(next);
-                              }}
-                              style={{ accentColor: "var(--plum)", width: 14, height: 14 }} />
-                            {FLAG[r.code] ?? ""} {COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}
-                          </label>
-                        ))}
+                        {regions.map((r) => {
+                          const cnt = facets?.region[r.code];
+                          return (
+                            <label key={r.code} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.3rem 0.7rem", cursor: "pointer", fontSize: 13, color: "var(--ink)" }}>
+                              <input type="checkbox" checked={filterRegions.includes(r.code)}
+                                onChange={() => {
+                                  const next = filterRegions.includes(r.code)
+                                    ? filterRegions.filter((c) => c !== r.code)
+                                    : [...filterRegions, r.code];
+                                  applyCountryFilter(next);
+                                }}
+                                style={{ accentColor: "var(--plum)", width: 14, height: 14 }} />
+                              <span style={{ flex: 1 }}>{FLAG[r.code] ?? ""} {COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}</span>
+                              {cnt != null && <span style={{ fontSize: 11, color: "var(--ink-faint)" }}>({cnt})</span>}
+                            </label>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -480,6 +488,7 @@ export default function DomainPage() {
                     const label = type === null
                       ? t.allTypes
                       : (TYPE_LABELS[type]?.[uiLang] ?? TYPE_LABELS[type]?.["en"] ?? type);
+                    const cnt = type !== null ? facets?.kind[type] : undefined;
                     return (
                       <button
                         key={type ?? "all"}
@@ -496,9 +505,11 @@ export default function DomainPage() {
                           boxShadow: isActive ? "var(--shadow-stamp)" : "none",
                           transition: "all 0.15s",
                           fontFamily: "var(--font-body)",
+                          display: "flex", alignItems: "center", gap: "0.3rem",
                         }}
                       >
-                        {label}
+                        <span>{label}</span>
+                        {cnt != null && <span style={{ fontSize: 11, opacity: isActive ? 0.85 : 0.55 }}>({cnt})</span>}
                       </button>
                     );
                   })}

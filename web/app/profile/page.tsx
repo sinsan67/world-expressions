@@ -1,7 +1,8 @@
 "use client";
 
 import { useSession, signOut } from "next-auth/react";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { updateUserName } from "@/lib/api";
 import Link from "next/link";
 import Image from "next/image";
 import Sidebar from "@/components/home/Sidebar";
@@ -21,10 +22,15 @@ const TOP_TABS: { id: TopTab; label: Record<UILang, string> }[] = [
 ];
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update: updateSession } = useSession();
   const [uiLang, setUiLang] = useState<UILang>("en");
   const [activeTab, setActiveTab] = useState<TopTab>("carnet");
   const [authModal, setAuthModal] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [nameSaving, setNameSaving] = useState(false);
+  const [nameSaved, setNameSaved] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const nameTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
@@ -34,6 +40,27 @@ export default function ProfilePage() {
     if (hash === "preferences") setActiveTab("preferences");
     else if (hash === "account") setActiveTab("account");
   }, []);
+
+  useEffect(() => {
+    setNameInput(session?.user?.name ?? "");
+  }, [session?.user?.name]);
+
+  async function handleSaveName() {
+    if (!session?.user?.id) return;
+    setNameSaving(true);
+    setNameError(null);
+    try {
+      await updateUserName(session.user.id, nameInput);
+      await updateSession({ name: nameInput.trim() || null });
+      setNameSaved(true);
+      if (nameTimer.current) clearTimeout(nameTimer.current);
+      nameTimer.current = setTimeout(() => setNameSaved(false), 2500);
+    } catch {
+      setNameError("Could not save. Please try again.");
+    } finally {
+      setNameSaving(false);
+    }
+  }
 
   const handleLangChange = useCallback((lang: UILang) => {
     setUiLang(lang);
@@ -135,12 +162,12 @@ export default function ProfilePage() {
                       <Image src={session.user.image} alt={session.user.name ?? ""} width={64} height={64} style={{ borderRadius: "50%", flexShrink: 0 }} />
                     ) : (
                       <div style={{ width: 64, height: 64, borderRadius: "50%", background: "var(--plum-bg)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 700, color: "var(--plum)", flexShrink: 0 }}>
-                        {(session.user?.name?.[0] ?? "?").toUpperCase()}
+                        {(session.user?.name?.[0] ?? session.user?.email?.[0] ?? "?").toUpperCase()}
                       </div>
                     )}
                     <div>
                       <h2 style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 22, fontWeight: 500, color: "var(--ink)", margin: "0 0 0.25rem" }}>
-                        {session.user?.name}
+                        {session.user?.name ?? <span style={{ color: "var(--ink-faint)", fontStyle: "normal", fontSize: 16 }}>No name yet</span>}
                       </h2>
                       <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--ink-soft)", margin: 0 }}>
                         {session.user?.email}
@@ -148,10 +175,58 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
+                  {/* Edit name */}
+                  <div style={{ background: "var(--paper)", border: "1px solid var(--paper-edge)", borderRadius: "var(--r-lg)", padding: "1.25rem 1.5rem", boxShadow: "var(--shadow-postcard)", marginBottom: "1.25rem" }}>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: "0.75rem" }}>Display name</p>
+                    <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+                      <input
+                        type="text"
+                        value={nameInput}
+                        onChange={(e) => { setNameInput(e.target.value); setNameSaved(false); }}
+                        onKeyDown={(e) => { if (e.key === "Enter") handleSaveName(); }}
+                        placeholder="Your name"
+                        maxLength={60}
+                        style={{
+                          flex: 1,
+                          padding: "0.5rem 0.75rem",
+                          borderRadius: "var(--r-sm)",
+                          border: "1.5px solid var(--paper-edge)",
+                          fontFamily: "var(--font-body)",
+                          fontSize: 13,
+                          color: "var(--ink)",
+                          background: "var(--paper)",
+                          outline: "none",
+                        }}
+                      />
+                      <button
+                        onClick={handleSaveName}
+                        disabled={nameSaving}
+                        style={{
+                          padding: "0.5rem 1.125rem",
+                          borderRadius: "var(--r-pill)",
+                          border: "none",
+                          background: nameSaved ? "var(--terra)" : "var(--plum)",
+                          color: "#fff",
+                          fontFamily: "var(--font-body)",
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: nameSaving ? "wait" : "pointer",
+                          whiteSpace: "nowrap",
+                          transition: "background 200ms",
+                        }}
+                      >
+                        {nameSaved ? "Saved ✓" : nameSaving ? "Saving…" : "Save"}
+                      </button>
+                    </div>
+                    {nameError && <p style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--terra)", marginTop: "0.4rem" }}>{nameError}</p>}
+                  </div>
+
                   {/* Sign out */}
                   <div style={{ background: "var(--paper)", border: "1px solid var(--paper-edge)", borderRadius: "var(--r-lg)", padding: "1.25rem 1.5rem", boxShadow: "var(--shadow-postcard)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
                     <div>
-                      <p style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 2 }}>Signed in via Google</p>
+                      <p style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 2 }}>
+                        {session.user?.image ? "Signed in via Google" : "Signed in via email"}
+                      </p>
                       <p style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--ink-soft)" }}>
                         {session.user?.email} — your favorites sync automatically.
                       </p>

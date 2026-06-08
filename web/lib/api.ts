@@ -223,3 +223,32 @@ export async function getTypeCounts(
   if (!res.ok) return { idiom: 0, proverb: 0, locution: 0, word: 0 };
   return res.json();
 }
+
+export type Facets = {
+  region: Record<string, number>;
+  kind: Record<string, number>;
+};
+
+export async function getFacets(
+  regions: string[] = [],
+  query = "",
+  typeFilter: string | null = null,
+): Promise<Facets> {
+  const params = new URLSearchParams();
+  if (query) params.set("q", query);
+  if (regions.length) params.set("region", regions.join(","));
+  if (typeFilter) params.set("type_filter", typeFilter);
+  const res = await fetch(`${API}/facets?${params}`);
+  if (!res.ok) return { region: {}, kind: {} };
+  return res.json();
+}
+
+export async function updateUserName(userId: string, name: string): Promise<{ name: string | null }> {
+  const res = await fetch(`${API}/users/${userId}/name`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) throw new Error("Failed to update name");
+  return res.json();
+}

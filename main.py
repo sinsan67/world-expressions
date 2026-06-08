@@ -197,6 +197,19 @@ def get_type_counts(
     return database.get_type_counts(regions, tag_set, query)
 
 
+@app.get("/facets")
+def get_facets(
+    q: str = Query("", description="Text query for query-aware facets"),
+    region: str = Query("", description="Comma-separated region codes for kind facets"),
+    type_filter: str = Query("", description="Type filter (idiom|proverb|locution|word) for region facets"),
+):
+    """Return facet counts: region counts (with type_filter) + kind counts (with region filter)."""
+    regions = set(r.strip() for r in region.split(",") if r.strip()) or None
+    type_f = type_filter.strip() or None
+    query = q.strip() or None
+    return database.get_facets(regions, query, type_f)
+
+
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 _VALID_LANGS = {"fr", "en", "es", "it", "tr"}
 
@@ -256,6 +269,16 @@ def update_preferences(user_id: str, body: PreferencesRequest):
     if prefs is None:
         raise HTTPException(status_code=404, detail="User not found")
     return prefs
+
+
+@app.put("/users/{user_id}/name")
+def update_user_name(user_id: str, body: dict):
+    """Met à jour le nom affiché d'un utilisateur."""
+    name = body.get("name", "")
+    try:
+        return database.update_user_name(user_id, name)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="User not found")
 
 
 @app.get("/users/{user_id}/favorites")

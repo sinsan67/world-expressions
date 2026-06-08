@@ -41,7 +41,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, account, user }) {
+    async jwt({ token, account, user, trigger, session }) {
+      // Refresh name after profile update (update() call from client)
+      if (trigger === "update" && session?.name !== undefined) {
+        token.name = session.name;
+      }
       if (account) {
         if (account.provider === "google") {
           // First Google sign-in: upsert user in FastAPI DB
