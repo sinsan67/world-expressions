@@ -1,22 +1,20 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Globe, Lightbulb, Heart, User } from "lucide-react";
+import { Home, Globe, Lightbulb, Heart } from "lucide-react";
 
 const NAV_ITEMS = [
   { id: "home",      icon: Home,       href: "/" },
   { id: "atlas",     icon: Globe,      href: "/atlas" },
   { id: "concepts",  icon: Lightbulb,  href: "/emoji" },
-  { id: "favorites", icon: Heart,      href: "/carnet" },
-  { id: "profile",   icon: User,       href: "/profile" },
+  { id: "carnet",    icon: Heart,      href: "/profile" },
 ];
 
 const NAV_LABELS: Record<string, Record<string, string>> = {
   home:      { fr: "Accueil",  en: "Home",       es: "Inicio",    it: "Home",      tr: "Ana sayfa" },
   atlas:     { fr: "Atlas",    en: "Atlas",       es: "Atlas",     it: "Atlante",   tr: "Atlas" },
   concepts:  { fr: "Concepts", en: "Concepts",    es: "Conceptos", it: "Concetti",  tr: "Kavramlar" },
-  favorites: { fr: "Favoris",  en: "Favourites",  es: "Favoritos", it: "Preferiti", tr: "Favoriler" },
-  profile:   { fr: "Profil",   en: "Profile",     es: "Perfil",    it: "Profilo",   tr: "Profil" },
+  carnet:    { fr: "Carnet",   en: "Notebook",    es: "Cuaderno",  it: "Taccuino",  tr: "Defter" },
 };
 
 type Props = {
