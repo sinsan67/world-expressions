@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Mockup — Barre de filtres type + pays</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f1eb;
+      padding: 2rem;
+      color: #1c1410;
+    }
+    h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .07em; color: #9e8a7a; margin-bottom: .75rem; }
+    .section { margin-bottom: 2.5rem; }
+    .label { font-size: 12px; color: #9e8a7a; margin-bottom: .6rem; }
+
+    /* ── Design tokens (approximatifs) */
+    :root {
+      --plum: #6b4d8f;
+      --terra: #c1543a;
+      --paper: #faf6f1;
+      --paper-edge: #e8dfd4;
+      --ink-soft: #5c4a3a;
+      --r-pill: 20px;
+    }
+
+    /* ── Pills base */
+    .pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 5px 12px;
+      border-radius: var(--r-pill);
+      border: 1.5px solid var(--paper-edge);
+      background: var(--paper);
+      color: var(--ink-soft);
+      font-size: 12px; font-weight: 600;
+      cursor: pointer;
+      transition: all .12s;
+      white-space: nowrap;
+    }
+    .pill:hover { border-color: #b0a090; }
+    .pill.active-plum { background: var(--plum); border-color: var(--plum); color: #fff; }
+    .pill.active-terra { background: var(--terra); border-color: var(--terra); color: #fff; }
+    .pill-row { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+
+    /* ── Country dropdown */
+    .dropdown-wrap { position: relative; display: inline-block; }
+    .dropdown-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px;
+      border-radius: var(--r-pill);
+      border: 1.5px solid var(--paper-edge);
+      background: var(--paper);
+      color: var(--ink-soft);
+      font-size: 12px; font-weight: 600;
+      cursor: pointer;
+    }
+    .dropdown-btn.active { background: #f0ece6; border-color: #c0b0a0; }
+    .dropdown-btn .arrow { font-size: 9px; opacity: .5; }
+
+    /* ── Section cards */
+    .card {
+      background: white;
+      border: 1px solid #e8dfd4;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      max-width: 700px;
+      margin-bottom: 1rem;
+    }
+    .card-title {
+      font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+      color: #9e8a7a; margin-bottom: 1rem;
+    }
+    .divider { height: 1px; background: var(--paper-edge); margin: .875rem 0; }
+
+    /* ── Annotation */
+    .note {
+      font-size: 11px; color: #9e8a7a;
+      margin-top: .5rem;
+      line-height: 1.5;
+    }
+    .badge {
+      display: inline-block;
+      background: #e8f3e8; color: #2d7a3a;
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 10px;
+      margin-left: 4px;
+    }
+    .badge-new { background: #ede8f5; color: var(--plum); }
+  </style>
+</head>
+<body>
+
+<h2>Mockup S80 — Barre de filtres : type + pays</h2>
+
+<!-- ─────────────────────────────────────────────── -->
+<div class="section">
+  <div class="label">Option A — Ligne unique (pays dropdown + pills type)</div>
+  <div class="card">
+    <div class="card-title">Page /search · mode concept · actuel → proposé</div>
+
+    <!-- Ligne filtre unifiée -->
+    <div class="pill-row">
+      <!-- Country dropdown -->
+      <div class="dropdown-wrap">
+        <button class="dropdown-btn active">
+          🇫🇷 🇬🇧 <span class="arrow">▼</span>
+        </button>
+      </div>
+
+      <div style="width:1px; height:16px; background: #ddd; flex-shrink:0;"></div>
+
+      <!-- Type pills -->
+      <button class="pill active-terra">Tous</button>
+      <button class="pill">Expression</button>
+      <button class="pill">Proverbe</button>
+      <button class="pill">Locution</button>
+    </div>
+
+    <p class="note">
+      → Pays (dropdown multi-sélection, existant) + type pills sur la même ligne.<br>
+      Séparateur vertical discret entre les deux groupes.
+      <span class="badge badge-new">nouveau</span>
+    </p>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────── -->
+<div class="section">
+  <div class="label">Option B — Deux lignes séparées (actuel sur /search concept mode)</div>
+  <div class="card">
+    <div class="card-title">Actuel — deux lignes</div>
+    <!-- Ligne 1 : FilterBar -->
+    <div class="pill-row" style="margin-bottom:.6rem;">
+      <div class="dropdown-wrap">
+        <button class="dropdown-btn">Tous les pays <span class="arrow">▼</span></button>
+      </div>
+      <span style="font-size:11px; color:#9e8a7a; margin-left:.3rem;">Trier :</span>
+      <button class="pill active-plum">Pertinence</button>
+      <button class="pill">Par pays</button>
+    </div>
+    <!-- Ligne 2 : Type pills -->
+    <div class="pill-row">
+      <button class="pill active-terra">Tous</button>
+      <button class="pill">Expression</button>
+      <button class="pill">Proverbe</button>
+      <button class="pill">Locution</button>
+    </div>
+    <p class="note">Actuel : 2 lignes distinctes. Plus lisible sur desktop, mais prend plus de place.</p>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────── -->
+<div class="section">
+  <div class="label">Option C — Ligne unique compacte (variante avec labels)</div>
+  <div class="card">
+    <div class="card-title">Variante : labels "Pays" et "Type" visibles</div>
+    <div class="pill-row" style="align-items:center;">
+      <span style="font-size:11px; color:#9e8a7a; font-weight:600;">Pays</span>
+      <div class="dropdown-wrap">
+        <button class="dropdown-btn">Tous <span class="arrow">▼</span></button>
+      </div>
+      <div style="width:1px; height:16px; background: #ddd; flex-shrink:0; margin: 0 .25rem;"></div>
+      <span style="font-size:11px; color:#9e8a7a; font-weight:600;">Type</span>
+      <button class="pill active-terra">Tous</button>
+      <button class="pill">Expression</button>
+      <button class="pill">Proverbe</button>
+      <button class="pill">Locution</button>
+    </div>
+    <p class="note">Labels explicites → plus de contexte pour les nouveaux utilisateurs.</p>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────── -->
+<div class="section">
+  <div class="label">Page /domain/[slug] — actuel vs proposé</div>
+  <div class="card">
+    <div class="card-title">Actuel (domain page) — type pills seulement, pas de filtre pays</div>
+    <div class="pill-row">
+      <button class="pill active-terra">Tous</button>
+      <button class="pill">Expression</button>
+      <button class="pill">Proverbe</button>
+      <button class="pill">Locution</button>
+    </div>
+    <div class="divider"></div>
+    <div class="card-title">Proposé — type + pays sur la même ligne</div>
+    <div class="pill-row">
+      <div class="dropdown-wrap">
+        <button class="dropdown-btn">Tous les pays <span class="arrow">▼</span></button>
+      </div>
+      <div style="width:1px; height:16px; background: #ddd; flex-shrink:0;"></div>
+      <button class="pill active-terra">Tous</button>
+      <button class="pill">Expression</button>
+      <button class="pill">Proverbe</button>
+      <button class="pill">Locution</button>
+    </div>
+    <p class="note">
+      Les pages /domain ont actuellement les pills de type mais pas de filtre pays.
+      Ajouter le dropdown pays sur la même ligne = cohérence avec /search.
+      <span class="badge badge-new">à implémenter</span>
+    </p>
+  </div>
+</div>
+
+<!-- ─────────────────────────────────────────────── -->
+<div class="section">
+  <div class="label">SearchOverlay — état actuel vs après S80</div>
+  <div class="card">
+    <div class="card-title">SearchOverlay — après ajout type filter <span class="badge">déjà implémenté S80</span></div>
+    <div style="display:flex; flex-direction:column; gap:.75rem; max-width:400px;">
+      <!-- Search input simulé -->
+      <div style="display:flex; align-items:center; gap:8px; border:1px solid #e8dfd4; border-radius:10px; padding:.5rem .75rem; background:var(--paper);">
+        <span style="opacity:.4;">🔍</span>
+        <span style="font-size:13px; color:#9e8a7a;">Essaie : pied, argent, animal…</span>
+      </div>
+      <div style="height:1px; background:#e8dfd4;"></div>
+      <!-- Country -->
+      <div>
+        <div style="font-size:10px; color:#9e8a7a; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.4rem;">Pays</div>
+        <div class="pill-row">
+          <button class="pill active-plum">Tous</button>
+          <button class="pill">🇫🇷 FR</button>
+          <button class="pill">🇬🇧 EN</button>
+          <button class="pill">🇪🇸 ES</button>
+          <button class="pill">🇮🇹 IT</button>
+          <button class="pill">🇹🇷 TR</button>
+        </div>
+      </div>
+      <!-- Type — NEW -->
+      <div>
+        <div style="font-size:10px; color:#9e8a7a; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.4rem;">
+          Type <span class="badge badge-new">nouveau</span>
+        </div>
+        <div class="pill-row">
+          <button class="pill active-terra">Tous</button>
+          <button class="pill">Expression</button>
+          <button class="pill">Proverbe</button>
+          <button class="pill">Locution</button>
+        </div>
+      </div>
+      <!-- Concepts -->
+      <div>
+        <div style="font-size:10px; color:#9e8a7a; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.4rem;">Concepts</div>
+        <div class="pill-row">
+          <button class="pill">😤 travail</button>
+          <button class="pill">❤️ amour</button>
+          <button class="pill">💰 argent</button>
+          <button class="pill">😂 rire</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

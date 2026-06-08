@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — Expression du jour</title>
+<style>
+  :root {
+    --paper: #fdf8ee;
+    --paper-deep: #f5ede0;
+    --paper-edge: #e8ddd0;
+    --ink: #2d2318;
+    --ink-soft: #6b5a46;
+    --ink-faint: #b0a090;
+    --plum: #6b4d8f;
+    --plum-soft: rgba(107,77,143,0.25);
+    --plum-bg: rgba(107,77,143,0.07);
+    --plum-deep: #533d72;
+    --terra: #c1543a;
+    --terra-soft: #d4775e;
+    --r-pill: 999px;
+    --r-lg: 18px;
+    --font-body: 'Georgia', serif;
+    --font-display: 'Georgia', serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Georgia, serif;
+    background: #e8e0d4;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+    font-family: Georgia, serif;
+  }
+
+  .page-header {
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+  }
+
+  .page-header p {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-bottom: 1rem;
+  }
+
+  /* Toggle desktop/mobile */
+  .toggle-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .toggle-btn {
+    padding: 6px 16px;
+    border-radius: 999px;
+    border: 1.5px solid var(--paper-edge);
+    background: var(--paper);
+    color: var(--ink-soft);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: Georgia, serif;
+    transition: all 0.15s;
+  }
+
+  .toggle-btn.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  /* Options grid */
+  .options-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    transition: all 0.3s;
+  }
+
+  .options-grid.mobile-mode {
+    grid-template-columns: repeat(3, 390px);
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+
+  .option {
+    background: var(--paper);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+  }
+
+  .option-header {
+    padding: 1rem 1.25rem 0.75rem;
+    background: var(--paper-deep);
+    border-bottom: 1px solid var(--paper-edge);
+  }
+
+  .option-header h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+  }
+
+  .option-header p {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  .option-body {
+    padding: 1.5rem;
+  }
+
+  /* ============================================================
+     OPTION A — CARD HORIZONTALE (photo + texte côte à côte)
+  ============================================================ */
+
+  .card-a {
+    background: var(--paper);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    border: 1px solid var(--paper-edge);
+  }
+
+  .card-a-desktop {
+    display: flex;
+    min-height: 240px;
+  }
+
+  .card-a-photo {
+    width: 42%;
+    min-height: 240px;
+    background: linear-gradient(160deg, #0055a4 0%, #ef4135 60%, #c8a870 100%);
+    position: relative;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.25rem;
+  }
+
+  .card-a-photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.0) 80%);
+  }
+
+  .card-a-photo-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .country-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 0.75rem;
+  }
+
+  .date-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .card-a-text {
+    flex: 1;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .edj-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--terra);
+    margin-bottom: 0.5rem;
+  }
+
+  .expr-title {
+    font-style: italic;
+    font-size: clamp(20px, 2.5vw, 30px);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: 0.4rem;
+    cursor: pointer;
+  }
+
+  .expr-title:hover { color: var(--plum); }
+
+  .literal {
+    font-size: 15px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-bottom: 0.75rem;
+    opacity: 0.8;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px dashed var(--paper-edge);
+    margin: 0.75rem 0;
+  }
+
+  .meaning {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.65;
+    margin-bottom: 1rem;
+    flex: 1;
+  }
+
+  .tags-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: auto;
+  }
+
+  .tag-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1.5px solid var(--plum-soft);
+    background: var(--plum-bg);
+    color: var(--plum);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .btn-read {
+    margin-left: auto;
+    padding: 7px 16px;
+    background: var(--plum);
+    color: white;
+    border: none;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: Georgia, serif;
+    white-space: nowrap;
+  }
+
+  .btn-ghost {
+    padding: 6px 12px;
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1.5px solid var(--paper-edge);
+    border-radius: 999px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: Georgia, serif;
+  }
+
+  /* Mobile A */
+  .card-a-mobile .card-a-photo {
+    width: 100%;
+    min-height: 160px;
+    justify-content: space-between;
+    flex-direction: column;
+    padding: 1rem 1.25rem;
+  }
+
+  .card-a-mobile .card-a-photo .country-badge {
+    margin-bottom: 0;
+    align-self: flex-start;
+  }
+
+  .card-a-mobile .card-a-text {
+    padding: 1.25rem;
+  }
+
+  /* ============================================================
+     OPTION B — MAGAZINE / ÉDITO (accent vertical)
+  ============================================================ */
+
+  .card-b {
+    background: var(--paper);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    border: 1px solid var(--paper-edge);
+    display: flex;
+  }
+
+  .card-b-accent {
+    width: 6px;
+    background: linear-gradient(180deg, #0055a4 33%, #fff 33% 67%, #ef4135 67%);
+    flex-shrink: 0;
+  }
+
+  .card-b-body {
+    flex: 1;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-b-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .card-b-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .flag-big {
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .meta-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .meta-country {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .meta-date {
+    font-size: 11px;
+    color: var(--ink-faint);
+    letter-spacing: 0.06em;
+  }
+
+  .card-b-badge {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--terra);
+    border: 1.5px solid var(--terra);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+
+  .card-b-expr {
+    font-style: italic;
+    font-size: clamp(22px, 3vw, 34px);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-b-literal {
+    font-size: 14px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-bottom: 0.6rem;
+    opacity: 0.75;
+  }
+
+  .card-b-meaning {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.65;
+    flex: 1;
+    margin-bottom: 1rem;
+  }
+
+  .card-b-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  /* Mobile B */
+  .card-b-mobile .card-b-accent {
+    width: 5px;
+  }
+
+  .card-b-mobile .card-b-expr {
+    font-size: 20px;
+  }
+
+  .card-b-mobile .card-b-body {
+    padding: 1rem 1.25rem;
+  }
+
+  /* ============================================================
+     OPTION C — CARTE POSTALE PLEINE PHOTO
+  ============================================================ */
+
+  .card-c {
+    background: var(--paper);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    position: relative;
+  }
+
+  .card-c-photo {
+    height: 200px;
+    background: linear-gradient(160deg, #0055a4 0%, rgba(0,0,0,0.4) 50%, rgba(180,100,60,0.8) 100%);
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 1.25rem;
+  }
+
+  .card-c-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.55) 100%);
+  }
+
+  .card-c-hero {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+  }
+
+  .card-c-edj {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 0.35rem;
+  }
+
+  .card-c-expr {
+    font-style: italic;
+    font-size: clamp(20px, 3vw, 32px);
+    font-weight: 500;
+    color: white;
+    line-height: 1.15;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  }
+
+  .card-c-country {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.35rem;
+  }
+
+  .card-c-country span {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+  }
+
+  .card-c-postmark {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 2;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.2);
+    backdrop-filter: blur(4px);
+  }
+
+  .card-c-postmark .pm-day {
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+  }
+
+  .card-c-postmark .pm-month {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+  }
+
+  .card-c-body {
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
+
+  .card-c-literal {
+    font-size: 15px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-bottom: 0.75rem;
+    opacity: 0.8;
+  }
+
+  .card-c-meaning {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.65;
+    margin-bottom: 1rem;
+  }
+
+  .card-c-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  /* Mobile C */
+  .card-c-mobile .card-c-photo {
+    height: 170px;
+  }
+
+  .card-c-mobile .card-c-expr {
+    font-size: 19px;
+  }
+
+  /* ============================================================
+     SHARED UTILITIES
+  ============================================================ */
+
+  .heart-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1.5px solid var(--paper-edge);
+    background: transparent;
+    color: var(--ink-faint);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .note {
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 1rem;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* Section label */
+  .section-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--paper-edge);
+  }
+
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Mockup — Expression du jour</h1>
+  <p>3 options de redesign pour la carte homepage. Contexte : la carte apparaît au-dessus de la barre de recherche, sur fond de photo de pays.</p>
+
+  <div class="toggle-bar">
+    <button class="toggle-btn active" onclick="setMode('desktop')">🖥 Desktop</button>
+    <button class="toggle-btn" onclick="setMode('mobile')">📱 Mobile</button>
+  </div>
+</div>
+
+<!-- DESKTOP VIEW -->
+<div id="desktop-view" class="options-grid">
+
+  <!-- OPTION A -->
+  <div class="option">
+    <div class="option-header">
+      <h2>Option A — Carte bi-colonne</h2>
+      <p>Photo du pays à gauche, contenu à droite. Sur mobile : photo en header, texte en dessous. Le plus immersif, met en valeur le pays.</p>
+    </div>
+    <div class="option-body">
+      <div class="card-a card-a-desktop">
+        <div class="card-a-photo">
+          <div class="card-a-photo-overlay"></div>
+          <div class="card-a-photo-content">
+            <div class="country-badge">🇫🇷 France</div>
+            <div class="date-label">08 · JUN · 2026</div>
+          </div>
+        </div>
+        <div class="card-a-text">
+          <div class="edj-label">✦ Expression du jour</div>
+          <h2 class="expr-title">Avoir le cafard</h2>
+          <p class="literal">« To have the cockroach »</p>
+          <hr class="divider">
+          <p class="meaning">Être dans un état de tristesse, de mélancolie légère. Ressentir une déprime passagère sans raison évidente.</p>
+          <div class="tags-row">
+            <span class="tag-pill">😔 émotions</span>
+            <span class="tag-pill">🐛 animaux</span>
+            <button class="heart-btn" style="margin-left:auto">♡</button>
+            <button class="btn-ghost">🎲</button>
+            <button class="btn-read">Lire →</button>
+          </div>
+        </div>
+      </div>
+      <p class="note">Desktop : 2 colonnes, photo 42%. Mobile : photo pleine largeur en header (160px), contenu en dessous.</p>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="option">
+    <div class="option-header">
+      <h2>Option B — Accent vertical + édito</h2>
+      <p>Accent coloré à gauche aux couleurs du drapeau. Header méta (pays + badge). Focus sur la lisibilité. Simple et élégant sur tous les écrans.</p>
+    </div>
+    <div class="option-body">
+      <div class="card-b">
+        <div class="card-b-accent"></div>
+        <div class="card-b-body">
+          <div class="card-b-header">
+            <div class="card-b-meta">
+              <span class="flag-big">🇫🇷</span>
+              <div class="meta-stack">
+                <span class="meta-country">France</span>
+                <span class="meta-date">08 JUN 2026</span>
+              </div>
+            </div>
+            <span class="card-b-badge">✦ Expression du jour</span>
+          </div>
+          <h2 class="card-b-expr">Avoir le cafard</h2>
+          <p class="card-b-literal">« To have the cockroach »</p>
+          <hr class="divider">
+          <p class="card-b-meaning">Être dans un état de tristesse, de mélancolie légère. Ressentir une déprime passagère sans raison évidente.</p>
+          <div class="card-b-footer">
+            <span class="tag-pill">😔 émotions</span>
+            <span class="tag-pill">🐛 animaux</span>
+            <button class="heart-btn" style="margin-left:auto">♡</button>
+            <button class="btn-ghost">🎲</button>
+            <button class="btn-read">Lire →</button>
+          </div>
+        </div>
+      </div>
+      <p class="note">Desktop & mobile : même layout (accent de 5-6px). L'accent utilise le gradient national du drapeau. Pas de photo → plus léger, meilleure perf mobile.</p>
+    </div>
+  </div>
+
+  <!-- OPTION C -->
+  <div class="option">
+    <div class="option-header">
+      <h2>Option C — Pleine photo + expression en overlay</h2>
+      <p>L'expression est sur la photo en grand blanc. En-dessous : sens + tags + actions. Visuellement fort, proche de l'esprit d'Instagram/Pinterest.</p>
+    </div>
+    <div class="option-body">
+      <div class="card-c">
+        <div class="card-c-photo">
+          <div class="card-c-overlay"></div>
+          <div class="card-c-postmark">
+            <span class="pm-day">08</span>
+            <span class="pm-month">JUN</span>
+          </div>
+          <div class="card-c-hero">
+            <div class="card-c-edj">✦ Expression du jour</div>
+            <h2 class="card-c-expr">Avoir le cafard</h2>
+            <div class="card-c-country">
+              <span style="font-size:20px">🇫🇷</span>
+              <span>France</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-c-body">
+          <p class="card-c-literal">« To have the cockroach »</p>
+          <p class="card-c-meaning">Être dans un état de tristesse, de mélancolie légère. Ressentir une déprime passagère sans raison évidente.</p>
+          <div class="card-c-footer">
+            <span class="tag-pill">😔 émotions</span>
+            <span class="tag-pill">🐛 animaux</span>
+            <button class="heart-btn" style="margin-left:auto">♡</button>
+            <button class="btn-ghost">🎲</button>
+            <button class="btn-read">Lire →</button>
+          </div>
+        </div>
+      </div>
+      <p class="note">Desktop & mobile : même structure (photo + body). L'expression flotte sur la photo avec un dégradé sombre. Le postmark reste en coin.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- MOBILE VIEW (hidden by default) -->
+<div id="mobile-view" class="options-grid" style="display:none">
+
+  <!-- OPTION A MOBILE -->
+  <div class="option">
+    <div class="option-header">
+      <h2>Option A — Mobile</h2>
+      <p>Photo en header pleine largeur (160px), drapeau + date visibles. Contenu en dessous dans le blanc de la carte.</p>
+    </div>
+    <div class="option-body" style="max-width:390px;margin:0 auto">
+      <div class="card-a card-a-mobile">
+        <div class="card-a-photo" style="min-height:160px;flex-direction:row;align-items:flex-end;justify-content:space-between;padding:1rem 1.25rem">
+          <div class="card-a-photo-overlay"></div>
+          <div style="position:relative;z-index:1">
+            <div class="country-badge">🇫🇷 France</div>
+          </div>
+          <div style="position:relative;z-index:1;text-align:right">
+            <div class="date-label">08 · JUN · 2026</div>
+          </div>
+        </div>
+        <div class="card-a-text" style="padding:1.25rem">
+          <div class="edj-label">✦ Expression du jour</div>
+          <h2 class="expr-title" style="font-size:22px">Avoir le cafard</h2>
+          <p class="literal">« To have the cockroach »</p>
+          <hr class="divider">
+          <p class="meaning">Être dans un état de tristesse, de mélancolie légère.</p>
+          <div class="tags-row">
+            <span class="tag-pill">😔 émotions</span>
+            <button class="heart-btn" style="margin-left:auto">♡</button>
+            <button class="btn-ghost">🎲</button>
+            <button class="btn-read">Lire →</button>
+          </div>
+        </div>
+      </div>
+      <p class="note">Les boutons d'action restent sur une seule ligne grâce au tag pill limité à 1 sur mobile.</p>
+    </div>
+  </div>
+
+  <!-- OPTION B MOBILE -->
+  <div class="option">
+    <div class="option-header">
+      <h2>Option B — Mobile</h2>
+      <p>Exactement le même layout que desktop — c'est l'avantage de cette option : 0 adaptation.</p>
+    </div>
+    <div class="option-body" style="max-width:390px;margin:0 auto">
+      <div class="card-b card-b-mobile">
+        <div class="card-b-accent"></div>
+        <div class="card-b-body" style="padding:1rem 1.25rem">
+          <div class="card-b-header">
+            <div class="card-b-meta">
+              <span class="flag-big" style="font-size:24px">🇫🇷</span>
+              <div class="meta-stack">
+                <span class="meta-country" style="font-size:12px">France</span>
+                <span class="meta-date">08 JUN 2026</span>
+              </div>
+            </div>
+            <span class="card-b-badge" style="font-size:8px;padding:2px 8px">✦ Expr. du jour</span>
+          </div>
+          <h2 class="card-b-expr" style="font-size:20px">Avoir le cafard</h2>
+          <p class="card-b-literal" style="font-size:13px">« To have the cockroach »</p>
+          <hr class="divider">
+          <p class="card-b-meaning" style="font-size:13px">Être dans un état de tristesse, de mélancolie légère.</p>
+          <div class="card-b-footer">
+            <span class="tag-pill">😔 émotions</span>
+            <button class="heart-btn" style="margin-left:auto">♡</button>
+            <button class="btn-ghost">🎲</button>
+            <button class="btn-read">Lire →</button>
+          </div>
+        </div>
+      </div>
+      <p class="note">Aucun changement entre desktop et mobile — c'est l'atout majeur de cette option.</p>
+    </div>
+  </div>
+
+  <!-- OPTION C MOBILE -->
+  <div class="option">
+    <div class="option-header">
+      <h2>Option C — Mobile</h2>
+      <p>Photo légèrement moins haute (170px). L'expression reste sur la photo. Très impactant sur mobile.</p>
+    </div>
+    <div class="option-body" style="max-width:390px;margin:0 auto">
+      <div class="card-c card-c-mobile">
+        <div class="card-c-photo" style="height:170px">
+          <div class="card-c-overlay"></div>
+          <div class="card-c-postmark" style="width:48px;height:48px;top:0.75rem;right:0.75rem">
+            <span class="pm-day" style="font-size:14px">08</span>
+            <span class="pm-month">JUN</span>
+          </div>
+          <div class="card-c-hero">
+            <div class="card-c-edj">✦ Expression du jour</div>
+            <h2 class="card-c-expr" style="font-size:19px">Avoir le cafard</h2>
+            <div class="card-c-country">
+              <span style="font-size:18px">🇫🇷</span>
+              <span style="font-size:12px">France</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-c-body" style="padding:1rem 1.25rem 1.25rem">
+          <p class="card-c-literal" style="font-size:13px">« To have the cockroach »</p>
+          <p class="card-c-meaning" style="font-size:13px">Être dans un état de tristesse, de mélancolie légère.</p>
+          <div class="card-c-footer">
+            <span class="tag-pill">😔 émotions</span>
+            <button class="heart-btn" style="margin-left:auto">♡</button>
+            <button class="btn-ghost">🎲</button>
+            <button class="btn-read">Lire →</button>
+          </div>
+        </div>
+      </div>
+      <p class="note">Le contraste expression-sur-photo est fort. La traduction littérale reste discrète mais présente.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Résumé comparatif -->
+<div style="max-width:1200px;margin:2.5rem auto 0">
+  <div style="background:var(--paper);border-radius:16px;padding:1.5rem;border:1px solid var(--paper-edge)">
+    <div class="section-label">Synthèse comparative</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;font-family:Georgia,serif">
+      <thead>
+        <tr style="text-align:left">
+          <th style="padding:8px 12px;border-bottom:2px solid var(--paper-edge);color:var(--ink-soft);font-weight:700">Critère</th>
+          <th style="padding:8px 12px;border-bottom:2px solid var(--paper-edge);color:var(--ink);font-weight:700">A — Bi-colonne</th>
+          <th style="padding:8px 12px;border-bottom:2px solid var(--paper-edge);color:var(--ink);font-weight:700">B — Accent édito</th>
+          <th style="padding:8px 12px;border-bottom:2px solid var(--paper-edge);color:var(--ink);font-weight:700">C — Pleine photo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:8px 12px;color:var(--ink-soft);border-bottom:1px solid var(--paper-edge)">Responsive</td>
+          <td style="padding:8px 12px;border-bottom:1px solid var(--paper-edge)">✅ Layout change mobile/desktop</td>
+          <td style="padding:8px 12px;border-bottom:1px solid var(--paper-edge)">✅✅ Identique partout</td>
+          <td style="padding:8px 12px;border-bottom:1px solid var(--paper-edge)">✅ Photo réduite sur mobile</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 12px;color:var(--ink-soft);border-bottom:1px solid var(--paper-edge)">Impact visuel</td>
+          <td style="padding:8px 12px;border-bottom:1px solid var(--paper-edge)">⭐⭐⭐ Fort (photo à gauche)</td>
+          <td style="padding:8px 12px;border-bottom:1px solid var(--paper-edge)">⭐⭐ Élégant, discret</td>
+          <td style="padding:8px 12px;border-bottom:1px solid var(--paper-edge)">⭐⭐⭐⭐ Très fort (expression sur photo)</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 12px;color:var(--ink-soft);border-bottom:1px solid var(--paper-edge)">Lisibilité sens</td>
+          <td style="padding:8px 12px;border-bottom:1px solid var(--paper-edge)">⭐⭐⭐ Bonne</td>
+          <td style="padding:8px 12px;border-bottom:1px solid var(--paper-edge)">⭐⭐⭐⭐ Excellente</td>
+          <td style="padding:8px 12px;border-bottom:1px solid var(--paper-edge)">⭐⭐⭐ Bonne</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 12px;color:var(--ink-soft);border-bottom:1px solid var(--paper-edge)">Complexité dev</td>
+          <td style="padding:8px 12px;border-bottom:1px solid var(--paper-edge)">~1h (2 layouts)</td>
+          <td style="padding:8px 12px;border-bottom:1px solid var(--paper-edge)">~30min (1 layout)</td>
+          <td style="padding:8px 12px;border-bottom:1px solid var(--paper-edge)">~45min (overlay photo)</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 12px;color:var(--ink-soft)">Esprit app</td>
+          <td style="padding:8px 12px">Magazine de voyage</td>
+          <td style="padding:8px 12px">Newsletter soignée</td>
+          <td style="padding:8px 12px">Instagrammable, carte postale</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  function setMode(mode) {
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b.textContent.includes(mode === 'desktop' ? '🖥' : '📱')));
+    document.getElementById('desktop-view').style.display = mode === 'desktop' ? '' : 'none';
+    document.getElementById('mobile-view').style.display = mode === 'mobile' ? '' : 'none';
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instagram — Catégories Responsive</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 1080px;
+      min-height: 1080px;
+      background: linear-gradient(150deg, #fdf8ee 0%, #f2ecff 50%, #e8f4ff 100%);
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 52px 56px 44px;
+      gap: 0;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 36px;
+    }
+
+    .logo-badge {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: white;
+      border: 1.5px solid rgba(107,77,143,0.18);
+      border-radius: 99px;
+      padding: 6px 18px 6px 12px;
+      box-shadow: 0 2px 12px rgba(107,77,143,0.10);
+    }
+
+    .logo-globe {
+      font-size: 22px;
+    }
+
+    .logo-name {
+      font-family: 'Fraunces', serif;
+      font-size: 17px;
+      color: #6b4d8f;
+      letter-spacing: 0.01em;
+    }
+
+    .tagline {
+      font-size: 14px;
+      color: #8a7a9b;
+      font-style: italic;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Devices area ── */
+    .devices {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 36px;
+      width: 100%;
+    }
+
+    /* ── Desktop browser frame ── */
+    .desktop-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      max-width: 580px;
+    }
+
+    .browser-frame {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(30,10,60,0.16), 0 2px 8px rgba(30,10,60,0.08);
+      border: 1.5px solid rgba(255,255,255,0.8);
+    }
+
+    .browser-chrome {
+      height: 38px;
+      background: #f0eeea;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 8px;
+      border-bottom: 1px solid #e0dcd5;
+    }
+
+    .dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+
+    .url-bar {
+      flex: 1;
+      background: white;
+      border-radius: 6px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 5px;
+      font-size: 10.5px;
+      color: #666;
+      border: 1px solid #e0dcd5;
+      margin: 0 10px;
+    }
+
+    .url-lock { color: #28c840; font-size: 10px; }
+
+    .browser-content {
+      background: #fdf8ee;
+      padding: 18px;
+    }
+
+    /* ── Page header inside browser ── */
+    .page-header {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .page-title {
+      font-family: 'Fraunces', serif;
+      font-size: 16px;
+      color: #1c1410;
+    }
+
+    .page-count {
+      font-size: 11px;
+      color: #9b8fa8;
+    }
+
+    /* ── Category grid — desktop ── */
+    .cat-grid-desktop {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .cat-card {
+      border-radius: 10px;
+      padding: 12px 8px 10px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.7);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .cat-card .cat-emoji {
+      font-size: 18px;
+      display: block;
+      margin-bottom: 5px;
+      line-height: 1;
+    }
+
+    .cat-card .cat-label {
+      font-size: 9px;
+      font-weight: 600;
+      color: #4a3d5a;
+      line-height: 1.2;
+      display: block;
+    }
+
+    .cat-card .cat-count {
+      font-size: 8px;
+      color: #9b8fa8;
+      margin-top: 2px;
+      display: block;
+    }
+
+    /* ── Mobile frame ── */
+    .mobile-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .phone-outer {
+      width: 215px;
+      border-radius: 40px;
+      background: #1a1a1f;
+      padding: 12px 8px;
+      box-shadow: 0 24px 64px rgba(30,10,60,0.22), 0 2px 8px rgba(30,10,60,0.1);
+    }
+
+    .phone-inner {
+      border-radius: 30px;
+      overflow: hidden;
+      background: white;
+      position: relative;
+    }
+
+    .phone-status {
+      height: 32px;
+      background: #fdf8ee;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+    }
+
+    .phone-status-left {
+      font-size: 9px;
+      font-weight: 700;
+      color: #1c1410;
+    }
+
+    .phone-status-right {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .signal-bar {
+      display: flex;
+      gap: 2px;
+      align-items: flex-end;
+    }
+
+    .bar {
+      width: 3px;
+      background: #1c1410;
+      border-radius: 1px;
+    }
+
+    .dynamic-island {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 72px;
+      height: 24px;
+      background: #1a1a1f;
+      border-radius: 20px;
+      z-index: 10;
+    }
+
+    .phone-content {
+      background: #fdf8ee;
+      padding: 14px 12px;
+    }
+
+    .mobile-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .mobile-title {
+      font-family: 'Fraunces', serif;
+      font-size: 12px;
+      color: #1c1410;
+    }
+
+    .mobile-search-bar {
+      width: 100%;
+      height: 26px;
+      background: white;
+      border: 1.5px solid #e8e0f0;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 5px;
+    }
+
+    .search-icon { font-size: 9px; color: #9b8fa8; }
+    .search-placeholder { font-size: 9px; color: #c4b8d4; }
+
+    /* ── Category grid — mobile ── */
+    .cat-grid-mobile {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .cat-card-mobile {
+      border-radius: 10px;
+      padding: 10px 6px 8px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.7);
+    }
+
+    .cat-card-mobile .cat-emoji {
+      font-size: 16px;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .cat-card-mobile .cat-label {
+      font-size: 7.5px;
+      font-weight: 600;
+      color: #4a3d5a;
+      line-height: 1.2;
+      display: block;
+    }
+
+    /* ── Device labels ── */
+    .device-label {
+      font-size: 11px;
+      color: #9b8fa8;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* ── Bottom caption ── */
+    .bottom {
+      margin-top: 28px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bottom-claim {
+      font-family: 'Fraunces', serif;
+      font-size: 20px;
+      color: #1c1410;
+      font-style: italic;
+    }
+
+    .bottom-sub {
+      font-size: 12.5px;
+      color: #8a7a9b;
+    }
+
+    .bottom-url {
+      font-size: 12px;
+      color: #6b4d8f;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo-badge">
+      <span class="logo-globe">🌍</span>
+      <span class="logo-name">World Expressions</span>
+    </div>
+    <span class="tagline">Every language has its own madness.</span>
+  </div>
+
+  <!-- Devices -->
+  <div class="devices">
+
+    <!-- Desktop frame -->
+    <div class="desktop-wrap">
+      <div class="browser-frame">
+        <div class="browser-chrome">
+          <span class="dot dot-r"></span>
+          <span class="dot dot-y"></span>
+          <span class="dot dot-g"></span>
+          <div class="url-bar">
+            <span class="url-lock">🔒</span>
+            world-expressions.vercel.app/concepts
+          </div>
+        </div>
+        <div class="browser-content">
+          <div class="page-header">
+            <span class="page-title">Explorez par thème</span>
+            <span class="page-count">20 domaines · 5 langues</span>
+          </div>
+          <div class="cat-grid-desktop">
+            <!-- Row 1 -->
+            <div class="cat-card" style="background:linear-gradient(145deg,#fffbeb 0%,#fde68a 100%)">
+              <span class="cat-emoji">💛</span>
+              <span class="cat-label">Émotions</span>
+              <span class="cat-count">47 expressions</span>
+            </div>
+            <div class="cat-card" style="background:linear-gradient(145deg,#eff6ff 0%,#bfdbfe 100%)">
+              <span class="cat-emoji">🤝</span>
+              <span class="cat-label">Relations</span>
+              <span class="cat-count">38 expressions</span>
+            </div>
+            <div class="cat-card" style="background:linear-gradient(145deg,#fefce8 0%,#fef08a 100%)">
+              <span class="cat-emoji">💰</span>
+              <span class="cat-label">Argent & pouvoir</span>
+              <span class="cat-count">42 expressions</span>
+            </div>
+            <div class="cat-card" style="background:linear-gradient(145deg,#f5f3ff 0%,#ddd6fe 100%)">
+              <span class="cat-emoji">🧠</span>
+              <span class="cat-label">Esprit & sagesse</span>
+              <span class="cat-count">56 expressions</span>
+            </div>
+            <div class="cat-card" style="background:linear-gradient(145deg,#f0fdf4 0%,#bbf7d0 100%)">
+              <span class="cat-emoji">🗣️</span>
+              <span class="cat-label">Parole</span>
+              <span class="cat-count">33 expressions</span>
+            </div>
+            <!-- Row 2 -->
+            <div class="cat-card" style="background:linear-gradient(145deg,#ecfdf5 0%,#a7f3d0 100%)">
+              <span class="cat-emoji">🌿</span>
+              <span class="cat-label">Nature & corps</span>
+              <span class="cat-count">61 expressions</span>
+            </div>
+            <div class="cat-card" style="background:linear-gradient(145deg,#faf5ff 0%,#e9d5ff 100%)">
+              <span class="cat-emoji">⏳</span>
+              <span class="cat-label">Temps & destin</span>
+              <span class="cat-count">29 expressions</span>
+            </div>
+            <div class="cat-card" style="background:linear-gradient(145deg,#fff1f2 0%,#fecdd3 100%)">
+              <span class="cat-emoji">💪</span>
+              <span class="cat-label">Travail & effort</span>
+              <span class="cat-count">35 expressions</span>
+            </div>
+            <div class="cat-card" style="background:linear-gradient(145deg,#fef3c7 0%,#fcd34d 100%)">
+              <span class="cat-emoji">🎭</span>
+              <span class="cat-label">Humour & absurde</span>
+              <span class="cat-count">24 expressions</span>
+            </div>
+            <div class="cat-card" style="background:linear-gradient(145deg,#fdf2f8 0%,#f5d0fe 100%)">
+              <span class="cat-emoji">🍷</span>
+              <span class="cat-label">Plaisirs & excès</span>
+              <span class="cat-count">19 expressions</span>
+            </div>
+            <!-- Row 3 — partial, faded to suggest "more" -->
+            <div class="cat-card" style="background:linear-gradient(145deg,#ecfeff 0%,#a5f3fc 100%)">
+              <span class="cat-emoji">🌍</span>
+              <span class="cat-label">Voyage & exil</span>
+              <span class="cat-count">22 expressions</span>
+            </div>
+            <div class="cat-card" style="background:linear-gradient(145deg,#f0fdf4 0%,#86efac 100%)">
+              <span class="cat-emoji">🎲</span>
+              <span class="cat-label">Chance & risque</span>
+              <span class="cat-count">18 expressions</span>
+            </div>
+            <div class="cat-card" style="background:linear-gradient(145deg,#f0f9ff 0%,#bae6fd 100%)">
+              <span class="cat-emoji">📖</span>
+              <span class="cat-label">Savoir</span>
+              <span class="cat-count">31 expressions</span>
+            </div>
+            <div class="cat-card" style="background:linear-gradient(145deg,#fff7ed 0%,#fed7aa 100%)">
+              <span class="cat-emoji">⚖️</span>
+              <span class="cat-label">Morale & société</span>
+              <span class="cat-count">44 expressions</span>
+            </div>
+            <div class="cat-card" style="background:linear-gradient(145deg,#fdf4ff 0%,#e9d5ff 100%)">
+              <span class="cat-emoji">🫀</span>
+              <span class="cat-label">Corps & santé</span>
+              <span class="cat-count">28 expressions</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <span class="device-label">desktop</span>
+    </div>
+
+    <!-- Mobile frame -->
+    <div class="mobile-wrap">
+      <div class="phone-outer">
+        <div class="phone-inner">
+          <div class="dynamic-island"></div>
+          <div class="phone-status">
+            <span class="phone-status-left">9:41</span>
+          </div>
+          <div class="phone-content">
+            <div class="mobile-top-bar">
+              <span class="mobile-title">Thèmes</span>
+              <span style="font-size:9px;color:#9b8fa8;">20 domaines</span>
+            </div>
+            <div class="mobile-search-bar">
+              <span class="search-icon">🔍</span>
+              <span class="search-placeholder">chercher un mot...</span>
+            </div>
+            <div class="cat-grid-mobile">
+              <div class="cat-card-mobile" style="background:linear-gradient(145deg,#fffbeb 0%,#fde68a 100%)">
+                <span class="cat-emoji">💛</span>
+                <span class="cat-label">Émotions</span>
+              </div>
+              <div class="cat-card-mobile" style="background:linear-gradient(145deg,#eff6ff 0%,#bfdbfe 100%)">
+                <span class="cat-emoji">🤝</span>
+                <span class="cat-label">Relations</span>
+              </div>
+              <div class="cat-card-mobile" style="background:linear-gradient(145deg,#fefce8 0%,#fef08a 100%)">
+                <span class="cat-emoji">💰</span>
+                <span class="cat-label">Argent</span>
+              </div>
+              <div class="cat-card-mobile" style="background:linear-gradient(145deg,#f5f3ff 0%,#ddd6fe 100%)">
+                <span class="cat-emoji">🧠</span>
+                <span class="cat-label">Sagesse</span>
+              </div>
+              <div class="cat-card-mobile" style="background:linear-gradient(145deg,#ecfdf5 0%,#a7f3d0 100%)">
+                <span class="cat-emoji">🌿</span>
+                <span class="cat-label">Nature</span>
+              </div>
+              <div class="cat-card-mobile" style="background:linear-gradient(145deg,#faf5ff 0%,#e9d5ff 100%)">
+                <span class="cat-emoji">⏳</span>
+                <span class="cat-label">Temps</span>
+              </div>
+              <div class="cat-card-mobile" style="background:linear-gradient(145deg,#fff1f2 0%,#fecdd3 100%)">
+                <span class="cat-emoji">💪</span>
+                <span class="cat-label">Travail</span>
+              </div>
+              <div class="cat-card-mobile" style="background:linear-gradient(145deg,#fef3c7 0%,#fcd34d 100%)">
+                <span class="cat-emoji">🎭</span>
+                <span class="cat-label">Humour</span>
+              </div>
+              <div class="cat-card-mobile" style="background:linear-gradient(145deg,#ecfeff 0%,#a5f3fc 100%)">
+                <span class="cat-emoji">🌍</span>
+                <span class="cat-label">Voyage</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <span class="device-label">mobile</span>
+    </div>
+
+  </div><!-- /devices -->
+
+  <!-- Bottom -->
+  <div class="bottom">
+    <span class="bottom-claim">20 façons d'explorer le monde des mots.</span>
+    <span class="bottom-sub">Émotions · Sagesse · Nature · Argent · Humour · Voyage · et 14 autres...</span>
+    <span class="bottom-url">world-expressions.vercel.app</span>
+  </div>
+
+</body>
+</html>
