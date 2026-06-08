@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { TYPE_LABELS } from "@/lib/typeLabels";
+import type { Facets } from "@/lib/api";
 
 type UILang = "fr" | "en" | "es" | "it" | "tr";
 
@@ -24,6 +25,7 @@ interface Props {
   typeFilter?: string | null;
   onTypeChange?: (type: string | null) => void;
   showSort?: boolean;
+  facets?: Facets;
 }
 
 export default function ResultsFilterBar({
@@ -32,6 +34,7 @@ export default function ResultsFilterBar({
   uiLang,
   typeFilter, onTypeChange,
   showSort = true,
+  facets,
 }: Props) {
   const t = T[uiLang];
   const [open, setOpen] = useState(false);
@@ -119,17 +122,21 @@ export default function ResultsFilterBar({
               {t.filterAll}
             </label>
             <div style={{ height: 1, background: "var(--paper-edge)", margin: "0.25rem 0" }} />
-            {regions.map((r) => (
-              <label key={r.code} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.35rem 0.75rem", cursor: "pointer", fontSize: 13, color: "var(--ink)" }}>
-                <input
-                  type="checkbox"
-                  checked={filterRegions.includes(r.code)}
-                  onChange={() => toggle(r.code)}
-                  style={{ accentColor: "var(--plum)", width: 15, height: 15 }}
-                />
-                {FLAG[r.code] ?? ""} {COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}
-              </label>
-            ))}
+            {regions.map((r) => {
+              const cnt = facets?.region[r.code];
+              return (
+                <label key={r.code} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.35rem 0.75rem", cursor: "pointer", fontSize: 13, color: "var(--ink)" }}>
+                  <input
+                    type="checkbox"
+                    checked={filterRegions.includes(r.code)}
+                    onChange={() => toggle(r.code)}
+                    style={{ accentColor: "var(--plum)", width: 15, height: 15 }}
+                  />
+                  <span style={{ flex: 1 }}>{FLAG[r.code] ?? ""} {COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}</span>
+                  {cnt != null && <span style={{ fontSize: 11, color: "var(--ink-faint)", flexShrink: 0 }}>({cnt})</span>}
+                </label>
+              );
+            })}
           </div>
         )}
       </div>
@@ -142,6 +149,7 @@ export default function ResultsFilterBar({
         const label = type === null
           ? t.allTypes
           : (TYPE_LABELS[type]?.[uiLang] ?? TYPE_LABELS[type]?.["en"] ?? type);
+        const cnt = type !== null ? facets?.kind[type] : undefined;
         return (
           <button
             key={type ?? "all"}
@@ -152,9 +160,13 @@ export default function ResultsFilterBar({
               border: `1.5px solid ${isActive ? "var(--terra)" : "var(--paper-edge)"}`,
               color: isActive ? "#fff" : "var(--terra)",
               boxShadow: isActive ? "var(--shadow-stamp)" : "none",
+              display: "flex", alignItems: "center", gap: "0.3rem",
             }}
           >
-            {label}
+            <span>{label}</span>
+            {cnt != null && (
+              <span style={{ fontSize: 11, opacity: isActive ? 0.85 : 0.55 }}>({cnt})</span>
+            )}
           </button>
         );
       })}

@@ -9,7 +9,8 @@ import LangBar from "@/components/ui/LangBar";
 import SearchBar from "@/components/ui/SearchBar";
 import ResultsFilterBar from "@/components/home/ResultsFilterBar";
 import {
-  searchExpressions, searchByConcept, searchByDomain, getRegions, getAllTagNames, Expression,
+  searchExpressions, searchByConcept, searchByDomain, getRegions, getAllTagNames, getFacets,
+  Expression, Facets,
 } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
@@ -192,6 +193,7 @@ function SearchPageContent() {
   const [conceptBridgeResults, setConceptBridgeResults] = useState<Expression[]>([]);
   const [detectedConceptSlugs, setDetectedConceptSlugs] = useState<string[]>([]);
   const [typeFilter, setTypeFilter] = useState<string | null>(typeParam || null);
+  const [facets, setFacets] = useState<Facets | undefined>(undefined);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const allRegionCodes = regions.map((r) => r.code);
   const t = T[uiLang];
@@ -290,6 +292,7 @@ function SearchPageContent() {
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
+      getFacets(rf, q, tf).then(setFacets);
     } catch {
       setHasError(true);
     } finally {
@@ -519,6 +522,7 @@ function SearchPageContent() {
                 uiLang={uiLang}
                 typeFilter={typeFilter}
                 onTypeChange={handleTypeFilter}
+                facets={facets}
               />
             </div>
           )}

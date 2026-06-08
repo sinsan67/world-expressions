@@ -16,7 +16,8 @@ import ResultsFilterBar from "@/components/home/ResultsFilterBar";
 import Eyebrow from "@/components/home/Eyebrow";
 import {
   searchExpressions, searchByConcept, browseByRegion,
-  getRandomExpression, getExpression, getAllTagNames, getRegions, Expression,
+  getRandomExpression, getExpression, getAllTagNames, getRegions, getFacets,
+  Expression, Facets,
 } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
@@ -253,6 +254,7 @@ export default function HomePage() {
   const [filterRegions, setFilterRegions] = useState<string[]>([]);
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<"relevance" | "country">("country");
+  const [facets, setFacets] = useState<Facets | undefined>(undefined);
   const [expandedRegion, setExpandedRegion] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [tooltipOpen, setTooltipOpen] = useState(false);
@@ -313,6 +315,7 @@ export default function HomePage() {
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
+      getFacets(rf.length ? rf : [], "", null).then(setFacets);
     } catch {
       setHasError(true);
       setResults([]);
@@ -340,6 +343,7 @@ export default function HomePage() {
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
+      getFacets([], q, null).then(setFacets);
     } catch {
       setHasError(true);
       setResults([]);
@@ -374,17 +378,19 @@ export default function HomePage() {
 
   const handleFilterChange = useCallback(async (newFilter: string[]) => {
     setFilterRegions(newFilter);
-    if (!searched) return;
     const regionCodes = newFilter.length > 0 ? newFilter : allRegionCodes;
     setLoading(true);
     setHasError(false);
     setResults([]);
     setHasMore(false);
+    setSearched(true);
+    const effectiveMode = query ? searchMode : "browse";
+    if (!query) setSearchMode("browse");
     try {
       const data =
-        searchMode === "browse"
-          ? await browseByRegion(regionCodes, LIMIT, 0)
-          : searchMode === "concept"
+        effectiveMode === "browse"
+          ? await browseByRegion(regionCodes, LIMIT, 0, typeFilter ?? undefined, uiLang)
+          : effectiveMode === "concept"
           ? await searchByConcept([query], regionCodes, LIMIT, 0)
           : await searchExpressions(query, regionCodes, LIMIT, 0, typeFilter ?? undefined, uiLang);
       setResults(data.results);
@@ -396,19 +402,25 @@ export default function HomePage() {
     } finally {
       setLoading(false);
     }
+    getFacets(newFilter, query || "", typeFilter).then(setFacets);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchMode, query, allRegionCodes, typeFilter, uiLang, searched]);
+  }, [searchMode, query, allRegionCodes, typeFilter, uiLang]);
 
   const handleTypeChange = useCallback(async (newType: string | null) => {
     setTypeFilter(newType);
-    if (!query) return;
     const regionCodes = filterRegions.length > 0 ? filterRegions : allRegionCodes;
     setLoading(true);
     setHasError(false);
     setResults([]);
     setHasMore(false);
+    setSearched(true);
+    const effectiveMode = query ? searchMode : "browse";
+    if (!query) setSearchMode("browse");
     try {
-      const data = await searchExpressions(query, regionCodes, LIMIT, 0, newType ?? undefined, uiLang);
+      const data =
+        effectiveMode === "browse"
+          ? await browseByRegion(regionCodes, LIMIT, 0, newType ?? undefined, uiLang)
+          : await searchExpressions(query, regionCodes, LIMIT, 0, newType ?? undefined, uiLang);
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
@@ -418,6 +430,7 @@ export default function HomePage() {
     } finally {
       setLoading(false);
     }
+    getFacets(filterRegions, query || "", newType).then(setFacets);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchMode, query, allRegionCodes, filterRegions, uiLang]);
 
@@ -453,6 +466,7 @@ export default function HomePage() {
     getRegions().then((data) => {
       setRegions(data.map((r) => ({ code: r.code, label: `${FLAG[r.code] ?? "🌍"} ${COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}` })));
     });
+    getFacets().then(setFacets);
   }, []);
 
   useEffect(() => {
@@ -667,6 +681,7 @@ export default function HomePage() {
               typeFilter={typeFilter}
               onTypeChange={handleTypeChange}
               showSort={searched}
+              facets={facets}
             />
           </div>
         </div>

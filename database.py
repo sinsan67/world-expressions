@@ -516,6 +516,64 @@ def browse_by_region(regions: Optional[set[str]] = None, limit: int = 20, offset
     return results, total
 
 
+def get_facets(
+    regions: Optional[set[str]] = None,
+    query: Optional[str] = None,
+    type_filter: Optional[str] = None,
+) -> dict:
+    """
+    Retourne les comptages par région et par type pour les filtres facettés.
+    - region: tous pays, type_filter appliqué, sans filtre région
+    - kind: tous types, filtre région appliqué, sans filtre type
+    Chaque facette est calculée en excluant son propre filtre (comportement standard faceted search).
+    Si query est fourni, les comptages sont filtrés par FTS approximatif (text + meaning).
+    """
+    region_sql = "AND e.region = ANY(:regions_f)" if regions else ""
+    type_sql = "AND e.kind = :type_filter_f" if type_filter else ""
+
+    fts_join = ""
+    fts_cond = ""
+    fts_params: dict = {}
+    if query and query.strip():
+        fts_join = "\n        LEFT JOIN expression_content ec_f ON ec_f.expression_id = e.id AND ec_f.locale = e.language"
+        fts_cond = """ AND (
+            to_tsvector('simple', e.text) @@ websearch_to_tsquery('simple', :q_f)
+            OR to_tsvector('simple', coalesce(ec_f.meaning,'') || ' ' || coalesce(ec_f.example,''))
+               @@ websearch_to_tsquery('simple', :q_f)
+        )"""
+        fts_params = {"q_f": query.strip()}
+
+    sql_region = f"""
+        SELECT e.region, COUNT(DISTINCT e.id) AS n
+        FROM expressions e {fts_join}
+        WHERE 1=1 {_EXCLUDE_PHRASEBOOK} {type_sql} {fts_cond}
+          AND e.region IS NOT NULL
+        GROUP BY e.region
+    """
+
+    sql_kind = f"""
+        SELECT e.kind, COUNT(DISTINCT e.id) AS n
+        FROM expressions e {fts_join}
+        WHERE 1=1 {_EXCLUDE_PHRASEBOOK} {region_sql} {fts_cond}
+        GROUP BY e.kind
+    """
+
+    params_region = ({**{"type_filter_f": type_filter}} if type_filter else {})
+    params_region.update(fts_params)
+
+    params_kind = ({**{"regions_f": list(regions)}} if regions else {})
+    params_kind.update(fts_params)
+
+    with engine.connect() as conn:
+        region_rows = conn.execute(text(sql_region), params_region).fetchall()
+        kind_rows = conn.execute(text(sql_kind), params_kind).fetchall()
+
+    return {
+        "region": {r.region: r.n for r in region_rows if r.region},
+        "kind": {r.kind: r.n for r in kind_rows if r.kind},
+    }
+
+
 def get_translation(expression_id: str, target_lang: str) -> Optional[dict]:
     """Retourne la traduction d'une expression dans target_lang, ou None si elle n'existe pas encore."""
     sql = """
