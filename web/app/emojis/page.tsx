@@ -100,7 +100,7 @@ export default function EmojisPage() {
   }, []);
 
   useEffect(() => {
-    getConcepts(uiLang, uiLang, "", 1).then(({ concepts }) => {
+    getConcepts(uiLang, "", "", 1).then(({ concepts }) => {
       const map: Record<string, TagEntry[]> = {};
       for (const c of concepts) {
         for (const domain of c.domains) {
