@@ -791,45 +791,49 @@ export default function HomePage() {
                     paddingLeft: "0.75rem",
                     borderLeft: "2px solid var(--paper-edge)",
                   }}>
+                    {/* Country "tous" — primary, first */}
+                    <button
+                      onClick={() => { setExpandedRegion(null); router.push(`/country/${expandedRegion}`); }}
+                      style={{
+                        display: "flex", alignItems: "center", gap: "0.4rem",
+                        padding: "0.45rem 1rem",
+                        borderRadius: "var(--r-pill)",
+                        border: "1.5px solid var(--ink-soft)",
+                        background: "var(--paper)",
+                        color: "var(--ink)",
+                        fontSize: 14, fontWeight: 700, cursor: "pointer",
+                        fontFamily: "var(--font-body)",
+                        transition: "border-color 150ms ease, background 150ms ease",
+                      }}
+                      onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--plum)"; el.style.background = "var(--plum-bg)"; }}
+                      onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--ink-soft)"; el.style.background = "var(--paper)"; }}
+                    >
+                      <span>{FLAG[expandedRegion] ?? "🌍"}</span>
+                      <span>{COUNTRY_NAME[expandedRegion] ?? expandedRegion} — tous</span>
+                    </button>
+                    {/* Sub-regions — secondary */}
                     {COUNTRY_SUB_REGIONS[expandedRegion].map((sub) => (
                       <button
                         key={sub.code}
                         onClick={() => router.push(`/regions/${sub.code}`)}
                         style={{
-                          display: "flex", alignItems: "center", gap: "0.4rem",
-                          padding: "0.4rem 0.875rem",
+                          display: "flex", alignItems: "center", gap: "0.35rem",
+                          padding: "0.35rem 0.75rem",
                           borderRadius: "var(--r-pill)",
                           border: "1.5px solid var(--paper-edge)",
                           background: "var(--paper-deep)",
-                          color: "var(--ink-soft)",
-                          fontSize: 13, fontWeight: 600, cursor: "pointer",
+                          color: "var(--ink-faint)",
+                          fontSize: 12, fontWeight: 500, cursor: "pointer",
                           fontFamily: "var(--font-body)",
                           transition: "border-color 150ms ease, background 150ms ease, color 150ms ease",
                         }}
                         onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--plum)"; el.style.background = "var(--plum-bg)"; el.style.color = "var(--plum)"; }}
-                        onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--paper-edge)"; el.style.background = "var(--paper-deep)"; el.style.color = "var(--ink-soft)"; }}
+                        onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--paper-edge)"; el.style.background = "var(--paper-deep)"; el.style.color = "var(--ink-faint)"; }}
                       >
                         <span>{sub.emoji}</span>
                         <span>{sub.name}</span>
                       </button>
                     ))}
-                    <button
-                      onClick={() => { setExpandedRegion(null); router.push(`/country/${expandedRegion}`); }}
-                      style={{
-                        padding: "0.4rem 0.75rem",
-                        borderRadius: "var(--r-pill)",
-                        border: "none",
-                        background: "none",
-                        color: "var(--ink-faint)",
-                        fontSize: 12, cursor: "pointer",
-                        fontFamily: "var(--font-body)",
-                        transition: "color 150ms ease",
-                      }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-soft)"; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-faint)"; }}
-                    >
-                      → {COUNTRY_NAME[expandedRegion] ?? expandedRegion} (tous)
-                    </button>
                   </div>
                 )}
               </div>
