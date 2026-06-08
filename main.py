@@ -271,6 +271,16 @@ def update_preferences(user_id: str, body: PreferencesRequest):
     return prefs
 
 
+@app.put("/users/{user_id}/name")
+def update_user_name(user_id: str, body: dict):
+    """Met à jour le nom affiché d'un utilisateur."""
+    name = body.get("name", "")
+    try:
+        return database.update_user_name(user_id, name)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="User not found")
+
+
 @app.get("/users/{user_id}/favorites")
 def get_favorites(user_id: str):
     """Retourne les favoris d'un utilisateur."""

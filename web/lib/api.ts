@@ -242,3 +242,13 @@ export async function getFacets(
   if (!res.ok) return { region: {}, kind: {} };
   return res.json();
 }
+
+export async function updateUserName(userId: string, name: string): Promise<{ name: string | null }> {
+  const res = await fetch(`${API}/users/${userId}/name`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) throw new Error("Failed to update name");
+  return res.json();
+}

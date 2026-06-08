@@ -1118,6 +1118,19 @@ def set_email_verified(user_id: str) -> None:
         conn.execute(sql, {"uid": user_id})
 
 
+def update_user_name(user_id: str, name: str) -> dict:
+    """Met à jour le nom affiché d'un utilisateur."""
+    sql = text("""
+        UPDATE users SET name = :name WHERE id = CAST(:uid AS uuid)
+        RETURNING id::text, email, name, avatar_url
+    """)
+    with engine.begin() as conn:
+        row = conn.execute(sql, {"name": name.strip() or None, "uid": user_id}).fetchone()
+    if not row:
+        raise ValueError("User not found")
+    return {"id": row.id, "email": row.email, "name": row.name, "avatar_url": row.avatar_url}
+
+
 def update_password_hash(user_id: str, new_password: str) -> None:
     """Remplace le mot de passe d'un utilisateur (flow reset)."""
     password_hash = _hash_password(new_password)
