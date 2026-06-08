@@ -8,10 +8,10 @@ import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
 import { tagIcon } from "@/lib/tagIcons";
 import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
-import { DOMAIN_TAGS } from "@/lib/domainTags";
-import { getAllTagNames } from "@/lib/api";
+import { getConcepts } from "@/lib/api";
 
 type UILang = "fr" | "en" | "es" | "it" | "tr";
+type TagEntry = { slug: string; name: string };
 
 const T: Record<UILang, {
   eyebrow: string;
@@ -87,16 +87,12 @@ const T: Record<UILang, {
   },
 };
 
-function formatLabel(slug: string): string {
-  return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
 export default function EmojisPage() {
   const router = useRouter();
   const [uiLang, setUILang] = useState<UILang>("fr");
   const [activeDomain, setActiveDomain] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [tagNames, setTagNames] = useState<Record<string, string>>({});
+  const [domainTagMap, setDomainTagMap] = useState<Record<string, TagEntry[]>>({});
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
@@ -104,7 +100,18 @@ export default function EmojisPage() {
   }, []);
 
   useEffect(() => {
-    getAllTagNames(uiLang).then(setTagNames);
+    getConcepts(uiLang, uiLang, "", 1).then(({ concepts }) => {
+      const map: Record<string, TagEntry[]> = {};
+      for (const c of concepts) {
+        for (const domain of c.domains) {
+          if (!map[domain]) map[domain] = [];
+          if (!map[domain].find((t) => t.slug === c.slug)) {
+            map[domain].push({ slug: c.slug, name: c.name });
+          }
+        }
+      }
+      setDomainTagMap(map);
+    });
   }, [uiLang]);
 
   const changeLang = (lang: UILang) => {
@@ -114,32 +121,35 @@ export default function EmojisPage() {
 
   const t = T[uiLang];
 
-  const visibleDomains = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    const domains = activeDomain ? [activeDomain] : Object.keys(DOMAIN_DEFS);
-    if (!q) return domains;
-    return domains.filter((d) =>
-      (DOMAIN_TAGS[d] ?? []).some((tag) =>
-        tag.toLowerCase().includes(q) ||
-        (tagNames[tag] ?? "").toLowerCase().includes(q)
-      )
-    );
-  }, [activeDomain, search, tagNames]);
+  const totalTags = useMemo(
+    () => {
+      const seen = new Set<string>();
+      Object.values(domainTagMap).flat().forEach((t) => seen.add(t.slug));
+      return seen.size;
+    },
+    [domainTagMap]
+  );
 
-  const filteredTagsFor = (domain: string): string[] => {
+  const filteredTagsFor = (domain: string): TagEntry[] => {
     const q = search.trim().toLowerCase();
-    const tags = DOMAIN_TAGS[domain] ?? [];
+    const tags = domainTagMap[domain] ?? [];
     if (!q) return tags;
-    return tags.filter((tag) =>
-      tag.toLowerCase().includes(q) ||
-      (tagNames[tag] ?? "").toLowerCase().includes(q)
+    return tags.filter((t) =>
+      t.slug.toLowerCase().includes(q) || t.name.toLowerCase().includes(q)
     );
   };
 
-  const totalTags = useMemo(
-    () => Object.values(DOMAIN_TAGS).flat().filter((v, i, a) => a.indexOf(v) === i).length,
-    []
-  );
+  const visibleDomains = useMemo(() => {
+    const allDomains = Object.keys(DOMAIN_DEFS);
+    const domains = activeDomain ? [activeDomain] : allDomains;
+    const q = search.trim().toLowerCase();
+    if (!q) return domains;
+    return domains.filter((d) =>
+      (domainTagMap[d] ?? []).some(
+        (t) => t.slug.toLowerCase().includes(q) || t.name.toLowerCase().includes(q)
+      )
+    );
+  }, [activeDomain, search, domainTagMap]);
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
@@ -362,12 +372,12 @@ export default function EmojisPage() {
 
                     {/* Tags */}
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "0.45rem" }}>
-                      {tags.map((tag) => {
-                        const icon = tagIcon(tag);
+                      {tags.map(({ slug, name }) => {
+                        const icon = tagIcon(slug);
                         return (
                           <button
-                            key={tag}
-                            onClick={() => router.push(`/search?concept=${encodeURIComponent(tag)}`)}
+                            key={slug}
+                            onClick={() => router.push(`/search?concept=${encodeURIComponent(slug)}`)}
                             style={{
                               fontFamily: "var(--font-body)",
                               fontSize: 13,
@@ -397,7 +407,7 @@ export default function EmojisPage() {
                             }}
                           >
                             {icon && <span style={{ fontSize: 14, lineHeight: 1 }}>{icon}</span>}
-                            <span style={{ fontWeight: 500 }}>{tagNames[tag] ?? formatLabel(tag)}</span>
+                            <span style={{ fontWeight: 500 }}>{name}</span>
                           </button>
                         );
                       })}
