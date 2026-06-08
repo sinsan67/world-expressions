@@ -4,11 +4,12 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Home, Globe, Lightbulb, Search, Heart } from "lucide-react";
 import { getCarnet } from "@/lib/carnet";
+import { getRegions } from "@/lib/api";
 import SearchOverlay from "@/components/SearchOverlay";
 
 const BASE_NAV_ITEMS = [
   { id: "home",      icon: Home,       href: "/",         count: undefined as number | undefined },
-  { id: "atlas",     icon: Globe,      href: "/atlas",    count: 7 },
+  { id: "atlas",     icon: Globe,      href: "/atlas",    count: undefined as number | undefined },
   { id: "concepts",  icon: Lightbulb,  href: "/emoji", count: 1050 },
   { id: "search",    icon: Search,     href: null,        count: undefined as number | undefined },
   { id: "carnet",    icon: Heart,      href: "/profile",  count: undefined as number | undefined },
@@ -37,6 +38,7 @@ type Props = {
 export default function Sidebar({ uiLang }: Props) {
   const pathname = usePathname();
   const [favCount, setFavCount] = useState<number | undefined>(undefined);
+  const [countryCount, setCountryCount] = useState<number | undefined>(undefined);
   const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -49,9 +51,15 @@ export default function Sidebar({ uiLang }: Props) {
     return () => window.removeEventListener("wex-carnet-updated", update);
   }, []);
 
-  const navItems = BASE_NAV_ITEMS.map((item) =>
-    item.id === "favorites" ? { ...item, count: favCount } : item
-  );
+  useEffect(() => {
+    getRegions().then((regions) => setCountryCount(regions.length));
+  }, []);
+
+  const navItems = BASE_NAV_ITEMS.map((item) => {
+    if (item.id === "atlas") return { ...item, count: countryCount };
+    if (item.id === "favorites") return { ...item, count: favCount };
+    return item;
+  });
 
   return (
     <aside
@@ -166,7 +174,7 @@ export default function Sidebar({ uiLang }: Props) {
         </a>
       </div>
       <p style={{ fontSize: 11, color: "var(--ink-faint)", marginTop: "0.75rem", fontFamily: "var(--font-body)", lineHeight: 1.5 }}>
-        1 580+ expressions<br />5 langues · 7 pays
+        1 580+ expressions<br />5 langues · {countryCount ?? "…"} pays
       </p>
     </aside>
   );
