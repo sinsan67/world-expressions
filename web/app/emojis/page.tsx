@@ -369,14 +369,15 @@ export default function EmojisPage() {
                     style={{
                       fontFamily: "var(--font-body)",
                       fontSize: 13,
-                      fontWeight: isActive ? 600 : 400,
+                      fontWeight: isActive ? 600 : 500,
                       padding: "4px 10px",
                       borderRadius: "var(--r-pill)",
-                      border: `1.5px solid ${isActive ? "var(--plum)" : "var(--paper-edge)"}`,
-                      background: isActive ? "var(--plum-bg)" : "transparent",
-                      color: isActive ? "var(--plum)" : "var(--ink-soft)",
+                      border: `1.5px solid ${isActive ? "var(--terra)" : "var(--paper-edge)"}`,
+                      background: isActive ? "var(--terra)" : "var(--paper)",
+                      color: isActive ? "#fff" : "var(--terra)",
                       cursor: "pointer",
                       transition: "all 120ms ease",
+                      boxShadow: isActive ? "var(--shadow-stamp)" : "none",
                     }}
                   >
                     {labels[uiLang]}
