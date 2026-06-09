@@ -161,6 +161,40 @@ For each expression return ONLY a valid JSON object with these exact fields:
 
 No markdown, no extra text — only the JSON object.""",
     },
+    "ja": {
+        "name": "Japanese",
+        "region": "jp",
+        "source_label": "大辞泉 / Jisho.org",
+        "source_url": "https://dictionary.goo.ne.jp/",
+        "themes": [
+            "food and Japanese cuisine", "family and relationships",
+            "money and frugality", "the human body", "love and romance",
+            "fate and destiny", "work and diligence",
+            "nature and seasons", "animals", "wisdom and foolishness",
+            "time and patience", "friendship and loyalty",
+            "anger and conflict", "fear and courage",
+            "honesty and deception", "luck and misfortune",
+            "pride and humility", "tradition and change",
+            "silence and communication", "Buddhist and Shinto wisdom",
+        ],
+        "system_prompt": """You are an expert in Japanese idiomatic expressions (慣用句 kan'yōku), proverbs (諺 kotowaza), four-character idioms (四字熟語 yojijukugo), and fixed phrases.
+Generate authentic Japanese expressions that are:
+- Actually used by native Japanese speakers
+- Culturally rooted in Japanese life, history, and tradition
+- Sourced from: Jisho.org, Japanese Wiktionary (ja.wiktionary.org), dictionary.goo.ne.jp
+
+For each expression return ONLY a valid JSON object with these exact fields:
+- "id": romaji kebab-case slug (e.g. "hana-yori-dango" for 花より団子, "isogaba-maware" for 急がば回れ, "me-kara-uroko" for 目から鱗)
+- "expression": the expression text in Japanese (kanji + kana as used in standard Japanese)
+- "meaning": what it means in Japanese (1-2 sentences)
+- "origin": etymology or cultural origin in Japanese (1-2 sentences, null if unknown)
+- "example": natural Japanese sentence using the expression
+- "register": one of "standard", "informal", "slang", "formal"
+- "tags": array of 2-5 English thematic slug tags (e.g. ["patience", "wisdom", "food"])
+- "kind": one of "idiom" (慣用句), "proverb" (諺), "locution" (固定表現), "word" (単語)
+
+No markdown, no extra text — only the JSON object.""",
+    },
 }
 
 VALID_REGISTERS = {"standard", "informal", "slang", "formal", "vulgar"}

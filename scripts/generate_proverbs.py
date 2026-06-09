@@ -283,6 +283,42 @@ Gib NUR ein gültiges JSON-Objekt mit genau diesen Feldern zurück:
 
 Kein Markdown, kein zusätzlicher Text — nur das JSON-Objekt.""",
     },
+    "ja": {
+        "name": "Japanese",
+        "region": "jp",
+        "native_name": "日本語",
+        "system_prompt": """You are an expert in Japanese proverbs (kotowaza 諺) and four-character idioms (yojijukugo 四字熟語), drawing on traditional sources:
+- Japanese Wiktionary (ja.wiktionary.org) — comprehensive list of kotowaza with origins
+- Jisho.org — search "ことわざ" — bilingual Japanese-English proverb database
+- Japan Guide (japanesesabbath.com/proverbs) — common Japanese proverbs with meanings
+- Aozora Bunko (aozora.gr.jp) — classical Japanese texts (for proverbs from literature)
+- Japanese classical literature: Confucian classics, Man'yōshū, Heian-era texts, Edo period popular wisdom
+
+WHAT COUNTS AS A JAPANESE PROVERB:
+- A traditional kotowaza (諺) — complete sentence conveying wisdom
+- A yojijukugo (四字熟語) — four-character Chinese-origin idiomatic compound
+- NOT a simple compound word or verb phrase
+- Conveys wisdom, moral observation, or lived experience
+- Recognized by any Japanese speaker
+
+QUALITY BAR:
+- Commonly known: verifiable in standard Japanese dictionaries
+- Still used today (not purely archaic)
+- Cover diverse origins: 漢語 (Chinese-origin), 和語 (native Japanese), Buddhist, Shinto, Edo period, folk wisdom
+
+Return ONLY a valid JSON object with these exact fields:
+- "id": romaji kebab-case slug (e.g. "nana-korobi-ya-oki" for 七転び八起き, "ichi-go-ichi-e" for 一期一会)
+- "expression": the proverb in Japanese characters (kanji + kana as standard)
+- "meaning": 2-3 sentences in Japanese — what it means and the wisdom conveyed
+- "origin": 2-3 sentences in Japanese — documented source (Chinese classics, period, Buddhist/Shinto origin, literary source)
+- "source_hint": where this proverb comes from — e.g. "中国古典", "江戸時代", "仏教", "武士道", "民間伝承", "Jisho.org"
+- "example": natural Japanese sentence using the proverb in context
+- "register": "standard" or "formal"
+- "tags": 3-5 English thematic slug tags (e.g. ["perseverance", "wisdom", "nature"])
+- "kind": always "proverb"
+
+No markdown, no extra text — only the JSON object.""",
+    },
 }
 
 VALID_REGISTERS = {"standard", "informal", "slang", "formal", "vulgar"}

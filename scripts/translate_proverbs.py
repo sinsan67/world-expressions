@@ -46,20 +46,20 @@ from config import engine
 
 MODEL = "mistral-small-latest"
 
-SUPPORTED = ["fr", "en", "es", "it", "tr", "de"]
+SUPPORTED = ["fr", "en", "es", "it", "tr", "de", "ja"]
 
 # Ordre de traitement pour --all-pairs :
 # on finit TOUTES les traductions d'une langue source avant de passer à la suivante.
-# fr en entier → en en entier → es en entier → it en entier → tr en entier → de en entier
-SOURCE_ORDER = ["fr", "en", "es", "it", "tr", "de"]
+SOURCE_ORDER = ["fr", "en", "es", "it", "tr", "de", "ja"]
 
 LANG_NAMES = {
-    "fr": {"en": "French",  "native": "français"},
-    "en": {"en": "English", "native": "English"},
-    "es": {"en": "Spanish", "native": "español"},
-    "it": {"en": "Italian", "native": "italiano"},
-    "tr": {"en": "Turkish", "native": "Türkçe"},
-    "de": {"en": "German",  "native": "Deutsch"},
+    "fr": {"en": "French",   "native": "français"},
+    "en": {"en": "English",  "native": "English"},
+    "es": {"en": "Spanish",  "native": "español"},
+    "it": {"en": "Italian",  "native": "italiano"},
+    "tr": {"en": "Turkish",  "native": "Türkçe"},
+    "de": {"en": "German",   "native": "Deutsch"},
+    "ja": {"en": "Japanese", "native": "日本語"},
 }
 
 # Sources spécialisées par paire de langues (symétrique : FR↔EN = EN↔FR).
@@ -170,6 +170,48 @@ PAIR_SOURCES: dict[frozenset, str] = {
         "LEO dictionnaire DE-TR (dict.leo.org) ; "
         "Wiktionnaire bilingue DE/TR (de.wiktionary.org) ; "
         "Academia.edu — recherche 'German Turkish proverbs'"
+    ),
+    frozenset({"fr", "ja"}): (
+        "Reverso Context FR-JA (context.reverso.net) ; "
+        "ProZ FR-JA (proz.com) ; "
+        "Jisho.org — dictionnaire bilingue japonais-anglais-français ; "
+        "Wiktionnaire bilingue FR/JA (fr.wiktionary.org) ; "
+        "Japan Guide – Japanese Proverbs (japan-guide.com)"
+    ),
+    frozenset({"en", "ja"}): (
+        "Jisho.org — bilingual Japanese-English dictionary with proverbs ; "
+        "Reverso Context EN-JA (context.reverso.net) ; "
+        "ProZ EN-JA (proz.com) ; "
+        "Wiktionary EN/JA (en.wiktionary.org) ; "
+        "Japanese Proverbs blog (japaneseprofessor.com)"
+    ),
+    frozenset({"es", "ja"}): (
+        "Reverso Context ES-JA (context.reverso.net) ; "
+        "ProZ ES-JA (proz.com) ; "
+        "Jisho.org — Japanese dictionary with cultural context ; "
+        "Wiktionary ES/JA (es.wiktionary.org) ; "
+        "Japan Guide – Japanese Proverbs (japan-guide.com)"
+    ),
+    frozenset({"it", "ja"}): (
+        "Reverso Context IT-JA (context.reverso.net) ; "
+        "ProZ IT-JA (proz.com) ; "
+        "Jisho.org — Japanese dictionary with cultural context ; "
+        "Wiktionary IT/JA (it.wiktionary.org) ; "
+        "Japanese Proverbs blog (japaneseprofessor.com)"
+    ),
+    frozenset({"de", "ja"}): (
+        "Reverso Context DE-JA (context.reverso.net) ; "
+        "ProZ DE-JA (proz.com) ; "
+        "Jisho.org — Japanese dictionary with cultural context ; "
+        "Wiktionary DE/JA (de.wiktionary.org) ; "
+        "Japan Guide – Japanese Proverbs (japan-guide.com)"
+    ),
+    frozenset({"tr", "ja"}): (
+        "Reverso Context TR-JA (context.reverso.net) ; "
+        "ProZ TR-JA (proz.com) ; "
+        "Academia.edu — recherche 'Turkish Japanese proverbs' ; "
+        "Wiktionary TR/JA (tr.wiktionary.org) ; "
+        "Japan Guide – Japanese Proverbs (japan-guide.com)"
     ),
 }
 

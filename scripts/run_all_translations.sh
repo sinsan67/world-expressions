@@ -71,6 +71,22 @@ run_pair es de
 run_pair it de
 run_pair tr de
 
+# JA vers toutes les langues
+run_pair ja fr
+run_pair ja en
+run_pair ja es
+run_pair ja it
+run_pair ja tr
+run_pair ja de
+
+# Toutes les langues vers JA
+run_pair fr ja
+run_pair en ja
+run_pair es ja
+run_pair it ja
+run_pair tr ja
+run_pair de ja
+
 echo ""
 echo "================================================"
 echo "  Matrice complète terminée."
