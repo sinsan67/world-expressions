@@ -1,4 +1,4 @@
-export type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
+export type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
 
 export type EditorialDomain = {
   slug: string;
@@ -22,6 +22,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "La saggezza dei secoli",
       tr: "Çağların bilgeliği",
       de: "Die Weisheit der Zeiten",
+      ja: "歳月の知恵",
     },
     desc: {
       fr: "Proverbes, maximes et vérités qui traversent le temps",
@@ -30,6 +31,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Proverbi, massime e verità senza tempo",
       tr: "Zaman aşımına uğramayan atasözleri ve özdeyişler",
       de: "Sprichwörter, Maximen und zeitlose Wahrheiten",
+      ja: "時を超えることわざと格言",
     },
   },
   {
@@ -44,6 +46,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Il peso delle parole",
       tr: "Sözlerin ağırlığı",
       de: "Das Gewicht der Worte",
+      ja: "言葉の重み",
     },
     desc: {
       fr: "Parler, mentir, convaincre, se taire",
@@ -52,6 +55,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Parlare, mentire, convincere, tacere",
       tr: "Konuşmak, yalan söylemek, ikna etmek",
       de: "Reden, lügen, überzeugen, schweigen",
+      ja: "語る、嘘をつく、説得する、沈黙する",
     },
   },
   {
@@ -66,6 +70,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "I difetti umani",
       tr: "İnsan kusurları",
       de: "Die menschlichen Schwächen",
+      ja: "人の弱さ",
     },
     desc: {
       fr: "Mentir, se vanter, esquiver, se trahir",
@@ -74,6 +79,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Mentire, vantarsi, eludere",
       tr: "Yalan söylemek, böbürlenmek",
       de: "Lügen, prahlen, ausweichen, sich verraten",
+      ja: "嘘をつく、自慢する、誤魔化す",
     },
   },
   {
@@ -88,6 +94,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Il tempo & il destino",
       tr: "Zaman & kader",
       de: "Zeit & Schicksal",
+      ja: "時間と運命",
     },
     desc: {
       fr: "Attendre, vieillir, regretter, saisir l'instant",
@@ -96,6 +103,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Aspettare, invecchiare, rimpiangere",
       tr: "Beklemek, yaşlanmak, pişman olmak",
       de: "Warten, altern, bereuen, den Moment ergreifen",
+      ja: "待つ、老いる、後悔する、瞬間をつかむ",
     },
   },
   {
@@ -110,6 +118,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Le tempeste interiori",
       tr: "İç fırtınalar",
       de: "Die inneren Stürme",
+      ja: "心の嵐",
     },
     desc: {
       fr: "Joie, colère, peur, tristesse — et tout ce qui déborde",
@@ -118,6 +127,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Gioia, rabbia, paura, tristezza — e tutto il resto",
       tr: "Sevinç, öfke, korku, üzüntü — ve aralarındaki her şey",
       de: "Freude, Wut, Angst, Trauer — und alles dazwischen",
+      ja: "喜び、怒り、恐れ、悲しみ",
     },
   },
   {
@@ -132,6 +142,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Lo sforzo & le prove",
       tr: "Çaba & zorluk",
       de: "Mühe & Bewährung",
+      ja: "努力と試練",
     },
     desc: {
       fr: "Souffrir, persévérer, tomber, se relever",
@@ -140,6 +151,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Soffrire, resistere, cadere",
       tr: "Acı çekmek, dayanmak, kalkmak",
       de: "Leiden, durchhalten, fallen, wieder aufstehen",
+      ja: "苦しむ、耐える、倒れる、立ち上がる",
     },
   },
   {
@@ -154,6 +166,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Il riso & l'assurdo",
       tr: "Gülüş & saçmalık",
       de: "Lachen & Absurdität",
+      ja: "笑いと不条理",
     },
     desc: {
       fr: "Se moquer, exagérer, tourner en dérision",
@@ -162,6 +175,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Deridere, esagerare, scherzare",
       tr: "Alay etmek, abartmak, hafife almak",
       de: "Spotten, übertreiben, ins Lächerliche ziehen",
+      ja: "からかう、誇張する、笑い飛ばす",
     },
   },
   {
@@ -176,6 +190,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "La fortuna & il rischio",
       tr: "Şans & risk",
       de: "Glück & Risiko",
+      ja: "運とリスク",
     },
     desc: {
       fr: "Tenter, espérer, perdre, rebondir",
@@ -184,6 +199,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Tentare, sperare, perdere",
       tr: "Denemek, ummak, kaybetmek",
       de: "Wagen, hoffen, verlieren, wieder aufstehen",
+      ja: "試みる、望む、失う、立ち直る",
     },
   },
   {
@@ -198,6 +214,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "L'amore & i legami",
       tr: "Aşk & bağlar",
       de: "Liebe & Bindungen",
+      ja: "愛と絆",
     },
     desc: {
       fr: "Aimer, trahir, se perdre, s'attacher",
@@ -206,6 +223,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Amare, tradire, perdersi",
       tr: "Sevmek, ihanet, kaybolmak",
       de: "Lieben, verraten, sich verlieren, sich binden",
+      ja: "愛する、裏切る、迷う、絆を結ぶ",
     },
   },
   {
@@ -220,6 +238,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "La terra & le bestie",
       tr: "Toprak & hayvanlar",
       de: "Erde & Tiere",
+      ja: "大地と生き物",
     },
     desc: {
       fr: "Animaux, saisons, paysages — la nature comme miroir",
@@ -228,6 +247,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Animali, stagioni, paesaggi",
       tr: "Hayvanlar, mevsimler, manzaralar",
       de: "Tiere, Jahreszeiten, Landschaften — die Natur als Spiegel",
+      ja: "動物、季節、風景 — 自然は鏡",
     },
   },
   {
@@ -242,6 +262,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "I piaceri & gli eccessi",
       tr: "Zevkler & aşırılıklar",
       de: "Genuss & Ausschweifungen",
+      ja: "喜びと過剰",
     },
     desc: {
       fr: "Manger, boire, profiter, dépasser les bornes",
@@ -250,6 +271,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Mangiare, bere, godere, esagerare",
       tr: "Yemek, içmek, eğlenmek, aşırıya kaçmak",
       de: "Essen, trinken, genießen, über die Stränge schlagen",
+      ja: "食べる、飲む、楽しむ、度を超す",
     },
   },
   {
@@ -264,6 +286,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Il corpo parla",
       tr: "Konuşan beden",
       de: "Der Körper spricht",
+      ja: "体が語る",
     },
     desc: {
       fr: "Mains, pieds, yeux, ventre — le corps comme langage",
@@ -272,6 +295,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Mani, piedi, occhi — il corpo come linguaggio",
       tr: "Eller, ayaklar, gözler — beden bir dil olarak",
       de: "Hände, Füße, Augen, Bauch — der Körper als Sprache",
+      ja: "手、足、目、腹 — 体という言語",
     },
   },
   {
@@ -286,6 +310,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "La sete di successo",
       tr: "Başarıya olan susuzluk",
       de: "Der Hunger nach Erfolg",
+      ja: "成功への飢え",
     },
     desc: {
       fr: "Vouloir, grimper, dominer, se brûler les ailes",
@@ -294,6 +319,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Volere, salire, dominare",
       tr: "İstemek, tırmanmak, egemen olmak",
       de: "Wollen, aufsteigen, beherrschen, sich die Flügel verbrennen",
+      ja: "求める、昇る、支配する、身を焦がす",
     },
   },
   {
@@ -308,6 +334,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "La guerra & le parole",
       tr: "Savaş & kelimeler",
       de: "Krieg & Worte",
+      ja: "争いと言葉",
     },
     desc: {
       fr: "S'affronter, blesser, résister, se réconcilier",
@@ -316,6 +343,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Scontrarsi, ferire, resistere",
       tr: "Çatışmak, incitmek, direnmek",
       de: "Zusammenstoßen, verletzen, widerstehen, versöhnen",
+      ja: "衝突する、傷つける、抵抗する、和解する",
     },
   },
   {
@@ -330,6 +358,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "I cammini del mondo",
       tr: "Dünyanın yolları",
       de: "Die Wege der Welt",
+      ja: "世界の道",
     },
     desc: {
       fr: "Partir, errer, s'exiler, revenir",
@@ -338,6 +367,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Partire, vagare, esiliarsi, tornare",
       tr: "Gitmek, dolaşmak, sürgüne gitmek, dönmek",
       de: "Aufbrechen, umherirren, ins Exil gehen, zurückkehren",
+      ja: "旅立つ、さまよう、流浪する、帰る",
     },
   },
   {
@@ -352,6 +382,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "I soldi & il successo",
       tr: "Para & başarı",
       de: "Geld & Erfolg",
+      ja: "お金と成功",
     },
     desc: {
       fr: "Gagner, perdre, mériter, gaspiller",
@@ -360,6 +391,7 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       it: "Guadagnare, perdere, meritare",
       tr: "Kazanmak, kaybetmek, hak etmek",
       de: "Verdienen, verlieren, verdienen, verschwenden",
+      ja: "稼ぐ、失う、値する、無駄にする",
     },
   },
 ];

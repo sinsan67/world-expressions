@@ -4,16 +4,16 @@ type LocaleMap = Record<string, string>;
 
 export const TYPE_LABELS: Record<ExpressionType, LocaleMap> = {
   idiom: {
-    fr: "Expression",  en: "Expression", es: "Expresión",  it: "Espressione", tr: "İfade",   de: "Redewendung",
+    fr: "Expression",  en: "Expression", es: "Expresión",  it: "Espressione", tr: "İfade",   de: "Redewendung",  ja: "慣用句",
   },
   word: {
-    fr: "Mot",         en: "Word",       es: "Palabra",    it: "Parola",      tr: "Kelime",  de: "Wort",
+    fr: "Mot",         en: "Word",       es: "Palabra",    it: "Parola",      tr: "Kelime",  de: "Wort",         ja: "言葉",
   },
   proverb: {
-    fr: "Proverbe",    en: "Proverb",    es: "Proverbio",  it: "Proverbio",   tr: "Atasözü", de: "Sprichwort",
+    fr: "Proverbe",    en: "Proverb",    es: "Proverbio",  it: "Proverbio",   tr: "Atasözü", de: "Sprichwort",   ja: "ことわざ",
   },
   locution: {
-    fr: "Locution",    en: "Set phrase", es: "Locución",   it: "Locuzione",   tr: "Deyim",   de: "feste Wendung",
+    fr: "Locution",    en: "Set phrase", es: "Locución",   it: "Locuzione",   tr: "Deyim",   de: "feste Wendung", ja: "成句",
   },
 };
 

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>CUP — Onboarding World Expressions</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f5f3ef;
+    color: #1a1a1a;
+    padding: 2rem;
+  }
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .meta {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 2.5rem;
+  }
+
+  /* FLOW ROW */
+  .flow {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+  .step-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .arrow {
+    margin-top: 2.5rem;
+    font-size: 1.2rem;
+    color: #bbb;
+    padding: 0 0.25rem;
+    flex-shrink: 0;
+  }
+  .arrow.optional {
+    color: #d4c4a8;
+  }
+
+  /* CARD */
+  .card {
+    width: 200px;
+    flex-shrink: 0;
+    background: white;
+    border-radius: 14px;
+    border: 1.5px solid #e8e2d8;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .card.mandatory { border-color: #5c3d8f; }
+  .card.optional-card { border-color: #c8b89a; border-style: dashed; }
+  .card.terminal { border-color: #2a7d4f; }
+
+  .badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    border-radius: 20px;
+    padding: 2px 7px;
+    margin-bottom: 0.5rem;
+  }
+  .badge.mandatory { background: #ede8f7; color: #5c3d8f; }
+  .badge.optional  { background: #f5ede0; color: #8a6030; }
+  .badge.terminal  { background: #e0f2ea; color: #2a7d4f; }
+  .badge.welcome   { background: #e8f4ff; color: #1a5fa8; }
+
+  .step-num {
+    font-size: 9px;
+    font-weight: 700;
+    color: #bbb;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 0.3rem;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 0.3rem;
+    line-height: 1.3;
+  }
+  .card-q {
+    font-size: 11px;
+    color: #666;
+    font-style: italic;
+    margin-bottom: 0.6rem;
+    line-height: 1.4;
+  }
+  .card-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 0.6rem;
+  }
+  .choice {
+    font-size: 10.5px;
+    background: #f5f3ef;
+    border-radius: 6px;
+    padding: 3px 7px;
+    color: #444;
+  }
+  .choice.selected {
+    background: #ede8f7;
+    color: #5c3d8f;
+    font-weight: 600;
+  }
+  .choice.multi {
+    background: #e8f4ff;
+    color: #1a5fa8;
+    font-weight: 600;
+  }
+  .card-note {
+    font-size: 10px;
+    color: #aaa;
+    line-height: 1.4;
+  }
+  .card-note strong { color: #888; }
+  .cta-row {
+    display: flex;
+    gap: 5px;
+    margin-top: 0.6rem;
+  }
+  .btn {
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 4px 10px;
+    border: none;
+    cursor: default;
+  }
+  .btn.primary   { background: #1a1a1a; color: white; }
+  .btn.secondary { background: transparent; border: 1.5px solid #ddd; color: #888; }
+  .btn.skip      { background: transparent; border: 1.5px solid #e8d8c4; color: #b08060; }
+  .btn.finish    { background: #c0392b; color: white; }
+
+  /* SKIP BRANCH */
+  .skip-note {
+    font-size: 10px;
+    color: #c8b89a;
+    margin-top: 3px;
+    text-align: center;
+    font-style: italic;
+  }
+
+  /* ANNOTATIONS ROW */
+  .annotations {
+    margin-top: 2.5rem;
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .annot {
+    background: white;
+    border-radius: 12px;
+    border: 1.5px solid #e8e2d8;
+    padding: 1rem 1.25rem;
+    max-width: 260px;
+    flex: 1;
+  }
+  .annot-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #888;
+    margin-bottom: 0.5rem;
+  }
+  .annot ul {
+    padding-left: 1rem;
+    font-size: 12px;
+    color: #555;
+    line-height: 1.8;
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #666;
+  }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .dot-mandatory { background: #ede8f7; border: 1.5px solid #5c3d8f; }
+  .dot-optional  { background: #f5ede0; border: 1.5px dashed #c8b89a; }
+  .dot-terminal  { background: #e0f2ea; border: 1.5px solid #2a7d4f; }
+</style>
+</head>
+<body>
+
+<h1>Onboarding — World Expressions</h1>
+<p class="meta">CUP · parcours utilisateur après création de compte · v2 (draft 2026-06-09)</p>
+
+<div class="legend">
+  <div class="legend-item">
+    <div class="legend-dot dot-mandatory"></div>
+    Étape obligatoire
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot dot-optional"></div>
+    Étape optionnelle (skippable)
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot dot-terminal"></div>
+    Fin du parcours
+  </div>
+</div>
+
+<div class="flow">
+
+  <!-- STEP 0: WELCOME -->
+  <div class="step-wrap">
+    <div class="card">
+      <span class="badge welcome">Welcome</span>
+      <div class="step-num">Étape 0</div>
+      <div class="card-title">Accueil</div>
+      <div class="card-q">"Hello, [Prénom] ! Paramètre ton expérience en 40 secondes."</div>
+      <div class="card-note">
+        Affiche le prénom depuis le compte.<br>
+        Promesse claire sur la durée.
+      </div>
+      <div class="cta-row">
+        <button class="btn secondary">Skip</button>
+        <button class="btn primary">Let's go →</button>
+      </div>
+    </div>
+    <div class="arrow">→</div>
+  </div>
+
+  <!-- STEP 1: INTERFACE LANGUAGE (mandatory) -->
+  <div class="step-wrap">
+    <div class="card mandatory">
+      <span class="badge mandatory">Obligatoire</span>
+      <div class="step-num">Étape 1 / 4</div>
+      <div class="card-title">Langue d'interface</div>
+      <div class="card-q">"In which language do you want explanations?"</div>
+      <div class="card-choices">
+        <div class="choice">🇬🇧 English</div>
+        <div class="choice selected">🇫🇷 Français ✓</div>
+        <div class="choice">🇪🇸 Español</div>
+        <div class="choice">🇮🇹 Italiano</div>
+        <div class="choice">🇹🇷 Türkçe</div>
+        <div class="choice">🇩🇪 Deutsch</div>
+      </div>
+      <div class="cta-row">
+        <button class="btn secondary">← Back</button>
+        <button class="btn primary">Next →</button>
+      </div>
+      <div class="card-note" style="margin-top:6px;"><strong>Pourquoi obligatoire :</strong> conditionne l'UI entière dès la 1ère page.</div>
+    </div>
+    <div class="arrow">→</div>
+  </div>
+
+  <!-- STEP 2: NATIVE LANGUAGE (optional) -->
+  <div class="step-wrap">
+    <div class="card optional-card">
+      <span class="badge optional">Optionnel</span>
+      <div class="step-num">Étape 2 / 4</div>
+      <div class="card-title">Langue maternelle</div>
+      <div class="card-q">"What's your native language?"</div>
+      <div class="card-choices">
+        <div class="choice">🇬🇧 English</div>
+        <div class="choice selected">🇫🇷 Français ✓</div>
+        <div class="choice">🇪🇸 Español</div>
+        <div class="choice">🇮🇹 Italiano</div>
+        <div class="choice">🇹🇷 Türkçe</div>
+        <div class="choice">🇩🇪 Deutsch</div>
+        <div class="choice">— Autre</div>
+      </div>
+      <div class="cta-row">
+        <button class="btn skip">Skip</button>
+        <button class="btn primary">Next →</button>
+      </div>
+      <div class="card-note" style="margin-top:6px;"><strong>Pourquoi :</strong> pré-sélectionne "l'équivalent dans ta langue" sur les cartes d'expressions.</div>
+    </div>
+    <div class="arrow optional">→</div>
+  </div>
+
+  <!-- STEP 3: LANGUAGES TO EXPLORE (optional) -->
+  <div class="step-wrap">
+    <div class="card optional-card">
+      <span class="badge optional">Optionnel</span>
+      <div class="step-num">Étape 3 / 4</div>
+      <div class="card-title">Langues à explorer</div>
+      <div class="card-q">"Which languages fascinate you? (Pick up to 3)"</div>
+      <div class="card-choices">
+        <div class="choice multi">🇬🇧 English ✓</div>
+        <div class="choice">🇫🇷 Français</div>
+        <div class="choice multi">🇯🇵 Japanese ✓</div>
+        <div class="choice">🇪🇸 Español</div>
+        <div class="choice multi">🇹🇷 Türkçe ✓</div>
+        <div class="choice">🇩🇪 Deutsch</div>
+        <div class="choice">🇮🇹 Italiano</div>
+      </div>
+      <div class="cta-row">
+        <button class="btn skip">Skip</button>
+        <button class="btn primary">Next →</button>
+      </div>
+      <div class="card-note" style="margin-top:6px;"><strong>Pourquoi :</strong> personnalise la page d'accueil (expressions mises en avant) et le mode Explore.</div>
+    </div>
+    <div class="arrow optional">→</div>
+  </div>
+
+  <!-- STEP 4: GOAL / VIBE (optional) -->
+  <div class="step-wrap">
+    <div class="card optional-card">
+      <span class="badge optional">Optionnel</span>
+      <div class="step-num">Étape 4 / 4</div>
+      <div class="card-title">Pourquoi tu es là</div>
+      <div class="card-q">"What brings you here?"</div>
+      <div class="card-choices">
+        <div class="choice selected">🌍 Curious explorer ✓</div>
+        <div class="choice">📚 Learning a language</div>
+        <div class="choice">🔤 Language nerd</div>
+        <div class="choice">👩‍🏫 Teacher / Educator</div>
+      </div>
+      <div class="cta-row">
+        <button class="btn skip">Skip</button>
+        <button class="btn primary">Next →</button>
+      </div>
+      <div class="card-note" style="margin-top:6px;"><strong>Pourquoi :</strong> analytics + futur contenu adapté (ex. exercices si "learning").</div>
+    </div>
+    <div class="arrow">→</div>
+  </div>
+
+  <!-- STEP 5: ALL SET -->
+  <div class="step-wrap">
+    <div class="card terminal">
+      <span class="badge terminal">Fin</span>
+      <div class="step-num">Étape finale</div>
+      <div class="card-title">Tout est prêt</div>
+      <div class="card-q">"Your notebook is ready. Explore!"</div>
+      <div class="card-note">
+        Résumé visuel des choix faits.<br><br>
+        "You can edit these anytime in your profile."
+      </div>
+      <div class="cta-row">
+        <button class="btn finish">Start exploring →</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SKIP PATHS NOTE -->
+<p style="font-size:11px; color:#b08060; margin-top:0.75rem;">
+  ⎋ &nbsp; Skip sur l'étape 0 (Welcome) → saute tout le parcours et va directement à l'accueil. Les étapes 2-4 sont individuellement skippables.
+</p>
+
+<!-- ANNOTATIONS -->
+<div class="annotations">
+
+  <div class="annot">
+    <div class="annot-title">Ce qui change vs v1</div>
+    <ul>
+      <li>Ajout de 3 nouvelles étapes (2, 3, 4)</li>
+      <li>Étape 1 reste obligatoire, les nouvelles sont optionnelles</li>
+      <li>Compteur mis à jour : "Étape X / 4"</li>
+      <li>Barre de progression visuelle à ajouter</li>
+    </ul>
+  </div>
+
+  <div class="annot">
+    <div class="annot-title">Données collectées → DB</div>
+    <ul>
+      <li><strong>ui_lang</strong> — déjà en DB ✓</li>
+      <li><strong>native_lang</strong> — colonne à ajouter (users)</li>
+      <li><strong>explore_langs</strong> — tableau JSON (users) ou table pivot</li>
+      <li><strong>user_goal</strong> — enum à ajouter (users)</li>
+    </ul>
+  </div>
+
+  <div class="annot">
+    <div class="annot-title">Questions ouvertes</div>
+    <ul>
+      <li>Étape 2 : faut-il une option "Autre" avec champ libre ?</li>
+      <li>Étape 3 : inclure des langues hors DB (japonais, arabe…) pour anticiper V5 ?</li>
+      <li>Étape 4 : 4 profils suffisent ? "Voyageur" manque peut-être.</li>
+      <li>Progression : barre linéaire ou dots ?</li>
+    </ul>
+  </div>
+
+  <div class="annot">
+    <div class="annot-title">Priorité d'implémentation</div>
+    <ul>
+      <li>Étape 2 (langue maternelle) → impact immédiat sur les cartes</li>
+      <li>Étape 3 (langues à explorer) → utile avant la page Explore v2</li>
+      <li>Étape 4 (profil) → analytics, peut attendre</li>
+    </ul>
+  </div>
+
+</div>
+
+</body>
+</html>
