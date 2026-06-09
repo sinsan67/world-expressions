@@ -28,7 +28,6 @@ import json
 import time
 import argparse
 from pathlib import Path
-from itertools import permutations
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -48,6 +47,11 @@ from config import engine
 MODEL = "mistral-small-latest"
 
 SUPPORTED = ["fr", "en", "es", "it", "tr", "de"]
+
+# Ordre de traitement pour --all-pairs :
+# on finit TOUTES les traductions d'une langue source avant de passer à la suivante.
+# fr en entier → en en entier → es en entier → it en entier → tr en entier → de en entier
+SOURCE_ORDER = ["fr", "en", "es", "it", "tr", "de"]
 
 LANG_NAMES = {
     "fr": {"en": "French",  "native": "français"},
@@ -387,7 +391,14 @@ def main():
 
     # Construire la liste des paires à traiter
     if args.all_pairs:
-        pairs = list(permutations(SUPPORTED, 2))
+        # Ordre garanti : fr en entier, puis en en entier, puis es, it, tr, de.
+        # Pour chaque source, toutes les cibles sont traitées avant de passer à la suivante.
+        pairs = [
+            (src, tgt)
+            for src in SOURCE_ORDER
+            for tgt in SOURCE_ORDER
+            if src != tgt
+        ]
     elif args.source and args.target == "all":
         pairs = [(args.source, t) for t in SUPPORTED if t != args.source]
     elif args.source and args.target:
