@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instagram — Lancement Proverbes</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 1080px;
+      min-height: 1080px;
+      background: linear-gradient(150deg, #fdf8ee 0%, #f0ebff 55%, #e4f0ff 100%);
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 44px 56px 40px;
+      gap: 0;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 32px;
+    }
+
+    .logo-badge {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: white;
+      border: 1.5px solid rgba(107,77,143,0.18);
+      border-radius: 99px;
+      padding: 6px 18px 6px 12px;
+      box-shadow: 0 2px 12px rgba(107,77,143,0.10);
+    }
+
+    .logo-globe { font-size: 22px; }
+
+    .logo-name {
+      font-family: 'Fraunces', serif;
+      font-size: 17px;
+      color: #6b4d8f;
+      letter-spacing: 0.01em;
+    }
+
+    .tagline {
+      font-size: 13.5px;
+      color: #8a7a9b;
+      font-style: italic;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── New badge ── */
+    .new-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #6b4d8f, #9b6fbf);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 99px;
+      margin-bottom: 4px;
+    }
+
+    /* ── Devices area ── */
+    .devices {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 32px;
+      width: 100%;
+    }
+
+    /* ── Desktop browser frame ── */
+    .desktop-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      max-width: 572px;
+    }
+
+    .browser-frame {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(30,10,60,0.16), 0 2px 8px rgba(30,10,60,0.08);
+      border: 1.5px solid rgba(255,255,255,0.8);
+    }
+
+    .browser-chrome {
+      height: 38px;
+      background: #f0eeea;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 8px;
+      border-bottom: 1px solid #e0dcd5;
+    }
+
+    .dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+
+    .url-bar {
+      flex: 1;
+      background: white;
+      border-radius: 6px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 5px;
+      font-size: 10.5px;
+      color: #666;
+      border: 1px solid #e0dcd5;
+      margin: 0 10px;
+    }
+
+    .url-lock { color: #28c840; font-size: 10px; }
+
+    .browser-content {
+      background: #fdf8ee;
+      padding: 20px 18px 18px;
+    }
+
+    /* ── Page header inside browser ── */
+    .page-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .page-title {
+      font-family: 'Fraunces', serif;
+      font-size: 17px;
+      color: #1c1410;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .page-tag {
+      font-size: 9.5px;
+      background: linear-gradient(135deg,#6b4d8f22,#9b6fbf22);
+      color: #6b4d8f;
+      border: 1px solid #6b4d8f33;
+      border-radius: 99px;
+      padding: 2px 9px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Featured concept block ── */
+    .concept-block {
+      background: white;
+      border-radius: 12px;
+      padding: 14px 16px 12px;
+      border: 1px solid #e8e0f0;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 12px rgba(107,77,143,0.06);
+    }
+
+    .concept-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #9b8fa8;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .concept-name {
+      font-family: 'Fraunces', serif;
+      font-size: 14px;
+      color: #4a3d5a;
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+
+    .lang-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .lang-pill {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #f8f4ff;
+      border: 1px solid #ddd0f0;
+      border-radius: 99px;
+      padding: 3px 9px 3px 7px;
+      font-size: 9px;
+      color: #6b4d8f;
+      font-weight: 500;
+    }
+
+    /* ── Proverb cards grid ── */
+    .proverb-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .proverb-card {
+      border-radius: 10px;
+      padding: 12px 13px 11px;
+      border: 1.5px solid rgba(255,255,255,0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .proverb-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .card-fr  { background: linear-gradient(145deg, #fff8f0 0%, #ffe8cc 100%); }
+    .card-fr::before  { background: linear-gradient(90deg, #f97316, #fb923c); }
+
+    .card-en  { background: linear-gradient(145deg, #f0f9ff 0%, #bae6fd 100%); }
+    .card-en::before  { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+
+    .card-de  { background: linear-gradient(145deg, #f0fdf4 0%, #bbf7d0 100%); }
+    .card-de::before  { background: linear-gradient(90deg, #16a34a, #4ade80); }
+
+    .card-tr  { background: linear-gradient(145deg, #fff1f2 0%, #fecdd3 100%); }
+    .card-tr::before  { background: linear-gradient(90deg, #dc2626, #f87171); }
+
+    .card-lang {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 7px;
+    }
+
+    .flag { font-size: 14px; }
+
+    .lang-name {
+      font-size: 9px;
+      font-weight: 700;
+      color: #4a3d5a;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .proverb-text {
+      font-family: 'Fraunces', serif;
+      font-size: 11.5px;
+      color: #1c1410;
+      font-style: italic;
+      line-height: 1.4;
+      margin-bottom: 5px;
+    }
+
+    .proverb-meaning {
+      font-size: 9px;
+      color: #6a5a78;
+      line-height: 1.4;
+    }
+
+    .equiv-label {
+      font-size: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9b8fa8;
+      margin-top: 6px;
+      margin-bottom: 2px;
+      font-weight: 600;
+    }
+
+    .equiv-text {
+      font-size: 9px;
+      color: #6b4d8f;
+      font-weight: 500;
+      font-style: italic;
+    }
+
+    /* ── Device labels ── */
+    .device-label {
+      font-size: 11px;
+      color: #9b8fa8;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* ── Mobile frame ── */
+    .mobile-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .phone-outer {
+      width: 215px;
+      border-radius: 40px;
+      background: #1a1a1f;
+      padding: 12px 8px;
+      box-shadow: 0 24px 64px rgba(30,10,60,0.22), 0 2px 8px rgba(30,10,60,0.1);
+    }
+
+    .phone-inner {
+      border-radius: 30px;
+      overflow: hidden;
+      background: #fdf8ee;
+      position: relative;
+    }
+
+    .dynamic-island {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 72px;
+      height: 24px;
+      background: #1a1a1f;
+      border-radius: 20px;
+      z-index: 10;
+    }
+
+    .phone-status {
+      height: 32px;
+      background: #fdf8ee;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+    }
+
+    .phone-status-left {
+      font-size: 9px;
+      font-weight: 700;
+      color: #1c1410;
+    }
+
+    .phone-content {
+      background: #fdf8ee;
+      padding: 10px 12px 14px;
+    }
+
+    .mobile-back {
+      font-size: 8.5px;
+      color: #6b4d8f;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    /* ── Mobile featured proverb card ── */
+    .mobile-hero-card {
+      background: linear-gradient(145deg, #fff8f0 0%, #ffe0b2 100%);
+      border-radius: 14px;
+      padding: 14px 13px 12px;
+      border: 1.5px solid #ffd09080;
+      margin-bottom: 9px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mobile-hero-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #f97316, #fb923c);
+      border-radius: 14px 14px 0 0;
+    }
+
+    .mobile-flag-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+
+    .mobile-flag { font-size: 16px; }
+    .mobile-lang-name { font-size: 9px; font-weight: 700; color: #6a5a78; text-transform: uppercase; letter-spacing: 0.07em; }
+    .mobile-kind { font-size: 8px; color: #9b8fa8; background: #fff4ea; border: 1px solid #ffd0a0; border-radius: 99px; padding: 1px 7px; }
+
+    .mobile-proverb-text {
+      font-family: 'Fraunces', serif;
+      font-size: 13.5px;
+      color: #1c1410;
+      font-style: italic;
+      line-height: 1.45;
+      margin-bottom: 7px;
+    }
+
+    .mobile-meaning {
+      font-size: 9px;
+      color: #6a5a78;
+      line-height: 1.5;
+      margin-bottom: 9px;
+    }
+
+    .mobile-equiv-block {
+      background: white;
+      border-radius: 8px;
+      padding: 8px 10px;
+      border: 1px solid #e8d8f8;
+    }
+
+    .mobile-equiv-label {
+      font-size: 7.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #9b8fa8;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .mobile-equiv-flag { font-size: 12px; }
+
+    .mobile-equiv-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .mobile-equiv-text {
+      font-family: 'Fraunces', serif;
+      font-size: 11px;
+      color: #6b4d8f;
+      font-style: italic;
+    }
+
+    /* ── Smaller proverb teaser cards on mobile ── */
+    .mobile-teasers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .mobile-teaser {
+      border-radius: 9px;
+      padding: 9px 9px 8px;
+    }
+
+    .mobile-teaser-flag { font-size: 13px; display: block; margin-bottom: 4px; }
+    .mobile-teaser-text { font-family: 'Fraunces', serif; font-size: 9px; color: #1c1410; font-style: italic; line-height: 1.35; }
+
+    /* ── Bottom caption ── */
+    .bottom {
+      margin-top: 26px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .bottom-claim {
+      font-family: 'Fraunces', serif;
+      font-size: 19px;
+      color: #1c1410;
+      font-style: italic;
+    }
+
+    .bottom-sub {
+      font-size: 12px;
+      color: #8a7a9b;
+    }
+
+    .bottom-url {
+      font-size: 12px;
+      color: #6b4d8f;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <span class="new-badge">✦ nouveauté</span>
+    <div class="logo-badge">
+      <span class="logo-globe">🌍</span>
+      <span class="logo-name">World Expressions</span>
+    </div>
+    <span class="tagline">La même sagesse. Des images radicalement différentes.</span>
+  </div>
+
+  <!-- Devices -->
+  <div class="devices">
+
+    <!-- Desktop frame -->
+    <div class="desktop-wrap">
+      <div class="browser-frame">
+        <div class="browser-chrome">
+          <span class="dot dot-r"></span>
+          <span class="dot dot-y"></span>
+          <span class="dot dot-g"></span>
+          <div class="url-bar">
+            <span class="url-lock">🔒</span>
+            worldexpressions.app/proverbs
+          </div>
+        </div>
+        <div class="browser-content">
+          <div class="page-header">
+            <span class="page-title">
+              Proverbes
+              <span class="page-tag">6 langues · 700+ proverbes</span>
+            </span>
+          </div>
+
+          <!-- Concept block -->
+          <div class="concept-block">
+            <div class="concept-label">Un concept · Six cultures</div>
+            <div class="concept-name">« Les apparences sont trompeuses »</div>
+            <div class="lang-pills">
+              <span class="lang-pill">🇫🇷 français</span>
+              <span class="lang-pill">🇬🇧 anglais</span>
+              <span class="lang-pill">🇩🇪 allemand</span>
+              <span class="lang-pill">🇹🇷 turc</span>
+            </div>
+          </div>
+
+          <!-- 4 proverb cards 2x2 -->
+          <div class="proverb-grid">
+
+            <!-- FR -->
+            <div class="proverb-card card-fr">
+              <div class="card-lang">
+                <span class="flag">🇫🇷</span>
+                <span class="lang-name">Français</span>
+              </div>
+              <div class="proverb-text">L'habit ne fait pas le moine.</div>
+              <div class="proverb-meaning">L'apparence extérieure ne reflète pas la vraie nature d'une personne.</div>
+            </div>
+
+            <!-- EN -->
+            <div class="proverb-card card-en">
+              <div class="card-lang">
+                <span class="flag">🇬🇧</span>
+                <span class="lang-name">English</span>
+              </div>
+              <div class="proverb-text">Don't judge a book by its cover.</div>
+              <div class="proverb-meaning">Appearances can be deceptive — judge by content, not looks.</div>
+            </div>
+
+            <!-- DE -->
+            <div class="proverb-card card-de">
+              <div class="card-lang">
+                <span class="flag">🇩🇪</span>
+                <span class="lang-name">Deutsch</span>
+              </div>
+              <div class="proverb-text">Der Schein trügt.</div>
+              <div class="proverb-meaning">L'apparence trompe. Aussi court que définitif.</div>
+              <div class="equiv-label">nuance</div>
+              <div class="equiv-text">« Kleider machen Leute » dit l'inverse…</div>
+            </div>
+
+            <!-- TR -->
+            <div class="proverb-card card-tr">
+              <div class="card-lang">
+                <span class="flag">🇹🇷</span>
+                <span class="lang-name">Türkçe</span>
+              </div>
+              <div class="proverb-text">Süslü leyleği bataklıktan çıkarmaz.</div>
+              <div class="proverb-meaning">Orner la cigogne ne la sort pas du marécage.</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <span class="device-label">desktop</span>
+    </div>
+
+    <!-- Mobile frame -->
+    <div class="mobile-wrap">
+      <div class="phone-outer">
+        <div class="phone-inner">
+          <div class="dynamic-island"></div>
+          <div class="phone-status">
+            <span class="phone-status-left">9:41</span>
+          </div>
+          <div class="phone-content">
+
+            <div class="mobile-back">← Proverbes</div>
+
+            <!-- Hero FR proverb -->
+            <div class="mobile-hero-card">
+              <div class="mobile-flag-row">
+                <span class="mobile-flag">🇫🇷</span>
+                <span class="mobile-lang-name">Français</span>
+                <span class="mobile-kind">proverbe</span>
+              </div>
+              <div class="mobile-proverb-text">L'habit ne fait pas le moine.</div>
+              <div class="mobile-meaning">L'apparence extérieure ne dit rien de la vraie nature d'une personne.</div>
+
+              <!-- Equivalent -->
+              <div class="mobile-equiv-block">
+                <div class="mobile-equiv-label">Équivalent anglais</div>
+                <div class="mobile-equiv-row">
+                  <span class="mobile-equiv-flag">🇬🇧</span>
+                  <span class="mobile-equiv-text">Don't judge a book by its cover.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Two teaser cards below -->
+            <div class="mobile-teasers">
+              <div class="mobile-teaser" style="background:linear-gradient(145deg,#f0fdf4,#bbf7d0)">
+                <span class="mobile-teaser-flag">🇩🇪</span>
+                <span class="mobile-teaser-text">Der Schein trügt.</span>
+              </div>
+              <div class="mobile-teaser" style="background:linear-gradient(145deg,#fff1f2,#fecdd3)">
+                <span class="mobile-teaser-flag">🇹🇷</span>
+                <span class="mobile-teaser-text">Süslü leyleği bataklıktan çıkarmaz.</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <span class="device-label">mobile</span>
+    </div>
+
+  </div><!-- /devices -->
+
+  <!-- Bottom -->
+  <div class="bottom">
+    <span class="bottom-claim">700+ proverbes. 6 langues. Une sagesse universelle.</span>
+    <span class="bottom-sub">Chaque culture dit la même chose avec des mots complètement différents.</span>
+    <span class="bottom-url">worldexpressions.app</span>
+  </div>
+
+</body>
+</html>
