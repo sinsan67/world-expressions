@@ -15,7 +15,7 @@ labels: feature
 ## Comment tester
 
 - **Staging :** https://world-expressions-git-staging-ssinanusa-gmailcoms-projects.vercel.app
-- **Prod :** https://world-expressions.vercel.app
+- **Prod :** https://worldexpressions.app
 - [décrire les étapes de test manuelles]
 
 ---

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-const SITE = "https://world-expressions.vercel.app";
+const SITE = "https://worldexpressions.app";
 
 type Props = {
   params: Promise<{ id: string }>;

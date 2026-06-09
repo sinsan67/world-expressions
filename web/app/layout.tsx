@@ -26,7 +26,7 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://world-expressions.vercel.app"),
+  metadataBase: new URL("https://worldexpressions.app"),
   title: "World Expressions",
   description: "Every language has its own madness.",
   icons: {
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "World Expressions",
     description: "Every language has its own madness.",
-    url: "https://world-expressions.vercel.app",
+    url: "https://worldexpressions.app",
     siteName: "World Expressions",
     type: "website",
   },

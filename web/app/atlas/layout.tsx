@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Atlas — World Expressions",
     description: "Explore idiomatic expressions from every country. Browse France, UK, USA, Spain, Turkey, Italy and more.",
-    url: "https://world-expressions.vercel.app/atlas",
+    url: "https://worldexpressions.app/atlas",
     type: "website",
   },
 };

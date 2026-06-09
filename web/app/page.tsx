@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import HomePage from "./HomePage";
 
-const SITE = "https://world-expressions.vercel.app";
+const SITE = "https://worldexpressions.app";
 
 const OG_DESCRIPTIONS: Record<string, string> = {
   fr: "Chaque langue a sa propre folie.",

@@ -4,7 +4,7 @@
 
 A web app for exploring idiomatic expressions across languages and regions of the world — designed to be intuitive, navigable, fun, and a little bit surprising.
 
-Live: [world-expressions.vercel.app](https://world-expressions.vercel.app)
+Live: [worldexpressions.app](https://worldexpressions.app)
 
 ---
 

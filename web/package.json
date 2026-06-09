@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test:e2e": "playwright test",
     "test:e2e:staging": "BASE_URL=https://world-expressions-git-staging-ssinanusa-gmailcoms-projects.vercel.app playwright test",
-    "test:e2e:prod": "BASE_URL=https://world-expressions.vercel.app playwright test",
+    "test:e2e:prod": "BASE_URL=https://worldexpressions.app playwright test",
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
