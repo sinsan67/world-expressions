@@ -7,6 +7,7 @@ type View = "login" | "register" | "forgot";
 
 interface Props {
   onClose: () => void;
+  defaultView?: View;
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -63,8 +64,8 @@ const GoogleIcon = () => (
   </svg>
 );
 
-export default function AuthModal({ onClose }: Props) {
-  const [view, setView] = useState<View>("login");
+export default function AuthModal({ onClose, defaultView = "login" }: Props) {
+  const [view, setView] = useState<View>(defaultView);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -109,7 +110,7 @@ export default function AuthModal({ onClose }: Props) {
       if (!res.ok) {
         setError(data.detail ?? "Registration failed.");
       } else {
-        setSuccess("Account created! Check your email to verify your address.");
+        setSuccess("Account created! Check your email to verify your address. (If you don't see it, check your spam folder.)");
       }
     } catch {
       setError("Network error. Please try again.");

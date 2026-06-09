@@ -8,31 +8,57 @@ export default function AuthButton() {
   const { data: session, status } = useSession();
   const [imgError, setImgError] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [modalView, setModalView] = useState<"login" | "register">("login");
 
   if (status === "loading") return null;
+
+  function openLogin() { setModalView("login"); setShowModal(true); }
+  function openRegister() { setModalView("register"); setShowModal(true); }
 
   if (!session) {
     return (
       <>
-        <button
-          onClick={() => setShowModal(true)}
-          style={{
-            fontSize: 11,
-            fontWeight: 700,
-            padding: "2px 9px",
-            borderRadius: "var(--r-pill)",
-            border: "1.5px solid var(--paper-edge)",
-            background: "transparent",
-            color: "var(--ink-soft)",
-            cursor: "pointer",
-            fontFamily: "var(--font-body)",
-            transition: "all 120ms ease",
-            whiteSpace: "nowrap",
-          }}
-        >
-          Sign in
-        </button>
-        {showModal && <AuthModal onClose={() => setShowModal(false)} />}
+        <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
+          <button
+            onClick={openLogin}
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              padding: "2px 9px",
+              borderRadius: "var(--r-pill)",
+              border: "1.5px solid var(--paper-edge)",
+              background: "transparent",
+              color: "var(--ink-soft)",
+              cursor: "pointer",
+              fontFamily: "var(--font-body)",
+              transition: "all 120ms ease",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Sign in
+          </button>
+          <button
+            onClick={openRegister}
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              padding: "2px 9px",
+              borderRadius: "var(--r-pill)",
+              border: "none",
+              background: "var(--plum)",
+              color: "#fff",
+              cursor: "pointer",
+              fontFamily: "var(--font-body)",
+              transition: "all 120ms ease",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Sign up
+          </button>
+        </div>
+        {showModal && (
+          <AuthModal defaultView={modalView} onClose={() => setShowModal(false)} />
+        )}
       </>
     );
   }
