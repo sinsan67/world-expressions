@@ -46,7 +46,8 @@ LANG_NAMES = {
     "es": {"en": "Spanish", "fr": "espagnol",  "es": "español",   "it": "spagnolo",  "tr": "İspanyolca","de": "Spanisch"},
     "it": {"en": "Italian", "fr": "italien",   "es": "italiano",  "it": "italiano",  "tr": "İtalyanca", "de": "Italienisch"},
     "tr": {"en": "Turkish", "fr": "turc",      "es": "turco",     "it": "turco",     "tr": "Türkçe",    "de": "Türkisch"},
-    "de": {"en": "German",  "fr": "allemand",  "es": "alemán",    "it": "tedesco",   "tr": "Almanca",   "de": "Deutsch"},
+    "de": {"en": "German",  "fr": "allemand",  "es": "alemán",    "it": "tedesco",   "tr": "Almanca",   "de": "Deutsch",   "ja": "ドイツ語"},
+    "ja": {"en": "Japanese","fr": "japonais",  "es": "japonés",   "it": "giapponese","tr": "Japonca",   "de": "Japanisch", "ja": "日本語"},
 }
 
 # Langue dans laquelle répondre (nom complet pour Mistral)
@@ -57,6 +58,7 @@ TARGET_LANG_FULL = {
     "it": "Italian",
     "tr": "Turkish",
     "de": "German",
+    "ja": "Japanese",
 }
 
 
