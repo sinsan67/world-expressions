@@ -3,6 +3,7 @@ export const FLAG: Record<string, string> = {
   es: "🇪🇸", tr: "🇹🇷", it: "🇮🇹", de: "🇩🇪", jp: "🇯🇵",
   ar: "🇦🇷", mx: "🇲🇽", co: "🇨🇴", cl: "🇨🇱",
   pe: "🇵🇪", cu: "🇨🇺", ve: "🇻🇪",
+  en: "🌐",
 };
 
 export const COUNTRY_NAME: Record<string, string> = {
@@ -10,6 +11,7 @@ export const COUNTRY_NAME: Record<string, string> = {
   es: "España", tr: "Türkiye", it: "Italia", de: "Deutschland", jp: "日本",
   ar: "Argentina", mx: "México", co: "Colombia", cl: "Chile",
   pe: "Perú", cu: "Cuba", ve: "Venezuela",
+  en: "English",
 };
 
 export const COUNTRY_GRADIENT: Record<string, string> = {
