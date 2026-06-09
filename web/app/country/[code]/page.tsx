@@ -31,6 +31,10 @@ const REGION_LANG: Record<string, string> = {
   tr: "tr", it: "it",
 };
 
+// Countries where code === language code: filter by language (shows all expressions in that language).
+// Others (uk, us, au, mx, ar…) filter by region to show country-specific expressions only.
+const PRIMARY_LANG_COUNTRIES = new Set(["es", "fr", "tr", "it", "de", "ja"]);
+
 const REGION_GRADIENTS: Record<string, string> = {
   fr: "linear-gradient(135deg, #8da7c4 0%, #c5cfe8 40%, #d4a0a8 100%)",
   uk: "linear-gradient(135deg, #7a8fb5 0%, #b5c0d8 45%, #c49090 100%)",
@@ -200,11 +204,16 @@ function CountryPageContent({ code }: { code: string }) {
       .catch(() => {});
   }, [lang, uiLang]);
 
+  const isPrimaryLang = PRIMARY_LANG_COUNTRIES.has(code);
+  const regionFilter = isPrimaryLang ? [] : [code];
+  const languageFilter = isPrimaryLang ? lang : undefined;
+
   const fetchTypeCounts = useCallback(
     async (tag: string | null, query: string | null) => {
-      const counts = await getTypeCounts([code], tag ? [tag] : [], query ?? "").catch(() => null);
+      const counts = await getTypeCounts(regionFilter, tag ? [tag] : [], query ?? "", languageFilter).catch(() => null);
       if (counts) setTypeCounts(counts);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [code]
   );
 
@@ -216,16 +225,17 @@ function CountryPageContent({ code }: { code: string }) {
     async (tag: string | null, query: string | null, offset: number, tf: string | null = null) => {
       const typeParam = tf || undefined;
       if (query && query.trim()) {
-        const r = await searchExpressions(query.trim(), [code], LIMIT, offset, typeParam, uiLang);
+        const r = await searchExpressions(query.trim(), regionFilter, LIMIT, offset, typeParam, uiLang, languageFilter);
         return { results: r.results, total: r.total };
       }
       if (tag) {
-        const r = await searchByConcept([tag], [code], LIMIT, offset, typeParam, uiLang);
+        const r = await searchByConcept([tag], regionFilter, LIMIT, offset, typeParam, uiLang, languageFilter);
         return { results: r.results, total: r.total };
       }
-      const r = await browseByRegion([code], LIMIT, offset, typeParam, uiLang);
+      const r = await browseByRegion(regionFilter, LIMIT, offset, typeParam, uiLang, languageFilter);
       return { results: r.results, total: r.total };
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [code, uiLang]
   );
 

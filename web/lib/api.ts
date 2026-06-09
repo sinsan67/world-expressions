@@ -68,7 +68,8 @@ export async function searchExpressions(
   limit = 20,
   offset = 0,
   typeFilter?: string,
-  lang?: string
+  lang?: string,
+  language?: string
 ): Promise<SearchResponse> {
   const params = new URLSearchParams({
     q: query,
@@ -78,6 +79,7 @@ export async function searchExpressions(
   });
   if (typeFilter) params.set("type_filter", typeFilter);
   if (lang) params.set("locale", lang);
+  if (language) params.set("language", language);
   const res = await fetch(`${API}/search?${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();
@@ -89,7 +91,8 @@ export async function searchByConcept(
   limit = 20,
   offset = 0,
   typeFilter?: string,
-  lang?: string
+  lang?: string,
+  language?: string
 ): Promise<ConceptResponse> {
   const params = new URLSearchParams({
     tags: tags.join(","),
@@ -99,6 +102,7 @@ export async function searchByConcept(
   });
   if (typeFilter) params.set("type_filter", typeFilter);
   if (lang) params.set("locale", lang);
+  if (language) params.set("language", language);
   const res = await fetch(`${API}/concept?${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();
@@ -130,7 +134,8 @@ export async function browseByRegion(
   limit = 20,
   offset = 0,
   typeFilter?: string,
-  lang?: string
+  lang?: string,
+  language?: string
 ): Promise<SearchResponse> {
   const params = new URLSearchParams({
     region: regions.join(","),
@@ -139,6 +144,7 @@ export async function browseByRegion(
   });
   if (typeFilter) params.set("type_filter", typeFilter);
   if (lang) params.set("locale", lang);
+  if (language) params.set("language", language);
   const res = await fetch(`${API}/browse?${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();
@@ -213,12 +219,14 @@ export type TypeCounts = {
 export async function getTypeCounts(
   regions: string[] = [],
   tags: string[] = [],
-  query = ""
+  query = "",
+  language?: string
 ): Promise<TypeCounts> {
   const params = new URLSearchParams();
   if (regions.length) params.set("region", regions.join(","));
   if (tags.length) params.set("tag", tags.join(","));
   if (query) params.set("q", query);
+  if (language) params.set("language", language);
   const res = await fetch(`${API}/type-counts?${params}`);
   if (!res.ok) return { idiom: 0, proverb: 0, locution: 0, word: 0 };
   return res.json();
