@@ -12,7 +12,7 @@ import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { LANG_FLAG, LANG_NATIVE } from "@/lib/langDefs";
 import { getConcepts } from "@/lib/api";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
 type TagEntry = { slug: string; name: string; count: number };
 
 const LANG_FILTER_OPTIONS: { value: string }[] = [
@@ -22,13 +22,14 @@ const LANG_FILTER_OPTIONS: { value: string }[] = [
   { value: "es" },
   { value: "it" },
   { value: "tr" },
+  { value: "de" },
 ];
 
-const KIND_OPTIONS: { value: string; labels: Record<UILang, string> }[] = [
-  { value: "", labels: { fr: "Tous", en: "All", es: "Todos", it: "Tutti", tr: "Tümü" } },
-  { value: "idiom", labels: { fr: "Expression", en: "Expression", es: "Expresión", it: "Espressione", tr: "İfade" } },
-  { value: "proverb", labels: { fr: "Proverbe", en: "Proverb", es: "Proverbio", it: "Proverbio", tr: "Atasözü" } },
-  { value: "locution", labels: { fr: "Locution", en: "Set phrase", es: "Locución", it: "Locuzione", tr: "Deyim" } },
+const KIND_OPTIONS: { value: string; labels: Record<string, string> }[] = [
+  { value: "", labels: { fr: "Tous", en: "All", es: "Todos", it: "Tutti", tr: "Tümü", de: "Alle" } },
+  { value: "idiom", labels: { fr: "Expression", en: "Expression", es: "Expresión", it: "Espressione", tr: "İfade", de: "Redewendung" } },
+  { value: "proverb", labels: { fr: "Proverbe", en: "Proverb", es: "Proverbio", it: "Proverbio", tr: "Atasözü", de: "Sprichwort" } },
+  { value: "locution", labels: { fr: "Locution", en: "Set phrase", es: "Locución", it: "Locuzione", tr: "Deyim", de: "feste Wendung" } },
 ];
 
 const T: Record<UILang, {
@@ -127,6 +128,22 @@ const T: Record<UILang, {
     viewDomains: "Alana göre",
     viewKeyboard: "🎲 Klavye",
   },
+  de: {
+    eyebrow: "Referenz",
+    title: "Emoji & Themen",
+    subtitle: "Jedes Konzept der Welt, ein Emoji pro Stück.",
+    back: "Startseite",
+    all: "Alle",
+    searchPlaceholder: "Nach Stichwort filtern…",
+    noResults: "Keine Tags gefunden.",
+    tagCount: (n) => `${n} Konzepte`,
+    domainsLabel: "Bereiche",
+    viewExpressions: "Ausdrücke sehen →",
+    langFilter: "Sprache",
+    typeFilter: "Typ",
+    viewDomains: "Nach Bereich",
+    viewKeyboard: "🎲 Tastatur",
+  },
 };
 
 export default function EmojisPage() {
@@ -141,7 +158,7 @@ export default function EmojisPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
-    if (stored && ["fr", "en", "es", "it", "tr"].includes(stored)) setUILang(stored);
+    if (stored && ["fr", "en", "es", "it", "tr", "de"].includes(stored)) setUILang(stored);
   }, []);
 
   useEffect(() => {

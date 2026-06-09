@@ -11,7 +11,7 @@ Usage:
     python3 scripts/generate_expressions.py --language tr --count 200 --batch-size 5
     python3 scripts/generate_expressions.py --language it --count 5 --dry-run
 
-Supported languages: it, tr, es
+Supported languages: it, tr, es, de
 """
 
 import sys
@@ -27,7 +27,11 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import text
 
-load_dotenv(Path(__file__).parent.parent / ".env.dev")
+_early = argparse.ArgumentParser(add_help=False)
+_early.add_argument("--prod", action="store_true")
+_early_args, _ = _early.parse_known_args()
+_env_file = ".env.prod" if _early_args.prod else ".env.dev"
+load_dotenv(Path(__file__).parent.parent / _env_file)
 
 from mistralai.client import Mistral
 from config import engine
@@ -123,6 +127,40 @@ For each expression return ONLY a valid JSON object with these exact fields:
 
 No markdown, no extra text — only the JSON object.""",
     },
+    "de": {
+        "name": "German",
+        "region": "de",
+        "source_label": "Duden / Redensarten-Index",
+        "source_url": "https://www.redensarten-index.de/",
+        "themes": [
+            "food, beer and drinking culture", "family and relationships",
+            "money and frugality", "the human body", "love and heartbreak",
+            "fate and destiny", "work, diligence and laziness",
+            "animals", "weather and nature", "wisdom and folly",
+            "time and patience", "friendship and trust",
+            "anger and conflict", "fear and courage",
+            "honesty and deception", "luck and misfortune",
+            "pride and humility", "travel and homesickness",
+            "order, rules and discipline", "learning and knowledge",
+        ],
+        "system_prompt": """You are an expert in German idiomatic expressions, proverbs (Sprichwörter), sayings (Redewendungen), and fixed phrases (feste Wendungen).
+Generate authentic German expressions that are:
+- Actually used by native German speakers
+- Culturally rooted in German, Austrian, or Swiss life and history
+- Diverse in register and topic
+
+For each expression return ONLY a valid JSON object with these exact fields:
+- "id": kebab-case slug using German transliteration (ä→ae, ö→oe, ü→ue, ß→ss), e.g. "den-nagel-auf-den-kopf-treffen"
+- "expression": the expression text in German (using correct German characters)
+- "meaning": what it means in German (1-2 sentences)
+- "origin": etymology or cultural origin in German (1-2 sentences, null if unknown)
+- "example": natural German sentence using the expression
+- "register": one of "standard", "informal", "slang", "formal"
+- "tags": array of 2-5 English thematic slug tags (e.g. ["precision", "success", "communication"])
+- "kind": one of "idiom" (Redewendung), "proverb" (Sprichwort), "locution" (feste Wendung), "word" (single word with idiomatic meaning)
+
+No markdown, no extra text — only the JSON object.""",
+    },
 }
 
 VALID_REGISTERS = {"standard", "informal", "slang", "formal", "vulgar"}
@@ -132,9 +170,14 @@ KIND_ALIASES = {"expression": "idiom", "phrase": "idiom", "saying": "proverb"}
 
 
 def slugify(text: str) -> str:
-    """Convert Turkish/Italian/Spanish text to kebab-case ASCII slug."""
+    """Convert Turkish/Italian/Spanish/German text to kebab-case ASCII slug."""
     replacements = {
-        "ş": "s", "ğ": "g", "ı": "i", "ö": "o", "ü": "u", "ç": "c",
+        # German — must come before the generic ö→o / ü→u rules below
+        "ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss",
+        "Ä": "ae", "Ö": "oe", "Ü": "ue",
+        # Turkish
+        "ş": "s", "ğ": "g", "ı": "i", "ç": "c",
+        # Italian / French / Spanish
         "à": "a", "è": "e", "é": "e", "ì": "i", "ò": "o", "ù": "u",
         "â": "a", "ê": "e", "î": "i", "ô": "o", "û": "u",
         "á": "a", "í": "i", "ó": "o", "ú": "u", "ñ": "n",
@@ -301,6 +344,7 @@ def main():
     parser.add_argument("--batch-size", type=int, default=5, help="Expressions per API call (default: 5)")
     parser.add_argument("--dry-run", action="store_true", help="Print generated JSON without inserting into DB")
     parser.add_argument("--delay", type=float, default=1.0, help="Delay between API calls in seconds (default: 1.0)")
+    parser.add_argument("--prod", action="store_true", help="Use production database (.env.prod)")
     args = parser.parse_args()
 
     language = args.language

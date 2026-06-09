@@ -3,14 +3,15 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
 
 const LANG_OPTIONS: { code: UILang; label: string; flag: string }[] = [
-  { code: "en", label: "English", flag: "🇺🇸" },
+  { code: "en", label: "English",  flag: "🇬🇧" },
   { code: "fr", label: "Français", flag: "🇫🇷" },
-  { code: "es", label: "Español", flag: "🇪🇸" },
+  { code: "es", label: "Español",  flag: "🇪🇸" },
   { code: "it", label: "Italiano", flag: "🇮🇹" },
-  { code: "tr", label: "Türkçe", flag: "🇹🇷" },
+  { code: "tr", label: "Türkçe",   flag: "🇹🇷" },
+  { code: "de", label: "Deutsch",  flag: "🇩🇪" },
 ];
 
 type Props = {

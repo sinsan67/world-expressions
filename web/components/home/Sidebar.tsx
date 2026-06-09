@@ -16,11 +16,11 @@ const BASE_NAV_ITEMS = [
 ];
 
 const NAV_LABELS: Record<string, Record<string, string>> = {
-  home:      { fr: "Accueil",      en: "Home",       es: "Inicio",     it: "Home",      tr: "Ana sayfa" },
-  atlas:     { fr: "Atlas",        en: "Atlas",       es: "Atlas",      it: "Atlante",   tr: "Atlas" },
-  concepts:  { fr: "Concepts",     en: "Concepts",    es: "Conceptos",  it: "Concetti",  tr: "Kavramlar" },
-  search:    { fr: "Rechercher",   en: "Search",      es: "Buscar",     it: "Cerca",     tr: "Ara" },
-  carnet:    { fr: "Mon carnet",   en: "My notebook", es: "Mi cuaderno", it: "Il mio taccuino", tr: "Defterim" },
+  home:      { fr: "Accueil",      en: "Home",       es: "Inicio",      it: "Home",               tr: "Ana sayfa", de: "Startseite" },
+  atlas:     { fr: "Atlas",        en: "Atlas",       es: "Atlas",       it: "Atlante",            tr: "Atlas",     de: "Atlas" },
+  concepts:  { fr: "Concepts",     en: "Concepts",    es: "Conceptos",   it: "Concetti",           tr: "Kavramlar", de: "Konzepte" },
+  search:    { fr: "Rechercher",   en: "Search",      es: "Buscar",      it: "Cerca",              tr: "Ara",       de: "Suchen" },
+  carnet:    { fr: "Mon carnet",   en: "My notebook", es: "Mi cuaderno", it: "Il mio taccuino",    tr: "Defterim",  de: "Mein Notizbuch" },
 };
 
 const TAGLINE: Record<string, string> = {
@@ -29,6 +29,7 @@ const TAGLINE: Record<string, string> = {
   es: "Cada lengua tiene su propia locura.",
   it: "Ogni lingua ha la sua follia.",
   tr: "Her dilin kendine özgü bir çılgınlığı var.",
+  de: "Jede Sprache hat ihren eigenen Wahnsinn.",
 };
 
 type Props = {

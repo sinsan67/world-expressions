@@ -13,7 +13,7 @@ import { EDITORIAL_DOMAIN_MAP } from "@/lib/editorialDomains";
 import { TYPE_LABELS } from "@/lib/typeLabels";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
 
 const LIMIT = 30;
 const CONCEPTS_PREVIEW = 6;
@@ -108,6 +108,21 @@ const T: Record<UILang, {
     allTypes: "Tümü",
     allCountries: "Tüm ülkeler",
   },
+  de: {
+    back: "Startseite",
+    loading: "Laden…",
+    loadMore: "Mehr laden",
+    noResults: "Keine Ausdrücke gefunden.",
+    allDisplayed: (n) => `${n} Ausdruck${n !== 1 ? "...ausdrücke".slice(3) : ""} insgesamt`,
+    concepts: "Themen",
+    expressions: "Ausdrücke",
+    nExpressions: (n) => `${n} Ausdruck${n !== 1 ? "...ausdrücke".slice(3) : ""}`,
+    showMore: (n) => `${n} weitere anzeigen →`,
+    showLess: "Weniger anzeigen",
+    filterByType: "Nach Typ filtern",
+    allTypes: "Alle",
+    allCountries: "Alle Länder",
+  },
 };
 
 export default function DomainPage() {
@@ -135,7 +150,7 @@ export default function DomainPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
-    if (stored && ["fr", "en", "es", "it", "tr"].includes(stored)) setUILang(stored);
+    if (stored && ["fr", "en", "es", "it", "tr", "de"].includes(stored)) setUILang(stored);
   }, []);
 
   useEffect(() => {

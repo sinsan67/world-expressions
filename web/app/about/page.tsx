@@ -5,7 +5,7 @@ import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
 
 type TypeCard = { label: string; title: string; body: string; example: string };
 type Pass = { title: string; body: string };

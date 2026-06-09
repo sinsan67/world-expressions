@@ -12,26 +12,27 @@ const PLACEHOLDER: Record<string, string> = {
   es: "Prueba: dinero, animal, miedo…",
   tr: "Dene: para, hayvan, korku…",
   it: "Prova: soldi, animale, paura…",
+  de: "Versuch: Geld, Tier, Angst…",
 };
 
 const SEARCH_LABEL: Record<string, string> = {
-  fr: "Rechercher →", en: "Search →", es: "Buscar →", it: "Cerca →", tr: "Ara →",
+  fr: "Rechercher →", en: "Search →", es: "Buscar →", it: "Cerca →", tr: "Ara →", de: "Suchen →",
 };
 
 const FILTER_LABEL: Record<string, string> = {
-  fr: "Pays", en: "Country", es: "País", it: "Paese", tr: "Ülke",
+  fr: "Pays", en: "Country", es: "País", it: "Paese", tr: "Ülke", de: "Land",
 };
 
 const EXPLORE_LABEL: Record<string, string> = {
-  fr: "Explorer par domaine", en: "Explore by domain", es: "Explorar por dominio", it: "Esplora per dominio", tr: "Alana göre keşfet",
+  fr: "Explorer par domaine", en: "Explore by domain", es: "Explorar por dominio", it: "Esplora per dominio", tr: "Alana göre keşfet", de: "Nach Bereich erkunden",
 };
 
 const EMOJI_TAB_LABEL: Record<string, string> = {
-  fr: "🎲 Par emoji", en: "🎲 By emoji", es: "🎲 Por emoji", it: "🎲 Per emoji", tr: "🎲 Emoji ile",
+  fr: "🎲 Par emoji", en: "🎲 By emoji", es: "🎲 Por emoji", it: "🎲 Per emoji", tr: "🎲 Emoji ile", de: "🎲 Per Emoji",
 };
 
 const ALL_LABEL: Record<string, string> = {
-  fr: "Tous", en: "All", es: "Todos", it: "Tutti", tr: "Tümü",
+  fr: "Tous", en: "All", es: "Todos", it: "Tutti", tr: "Tümü", de: "Alle",
 };
 
 const LANG_REGIONS = [
@@ -40,17 +41,18 @@ const LANG_REGIONS = [
   { code: "es", flag: "🇪🇸" },
   { code: "it", flag: "🇮🇹" },
   { code: "tr", flag: "🇹🇷" },
+  { code: "de", flag: "🇩🇪" },
 ] as const;
 
 const TYPE_LABEL: Record<string, string> = {
-  fr: "Type", en: "Type", es: "Tipo", it: "Tipo", tr: "Tür",
+  fr: "Type", en: "Type", es: "Tipo", it: "Tipo", tr: "Tür", de: "Typ",
 };
 
 const TYPES: { value: string | null; labels: Record<string, string> }[] = [
-  { value: null,       labels: { fr: "Tous",       en: "All",       es: "Todos",    it: "Tutti",     tr: "Tümü" } },
-  { value: "idiom",    labels: { fr: "Expression",  en: "Expression",es: "Expresión",it: "Espressione",tr: "İfade" } },
-  { value: "proverb",  labels: { fr: "Proverbe",    en: "Proverb",   es: "Proverbio",it: "Proverbio", tr: "Atasözü" } },
-  { value: "locution", labels: { fr: "Locution",    en: "Set phrase", es: "Locución",it: "Locuzione", tr: "Deyim" } },
+  { value: null,       labels: { fr: "Tous",       en: "All",        es: "Todos",     it: "Tutti",      tr: "Tümü",    de: "Alle" } },
+  { value: "idiom",    labels: { fr: "Expression",  en: "Expression", es: "Expresión", it: "Espressione",tr: "İfade",   de: "Redewendung" } },
+  { value: "proverb",  labels: { fr: "Proverbe",    en: "Proverb",    es: "Proverbio", it: "Proverbio",  tr: "Atasözü", de: "Sprichwort" } },
+  { value: "locution", labels: { fr: "Locution",    en: "Set phrase",  es: "Locución",  it: "Locuzione",  tr: "Deyim",   de: "feste Wendung" } },
 ];
 
 type Props = { uiLang?: string; onClose: () => void };

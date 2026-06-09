@@ -17,7 +17,7 @@ import { getExpression, getRegions, getAllTagNames, Expression, RegionInfo } fro
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { tagIcon } from "@/lib/tagIcons";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -126,10 +126,28 @@ const T: Record<UILang, {
     signInPrompt: "Favorilerini kaydetmek, ilerlemeyi takip etmek ve her cihazdan kaldığın yerden devam etmek için giriş yap.",
     signInCta: "Hesap oluştur →",
   },
+  de: {
+    memberSince: (d) => `Mitglied seit ${d}`,
+    streak: (n) => `🔥 ${n} Tag${n !== 1 ? "e" : ""} hintereinander`,
+    seenLabel: "Gesehene Ausdrücke", favLabel: "Favoriten", countriesLabel: "Erkundete Länder", topLangLabel: "Hauptsprache",
+    yourThemes: "Deine Themen",
+    tabFavoris: "Favoriten", tabHistory: "Verlauf", tabNotes: "Notizen",
+    filterFav: "Favoriten filtern…", allCountries: "alle",
+    last50: "Deine letzten 50 Lektüren",
+    emptyFav: "Noch keine Favoriten — tippe auf ♡ um zu speichern",
+    emptyHistory: "Noch keine Ausdrücke angesehen",
+    emptyNotes: "Noch keine Notizen",
+    progressTitle: "Fortschritt nach Land",
+    exportTitle: "Heft herunterladen", exportJSON: "JSON exportieren", exportCSV: "CSV exportieren",
+    noLang: "—",
+    moreCountries: (n) => `+ ${n} weitere Länder`,
+    signInPrompt: "Melde dich an, um deine Favoriten zu speichern, deinen Fortschritt zu verfolgen und auf jedem Gerät weiterzumachen.",
+    signInCta: "Konto erstellen →",
+  },
 };
 
 const LANG_NAME: Record<string, string> = {
-  fr: "Français", en: "English", es: "Español", it: "Italiano", tr: "Türkçe",
+  fr: "Français", en: "English", es: "Español", it: "Italiano", tr: "Türkçe", de: "Deutsch",
 };
 
 interface Props {

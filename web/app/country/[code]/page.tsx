@@ -44,7 +44,7 @@ const REGION_GRADIENTS: Record<string, string> = {
   default: "linear-gradient(135deg, #9090b8 0%, #b0a0c8 50%, #c8b0d8 100%)",
 };
 
-type UILang = "fr" | "en" | "es" | "tr" | "it";
+type UILang = "fr" | "en" | "es" | "tr" | "it" | "de";
 
 const T: Record<UILang, {
   backHome: string;
@@ -124,6 +124,19 @@ const T: Record<UILang, {
     searchLabel: (q) => `Risultati per "${q}"`,
     exploreByRegion: "Esplora per regione",
   },
+  de: {
+    backHome: "Startseite",
+    countryOnly: (name) => `Nur ${name}`,
+    exploreAll: "Alle Sprachen erkunden",
+    filterByConcept: "Nach Konzept filtern",
+    filterByType: "Nach Typ filtern",
+    allTypes: "Alle",
+    searchPlaceholder: (name) => `In ${name} suchen…`,
+    noResults: "Keine Ergebnisse.",
+    expressions: (n) => `${n} Ausdruck${n !== 1 ? "...ausdrücke".slice(3) : ""}`,
+    searchLabel: (q) => `Ergebnisse für „${q}"`,
+    exploreByRegion: "Nach Region erkunden",
+  },
 };
 
 function CountryPageContent({ code }: { code: string }) {
@@ -152,7 +165,7 @@ function CountryPageContent({ code }: { code: string }) {
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
-    const valid: UILang[] = ["fr", "en", "es", "it", "tr"];
+    const valid: UILang[] = ["fr", "en", "es", "it", "tr", "de"];
     if (stored && valid.includes(stored)) setUILang(stored);
   }, []);
 

@@ -14,13 +14,13 @@ import AuthModal from "@/components/profile/AuthModal";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
 type TopTab = "carnet" | "preferences" | "account";
 
 const TOP_TABS: { id: TopTab; label: Record<UILang, string> }[] = [
-  { id: "carnet",      label: { fr: "Mon carnet",   en: "My notebook",   es: "Mi cuaderno",    it: "Il mio taccuino", tr: "Defterim" } },
-  { id: "preferences", label: { fr: "Préférences",  en: "Preferences",   es: "Preferencias",   it: "Preferenze",      tr: "Tercihler" } },
-  { id: "account",     label: { fr: "Compte",        en: "Account",       es: "Cuenta",         it: "Account",         tr: "Hesap" } },
+  { id: "carnet",      label: { fr: "Mon carnet",   en: "My notebook",   es: "Mi cuaderno",    it: "Il mio taccuino", tr: "Defterim",  de: "Mein Heft" } },
+  { id: "preferences", label: { fr: "Préférences",  en: "Preferences",   es: "Preferencias",   it: "Preferenze",      tr: "Tercihler", de: "Einstellungen" } },
+  { id: "account",     label: { fr: "Compte",        en: "Account",       es: "Cuenta",         it: "Account",         tr: "Hesap",     de: "Konto" } },
 ];
 
 export default function ProfilePage() {
@@ -37,7 +37,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
-    if (stored && ["fr", "en", "es", "it", "tr"].includes(stored)) setUiLang(stored);
+    if (stored && ["fr", "en", "es", "it", "tr", "de"].includes(stored)) setUiLang(stored);
 
     const hash = window.location.hash.replace("#", "");
     if (hash === "preferences") setActiveTab("preferences");

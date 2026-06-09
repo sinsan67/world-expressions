@@ -10,7 +10,7 @@ import { tagIcon } from "@/lib/tagIcons";
 import { getConcepts, ConceptItem } from "@/lib/api";
 import { DOMAIN_DEFS, DOMAIN_COLORS, DomainDef } from "@/lib/domainDefs";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
 
 // ─── Localisation ────────────────────────────────────────────────────────────
 
@@ -110,6 +110,22 @@ const T: Record<UILang, {
     nConcepts: (n) => `${n} kavram`,
     seeExpressions: (n) => `${n} deyimi gör →`,
   },
+  de: {
+    eyebrow: "Nach Thema erkunden",
+    title: "Konzepte",
+    subtitle: "Dieselben Ideen, in jeder Sprache.",
+    back: "Startseite",
+    loading: "Laden…",
+    all: "Alle",
+    tabThemes: "Themen",
+    tabStyles: "Stile",
+    expressions: (n) => `${n} Ausdrücke`,
+    styleSubtitle: "Nach Sprachregister erkunden",
+    noResults: "Keine Konzepte für diesen Filter gefunden.",
+    backToDomains: "Alle Themen",
+    nConcepts: (n) => `${n} Konzepte`,
+    seeExpressions: (n) => `${n} Ausdrücke sehen →`,
+  },
 };
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
@@ -117,8 +133,8 @@ const T: Record<UILang, {
 const STYLES: Array<{
   emoji: string;
   concept: string;
-  labels: Record<UILang, string>;
-  desc: Record<UILang, string>;
+  labels: Record<string, string>;
+  desc: Record<string, string>;
 }> = [
   {
     emoji: "📜",
@@ -154,8 +170,8 @@ const STYLES: Array<{
 
 // ─── Constantes UI ───────────────────────────────────────────────────────────
 
-const LANG_FLAGS: Record<string, string> = { fr: "🇫🇷", en: "🇬🇧", es: "🇪🇸", it: "🇮🇹", tr: "🇹🇷" };
-const LANG_API: Record<string, string>   = { fr: "fr", en: "uk", es: "es", it: "it", tr: "tr" };
+const LANG_FLAGS: Record<string, string> = { fr: "🇫🇷", en: "🇬🇧", es: "🇪🇸", it: "🇮🇹", tr: "🇹🇷", de: "🇩🇪" };
+const LANG_API: Record<string, string>   = { fr: "fr", en: "uk", es: "es", it: "it", tr: "tr", de: "de" };
 
 // ─── Composant ───────────────────────────────────────────────────────────────
 
@@ -174,7 +190,7 @@ export default function ConceptsPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
-    if (stored && ["fr", "en", "es", "it", "tr"].includes(stored)) setUILang(stored);
+    if (stored && ["fr", "en", "es", "it", "tr", "de"].includes(stored)) setUILang(stored);
     // Restore active domain from URL on mount (e.g. /concepts?domain=emotions)
     const domFromUrl = new URLSearchParams(window.location.search).get("domain");
     if (domFromUrl) setActiveDomain(domFromUrl);

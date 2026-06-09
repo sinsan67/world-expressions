@@ -18,14 +18,16 @@ const ORIGIN_EXAMPLE_LABEL: Record<string, { toggle: string; origin: string }> =
   es: { toggle: "Origen & ejemplo",  origin: "Origen"  },
   tr: { toggle: "Köken & örnek",     origin: "Köken"   },
   it: { toggle: "Origine & esempio", origin: "Origine" },
+  de: { toggle: "Herkunft & Beispiel", origin: "Herkunft" },
 };
 
 const REGISTER_LABEL: Record<string, Record<string, string>> = {
-  fr: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" },
-  en: { standard: "standard", informal: "informal", slang: "slang", vulgar: "vulgar", formal: "formal" },
-  es: { standard: "estándar", informal: "informal", slang: "argot", vulgar: "vulgar", formal: "formal" },
-  tr: { standard: "standart", informal: "günlük", slang: "argo", vulgar: "kaba", formal: "resmi" },
-  it: { standard: "standard", informal: "informale", slang: "slang", vulgar: "volgare", formal: "formale" },
+  fr: { standard: "courant",        informal: "familier",           slang: "argot",  vulgar: "vulgaire",  formal: "soutenu" },
+  en: { standard: "standard",       informal: "informal",           slang: "slang",  vulgar: "vulgar",    formal: "formal" },
+  es: { standard: "estándar",       informal: "informal",           slang: "argot",  vulgar: "vulgar",    formal: "formal" },
+  tr: { standard: "standart",       informal: "günlük",             slang: "argo",   vulgar: "kaba",      formal: "resmi" },
+  it: { standard: "standard",       informal: "informale",          slang: "slang",  vulgar: "volgare",   formal: "formale" },
+  de: { standard: "standard",       informal: "umgangssprachlich",  slang: "Slang",  vulgar: "vulgär",    formal: "formell" },
 };
 
 const NO_VOICE_LABEL: Record<string, string> = {
@@ -34,6 +36,7 @@ const NO_VOICE_LABEL: Record<string, string> = {
   es: "Voz no disponible en este dispositivo",
   it: "Voce non disponibile su questo dispositivo",
   tr: "Bu cihazda ses mevcut değil",
+  de: "Stimme auf diesem Gerät nicht verfügbar",
 };
 
 type Props = {
