@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-const SITE = "https://world-expressions.vercel.app";
+const SITE = "https://worldexpressions.app";
 
 const REGION_NAME: Record<string, string> = {
   alsace: "Alsace",

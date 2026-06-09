@@ -21,7 +21,7 @@ labels: bug
 ## Comment reproduire
 
 - **Staging :** https://world-expressions-git-staging-ssinanusa-gmailcoms-projects.vercel.app
-- **Prod :** https://world-expressions.vercel.app
+- **Prod :** https://worldexpressions.app
 1. [étape 1]
 2. [étape 2]
 

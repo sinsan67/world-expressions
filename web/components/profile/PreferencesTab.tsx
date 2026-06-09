@@ -5,18 +5,19 @@ import { Session } from "next-auth";
 import Eyebrow from "@/components/home/Eyebrow";
 import AuthModal from "@/components/profile/AuthModal";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
 type ExploreMode = "multilingual" | "single";
 type ContentType = "all" | "proverbs" | "everyday" | "slang";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 const LANG_OPTIONS: { code: UILang; label: string; flag: string }[] = [
-  { code: "en", label: "English", flag: "🇺🇸" },
+  { code: "en", label: "English",  flag: "🇬🇧" },
   { code: "fr", label: "Français", flag: "🇫🇷" },
-  { code: "es", label: "Español", flag: "🇪🇸" },
+  { code: "es", label: "Español",  flag: "🇪🇸" },
   { code: "it", label: "Italiano", flag: "🇮🇹" },
-  { code: "tr", label: "Türkçe", flag: "🇹🇷" },
+  { code: "tr", label: "Türkçe",   flag: "🇹🇷" },
+  { code: "de", label: "Deutsch",  flag: "🇩🇪" },
 ];
 
 const CONTENT_TYPE_OPTIONS: { value: ContentType; label: string }[] = [

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Mon Carnet — World Expressions",
     description: "Your personal travel journal. Track your favourite expressions, browsing history, and explore your linguistic journey.",
-    url: "https://world-expressions.vercel.app/carnet",
+    url: "https://worldexpressions.app/carnet",
     type: "website",
   },
 };

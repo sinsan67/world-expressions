@@ -38,16 +38,16 @@ MODEL = "mistral-small-latest"
 BATCH_SIZE = 50  # tags par appel API
 
 SYSTEM_PROMPT = """You are a multilingual dictionary specialist.
-For each English tag slug provided, give the natural translation in French, Spanish, Italian, and Turkish.
+For each English tag slug provided, give the natural translation in French, Spanish, Italian, Turkish, and German.
 Slugs may use hyphens (e.g. "village-life" → "vie de village").
 
-Return ONLY a valid JSON object where each key is the original English slug, and each value is an object with keys "fr", "es", "it", "tr".
+Return ONLY a valid JSON object where each key is the original English slug, and each value is an object with keys "fr", "es", "it", "tr", "de".
 
 Example input: ["family", "village-life"]
 Example output:
 {
-  "family": {"fr": "famille", "es": "familia", "it": "famiglia", "tr": "aile"},
-  "village-life": {"fr": "vie de village", "es": "vida de pueblo", "it": "vita di paese", "tr": "köy hayatı"}
+  "family": {"fr": "famille", "es": "familia", "it": "famiglia", "tr": "aile", "de": "Familie"},
+  "village-life": {"fr": "vie de village", "es": "vida de pueblo", "it": "vita di paese", "tr": "köy hayatı", "de": "Dorfleben"}
 }
 
 No markdown, no extra text — only the JSON object."""
@@ -64,6 +64,7 @@ def fetch_tags_missing_any(conn, limit: int | None) -> list[str]:
                OR NOT EXISTS (SELECT 1 FROM tag_names tn WHERE tn.tag_id = t.id AND tn.locale = 'es')
                OR NOT EXISTS (SELECT 1 FROM tag_names tn WHERE tn.tag_id = t.id AND tn.locale = 'it')
                OR NOT EXISTS (SELECT 1 FROM tag_names tn WHERE tn.tag_id = t.id AND tn.locale = 'tr')
+               OR NOT EXISTS (SELECT 1 FROM tag_names tn WHERE tn.tag_id = t.id AND tn.locale = 'de')
             GROUP BY t.id
         )
         SELECT id FROM candidates ORDER BY expr_count DESC
@@ -127,7 +128,7 @@ def populate(dry_run: bool, limit: int | None):
             for slug, names in translations.items():
                 if slug not in batch:
                     continue  # Mistral a hallucine un slug inconnu
-                for locale in ("fr", "es", "it", "tr"):
+                for locale in ("fr", "es", "it", "tr", "de"):
                     name = names.get(locale)
                     if not name:
                         continue

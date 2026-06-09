@@ -41,11 +41,12 @@ MODEL = "mistral-small-latest"
 
 # Noms des langues pour construire les prompts
 LANG_NAMES = {
-    "fr": {"en": "French", "fr": "français", "es": "francés", "it": "francese", "tr": "Fransızca"},
-    "en": {"en": "English", "fr": "anglais", "es": "inglés", "it": "inglese", "tr": "İngilizce"},
-    "es": {"en": "Spanish", "fr": "espagnol", "es": "español", "it": "spagnolo", "tr": "İspanyolca"},
-    "it": {"en": "Italian", "fr": "italien", "es": "italiano", "it": "italiano", "tr": "İtalyanca"},
-    "tr": {"en": "Turkish", "fr": "turc", "es": "turco", "it": "turco", "tr": "Türkçe"},
+    "fr": {"en": "French",  "fr": "français",  "es": "francés",   "it": "francese",  "tr": "Fransızca", "de": "Französisch"},
+    "en": {"en": "English", "fr": "anglais",   "es": "inglés",    "it": "inglese",   "tr": "İngilizce", "de": "Englisch"},
+    "es": {"en": "Spanish", "fr": "espagnol",  "es": "español",   "it": "spagnolo",  "tr": "İspanyolca","de": "Spanisch"},
+    "it": {"en": "Italian", "fr": "italien",   "es": "italiano",  "it": "italiano",  "tr": "İtalyanca", "de": "Italienisch"},
+    "tr": {"en": "Turkish", "fr": "turc",      "es": "turco",     "it": "turco",     "tr": "Türkçe",    "de": "Türkisch"},
+    "de": {"en": "German",  "fr": "allemand",  "es": "alemán",    "it": "tedesco",   "tr": "Almanca",   "de": "Deutsch"},
 }
 
 # Langue dans laquelle répondre (nom complet pour Mistral)
@@ -55,6 +56,7 @@ TARGET_LANG_FULL = {
     "es": "Spanish",
     "it": "Italian",
     "tr": "Turkish",
+    "de": "German",
 }
 
 

@@ -1174,6 +1174,7 @@ def send_transactional_email(to: str, subject: str, html_body: str) -> None:
     try:
         with urllib.request.urlopen(req, timeout=10) as resp:
             resp.read()
+            print(f"[email sent] To: {to} | Subject: {subject}")
     except urllib.error.HTTPError as e:
         body = e.read().decode(errors="replace")
         raise RuntimeError(f"Resend API error {e.code}: {body}") from e

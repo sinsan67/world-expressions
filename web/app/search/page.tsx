@@ -18,7 +18,7 @@ import { LANG_FLAG, LANG_NATIVE } from "@/lib/langDefs";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
 const LIMIT = 20;
-type UILang = "fr" | "en" | "es" | "it" | "tr";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
 
 const MAX_SECTION_PREVIEW = 6;
 
@@ -154,12 +154,35 @@ const T: Record<UILang, {
     othersEquivalents: "Eşdeğerler",
     sameIdeaTitle: "Diğer dillerde aynı fikir",
   },
+  de: {
+    placeholder: "Versuch: Geld, Tier, Arbeit, Angst…",
+    search: "Suchen",
+    results: (n, q) => `${n} Ausdruck${n !== 1 ? "...ausdrücke".slice(3) : ""} für „${q}"`,
+    allDisplayed: (n) => `${n} Ausdruck${n !== 1 ? "...ausdrücke".slice(3) : ""} angezeigt`,
+    noResults: "Keine Ausdrücke gefunden",
+    noResultsHint: "Versuche ein anderes Wort oder eine Variante…",
+    serverError: "Server nicht erreichbar.",
+    titleSearch: (q) => `Suche: „${q}" — World Expressions`,
+    titleConcept: (name) => `${name} — World Expressions`,
+    titleDefault: "Suche — World Expressions",
+    types: { idiom: "Redewendung", proverb: "Sprichwort", locution: "feste Wendung", word: "Wort", expression: "Ausdruck" },
+    registers: { standard: "standard", informal: "umgangssprachlich", slang: "Slang", vulgar: "vulgär", formal: "formell" },
+    matchSections: { exact: "Im Text", semantic: "Nach Bedeutung", translation: "Via Übersetzungen", concept: "Nach Konzept" },
+    showMore: (n) => `${n} weitere anzeigen →`,
+    langFirst: "Sprache zuerst",
+    mixAll: "Alles mischen",
+    otherLangs: "In anderen Sprachen",
+    detected: "· erkannt",
+    othersEquivalents: "Entsprechungen",
+    sameIdeaTitle: "Dieselbe Idee in anderen Sprachen",
+  },
 };
 
 function sectionExprCount(n: number, lang: UILang): string {
   if (lang === "es") return `${n} expresión${n > 1 ? "es" : ""}`;
   if (lang === "it") return `${n} espression${n > 1 ? "i" : "e"}`;
   if (lang === "tr") return `${n} deyim`;
+  if (lang === "de") return `${n} Ausdruck${n !== 1 ? "...ausdrücke".slice(3) : ""}`;
   return `${n} expression${n > 1 ? "s" : ""}`;
 }
 
@@ -357,7 +380,7 @@ function SearchPageContent() {
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
-    const valid: UILang[] = ["fr", "en", "es", "it", "tr"];
+    const valid: UILang[] = ["fr", "en", "es", "it", "tr", "de"];
     if (stored && valid.includes(stored)) setUILang(stored);
   }, []);
 

@@ -9,7 +9,7 @@ import LangBar from "@/components/ui/LangBar";
 import { getRegions, RegionInfo } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
 
 const T: Record<UILang, {
   eyebrow: string;
@@ -59,9 +59,17 @@ const T: Record<UILang, {
     back: "Ana sayfa",
     loading: "Yükleniyor…",
   },
+  de: {
+    eyebrow: "Die Welt erkunden",
+    title: "Atlas",
+    subtitle: "Jedes Land hat seinen eigenen Wahnsinn.",
+    expressions: (n) => `${n.toLocaleString()} Ausdrücke`,
+    back: "Startseite",
+    loading: "Laden…",
+  },
 };
 
-const HERO_IMAGES = new Set(["fr", "uk", "us", "au", "es", "tr", "it"]);
+const HERO_IMAGES = new Set(["fr", "uk", "us", "au", "es", "tr", "it", "de"]);
 const SUB_REGION_CODES = new Set(["alsace", "bretagne"]);
 
 const PASTEL_GRADIENTS: Record<string, string> = {
@@ -77,7 +85,7 @@ const PASTEL_GRADIENTS: Record<string, string> = {
 
 const COUNTRY_LANG: Record<string, string> = {
   fr: "Français", uk: "English", us: "English", au: "English",
-  es: "Español", tr: "Türkçe", it: "Italiano",
+  es: "Español", tr: "Türkçe", it: "Italiano", de: "Deutsch",
   ar: "Español", mx: "Español", co: "Español", cl: "Español",
   pe: "Español", cu: "Español", ve: "Español",
 };
@@ -90,7 +98,7 @@ export default function AtlasPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
-    if (stored && ["fr", "en", "es", "it", "tr"].includes(stored)) setUILang(stored);
+    if (stored && ["fr", "en", "es", "it", "tr", "de"].includes(stored)) setUILang(stored);
   }, []);
 
   useEffect(() => {

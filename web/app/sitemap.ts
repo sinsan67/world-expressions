@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-const SITE = "https://world-expressions.vercel.app";
+const SITE = "https://worldexpressions.app";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const today = new Date().toISOString().slice(0, 10);

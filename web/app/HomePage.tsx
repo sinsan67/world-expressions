@@ -26,7 +26,7 @@ import { EDITORIAL_DOMAINS } from "@/lib/editorialDomains";
 const LIMIT = 20;
 const MAX_SECTION_PREVIEW = 6;
 
-type UILang = "fr" | "en" | "es" | "it" | "tr";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
 
 const T = {
   fr: {
@@ -179,28 +179,58 @@ const T = {
     matchSections: { exact: "Nel testo", semantic: "Per il senso", translation: "Via traduzioni", concept: "Per concetto" } as Record<string, string>,
     showMore: (n: number) => `Vedi altri ${n} →`,
   },
+  de: {
+    expressionOfDay: "Ausdruck des Tages",
+    anotherOne: "Noch einer",
+    readFile: "Karte lesen →",
+    atlasTitle: (n: number) => `${n} Länder, entdecke sie`,
+    emojiEyebrow: "Per Emoji",
+    emojiTitle: "Klicken, entdecken, lernen",
+    domainsEyebrow: "Welten",
+    domainsTitle: "Ganze Welten zu entdecken",
+    atlasEyebrow: "Der Atlas",
+    moreCountries: "weitere Länder",
+    placeholder: "Versuch: Geld, Tier, Arbeit, Angst…",
+    search: "Suchen",
+    results: (n: number, q: string) => `${n} Ausdruck${n !== 1 ? "...ausdrücke".slice(3) : ""} für „${q}"`,
+    allDisplayed: (n: number) => `${n} Ausdruck${n !== 1 ? "...ausdrücke".slice(3) : ""} angezeigt`,
+    noResults: "Keine Ausdrücke gefunden",
+    noResultsHint: "Versuche ein anderes Wort oder eine Variante…",
+    serverError: "Server nicht erreichbar.",
+    newsletterHeadline: "Ein Ausdruck pro Tag, aus aller Welt in dein Postfach.",
+    newsletterSub: "Jeden Morgen einen neuen idiomatischen Ausdruck — in deiner Sprache.",
+    newsletterPlaceholder: "deine@email.com",
+    newsletterCta: "Abonnieren",
+    newsletterSuccess: "Eingetragen! Ein Ausdruck pro Tag ist unterwegs.",
+    newsletterAlready: "Du bist bereits angemeldet!",
+    newsletterError: "Etwas ist schiefgelaufen, bitte erneut versuchen.",
+    types: { idiom: "Redewendung", proverb: "Sprichwort", locution: "feste Wendung", word: "Wort", expression: "Ausdruck" } as Record<string, string>,
+    registers: { standard: "standard", informal: "umgangssprachlich", slang: "Slang", vulgar: "vulgär", formal: "formell" } as Record<string, string>,
+    matchSections: { exact: "Im Text", semantic: "Nach Bedeutung", translation: "Via Übersetzungen", concept: "Nach Konzept" } as Record<string, string>,
+    showMore: (n: number) => `${n} weitere anzeigen →`,
+  },
 };
 
 const PINNED_EMOJI_WALL: Array<{ slug: string; emoji: string; labels: Record<UILang, string> }> = [
-  { slug: "humor",      emoji: "😂", labels: { fr: "Humour",     en: "Humor",      es: "Humor",     it: "Umorismo",    tr: "Mizah" } },
-  { slug: "love",       emoji: "❤️", labels: { fr: "Amour",      en: "Love",       es: "Amor",      it: "Amore",       tr: "Aşk" } },
-  { slug: "money",      emoji: "💰", labels: { fr: "Argent",     en: "Money",      es: "Dinero",    it: "Denaro",      tr: "Para" } },
-  { slug: "anger",      emoji: "😠", labels: { fr: "Colère",     en: "Anger",      es: "Ira",       it: "Rabbia",      tr: "Öfke" } },
-  { slug: "travel",     emoji: "✈️", labels: { fr: "Voyage",     en: "Travel",     es: "Viaje",     it: "Viaggio",     tr: "Seyahat" } },
-  { slug: "lying",      emoji: "🤥", labels: { fr: "Mensonge",   en: "Lying",      es: "Mentira",   it: "Menzogna",    tr: "Yalan" } },
-  { slug: "fear",       emoji: "😱", labels: { fr: "Peur",       en: "Fear",       es: "Miedo",     it: "Paura",       tr: "Korku" } },
-  { slug: "death",      emoji: "💀", labels: { fr: "Mort",       en: "Death",      es: "Muerte",    it: "Morte",       tr: "Ölüm" } },
-  { slug: "laziness",   emoji: "😴", labels: { fr: "Paresse",    en: "Laziness",   es: "Pereza",    it: "Pigrizia",    tr: "Tembellik" } },
-  { slug: "work",       emoji: "💼", labels: { fr: "Travail",    en: "Work",       es: "Trabajo",   it: "Lavoro",      tr: "İş" } },
-  { slug: "wine",       emoji: "🍷", labels: { fr: "Vin",        en: "Wine",       es: "Vino",      it: "Vino",        tr: "Şarap" } },
-  { slug: "animals",    emoji: "🐾", labels: { fr: "Animaux",    en: "Animals",    es: "Animales",  it: "Animali",     tr: "Hayvanlar" } },
-  { slug: "success",    emoji: "🏆", labels: { fr: "Succès",     en: "Success",    es: "Éxito",     it: "Successo",    tr: "Başarı" } },
-  { slug: "clumsiness", emoji: "🤦", labels: { fr: "Maladresse", en: "Clumsiness", es: "Torpeza",   it: "Goffaggine",  tr: "Sakarlık" } },
-  { slug: "secret",     emoji: "🤫", labels: { fr: "Secret",     en: "Secret",     es: "Secreto",   it: "Segreto",     tr: "Sır" } },
-  { slug: "party",      emoji: "🎉", labels: { fr: "Fête",       en: "Party",      es: "Fiesta",    it: "Festa",       tr: "Parti" } },
+  { slug: "humor",      emoji: "😂", labels: { fr: "Humour",     en: "Humor",      es: "Humor",     it: "Umorismo",    tr: "Mizah",      de: "Humor" } },
+  { slug: "love",       emoji: "❤️", labels: { fr: "Amour",      en: "Love",       es: "Amor",      it: "Amore",       tr: "Aşk",        de: "Liebe" } },
+  { slug: "money",      emoji: "💰", labels: { fr: "Argent",     en: "Money",      es: "Dinero",    it: "Denaro",      tr: "Para",       de: "Geld" } },
+  { slug: "anger",      emoji: "😠", labels: { fr: "Colère",     en: "Anger",      es: "Ira",       it: "Rabbia",      tr: "Öfke",       de: "Wut" } },
+  { slug: "travel",     emoji: "✈️", labels: { fr: "Voyage",     en: "Travel",     es: "Viaje",     it: "Viaggio",     tr: "Seyahat",    de: "Reise" } },
+  { slug: "lying",      emoji: "🤥", labels: { fr: "Mensonge",   en: "Lying",      es: "Mentira",   it: "Menzogna",    tr: "Yalan",      de: "Lüge" } },
+  { slug: "fear",       emoji: "😱", labels: { fr: "Peur",       en: "Fear",       es: "Miedo",     it: "Paura",       tr: "Korku",      de: "Angst" } },
+  { slug: "death",      emoji: "💀", labels: { fr: "Mort",       en: "Death",      es: "Muerte",    it: "Morte",       tr: "Ölüm",       de: "Tod" } },
+  { slug: "laziness",   emoji: "😴", labels: { fr: "Paresse",    en: "Laziness",   es: "Pereza",    it: "Pigrizia",    tr: "Tembellik",  de: "Faulheit" } },
+  { slug: "work",       emoji: "💼", labels: { fr: "Travail",    en: "Work",       es: "Trabajo",   it: "Lavoro",      tr: "İş",         de: "Arbeit" } },
+  { slug: "wine",       emoji: "🍷", labels: { fr: "Vin",        en: "Wine",       es: "Vino",      it: "Vino",        tr: "Şarap",      de: "Wein" } },
+  { slug: "animals",    emoji: "🐾", labels: { fr: "Animaux",    en: "Animals",    es: "Animales",  it: "Animali",     tr: "Hayvanlar",  de: "Tiere" } },
+  { slug: "success",    emoji: "🏆", labels: { fr: "Succès",     en: "Success",    es: "Éxito",     it: "Successo",    tr: "Başarı",     de: "Erfolg" } },
+  { slug: "clumsiness", emoji: "🤦", labels: { fr: "Maladresse", en: "Clumsiness", es: "Torpeza",   it: "Goffaggine",  tr: "Sakarlık",   de: "Tollpatschigkeit" } },
+  { slug: "secret",     emoji: "🤫", labels: { fr: "Secret",     en: "Secret",     es: "Secreto",   it: "Segreto",     tr: "Sır",        de: "Geheimnis" } },
+  { slug: "party",      emoji: "🎉", labels: { fr: "Fête",       en: "Party",      es: "Fiesta",    it: "Festa",       tr: "Parti",      de: "Fest" } },
 ];
 
-const REGION_ORDER = ["fr", "en", "es", "it", "tr"];
+const REGION_ORDER = ["fr", "en", "es", "it", "tr", "de"];
 
 const COUNTRY_SUB_REGIONS: Record<string, { code: string; name: string; emoji: string }[]> = {
   fr: [
@@ -220,12 +250,14 @@ const SEARCH_HELP: Record<UILang, string> = {
   es: "Búsqueda en varias pasadas: la palabra exacta, luego sinónimos y etiquetas, y finalmente conceptos multilingues. Ejemplo: «industria» también muestra expresiones en francés o turco relacionadas con «work».",
   it: "Ricerca in più fasi: la parola esatta, poi sinonimi e tag, poi concetti multilingua. Esempio: «industria» mostra anche espressioni in francese o turco legate a «work».",
   tr: "Arama birden fazla aşamada çalışır: tam kelime, ardından eş anlamlılar ve etiketler, ardından çok dilli kavramlar. Örnek: «sanayi» araması «work» etiketli Fransızca veya İspanyolca ifadeler de gösterir.",
+  de: "Suche läuft in mehreren Schritten: exaktes Wort, dann Synonyme und Tags, dann mehrsprachige Konzepte. Beispiel: «Industrie» zeigt auch französische oder türkische Ausdrücke mit dem Tag «work».",
 };
 
 function sectionExprCount(n: number, lang: UILang): string {
   if (lang === "es") return `${n} expresión${n > 1 ? "es" : ""}`;
   if (lang === "it") return `${n} espression${n > 1 ? "i" : "e"}`;
   if (lang === "tr") return `${n} deyim`;
+  if (lang === "de") return `${n} Ausdruck${n !== 1 ? "...ausdrücke".slice(3) : ""}`;
   return `${n} expression${n > 1 ? "s" : ""}`;
 }
 
@@ -471,7 +503,7 @@ export default function HomePage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
-    const valid: UILang[] = ["fr", "en", "es", "it", "tr"];
+    const valid: UILang[] = ["fr", "en", "es", "it", "tr", "de"];
     if (stored && valid.includes(stored)) {
       setUILang(stored);
       setShowWelcome(false);

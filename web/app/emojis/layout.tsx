@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Emoji & Themes — World Expressions",
     description: "Browse all idiomatic expression concepts by emoji and theme across 20 domains.",
-    url: "https://world-expressions.vercel.app/emojis",
+    url: "https://worldexpressions.app/emojis",
     type: "website",
   },
 };

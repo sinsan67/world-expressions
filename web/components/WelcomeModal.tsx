@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { getRandomExpression, getExpression } from "@/lib/api";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
 
 const TAGLINES: Record<UILang, string> = {
   en: "Every language has its own madness.",
@@ -11,6 +11,7 @@ const TAGLINES: Record<UILang, string> = {
   es: "Cada idioma tiene su propia locura.",
   it: "Ogni lingua ha la sua follia.",
   tr: "Her dilin kendine özgü bir çılgınlığı var.",
+  de: "Jede Sprache hat ihren eigenen Wahnsinn.",
 };
 
 const CTA: Record<UILang, string> = {
@@ -19,17 +20,18 @@ const CTA: Record<UILang, string> = {
   es: "¡Vamos! →",
   it: "Iniziamo →",
   tr: "Başlayalım →",
+  de: "Los geht's →",
 };
 
 const LANG_FLAGS: Record<UILang, string> = {
-  fr: "🇫🇷", en: "🇬🇧", es: "🇪🇸", it: "🇮🇹", tr: "🇹🇷",
+  fr: "🇫🇷", en: "🇬🇧", es: "🇪🇸", it: "🇮🇹", tr: "🇹🇷", de: "🇩🇪",
 };
 
 const REGION_FLAGS: Record<string, string> = {
-  fr: "🇫🇷", uk: "🇬🇧", us: "🇺🇸", au: "🇦🇺", es: "🇪🇸", tr: "🇹🇷", it: "🇮🇹",
+  fr: "🇫🇷", uk: "🇬🇧", us: "🇺🇸", au: "🇦🇺", es: "🇪🇸", tr: "🇹🇷", it: "🇮🇹", de: "🇩🇪",
 };
 
-const ALL_LANGS: UILang[] = ["fr", "en", "es", "it", "tr"];
+const ALL_LANGS: UILang[] = ["fr", "en", "es", "it", "tr", "de"];
 
 function detectBrowserLang(): UILang {
   if (typeof navigator === "undefined") return "en";

@@ -10,12 +10,15 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-# Charge .env si présent (dev local) — sans effet si DATABASE_URL est déjà définie
+# Charge .env si présent — sans effet si DATABASE_URL est déjà définie.
+# ATTENTION : ce fichier charge .env (DB locale). Les scripts generate_*/translate_*/copy_* chargent
+# explicitement .env.dev ou .env.prod. Pour des vérifications manuelles ciblant la DB cloud,
+# faire load_dotenv('.env.dev', override=True) AVANT d'importer config.
 load_dotenv()
 
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
-    "postgresql://localhost/expressions_dev"  # fallback si .env absent
+    "postgresql://localhost/expressions_dev"  # fallback : DB locale (start.sh, dev sans .env)
 )
 
 engine = create_engine(DATABASE_URL)
