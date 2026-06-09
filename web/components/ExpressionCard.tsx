@@ -19,6 +19,7 @@ const ORIGIN_EXAMPLE_LABEL: Record<string, { toggle: string; origin: string }> =
   tr: { toggle: "Köken & örnek",     origin: "Köken"   },
   it: { toggle: "Origine & esempio", origin: "Origine" },
   de: { toggle: "Herkunft & Beispiel", origin: "Herkunft" },
+  ja: { toggle: "由来と例",          origin: "由来"     },
 };
 
 const REGISTER_LABEL: Record<string, Record<string, string>> = {
@@ -28,6 +29,7 @@ const REGISTER_LABEL: Record<string, Record<string, string>> = {
   tr: { standard: "standart",       informal: "günlük",             slang: "argo",   vulgar: "kaba",      formal: "resmi" },
   it: { standard: "standard",       informal: "informale",          slang: "slang",  vulgar: "volgare",   formal: "formale" },
   de: { standard: "standard",       informal: "umgangssprachlich",  slang: "Slang",  vulgar: "vulgär",    formal: "formell" },
+  ja: { standard: "普通",           informal: "くだけた",           slang: "俗語",   vulgar: "卑語",      formal: "丁寧" },
 };
 
 const NO_VOICE_LABEL: Record<string, string> = {
@@ -37,6 +39,7 @@ const NO_VOICE_LABEL: Record<string, string> = {
   it: "Voce non disponibile su questo dispositivo",
   tr: "Bu cihazda ses mevcut değil",
   de: "Stimme auf diesem Gerät nicht verfügbar",
+  ja: "このデバイスでは音声を利用できません",
 };
 
 type Props = {

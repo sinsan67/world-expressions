@@ -10,7 +10,7 @@ import { tagIcon } from "@/lib/tagIcons";
 import { getConcepts, ConceptItem } from "@/lib/api";
 import { DOMAIN_DEFS, DOMAIN_COLORS, DomainDef } from "@/lib/domainDefs";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
 
 // ─── Localisation ────────────────────────────────────────────────────────────
 
@@ -126,6 +126,22 @@ const T: Record<UILang, {
     nConcepts: (n) => `${n} Konzepte`,
     seeExpressions: (n) => `${n} Ausdrücke sehen →`,
   },
+  ja: {
+    eyebrow: "テーマ別に探索",
+    title: "概念",
+    subtitle: "同じ考え、すべての言語で。",
+    back: "ホーム",
+    loading: "読み込み中…",
+    all: "すべて",
+    tabThemes: "テーマ",
+    tabStyles: "スタイル",
+    expressions: (n) => `${n}件の表現`,
+    styleSubtitle: "言語レジスター別に探索",
+    noResults: "このフィルターに一致する概念がありません。",
+    backToDomains: "すべてのテーマ",
+    nConcepts: (n) => `${n}件の概念`,
+    seeExpressions: (n) => `${n}件の表現を見る →`,
+  },
 };
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
@@ -170,8 +186,8 @@ const STYLES: Array<{
 
 // ─── Constantes UI ───────────────────────────────────────────────────────────
 
-const LANG_FLAGS: Record<string, string> = { fr: "🇫🇷", en: "🇬🇧", es: "🇪🇸", it: "🇮🇹", tr: "🇹🇷", de: "🇩🇪" };
-const LANG_API: Record<string, string>   = { fr: "fr", en: "uk", es: "es", it: "it", tr: "tr", de: "de" };
+const LANG_FLAGS: Record<string, string> = { fr: "🇫🇷", en: "🇬🇧", es: "🇪🇸", it: "🇮🇹", tr: "🇹🇷", de: "🇩🇪", ja: "🇯🇵" };
+const LANG_API: Record<string, string>   = { fr: "fr", en: "uk", es: "es", it: "it", tr: "tr", de: "de", ja: "jp" };
 
 // ─── Composant ───────────────────────────────────────────────────────────────
 
@@ -190,7 +206,7 @@ export default function ConceptsPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
-    if (stored && ["fr", "en", "es", "it", "tr", "de"].includes(stored)) setUILang(stored);
+    if (stored && ["fr", "en", "es", "it", "tr", "de", "ja"].includes(stored)) setUILang(stored);
     // Restore active domain from URL on mount (e.g. /concepts?domain=emotions)
     const domFromUrl = new URLSearchParams(window.location.search).get("domain");
     if (domFromUrl) setActiveDomain(domFromUrl);

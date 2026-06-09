@@ -18,7 +18,7 @@ import { LANG_FLAG, LANG_NATIVE } from "@/lib/langDefs";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
 const LIMIT = 20;
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
 
 const MAX_SECTION_PREVIEW = 6;
 
@@ -176,6 +176,28 @@ const T: Record<UILang, {
     othersEquivalents: "Entsprechungen",
     sameIdeaTitle: "Dieselbe Idee in anderen Sprachen",
   },
+  ja: {
+    placeholder: "試して：お金、動物、出発、恐怖…",
+    search: "検索",
+    results: (n, q) => `「${q}」の表現 ${n}件`,
+    allDisplayed: (n) => `${n}件の表現を表示`,
+    noResults: "表現が見つかりません",
+    noResultsHint: "別の言葉か変形を試してください…",
+    serverError: "サーバーに接続できません。",
+    titleSearch: (q) => `検索：「${q}」— World Expressions`,
+    titleConcept: (name) => `${name} — World Expressions`,
+    titleDefault: "検索 — World Expressions",
+    types: { idiom: "慣用句", proverb: "ことわざ", locution: "成句", word: "言葉", expression: "表現" },
+    registers: { standard: "普通", informal: "くだけた", slang: "俗語", vulgar: "卑語", formal: "丁寧" },
+    matchSections: { exact: "テキスト内", semantic: "意味で", translation: "翻訳経由", concept: "概念で" },
+    showMore: (n) => `他${n}件を見る →`,
+    langFirst: "言語優先",
+    mixAll: "すべて混ぜる",
+    otherLangs: "他の言語で",
+    detected: "· 検出",
+    othersEquivalents: "同義表現",
+    sameIdeaTitle: "他の言語での同じ考え",
+  },
 };
 
 function sectionExprCount(n: number, lang: UILang): string {
@@ -183,6 +205,7 @@ function sectionExprCount(n: number, lang: UILang): string {
   if (lang === "it") return `${n} espression${n > 1 ? "i" : "e"}`;
   if (lang === "tr") return `${n} deyim`;
   if (lang === "de") return `${n} Ausdruck${n !== 1 ? "...ausdrücke".slice(3) : ""}`;
+  if (lang === "ja") return `${n}件`;
   return `${n} expression${n > 1 ? "s" : ""}`;
 }
 
@@ -380,7 +403,7 @@ function SearchPageContent() {
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
-    const valid: UILang[] = ["fr", "en", "es", "it", "tr", "de"];
+    const valid: UILang[] = ["fr", "en", "es", "it", "tr", "de", "ja"];
     if (stored && valid.includes(stored)) setUILang(stored);
   }, []);
 

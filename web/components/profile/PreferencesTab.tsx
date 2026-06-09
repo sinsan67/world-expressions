@@ -5,7 +5,7 @@ import { Session } from "next-auth";
 import Eyebrow from "@/components/home/Eyebrow";
 import AuthModal from "@/components/profile/AuthModal";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
 type ExploreMode = "multilingual" | "single";
 type ContentType = "all" | "proverbs" | "everyday" | "slang";
 
@@ -18,6 +18,7 @@ const LANG_OPTIONS: { code: UILang; label: string; flag: string }[] = [
   { code: "it", label: "Italiano", flag: "🇮🇹" },
   { code: "tr", label: "Türkçe",   flag: "🇹🇷" },
   { code: "de", label: "Deutsch",  flag: "🇩🇪" },
+  { code: "ja", label: "日本語",   flag: "🇯🇵" },
 ];
 
 const CONTENT_TYPE_OPTIONS: { value: ContentType; label: string }[] = [

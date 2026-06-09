@@ -12,7 +12,7 @@ import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { LANG_FLAG, LANG_NATIVE } from "@/lib/langDefs";
 import { getConcepts } from "@/lib/api";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
 type TagEntry = { slug: string; name: string; count: number };
 
 const LANG_FILTER_OPTIONS: { value: string }[] = [
@@ -23,13 +23,14 @@ const LANG_FILTER_OPTIONS: { value: string }[] = [
   { value: "it" },
   { value: "tr" },
   { value: "de" },
+  { value: "ja" },
 ];
 
 const KIND_OPTIONS: { value: string; labels: Record<string, string> }[] = [
-  { value: "", labels: { fr: "Tous", en: "All", es: "Todos", it: "Tutti", tr: "Tümü", de: "Alle" } },
-  { value: "idiom", labels: { fr: "Expression", en: "Expression", es: "Expresión", it: "Espressione", tr: "İfade", de: "Redewendung" } },
-  { value: "proverb", labels: { fr: "Proverbe", en: "Proverb", es: "Proverbio", it: "Proverbio", tr: "Atasözü", de: "Sprichwort" } },
-  { value: "locution", labels: { fr: "Locution", en: "Set phrase", es: "Locución", it: "Locuzione", tr: "Deyim", de: "feste Wendung" } },
+  { value: "", labels: { fr: "Tous", en: "All", es: "Todos", it: "Tutti", tr: "Tümü", de: "Alle", ja: "すべて" } },
+  { value: "idiom", labels: { fr: "Expression", en: "Expression", es: "Expresión", it: "Espressione", tr: "İfade", de: "Redewendung", ja: "慣用句" } },
+  { value: "proverb", labels: { fr: "Proverbe", en: "Proverb", es: "Proverbio", it: "Proverbio", tr: "Atasözü", de: "Sprichwort", ja: "ことわざ" } },
+  { value: "locution", labels: { fr: "Locution", en: "Set phrase", es: "Locución", it: "Locuzione", tr: "Deyim", de: "feste Wendung", ja: "成句" } },
 ];
 
 const T: Record<UILang, {
@@ -143,6 +144,22 @@ const T: Record<UILang, {
     typeFilter: "Typ",
     viewDomains: "Nach Bereich",
     viewKeyboard: "🎲 Tastatur",
+  },
+  ja: {
+    eyebrow: "参照",
+    title: "絵文字 & テーマ",
+    subtitle: "世界のすべての概念、各1つの絵文字。",
+    back: "ホーム",
+    all: "すべて",
+    searchPlaceholder: "キーワードで絞り込む…",
+    noResults: "タグが見つかりません。",
+    tagCount: (n) => `${n}件の概念`,
+    domainsLabel: "ドメイン",
+    viewExpressions: "表現を見る →",
+    langFilter: "言語",
+    typeFilter: "タイプ",
+    viewDomains: "ドメイン別",
+    viewKeyboard: "🎲 キーボード",
   },
 };
 

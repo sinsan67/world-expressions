@@ -5,7 +5,7 @@ import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { TYPE_LABELS } from "@/lib/typeLabels";
 import type { Facets } from "@/lib/api";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
 
 const T = {
   fr: { filterAll: "Tous les pays", sortLabel: "Trier :", sortRelevance: "Pertinence", sortCountry: "Par pays", allTypes: "Tous" },
@@ -14,6 +14,7 @@ const T = {
   it: { filterAll: "Tutti i paesi", sortLabel: "Ordina:", sortRelevance: "Rilevanza", sortCountry: "Per paese", allTypes: "Tutti" },
   tr: { filterAll: "Tüm ülkeler", sortLabel: "Sırala:", sortRelevance: "Alaka", sortCountry: "Ülkeye göre", allTypes: "Tümü" },
   de: { filterAll: "Alle Länder", sortLabel: "Sortieren:", sortRelevance: "Relevanz", sortCountry: "Nach Land", allTypes: "Alle" },
+  ja: { filterAll: "すべての国", sortLabel: "並び替え：", sortRelevance: "関連度", sortCountry: "国別", allTypes: "すべて" },
 };
 
 interface Props {
