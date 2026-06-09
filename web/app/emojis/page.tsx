@@ -175,7 +175,7 @@ export default function EmojisPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
-    if (stored && ["fr", "en", "es", "it", "tr", "de"].includes(stored)) setUILang(stored);
+    if (stored && ["fr", "en", "es", "it", "tr", "de", "ja"].includes(stored)) setUILang(stored);
   }, []);
 
   useEffect(() => {
