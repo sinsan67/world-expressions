@@ -6,7 +6,7 @@ import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
-import { getRegions, RegionInfo } from "@/lib/api";
+import { getCountries, RegionInfo } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
 type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
@@ -110,7 +110,7 @@ export default function AtlasPage() {
   }, []);
 
   useEffect(() => {
-    getRegions()
+    getCountries()
       .then((data) => {
         const sorted = [...data].sort((a, b) => b.count - a.count);
         setRegions(sorted);

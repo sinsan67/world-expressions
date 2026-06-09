@@ -15,8 +15,8 @@ import SearchBar from "@/components/ui/SearchBar";
 import ResultsFilterBar from "@/components/home/ResultsFilterBar";
 import Eyebrow from "@/components/home/Eyebrow";
 import {
-  searchExpressions, searchByConcept, browseByRegion,
-  getRandomExpression, getExpression, getAllTagNames, getRegions, getFacets,
+  searchExpressions, searchByConcept, browseByCountry,
+  getRandomExpression, getExpression, getAllTagNames, getCountries, getFacets,
   Expression, Facets,
 } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
@@ -333,7 +333,7 @@ export default function HomePage() {
     if (sortMode !== "country" || results.length === 0) return null;
     const map = new Map<string, Expression[]>();
     for (const expr of results) {
-      const code = expr.region ?? expr.language ?? "??";
+      const code = expr.country || expr.region || expr.language || "??";
       if (!map.has(code)) map.set(code, []);
       map.get(code)!.push(expr);
     }
@@ -375,7 +375,7 @@ export default function HomePage() {
     window.history.replaceState(null, "", "#concept=" + encodeURIComponent(tag));
     exploreRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     try {
-      const data = await searchByConcept([tag], regionCodes, LIMIT, 0);
+      const data = await searchByConcept([tag], [], LIMIT, 0, undefined, undefined, undefined, regionCodes);
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
@@ -403,7 +403,7 @@ export default function HomePage() {
     setResults([]);
     window.history.replaceState(null, "", "#q=" + encodeURIComponent(q));
     try {
-      const data = await searchExpressions(q, allRegionCodes, LIMIT, 0, undefined, uiLang);
+      const data = await searchExpressions(q, [], LIMIT, 0, undefined, uiLang, undefined, allRegionCodes);
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
@@ -426,10 +426,10 @@ export default function HomePage() {
     try {
       const data =
         searchMode === "browse"
-          ? await browseByRegion(activeRegions, LIMIT, offset)
+          ? await browseByCountry(activeRegions, LIMIT, offset)
           : searchMode === "concept"
-          ? await searchByConcept([query], activeRegions, LIMIT, offset)
-          : await searchExpressions(query, activeRegions, LIMIT, offset, typeFilter ?? undefined, uiLang);
+          ? await searchByConcept([query], [], LIMIT, offset, undefined, undefined, undefined, activeRegions)
+          : await searchExpressions(query, [], LIMIT, offset, typeFilter ?? undefined, uiLang, undefined, activeRegions);
       setResults((prev) => [...prev, ...data.results]);
       setHasMore(offset + data.results.length < data.total);
     } catch {
@@ -453,10 +453,10 @@ export default function HomePage() {
     try {
       const data =
         effectiveMode === "browse"
-          ? await browseByRegion(regionCodes, LIMIT, 0, typeFilter ?? undefined, uiLang)
+          ? await browseByCountry(regionCodes, LIMIT, 0, typeFilter ?? undefined, uiLang)
           : effectiveMode === "concept"
-          ? await searchByConcept([query], regionCodes, LIMIT, 0)
-          : await searchExpressions(query, regionCodes, LIMIT, 0, typeFilter ?? undefined, uiLang);
+          ? await searchByConcept([query], [], LIMIT, 0, undefined, undefined, undefined, regionCodes)
+          : await searchExpressions(query, [], LIMIT, 0, typeFilter ?? undefined, uiLang, undefined, regionCodes);
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
@@ -483,8 +483,8 @@ export default function HomePage() {
     try {
       const data =
         effectiveMode === "browse"
-          ? await browseByRegion(regionCodes, LIMIT, 0, newType ?? undefined, uiLang)
-          : await searchExpressions(query, regionCodes, LIMIT, 0, newType ?? undefined, uiLang);
+          ? await browseByCountry(regionCodes, LIMIT, 0, newType ?? undefined, uiLang)
+          : await searchExpressions(query, [], LIMIT, 0, newType ?? undefined, uiLang, undefined, regionCodes);
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
@@ -527,7 +527,7 @@ export default function HomePage() {
   // ─── Effects ───
 
   useEffect(() => {
-    getRegions().then((data) => {
+    getCountries().then((data) => {
       setRegions(data.map((r) => ({ code: r.code, label: `${FLAG[r.code] ?? "🌍"} ${COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}` })));
     });
     getFacets().then(setFacets);

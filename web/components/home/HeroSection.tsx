@@ -50,7 +50,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
   const month = now.toLocaleString("en", { month: "short" }).toUpperCase();
   const year = String(now.getFullYear());
 
-  const effectiveRegion = featured?.region || featured?.language || null;
+  const effectiveRegion = featured?.country || featured?.region || featured?.language || null;
   const photo = effectiveRegion ? `/images/${effectiveRegion}.jpg` : undefined;
   const countryName = effectiveRegion ? (COUNTRY_NAME[effectiveRegion] ?? effectiveRegion.toUpperCase()) : "";
 

@@ -224,13 +224,13 @@ function ConceptCard({ eq, onNavigate }: { eq: ConceptEquivalent; onNavigate: (u
         </span>
         <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink-faint)", marginBottom: "0.4rem", fontFamily: "var(--font-body)" }}>
           <Link
-            href={`/country/${eq.region || eq.language}`}
+            href={`/country/${eq.country || eq.language}`}
             onClick={(e) => e.stopPropagation()}
             style={{ textDecoration: "none", color: "inherit" }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.7"; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
           >
-            {FLAG[eq.region] || FLAG[eq.language] || ""}
+            {FLAG[eq.country] || FLAG[eq.language] || ""}
           </Link>
           {" "}{LANGUAGE_NAME[eq.language] || eq.language.toUpperCase()}
         </p>
@@ -279,7 +279,7 @@ function MiniCard({ expr, lang }: { expr: Expression; lang: string }) {
           lineHeight: 1.3,
           marginBottom: "0.3rem",
         }}>
-          {FLAG[expr.region] || ""} {cap(expr.expression)}
+          {FLAG[expr.country] || ""} {cap(expr.expression)}
         </p>
         <p style={{
           fontSize: 12,
@@ -345,7 +345,7 @@ function ExpressionPageContent({ id }: { id: string }) {
       .then(([exprData, tags]) => {
         setExpr(exprData);
         setTagNames(tags);
-        recordView(id, exprData.region, exprData.language);
+        recordView(id, exprData.country, exprData.language);
         if (exprData.tags.length > 0) {
           searchByConcept(exprData.tags.slice(0, 3), [], 5)
             .then((data) => {
@@ -393,9 +393,9 @@ function ExpressionPageContent({ id }: { id: string }) {
   const primaryOrigin = translation?.origin ?? expr.origin;
   const primaryExample = translation?.example ?? expr.example;
 
-  const photo = `/images/${expr.region}.jpg`;
-  const flag = FLAG[expr.region] || "";
-  const countryName = COUNTRY_NAME[expr.region] || expr.region.toUpperCase();
+  const photo = `/images/${expr.country}.jpg`;
+  const flag = FLAG[expr.country] || "";
+  const countryName = COUNTRY_NAME[expr.country] || expr.country.toUpperCase();
   const langName = LANGUAGE_NAME[expr.language] || expr.language.toUpperCase();
 
   return (
@@ -519,7 +519,7 @@ function ExpressionPageContent({ id }: { id: string }) {
         <div style={{ padding: "2rem 1.5rem 5rem", maxWidth: 720, margin: "0 auto" }}>
           <Eyebrow tone="on-photo">
             <Link
-              href={`/country/${expr.region}`}
+              href={`/country/${expr.country}`}
               style={{ color: "inherit", textDecoration: "none", fontWeight: 700 }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.75"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}

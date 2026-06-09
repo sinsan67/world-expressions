@@ -94,7 +94,7 @@ export default function WelcomeModal({ onSelect }: Props) {
               return {
                 id: e.id,
                 expression: e.expression,
-                flag: REGION_FLAGS[e.region] || REGION_FLAGS[e.language] || "🌍",
+                flag: REGION_FLAGS[e.country] || REGION_FLAGS[e.region] || REGION_FLAGS[e.language] || "🌍",
                 meaning: t?.meaning || e.meaning || "",
                 literal: t?.literal ?? null,
                 idiomatic: t?.idiomatic ?? null,

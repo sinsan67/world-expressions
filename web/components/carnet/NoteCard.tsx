@@ -11,7 +11,7 @@ type Props = {
 };
 
 export default function NoteCard({ expressionId, text, updatedAt, expression, uiLang }: Props) {
-  const flag = expression ? (FLAG[expression.region] ?? "🌍") : "🌍";
+  const flag = expression ? (FLAG[expression.country || expression.region] ?? "🌍") : "🌍";
 
   return (
     <div

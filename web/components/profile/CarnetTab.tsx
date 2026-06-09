@@ -313,7 +313,8 @@ export default function CarnetTab({ session, uiLang, onAuthRequired }: Props) {
   const favoriteCountries: Array<{ region: string; count: number; flag: string }> = (() => {
     const counts: Record<string, number> = {};
     apiFavorites.forEach((f) => {
-      const region = expressionMap[f.expression_id]?.region;
+      const expr = expressionMap[f.expression_id];
+      const region = expr?.country || expr?.region;
       if (region) counts[region] = (counts[region] ?? 0) + 1;
     });
     return Object.entries(counts).sort((a, b) => b[1] - a[1])
@@ -321,7 +322,8 @@ export default function CarnetTab({ session, uiLang, onAuthRequired }: Props) {
   })();
 
   const filteredFavorites = apiFavorites.filter((f) => {
-    if (countryFilter && expressionMap[f.expression_id]?.region !== countryFilter) return false;
+    const expr = expressionMap[f.expression_id];
+    if (countryFilter && (expr?.country || expr?.region) !== countryFilter) return false;
     if (filterQuery.trim()) {
       const expr = expressionMap[f.expression_id];
       const q = filterQuery.toLowerCase();

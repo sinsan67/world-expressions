@@ -29,8 +29,9 @@ function fmtRelative(iso: string): string {
 }
 
 export default function HistoryRow({ expressionId, region, viewedAt, expression, uiLang }: Props) {
-  const flag = FLAG[region] ?? FLAG[expression?.region ?? ""] ?? "🌍";
-  const country = COUNTRY_NAME[region] ?? COUNTRY_NAME[expression?.region ?? ""] ?? region.toUpperCase();
+  const effectiveCode = region || expression?.country || expression?.region || "";
+  const flag = FLAG[effectiveCode] ?? "🌍";
+  const country = COUNTRY_NAME[effectiveCode] ?? effectiveCode.toUpperCase();
 
   return (
     <div

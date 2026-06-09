@@ -18,6 +18,7 @@ export type ConceptEquivalent = {
   text: string;
   language: string;
   region: string;
+  country: string;
   literal_fr: string | null;
   concept_confidence: number;
   meaning_fr: string | null;
@@ -32,6 +33,7 @@ export type Expression = {
   register: string;
   tags: string[];
   region: string;
+  country: string;
   illustration: string | null;
   language: string;
   type: string;
@@ -44,7 +46,7 @@ export type Expression = {
 
 export type SearchResponse = {
   query: string;
-  regions: string[] | "all";
+  countries: string[] | "all";
   total: number;
   offset: number;
   limit: number;
@@ -69,14 +71,16 @@ export async function searchExpressions(
   offset = 0,
   typeFilter?: string,
   lang?: string,
-  language?: string
+  language?: string,
+  countries?: string[]
 ): Promise<SearchResponse> {
   const params = new URLSearchParams({
     q: query,
-    region: regions.join(","),
     limit: String(limit),
     offset: String(offset),
   });
+  if (regions.length) params.set("region", regions.join(","));
+  if (countries && countries.length) params.set("country", countries.join(","));
   if (typeFilter) params.set("type_filter", typeFilter);
   if (lang) params.set("locale", lang);
   if (language) params.set("language", language);
@@ -92,14 +96,16 @@ export async function searchByConcept(
   offset = 0,
   typeFilter?: string,
   lang?: string,
-  language?: string
+  language?: string,
+  countries?: string[]
 ): Promise<ConceptResponse> {
   const params = new URLSearchParams({
     tags: tags.join(","),
-    region: regions.join(","),
     limit: String(limit),
     offset: String(offset),
   });
+  if (regions.length) params.set("region", regions.join(","));
+  if (countries && countries.length) params.set("country", countries.join(","));
   if (typeFilter) params.set("type_filter", typeFilter);
   if (lang) params.set("locale", lang);
   if (language) params.set("language", language);
@@ -115,13 +121,15 @@ export async function searchByDomain(
   offset = 0,
   lang?: string,
   typeFilter?: string,
+  countries?: string[]
 ): Promise<ConceptResponse> {
   const params = new URLSearchParams({
     domain,
-    region: regions.join(","),
     limit: String(limit),
     offset: String(offset),
   });
+  if (regions.length) params.set("region", regions.join(","));
+  if (countries && countries.length) params.set("country", countries.join(","));
   if (lang) params.set("locale", lang);
   if (typeFilter) params.set("type_filter", typeFilter);
   const res = await fetch(`${API}/concept?${params}`);
@@ -145,6 +153,25 @@ export async function browseByRegion(
   if (typeFilter) params.set("type_filter", typeFilter);
   if (lang) params.set("locale", lang);
   if (language) params.set("language", language);
+  const res = await fetch(`${API}/browse?${params}`);
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
+export async function browseByCountry(
+  countries: string[],
+  limit = 20,
+  offset = 0,
+  typeFilter?: string,
+  lang?: string
+): Promise<SearchResponse> {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset),
+  });
+  if (countries.length) params.set("country", countries.join(","));
+  if (typeFilter) params.set("type_filter", typeFilter);
+  if (lang) params.set("locale", lang);
   const res = await fetch(`${API}/browse?${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();
@@ -209,6 +236,12 @@ export async function getRegions(): Promise<RegionInfo[]> {
   return res.json();
 }
 
+export async function getCountries(): Promise<RegionInfo[]> {
+  const res = await fetch(`${API}/countries`);
+  if (!res.ok) return [];
+  return res.json();
+}
+
 export type TypeCounts = {
   idiom: number;
   proverb: number;
@@ -220,10 +253,12 @@ export async function getTypeCounts(
   regions: string[] = [],
   tags: string[] = [],
   query = "",
-  language?: string
+  language?: string,
+  countries?: string[]
 ): Promise<TypeCounts> {
   const params = new URLSearchParams();
   if (regions.length) params.set("region", regions.join(","));
+  if (countries && countries.length) params.set("country", countries.join(","));
   if (tags.length) params.set("tag", tags.join(","));
   if (query) params.set("q", query);
   if (language) params.set("language", language);
@@ -238,13 +273,13 @@ export type Facets = {
 };
 
 export async function getFacets(
-  regions: string[] = [],
+  countries: string[] = [],
   query = "",
   typeFilter: string | null = null,
 ): Promise<Facets> {
   const params = new URLSearchParams();
   if (query) params.set("q", query);
-  if (regions.length) params.set("region", regions.join(","));
+  if (countries.length) params.set("country", countries.join(","));
   if (typeFilter) params.set("type_filter", typeFilter);
   const res = await fetch(`${API}/facets?${params}`);
   if (!res.ok) return { region: {}, kind: {} };

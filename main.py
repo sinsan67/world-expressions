@@ -32,15 +32,22 @@ def home():
 
 @app.get("/regions")
 def get_regions():
-    """Return all regions present in the database with their expression counts."""
+    """Return sub-regions (alsace, bretagne) present in the database with their expression counts."""
     return database.get_regions()
+
+
+@app.get("/countries")
+def get_countries():
+    """Return all countries present in the database with their expression counts."""
+    return database.get_countries()
 
 
 @app.get("/search")
 def search_expressions(
     q: str = Query(..., min_length=2, description="Word to search"),
-    region: str = Query("", description="Comma-separated regions to include, e.g. 'fr,uk,us'. Empty = all."),
-    language: str = Query("", description="Comma-separated language codes, e.g. 'es'. Filters by expression language instead of region."),
+    region: str = Query("", description="Comma-separated sub-regions (alsace, bretagne). Empty = all."),
+    country: str = Query("", description="Comma-separated country codes, e.g. 'fr,uk,ar'. Empty = all."),
+    language: str = Query("", description="Comma-separated language codes, e.g. 'es'. Filters by expression language."),
     limit: int = Query(20, ge=1, le=100, description="Number of results per page"),
     offset: int = Query(0, ge=0, description="Number of results to skip"),
     type_filter: str = Query("", description="Filter by expression type: idiom, proverb, locution, word"),
@@ -49,17 +56,18 @@ def search_expressions(
     """
     Search for expressions related to a word.
     Returns exact matches first, then semantic matches, then cross-language translation matches.
-    Pass region=fr,uk,us to filter by origin country; omit for all regions.
+    Pass country=fr,uk,ar to filter by origin country; omit for all countries.
     Pass locale=fr to receive meanings in French when available.
     """
     regions = set(region.split(",")) - {""} if region else None
+    countries = set(country.split(",")) - {""} if country else None
     languages = set(language.split(",")) - {""} if language else None
     tf = type_filter.strip() or None
     loc = locale.strip() or None
-    results, total, detected_concepts = database.search_expressions(q, regions, limit, offset, tf, loc, languages)
+    results, total, detected_concepts = database.search_expressions(q, regions, limit, offset, tf, loc, languages, countries)
     return {
         "query": q,
-        "regions": sorted(regions) if regions else "all",
+        "countries": sorted(countries) if countries else "all",
         "total": total,
         "offset": offset,
         "limit": limit,
@@ -76,8 +84,9 @@ def search_expressions(
 def search_by_concept(
     tags: str = Query("", description="Comma-separated tag synonyms (OR logic). e.g. 'argent,money,wealth'"),
     domain: str = Query("", description="Domain slug — uses all tags of that domain (overrides tags)."),
-    region: str = Query("", description="Comma-separated regions. Empty = all."),
-    language: str = Query("", description="Comma-separated language codes, e.g. 'es'. Filters by expression language instead of region."),
+    region: str = Query("", description="Comma-separated sub-regions (alsace, bretagne). Empty = all."),
+    country: str = Query("", description="Comma-separated country codes, e.g. 'fr,uk,ar'. Empty = all."),
+    language: str = Query("", description="Comma-separated language codes, e.g. 'es'. Filters by expression language."),
     limit: int = Query(20, ge=1, le=100, description="Number of results per page"),
     offset: int = Query(0, ge=0, description="Number of results to skip"),
     type_filter: str = Query("", description="Filter by expression type: idiom, proverb, locution, word"),
@@ -93,10 +102,11 @@ def search_by_concept(
     else:
         tag_set = {t.lower().strip() for t in tags.split(",") if t.strip()}
     regions = set(region.split(",")) - {""} if region else None
+    countries = set(country.split(",")) - {""} if country else None
     languages = set(language.split(",")) - {""} if language else None
     tf = type_filter.strip() or None
     loc = locale.strip() or None
-    results, total = database.search_by_concept(tag_set, regions, limit, offset, tf, loc, languages)
+    results, total = database.search_by_concept(tag_set, regions, limit, offset, tf, loc, languages, countries)
     return {
         "concept_tags": sorted(tag_set),
         "total": total,
@@ -108,21 +118,23 @@ def search_by_concept(
 
 @app.get("/browse")
 def browse_expressions(
-    region: str = Query("", description="Comma-separated regions. Empty = all."),
-    language: str = Query("", description="Comma-separated language codes, e.g. 'es'. Filters by expression language instead of region."),
+    region: str = Query("", description="Comma-separated sub-regions (alsace, bretagne). Empty = all."),
+    country: str = Query("", description="Comma-separated country codes, e.g. 'fr,uk,ar'. Empty = all."),
+    language: str = Query("", description="Comma-separated language codes, e.g. 'es'. Filters by expression language."),
     limit: int = Query(20, ge=1, le=100, description="Number of results per page"),
     offset: int = Query(0, ge=0, description="Number of results to skip"),
     type_filter: str = Query("", description="Filter by expression type: idiom, proverb, locution, word"),
     locale: str = Query("", description="UI locale for translated meanings: fr, en, es, it, tr."),
 ):
-    """Return all expressions for given regions, sorted alphabetically. No query needed."""
+    """Return all expressions for given countries/regions, in random order. No query needed."""
     regions = set(region.split(",")) - {""} if region else None
+    countries = set(country.split(",")) - {""} if country else None
     languages = set(language.split(",")) - {""} if language else None
     tf = type_filter.strip() or None
     loc = locale.strip() or None
-    results, total = database.browse_by_region(regions, limit, offset, tf, loc, languages)
+    results, total = database.browse_by_region(regions, limit, offset, tf, loc, languages, countries)
     return {
-        "regions": sorted(regions) if regions else "all",
+        "countries": sorted(countries) if countries else "all",
         "total": total,
         "offset": offset,
         "limit": limit,
@@ -192,30 +204,32 @@ def get_expression(
 
 @app.get("/type-counts")
 def get_type_counts(
-    region: str = Query("", description="Comma-separated regions. Empty = all."),
-    language: str = Query("", description="Comma-separated language codes, e.g. 'es'. Filters by expression language instead of region."),
+    region: str = Query("", description="Comma-separated sub-regions (alsace, bretagne). Empty = all."),
+    country: str = Query("", description="Comma-separated country codes, e.g. 'fr,uk,ar'. Empty = all."),
+    language: str = Query("", description="Comma-separated language codes, e.g. 'es'. Filters by expression language."),
     tag: str = Query("", description="Comma-separated tag slugs for concept filter."),
     q: str = Query("", description="Text search query."),
 ):
-    """Return count of expressions per type, given optional region/concept/search filters."""
+    """Return count of expressions per type, given optional country/region/concept/search filters."""
     regions = set(region.split(",")) - {""} if region else None
+    countries = set(country.split(",")) - {""} if country else None
     languages = set(language.split(",")) - {""} if language else None
     tag_set = {t.lower().strip() for t in tag.split(",") if t.strip()} if tag else None
     query = q.strip() or None
-    return database.get_type_counts(regions, tag_set, query, languages)
+    return database.get_type_counts(regions, tag_set, query, languages, countries)
 
 
 @app.get("/facets")
 def get_facets(
     q: str = Query("", description="Text query for query-aware facets"),
-    region: str = Query("", description="Comma-separated region codes for kind facets"),
-    type_filter: str = Query("", description="Type filter (idiom|proverb|locution|word) for region facets"),
+    country: str = Query("", description="Comma-separated country codes for kind facets"),
+    type_filter: str = Query("", description="Type filter (idiom|proverb|locution|word) for country facets"),
 ):
-    """Return facet counts: region counts (with type_filter) + kind counts (with region filter)."""
-    regions = set(r.strip() for r in region.split(",") if r.strip()) or None
+    """Return facet counts: country counts (with type_filter) + kind counts (with country filter)."""
+    countries = set(c.strip() for c in country.split(",") if c.strip()) or None
     type_f = type_filter.strip() or None
     query = q.strip() or None
-    return database.get_facets(regions, query, type_f)
+    return database.get_facets(countries, query, type_f)
 
 
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")

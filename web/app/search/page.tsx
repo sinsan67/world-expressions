@@ -250,7 +250,7 @@ function SearchPageContent() {
     if (sortMode !== "country" || results.length === 0) return null;
     const map = new Map<string, Expression[]>();
     for (const expr of results) {
-      const code = expr.region ?? expr.language ?? "??";
+      const code = expr.country || expr.region || expr.language || "??";
       if (!map.has(code)) map.set(code, []);
       map.get(code)!.push(expr);
     }

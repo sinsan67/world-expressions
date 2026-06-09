@@ -55,7 +55,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
   const [fav, setFav] = useState(false);
   const { speaking, voiceAvailable, handleListen } = useAudio(e.expression, e.language);
   const router = useRouter();
-  const flag = FLAG[e.region] || "";
+  const flag = FLAG[e.country] || FLAG[e.region] || "";
   const typeLabel = getTypeLabel(e.type ?? "expression", uiLang);
   const oeLabel = ORIGIN_EXAMPLE_LABEL[uiLang] ?? ORIGIN_EXAMPLE_LABEL.en;
   const noVoiceLabel = NO_VOICE_LABEL[uiLang] ?? NO_VOICE_LABEL.en;
@@ -118,10 +118,10 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             <Link
-              href={`/country/${e.region}`}
+              href={`/country/${e.country || e.region}`}
               onClick={(ev) => ev.stopPropagation()}
               style={{ textDecoration: "none", lineHeight: 1, fontSize: "1.25rem" }}
-              title={e.region.toUpperCase()}
+              title={(e.country || e.region).toUpperCase()}
             >
               {flag}
             </Link>

@@ -25,8 +25,9 @@ function fmtDate(iso: string): string {
 export default function FavoriteRow({ expressionId, expression, savedAt, onRemove, uiLang }: Props) {
   const [removing, setRemoving] = useState(false);
 
-  const flag = expression ? (FLAG[expression.region] ?? "🌍") : "🌍";
-  const country = expression ? (COUNTRY_NAME[expression.region] ?? expression.region.toUpperCase()) : "";
+  const effectiveCode = expression?.country || expression?.region || "";
+  const flag = effectiveCode ? (FLAG[effectiveCode] ?? "🌍") : "🌍";
+  const country = effectiveCode ? (COUNTRY_NAME[effectiveCode] ?? effectiveCode.toUpperCase()) : "";
   const meaning = expression
     ? (uiLang !== expression.language && expression.translation?.meaning
         ? expression.translation.meaning
