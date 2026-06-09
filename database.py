@@ -1167,6 +1167,7 @@ def send_transactional_email(to: str, subject: str, html_body: str) -> None:
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
+            "User-Agent": "World Expressions/1.0",
         },
         method="POST",
     )
