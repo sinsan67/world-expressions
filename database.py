@@ -11,6 +11,7 @@ pour que main.py et le frontend n'aient pas besoin de changer.
 
 import json
 import os
+import re
 import secrets
 import urllib.error
 import urllib.request
@@ -236,6 +237,14 @@ _CONTENT_VEC = """to_tsvector('simple',
             coalesce(meaning, '') || ' ' || coalesce(origin, '') || ' ' ||
             coalesce(example, '') || ' ' || coalesce(tags_text, ''))"""
 
+# CJK Unicode blocks: CJK Unified Ideographs, Hiragana, Katakana, Hangul, etc.
+_CJK_RE = re.compile(r'[　-鿿ꀀ-꒏가-힯豈-﫿゠-ヿ぀-ゟ]')
+
+
+def _is_cjk_query(query: str) -> bool:
+    """Returns True if query contains Japanese/Chinese/Korean characters."""
+    return bool(_CJK_RE.search(query))
+
 
 def _find_matching_tag_slugs(query: str) -> set[str]:
     """
@@ -272,6 +281,31 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
 
     # Python lookup first: needed to conditionally build the concept CTE
     matching_tags = _find_matching_tag_slugs(query)
+
+    # For CJK queries (Japanese etc.) tsvector/tsquery doesn't tokenise properly —
+    # use pg_trgm ILIKE instead, backed by GIN trgm indexes.
+    cjk = _is_cjk_query(query)
+    if cjk:
+        _exact_rank = "1.0::float"
+        _exact_where = "text ILIKE :q_trgm"
+        _sem_rank = "0.8::float"
+        _sem_where = ("text NOT ILIKE :q_trgm AND ("
+                      "coalesce(meaning,'') ILIKE :q_trgm OR "
+                      "coalesce(origin,'') ILIKE :q_trgm OR "
+                      "coalesce(example,'') ILIKE :q_trgm OR "
+                      "coalesce(tags_text,'') ILIKE :q_trgm)")
+        _trans_where = ("ct.meaning ILIKE :q_trgm OR "
+                        "coalesce(ct.origin,'') ILIKE :q_trgm OR "
+                        "coalesce(ct.example,'') ILIKE :q_trgm")
+        cjk_params: dict = {"q_trgm": f"%{query.strip()}%"}
+    else:
+        _exact_rank = f"ts_rank({_TEXT_VEC}, {_TSQ})"
+        _exact_where = f"{_TEXT_VEC} @@ {_TSQ}"
+        _sem_rank = f"ts_rank({_CONTENT_VEC}, {_TSQ})"
+        _sem_where = f"NOT ({_TEXT_VEC} @@ {_TSQ}) AND {_CONTENT_VEC} @@ {_TSQ}"
+        _trans_where = (f"to_tsvector('simple', coalesce(ct.meaning,'') || ' ' || "
+                        f"coalesce(ct.origin,'') || ' ' || coalesce(ct.example,'')) @@ {_TSQ}")
+        cjk_params = {}
 
     concept_cte_sql = ""
     concept_union_sql = ""
@@ -326,20 +360,19 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
             SELECT
                 id, text, language, region, register, illustration, kind, source,
                 meaning, origin, example, tags_text, tags,
-                ts_rank({_TEXT_VEC}, {_TSQ}) AS rank,
+                {_exact_rank} AS rank,
                 1 AS pass_order, 'exact'::text AS match_type
             FROM base
-            WHERE {_TEXT_VEC} @@ {_TSQ}
+            WHERE {_exact_where}
         ),
         semantic_pass AS (
             SELECT
                 id, text, language, region, register, illustration, kind, source,
                 meaning, origin, example, tags_text, tags,
-                ts_rank({_CONTENT_VEC}, {_TSQ}) AS rank,
+                {_sem_rank} AS rank,
                 2 AS pass_order, 'semantic'::text AS match_type
             FROM base
-            WHERE NOT ({_TEXT_VEC} @@ {_TSQ})
-              AND {_CONTENT_VEC} @@ {_TSQ}
+            WHERE {_sem_where}
         ),
         translation_pass AS (
             SELECT
@@ -356,11 +389,7 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
             WHERE EXISTS (
                 SELECT 1 FROM content_translations ct
                 WHERE ct.expression_id = e.id
-                  AND to_tsvector('simple',
-                          coalesce(ct.meaning,'') || ' ' ||
-                          coalesce(ct.origin,'') || ' ' ||
-                          coalesce(ct.example,''))
-                      @@ {_TSQ}
+                  AND ({_trans_where})
             )
             {region_sql}{_EXCLUDE_PHRASEBOOK}{type_sql}
             AND e.id NOT IN (SELECT id FROM exact_pass)
@@ -392,13 +421,13 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
     """
 
     params = {"q": query.strip(), "limit": limit, "offset": offset,
-              **region_params, **type_params, **concept_params}
+              **region_params, **type_params, **concept_params, **cjk_params}
 
     with engine.connect() as conn:
         rows = conn.execute(text(sql), params).fetchall()
 
     if not rows:
-        return [], 0
+        return [], 0, matching_tags
 
     total = rows[0].total_count
     results = [_build_expression_dict(r, r.match_type) for r in rows]
@@ -536,12 +565,20 @@ def get_facets(
     fts_params: dict = {}
     if query and query.strip():
         fts_join = "\n        LEFT JOIN expression_content ec_f ON ec_f.expression_id = e.id AND ec_f.locale = e.language"
-        fts_cond = """ AND (
-            to_tsvector('simple', e.text) @@ websearch_to_tsquery('simple', :q_f)
-            OR to_tsvector('simple', coalesce(ec_f.meaning,'') || ' ' || coalesce(ec_f.example,''))
-               @@ websearch_to_tsquery('simple', :q_f)
-        )"""
-        fts_params = {"q_f": query.strip()}
+        if _is_cjk_query(query):
+            fts_cond = """ AND (
+                e.text ILIKE :q_trgm_f
+                OR coalesce(ec_f.meaning,'') ILIKE :q_trgm_f
+                OR coalesce(ec_f.example,'') ILIKE :q_trgm_f
+            )"""
+            fts_params = {"q_trgm_f": f"%{query.strip()}%"}
+        else:
+            fts_cond = """ AND (
+                to_tsvector('simple', e.text) @@ websearch_to_tsquery('simple', :q_f)
+                OR to_tsvector('simple', coalesce(ec_f.meaning,'') || ' ' || coalesce(ec_f.example,''))
+                   @@ websearch_to_tsquery('simple', :q_f)
+            )"""
+            fts_params = {"q_f": query.strip()}
 
     sql_region = f"""
         SELECT e.region, COUNT(DISTINCT e.id) AS n
@@ -751,7 +788,8 @@ def upsert_user(google_id: str, email: str, name: Optional[str], avatar_url: Opt
 def get_user_preferences(user_id: str) -> Optional[dict]:
     """Retourne les préférences d'un utilisateur."""
     sql = text("""
-        SELECT id::text, ui_lang, explore_mode, learning_langs, content_type, email_verified
+        SELECT id::text, ui_lang, explore_mode, learning_langs, content_type,
+               email_verified, native_lang, user_goal
         FROM users WHERE id = :user_id::uuid
     """)
     with engine.connect() as conn:
@@ -765,6 +803,8 @@ def get_user_preferences(user_id: str) -> Optional[dict]:
         "learning_langs": list(row.learning_langs) if row.learning_langs else [],
         "content_type": row.content_type,
         "email_verified": row.email_verified,
+        "native_lang": row.native_lang,
+        "user_goal": row.user_goal,
     }
 
 
@@ -774,6 +814,8 @@ def update_user_preferences(
     explore_mode: str = "multilingual",
     learning_langs: list[str] | None = None,
     content_type: str = "all",
+    native_lang: str | None = None,
+    user_goal: str | None = None,
 ) -> Optional[dict]:
     """Met à jour les préférences d'un utilisateur. Retourne les nouvelles valeurs."""
     sql = text("""
@@ -781,9 +823,11 @@ def update_user_preferences(
         SET ui_lang = :ui_lang,
             explore_mode = :explore_mode,
             learning_langs = :learning_langs,
-            content_type = :content_type
+            content_type = :content_type,
+            native_lang = :native_lang,
+            user_goal = :user_goal
         WHERE id = :user_id::uuid
-        RETURNING id::text, ui_lang, explore_mode, learning_langs, content_type
+        RETURNING id::text, ui_lang, explore_mode, learning_langs, content_type, native_lang, user_goal
     """)
     with engine.begin() as conn:
         row = conn.execute(sql, {
@@ -792,6 +836,8 @@ def update_user_preferences(
             "explore_mode": explore_mode,
             "learning_langs": learning_langs or [],
             "content_type": content_type,
+            "native_lang": native_lang,
+            "user_goal": user_goal,
         }).fetchone()
     if row is None:
         return None
@@ -801,6 +847,8 @@ def update_user_preferences(
         "explore_mode": row.explore_mode,
         "learning_langs": list(row.learning_langs) if row.learning_langs else [],
         "content_type": row.content_type,
+        "native_lang": row.native_lang,
+        "user_goal": row.user_goal,
     }
 
 

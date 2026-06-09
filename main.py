@@ -230,6 +230,8 @@ class PreferencesRequest(BaseModel):
     explore_mode: str = "multilingual"
     learning_langs: list[str] = []
     content_type: str = "all"
+    native_lang: str | None = None
+    user_goal: str | None = None
 
 
 class FavoriteRequest(BaseModel):
@@ -264,7 +266,8 @@ def update_preferences(user_id: str, body: PreferencesRequest):
     if invalid_langs:
         raise HTTPException(status_code=422, detail=f"learning_langs contains invalid values: {invalid_langs}")
     prefs = database.update_user_preferences(
-        user_id, body.ui_lang, body.explore_mode, body.learning_langs, body.content_type
+        user_id, body.ui_lang, body.explore_mode, body.learning_langs, body.content_type,
+        body.native_lang, body.user_goal,
     )
     if prefs is None:
         raise HTTPException(status_code=404, detail="User not found")
