@@ -158,6 +158,10 @@ const T: Record<UILang, {
 
 function CountryPageContent({ code }: { code: string }) {
   const router = useRouter();
+  const isPrimaryLang = PRIMARY_LANG_COUNTRIES.has(code);
+  // Primary-lang countries (it, es, fr…) span thousands of entries — default to idioms only.
+  const defaultTypeFilter = isPrimaryLang ? "idiom" : null;
+
   const [uiLang, setUILang] = useState<UILang>("en");
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState("");
@@ -169,7 +173,7 @@ function CountryPageContent({ code }: { code: string }) {
   const [hasMore, setHasMore] = useState(false);
   const [topTags, setTopTags] = useState<{ slug: string; name: string }[]>([]);
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
-  const [typeFilter, setTypeFilter] = useState<string | null>(null);
+  const [typeFilter, setTypeFilter] = useState<string | null>(defaultTypeFilter);
   const [typeCounts, setTypeCounts] = useState<TypeCounts>({ idiom: 0, proverb: 0, locution: 0, word: 0 });
   const sentinelRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -204,7 +208,6 @@ function CountryPageContent({ code }: { code: string }) {
       .catch(() => {});
   }, [lang, uiLang]);
 
-  const isPrimaryLang = PRIMARY_LANG_COUNTRIES.has(code);
   const regionFilter = isPrimaryLang ? [] : [code];
   const languageFilter = isPrimaryLang ? lang : undefined;
 
@@ -275,7 +278,7 @@ function CountryPageContent({ code }: { code: string }) {
   }, [hasMore, loadingMore, expressions.length, activeTag, searchQuery, typeFilter, doFetch]);
 
   useEffect(() => {
-    load(null, null);
+    load(null, null, defaultTypeFilter);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
