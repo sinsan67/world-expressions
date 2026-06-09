@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
 
 const LANGS: { code: UILang; flag: string; name: string }[] = [
   { code: "fr", flag: "🇫🇷", name: "Français" },
@@ -11,6 +11,7 @@ const LANGS: { code: UILang; flag: string; name: string }[] = [
   { code: "it", flag: "🇮🇹", name: "Italiano" },
   { code: "tr", flag: "🇹🇷", name: "Türkçe" },
   { code: "de", flag: "🇩🇪", name: "Deutsch" },
+  { code: "ja", flag: "🇯🇵", name: "日本語" },
 ];
 
 type Props = { uiLang: UILang; onLangChange: (lang: UILang) => void };

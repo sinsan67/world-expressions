@@ -11,7 +11,7 @@ import { Heart } from "lucide-react";
 import { browseByRegion, Expression } from "@/lib/api";
 import { REGION_DEFS, RegionDef, getSectionStyle } from "@/lib/regionDefs";
 
-type UILang = "fr" | "en" | "es" | "tr" | "it" | "de";
+type UILang = "fr" | "en" | "es" | "tr" | "it" | "de" | "ja";
 
 // ─── RegionCard ───────────────────────────────────────────────────────────────
 
@@ -152,7 +152,7 @@ function RegionPageContent({ code }: { code: string }) {
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
-    const valid: UILang[] = ["fr", "en", "es", "it", "tr", "de"];
+    const valid: UILang[] = ["fr", "en", "es", "it", "tr", "de", "ja"];
     if (stored && valid.includes(stored)) setUILang(stored);
   }, []);
 

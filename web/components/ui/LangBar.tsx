@@ -4,7 +4,7 @@ import AuthButton from "./AuthButton";
 import LangDropdown from "./LangDropdown";
 import ShareButton from "./ShareButton";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
 
 type Props = {
   uiLang: UILang;

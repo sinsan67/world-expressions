@@ -17,7 +17,7 @@ import { getExpression, getRegions, getAllTagNames, Expression, RegionInfo } fro
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { tagIcon } from "@/lib/tagIcons";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -144,10 +144,28 @@ const T: Record<UILang, {
     signInPrompt: "Melde dich an, um deine Favoriten zu speichern, deinen Fortschritt zu verfolgen und auf jedem Gerät weiterzumachen.",
     signInCta: "Konto erstellen →",
   },
+  ja: {
+    memberSince: (d) => `${d}からのメンバー`,
+    streak: (n) => `🔥 ${n}日連続`,
+    seenLabel: "見た表現", favLabel: "お気に入り", countriesLabel: "探した国", topLangLabel: "主な言語",
+    yourThemes: "テーマ",
+    tabFavoris: "お気に入り", tabHistory: "履歴", tabNotes: "メモ",
+    filterFav: "お気に入りを絞り込む…", allCountries: "すべて",
+    last50: "最近の50件",
+    emptyFav: "まだお気に入りなし — ♡をタップして保存",
+    emptyHistory: "まだ表現を見ていません",
+    emptyNotes: "まだメモなし",
+    progressTitle: "国別の進捗",
+    exportTitle: "ノートをダウンロード", exportJSON: "JSONエクスポート", exportCSV: "CSVエクスポート",
+    noLang: "—",
+    moreCountries: (n) => `+ ${n}ヶ国`,
+    signInPrompt: "サインインしてお気に入りを保存し、進捗を追跡し、どのデバイスでも続けよう。",
+    signInCta: "アカウントを作成 →",
+  },
 };
 
 const LANG_NAME: Record<string, string> = {
-  fr: "Français", en: "English", es: "Español", it: "Italiano", tr: "Türkçe", de: "Deutsch",
+  fr: "Français", en: "English", es: "Español", it: "Italiano", tr: "Türkçe", de: "Deutsch", ja: "日本語",
 };
 
 interface Props {

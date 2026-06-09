@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
 
 const LABELS: Record<UILang, { btn: string; done: string }> = {
   fr: { btn: "Partager",  done: "Lien copié !" },
@@ -11,6 +11,7 @@ const LABELS: Record<UILang, { btn: string; done: string }> = {
   it: { btn: "Condividi", done: "Copiato!" },
   tr: { btn: "Paylaş",    done: "Kopyalandı!" },
   de: { btn: "Teilen",    done: "Link kopiert!" },
+  ja: { btn: "シェア",    done: "コピー済み！" },
 };
 
 export default function ShareButton({ uiLang }: { uiLang: UILang }) {

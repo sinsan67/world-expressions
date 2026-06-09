@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
 type UserGoal = "curious" | "learning" | "nerd" | "teacher";
 
 const LANG_OPTIONS: { code: UILang; label: string; flag: string }[] = [
@@ -13,6 +13,7 @@ const LANG_OPTIONS: { code: UILang; label: string; flag: string }[] = [
   { code: "it", label: "Italiano", flag: "🇮🇹" },
   { code: "tr", label: "Türkçe",   flag: "🇹🇷" },
   { code: "de", label: "Deutsch",  flag: "🇩🇪" },
+  { code: "ja", label: "日本語",   flag: "🇯🇵" },
 ];
 
 const NATIVE_LANG_OPTIONS = [

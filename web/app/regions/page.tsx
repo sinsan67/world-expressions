@@ -7,7 +7,7 @@ import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
 import { REGION_DEFS } from "@/lib/regionDefs";
 
-type UILang = "fr" | "en" | "es" | "tr" | "it" | "de";
+type UILang = "fr" | "en" | "es" | "tr" | "it" | "de" | "ja";
 
 const T = {
   fr: {
@@ -46,6 +46,12 @@ const T = {
     back: "← Frankreich",
     expressions: (n: number) => `${n} Ausdrücke`,
   },
+  ja: {
+    title: "フランスの地方",
+    subtitle: "話し言葉のフランス語は地方によって異なる——訛り、借用語、地域言語からの言語転移。",
+    back: "← フランス",
+    expressions: (n: number) => `${n}件の表現`,
+  },
 };
 
 const REGION_COUNTS: Record<string, number> = {
@@ -58,7 +64,7 @@ export default function RegionsPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
-    const valid: UILang[] = ["fr", "en", "es", "it", "tr", "de"];
+    const valid: UILang[] = ["fr", "en", "es", "it", "tr", "de", "ja"];
     if (stored && valid.includes(stored)) setUILang(stored);
   }, []);
 

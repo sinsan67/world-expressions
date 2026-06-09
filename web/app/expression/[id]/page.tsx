@@ -20,7 +20,7 @@ import { useAudio } from "@/lib/useAudio";
 import { Heart, Dice5, Search, Volume2, VolumeX } from "lucide-react";
 import SearchOverlay from "@/components/SearchOverlay";
 
-type UILang = "fr" | "en" | "es" | "tr" | "it" | "de";
+type UILang = "fr" | "en" | "es" | "tr" | "it" | "de" | "ja";
 
 const T: Record<UILang, {
   wordForWord: string;
@@ -155,10 +155,29 @@ const T: Record<UILang, {
     noVoice: "Stimme auf diesem Gerät nicht verfügbar",
     register: { standard: "standard", informal: "umgangssprachlich", slang: "Slang", vulgar: "vulgär", formal: "formell" },
   },
+  ja: {
+    wordForWord: "逐語訳",
+    equivalent: "同義表現",
+    original: "原文",
+    origin: "由来",
+    example: "例",
+    meaning: "意味",
+    source: "出典",
+    tags: "テーマ",
+    related: "同じ世界で",
+    randomBtn: "ランダムな表現",
+    back: "戻る",
+    searchBack: "検索結果：",
+    sameIdea: "同じ考え",
+    elsewhereInTheWorld: "...世界の各地で",
+    listen: "聴く",
+    noVoice: "このデバイスでは音声を利用できません",
+    register: { standard: "普通", informal: "くだけた", slang: "俗語", vulgar: "卑語", formal: "丁寧" },
+  },
 };
 
 const LANGUAGE_NAME: Record<string, string> = {
-  fr: "Français", en: "English", es: "Español", it: "Italiano", tr: "Türkçe", de: "Deutsch",
+  fr: "Français", en: "English", es: "Español", it: "Italiano", tr: "Türkçe", de: "Deutsch", ja: "日本語",
 };
 
 function confidenceBadge(score: number) {
@@ -448,7 +467,7 @@ function ExpressionPageContent({ id }: { id: string }) {
           <Dice5 size={16} strokeWidth={1.5} />
         </Link>
         <div style={{ display: "flex", gap: 4 }}>
-          {(["fr", "en", "es", "tr", "it", "de"] as UILang[]).map((l) => (
+          {(["fr", "en", "es", "tr", "it", "de", "ja"] as UILang[]).map((l) => (
             <Link
               key={l}
               href={`/expression/${id}?lang=${l}`}

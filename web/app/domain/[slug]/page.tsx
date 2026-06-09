@@ -13,7 +13,7 @@ import { EDITORIAL_DOMAIN_MAP } from "@/lib/editorialDomains";
 import { TYPE_LABELS } from "@/lib/typeLabels";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
 
 const LIMIT = 30;
 const CONCEPTS_PREVIEW = 6;
@@ -123,6 +123,21 @@ const T: Record<UILang, {
     allTypes: "Alle",
     allCountries: "Alle Länder",
   },
+  ja: {
+    back: "ホーム",
+    loading: "読み込み中…",
+    loadMore: "もっと見る",
+    noResults: "表現が見つかりません。",
+    allDisplayed: (n) => `合計${n}件の表現`,
+    concepts: "テーマ",
+    expressions: "表現",
+    nExpressions: (n) => `${n}件の表現`,
+    showMore: (n) => `他${n}件を見る →`,
+    showLess: "少なく表示",
+    filterByType: "タイプで絞り込む",
+    allTypes: "すべて",
+    allCountries: "すべての国",
+  },
 };
 
 export default function DomainPage() {
@@ -150,7 +165,7 @@ export default function DomainPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
-    if (stored && ["fr", "en", "es", "it", "tr", "de"].includes(stored)) setUILang(stored);
+    if (stored && ["fr", "en", "es", "it", "tr", "de", "ja"].includes(stored)) setUILang(stored);
   }, []);
 
   useEffect(() => {

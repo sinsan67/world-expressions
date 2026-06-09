@@ -16,11 +16,11 @@ const BASE_NAV_ITEMS = [
 ];
 
 const NAV_LABELS: Record<string, Record<string, string>> = {
-  home:      { fr: "Accueil",      en: "Home",       es: "Inicio",      it: "Home",               tr: "Ana sayfa", de: "Startseite" },
-  atlas:     { fr: "Atlas",        en: "Atlas",       es: "Atlas",       it: "Atlante",            tr: "Atlas",     de: "Atlas" },
-  concepts:  { fr: "Concepts",     en: "Concepts",    es: "Conceptos",   it: "Concetti",           tr: "Kavramlar", de: "Konzepte" },
-  search:    { fr: "Rechercher",   en: "Search",      es: "Buscar",      it: "Cerca",              tr: "Ara",       de: "Suchen" },
-  carnet:    { fr: "Mon carnet",   en: "My notebook", es: "Mi cuaderno", it: "Il mio taccuino",    tr: "Defterim",  de: "Mein Notizbuch" },
+  home:      { fr: "Accueil",      en: "Home",       es: "Inicio",      it: "Home",               tr: "Ana sayfa", de: "Startseite",     ja: "ホーム" },
+  atlas:     { fr: "Atlas",        en: "Atlas",       es: "Atlas",       it: "Atlante",            tr: "Atlas",     de: "Atlas",           ja: "地図" },
+  concepts:  { fr: "Concepts",     en: "Concepts",    es: "Conceptos",   it: "Concetti",           tr: "Kavramlar", de: "Konzepte",        ja: "概念" },
+  search:    { fr: "Rechercher",   en: "Search",      es: "Buscar",      it: "Cerca",              tr: "Ara",       de: "Suchen",          ja: "検索" },
+  carnet:    { fr: "Mon carnet",   en: "My notebook", es: "Mi cuaderno", it: "Il mio taccuino",    tr: "Defterim",  de: "Mein Notizbuch",  ja: "ノート" },
 };
 
 const TAGLINE: Record<string, string> = {
@@ -30,6 +30,7 @@ const TAGLINE: Record<string, string> = {
   it: "Ogni lingua ha la sua follia.",
   tr: "Her dilin kendine özgü bir çılgınlığı var.",
   de: "Jede Sprache hat ihren eigenen Wahnsinn.",
+  ja: "沈黙は金、雄弁は銀。",
 };
 
 type Props = {

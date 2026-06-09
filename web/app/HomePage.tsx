@@ -26,7 +26,7 @@ import { EDITORIAL_DOMAINS } from "@/lib/editorialDomains";
 const LIMIT = 20;
 const MAX_SECTION_PREVIEW = 6;
 
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de";
+type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
 
 const T = {
   fr: {
@@ -209,28 +209,58 @@ const T = {
     matchSections: { exact: "Im Text", semantic: "Nach Bedeutung", translation: "Via Übersetzungen", concept: "Nach Konzept" } as Record<string, string>,
     showMore: (n: number) => `${n} weitere anzeigen →`,
   },
+  ja: {
+    expressionOfDay: "今日の表現",
+    anotherOne: "別の表現",
+    readFile: "カードを読む →",
+    atlasTitle: (n: number) => `${n}ヶ国を探索`,
+    emojiEyebrow: "絵文字で",
+    emojiTitle: "クリック、探索、発見",
+    domainsEyebrow: "テーマ",
+    domainsTitle: "探索できるテーマの世界",
+    atlasEyebrow: "地図",
+    moreCountries: "ヶ国",
+    placeholder: "試して：お金、動物、出発、恐怖…",
+    search: "検索",
+    results: (n: number, q: string) => `「${q}」の表現 ${n}件`,
+    allDisplayed: (n: number) => `${n}件の表現を表示`,
+    noResults: "表現が見つかりません",
+    noResultsHint: "別の言葉か変形を試してください…",
+    serverError: "サーバーに接続できません。",
+    newsletterHeadline: "1日1表現、世界からあなたへ。",
+    newsletterSub: "毎朝、世界の慣用表現をあなたの言語でお届けします。",
+    newsletterPlaceholder: "メール@アドレス",
+    newsletterCta: "登録する",
+    newsletterSuccess: "登録完了！毎日1表現が届きます。",
+    newsletterAlready: "すでに登録済みです！",
+    newsletterError: "エラーが発生しました。再試行してください。",
+    types: { idiom: "慣用句", proverb: "ことわざ", locution: "成句", word: "言葉", expression: "表現" } as Record<string, string>,
+    registers: { standard: "普通", informal: "くだけた", slang: "俗語", vulgar: "卑語", formal: "丁寧" } as Record<string, string>,
+    matchSections: { exact: "テキスト内", semantic: "意味で", translation: "翻訳経由", concept: "概念で" } as Record<string, string>,
+    showMore: (n: number) => `他${n}件を見る →`,
+  },
 };
 
 const PINNED_EMOJI_WALL: Array<{ slug: string; emoji: string; labels: Record<UILang, string> }> = [
-  { slug: "humor",      emoji: "😂", labels: { fr: "Humour",     en: "Humor",      es: "Humor",     it: "Umorismo",    tr: "Mizah",      de: "Humor" } },
-  { slug: "love",       emoji: "❤️", labels: { fr: "Amour",      en: "Love",       es: "Amor",      it: "Amore",       tr: "Aşk",        de: "Liebe" } },
-  { slug: "money",      emoji: "💰", labels: { fr: "Argent",     en: "Money",      es: "Dinero",    it: "Denaro",      tr: "Para",       de: "Geld" } },
-  { slug: "anger",      emoji: "😠", labels: { fr: "Colère",     en: "Anger",      es: "Ira",       it: "Rabbia",      tr: "Öfke",       de: "Wut" } },
-  { slug: "travel",     emoji: "✈️", labels: { fr: "Voyage",     en: "Travel",     es: "Viaje",     it: "Viaggio",     tr: "Seyahat",    de: "Reise" } },
-  { slug: "lying",      emoji: "🤥", labels: { fr: "Mensonge",   en: "Lying",      es: "Mentira",   it: "Menzogna",    tr: "Yalan",      de: "Lüge" } },
-  { slug: "fear",       emoji: "😱", labels: { fr: "Peur",       en: "Fear",       es: "Miedo",     it: "Paura",       tr: "Korku",      de: "Angst" } },
-  { slug: "death",      emoji: "💀", labels: { fr: "Mort",       en: "Death",      es: "Muerte",    it: "Morte",       tr: "Ölüm",       de: "Tod" } },
-  { slug: "laziness",   emoji: "😴", labels: { fr: "Paresse",    en: "Laziness",   es: "Pereza",    it: "Pigrizia",    tr: "Tembellik",  de: "Faulheit" } },
-  { slug: "work",       emoji: "💼", labels: { fr: "Travail",    en: "Work",       es: "Trabajo",   it: "Lavoro",      tr: "İş",         de: "Arbeit" } },
-  { slug: "wine",       emoji: "🍷", labels: { fr: "Vin",        en: "Wine",       es: "Vino",      it: "Vino",        tr: "Şarap",      de: "Wein" } },
-  { slug: "animals",    emoji: "🐾", labels: { fr: "Animaux",    en: "Animals",    es: "Animales",  it: "Animali",     tr: "Hayvanlar",  de: "Tiere" } },
-  { slug: "success",    emoji: "🏆", labels: { fr: "Succès",     en: "Success",    es: "Éxito",     it: "Successo",    tr: "Başarı",     de: "Erfolg" } },
-  { slug: "clumsiness", emoji: "🤦", labels: { fr: "Maladresse", en: "Clumsiness", es: "Torpeza",   it: "Goffaggine",  tr: "Sakarlık",   de: "Tollpatschigkeit" } },
-  { slug: "secret",     emoji: "🤫", labels: { fr: "Secret",     en: "Secret",     es: "Secreto",   it: "Segreto",     tr: "Sır",        de: "Geheimnis" } },
-  { slug: "party",      emoji: "🎉", labels: { fr: "Fête",       en: "Party",      es: "Fiesta",    it: "Festa",       tr: "Parti",      de: "Fest" } },
+  { slug: "humor",      emoji: "😂", labels: { fr: "Humour",     en: "Humor",      es: "Humor",     it: "Umorismo",    tr: "Mizah",      de: "Humor",              ja: "ユーモア" } },
+  { slug: "love",       emoji: "❤️", labels: { fr: "Amour",      en: "Love",       es: "Amor",      it: "Amore",       tr: "Aşk",        de: "Liebe",              ja: "愛" } },
+  { slug: "money",      emoji: "💰", labels: { fr: "Argent",     en: "Money",      es: "Dinero",    it: "Denaro",      tr: "Para",       de: "Geld",               ja: "お金" } },
+  { slug: "anger",      emoji: "😠", labels: { fr: "Colère",     en: "Anger",      es: "Ira",       it: "Rabbia",      tr: "Öfke",       de: "Wut",                ja: "怒り" } },
+  { slug: "travel",     emoji: "✈️", labels: { fr: "Voyage",     en: "Travel",     es: "Viaje",     it: "Viaggio",     tr: "Seyahat",    de: "Reise",              ja: "旅" } },
+  { slug: "lying",      emoji: "🤥", labels: { fr: "Mensonge",   en: "Lying",      es: "Mentira",   it: "Menzogna",    tr: "Yalan",      de: "Lüge",               ja: "嘘" } },
+  { slug: "fear",       emoji: "😱", labels: { fr: "Peur",       en: "Fear",       es: "Miedo",     it: "Paura",       tr: "Korku",      de: "Angst",              ja: "恐れ" } },
+  { slug: "death",      emoji: "💀", labels: { fr: "Mort",       en: "Death",      es: "Muerte",    it: "Morte",       tr: "Ölüm",       de: "Tod",                ja: "死" } },
+  { slug: "laziness",   emoji: "😴", labels: { fr: "Paresse",    en: "Laziness",   es: "Pereza",    it: "Pigrizia",    tr: "Tembellik",  de: "Faulheit",           ja: "怠惰" } },
+  { slug: "work",       emoji: "💼", labels: { fr: "Travail",    en: "Work",       es: "Trabajo",   it: "Lavoro",      tr: "İş",         de: "Arbeit",             ja: "仕事" } },
+  { slug: "wine",       emoji: "🍷", labels: { fr: "Vin",        en: "Wine",       es: "Vino",      it: "Vino",        tr: "Şarap",      de: "Wein",               ja: "ワイン" } },
+  { slug: "animals",    emoji: "🐾", labels: { fr: "Animaux",    en: "Animals",    es: "Animales",  it: "Animali",     tr: "Hayvanlar",  de: "Tiere",              ja: "動物" } },
+  { slug: "success",    emoji: "🏆", labels: { fr: "Succès",     en: "Success",    es: "Éxito",     it: "Successo",    tr: "Başarı",     de: "Erfolg",             ja: "成功" } },
+  { slug: "clumsiness", emoji: "🤦", labels: { fr: "Maladresse", en: "Clumsiness", es: "Torpeza",   it: "Goffaggine",  tr: "Sakarlık",   de: "Tollpatschigkeit",   ja: "不器用" } },
+  { slug: "secret",     emoji: "🤫", labels: { fr: "Secret",     en: "Secret",     es: "Secreto",   it: "Segreto",     tr: "Sır",        de: "Geheimnis",          ja: "秘密" } },
+  { slug: "party",      emoji: "🎉", labels: { fr: "Fête",       en: "Party",      es: "Fiesta",    it: "Festa",       tr: "Parti",      de: "Fest",               ja: "祭り" } },
 ];
 
-const REGION_ORDER = ["fr", "en", "es", "it", "tr", "de"];
+const REGION_ORDER = ["fr", "en", "es", "it", "tr", "de", "jp"];
 
 const COUNTRY_SUB_REGIONS: Record<string, { code: string; name: string; emoji: string }[]> = {
   fr: [
@@ -251,6 +281,7 @@ const SEARCH_HELP: Record<UILang, string> = {
   it: "Ricerca in più fasi: la parola esatta, poi sinonimi e tag, poi concetti multilingua. Esempio: «industria» mostra anche espressioni in francese o turco legate a «work».",
   tr: "Arama birden fazla aşamada çalışır: tam kelime, ardından eş anlamlılar ve etiketler, ardından çok dilli kavramlar. Örnek: «sanayi» araması «work» etiketli Fransızca veya İspanyolca ifadeler de gösterir.",
   de: "Suche läuft in mehreren Schritten: exaktes Wort, dann Synonyme und Tags, dann mehrsprachige Konzepte. Beispiel: «Industrie» zeigt auch französische oder türkische Ausdrücke mit dem Tag «work».",
+  ja: "検索は複数のパスで実行されます：完全一致、次に類義語とタグ、最後に多言語概念。例：「仕事」で「work」タグのフランス語やスペイン語の表現も見つかります。",
 };
 
 function sectionExprCount(n: number, lang: UILang): string {
@@ -258,6 +289,7 @@ function sectionExprCount(n: number, lang: UILang): string {
   if (lang === "it") return `${n} espression${n > 1 ? "i" : "e"}`;
   if (lang === "tr") return `${n} deyim`;
   if (lang === "de") return `${n} Ausdruck${n !== 1 ? "...ausdrücke".slice(3) : ""}`;
+  if (lang === "ja") return `${n}件`;
   return `${n} expression${n > 1 ? "s" : ""}`;
 }
 
@@ -503,7 +535,7 @@ export default function HomePage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang") as UILang | null;
-    const valid: UILang[] = ["fr", "en", "es", "it", "tr", "de"];
+    const valid: UILang[] = ["fr", "en", "es", "it", "tr", "de", "ja"];
     if (stored && valid.includes(stored)) {
       setUILang(stored);
       setShowWelcome(false);
