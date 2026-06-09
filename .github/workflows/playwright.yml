@@ -30,6 +30,13 @@ jobs:
         run: npx playwright install --with-deps chromium
         working-directory: web
 
+      - name: Reset test account
+        run: |
+          pip install psycopg2-binary sqlalchemy --quiet
+          python3 scripts/reset_test_account.py --email ssin@protonmail.com
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_PROD }}
+
       - name: Warm up Render backend
         run: |
           echo "Waking up Render service..."
