@@ -222,7 +222,7 @@ export default function AtlasPage() {
                   : (PASTEL_GRADIENTS[r.code] ?? PASTEL_GRADIENTS.default);
                 const flag = FLAG[r.code] ?? "🌍";
                 const name = COUNTRY_NAME[r.code] ?? r.code.toUpperCase();
-                const lang = r.languages.map(l => LANG_NAME[l] ?? l).join(", ");
+                const lang = (r.languages ?? []).map(l => LANG_NAME[l] ?? l).join(", ");
 
                 return (
                   <Link
