@@ -246,19 +246,21 @@ def get_regions() -> list[dict]:
 
 def get_countries() -> list[dict]:
     """Retourne les pays réels avec au moins 10 expressions, triés par count desc.
-    Exclut 'en' (code langue générique, pas un pays) et les pays sous le seuil."""
+    Joints avec country_languages pour retourner la liste des langues par pays."""
     with engine.connect() as conn:
         rows = conn.execute(
             text("""
-                SELECT country, COUNT(*) AS n
-                FROM expressions
-                WHERE country IS NOT NULL AND country != 'en'
-                GROUP BY country
+                SELECT e.country, COUNT(*) AS n,
+                       array_agg(DISTINCT cl.language_code ORDER BY cl.language_code) AS languages
+                FROM expressions e
+                LEFT JOIN country_languages cl ON cl.country_code = e.country
+                WHERE e.country IS NOT NULL
+                GROUP BY e.country
                 HAVING COUNT(*) >= 10
                 ORDER BY n DESC
             """)
         ).fetchall()
-    return [{"code": r.country, "count": r.n} for r in rows]
+    return [{"code": r.country, "count": r.n, "languages": r.languages or []} for r in rows]
 
 
 _TSQ = "websearch_to_tsquery('simple', :q)"

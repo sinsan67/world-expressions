@@ -16,7 +16,7 @@ from alembic import op
 import sqlalchemy as sa
 
 revision = "e1f2a3b4c5d6"
-down_revision = "b1c2d3e4f5a6"
+down_revision = "f938413c4afe"
 branch_labels = None
 depends_on = None
 
@@ -101,6 +101,14 @@ def upgrade() -> None:
         ["country"], ["code"],
         ondelete="SET NULL",
     )
+
+    # ── 5b. Nettoyer region : vider toute valeur qui n'est pas une vraie région ─
+    # (cas 'uy' et autres codes pays non listés dans f938413c4afe step 5)
+    op.execute("""
+        UPDATE expressions
+        SET region = NULL
+        WHERE region IS NOT NULL AND region NOT IN ('alsace', 'bretagne')
+    """)
 
     # ── 6. FK expressions.region → regions.code ──────────────────────────
     op.create_foreign_key(

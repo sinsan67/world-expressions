@@ -229,6 +229,7 @@ export async function getExpression(id: string, lang = ""): Promise<Expression> 
 }
 
 export type RegionInfo = { code: string; count: number };
+export type CountryInfo = { code: string; count: number; languages: string[] };
 
 export async function getRegions(): Promise<RegionInfo[]> {
   const res = await fetch(`${API}/regions`);
@@ -236,7 +237,7 @@ export async function getRegions(): Promise<RegionInfo[]> {
   return res.json();
 }
 
-export async function getCountries(): Promise<RegionInfo[]> {
+export async function getCountries(): Promise<CountryInfo[]> {
   const res = await fetch(`${API}/countries`);
   if (!res.ok) return [];
   return res.json();

@@ -16,7 +16,7 @@ import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { TYPE_LABELS } from "@/lib/typeLabels";
 
 const LIMIT = 20;
-const HERO_IMAGES = new Set(["fr", "uk", "us", "au", "es", "tr", "it", "de", "jp", "ar", "pe", "co", "me", "cu"]);
+const HERO_IMAGES = new Set(["fr", "uk", "us", "au", "es", "tr", "it", "de", "jp", "ar", "pe", "co", "cu"]);
 
 const COUNTRY_REGIONS: Record<string, { code: string; name: string; emoji: string; bg: string; accent: string; count: number }[]> = {
   fr: [
