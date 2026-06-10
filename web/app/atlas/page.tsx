@@ -77,7 +77,7 @@ const T: Record<UILang, {
   },
 };
 
-const HERO_IMAGES = new Set(["fr", "uk", "us", "au", "es", "tr", "it", "de", "jp"]);
+const HERO_IMAGES = new Set(["fr", "uk", "us", "au", "es", "tr", "it", "de", "jp", "ar", "pe", "co", "me", "cu"]);
 const SUB_REGION_CODES = new Set(["alsace", "bretagne"]);
 
 const PASTEL_GRADIENTS: Record<string, string> = {
