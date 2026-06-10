@@ -307,8 +307,7 @@ function SearchPageContent() {
 
   // ─── Handlers ───
 
-  const runSearch = useCallback(async (q: string, concept: string, domain: string, rf: string[], allCodes: string[], lang: UILang, tf: string | null = null) => {
-    const regionCodes = rf.length ? rf : allCodes;
+  const runSearch = useCallback(async (q: string, concept: string, domain: string, rf: string[], _allCodes: string[], lang: UILang, tf: string | null = null) => {
     setLoading(true);
     setHasError(false);
     setResults([]);
@@ -321,16 +320,16 @@ function SearchPageContent() {
       let data;
       if (domain && !q && !concept) {
         setSearchMode("concept");
-        data = await searchByDomain(domain, regionCodes, LIMIT, 0, lang, tf ?? undefined);
+        data = await searchByDomain(domain, rf, LIMIT, 0, lang, tf ?? undefined);
       } else if (concept && !q) {
         setSearchMode("concept");
-        data = await searchByConcept([concept], regionCodes, LIMIT, 0, tf ?? undefined, lang);
+        data = await searchByConcept([concept], rf, LIMIT, 0, tf ?? undefined, lang);
       } else {
         setSearchMode("text");
-        data = await searchExpressions(q, regionCodes, LIMIT, 0, tf ?? undefined, lang);
+        data = await searchExpressions(q, rf, LIMIT, 0, tf ?? undefined, lang);
         if (data.detected_concepts?.length) {
           setDetectedConceptSlugs(data.detected_concepts);
-          searchByConcept(data.detected_concepts, allCodes, 12, 0, undefined, lang).then(bridge => {
+          searchByConcept(data.detected_concepts, [], 12, 0, undefined, lang).then(bridge => {
             setConceptBridgeResults(bridge.results);
           }).catch(() => {});
         }
@@ -350,7 +349,7 @@ function SearchPageContent() {
     if (!hasMore || loadingMore) return;
     setLoadingMore(true);
     const offset = results.length;
-    const activeRegions = filterRegions.length > 0 ? filterRegions : allRegionCodes;
+    const activeRegions = filterRegions;
     try {
       let data;
       if (searchMode === "concept" && domainParam && !conceptParam) {
@@ -395,8 +394,7 @@ function SearchPageContent() {
 
   const handleTypeFilter = useCallback((newType: string | null) => {
     setTypeFilter(newType);
-    const rf = filterRegions.length > 0 ? filterRegions : allRegionCodes;
-    runSearch(qParam, conceptParam, domainParam, rf, allRegionCodes, uiLang, newType);
+    runSearch(qParam, conceptParam, domainParam, filterRegions, allRegionCodes, uiLang, newType);
   }, [filterRegions, allRegionCodes, qParam, conceptParam, domainParam, uiLang, runSearch]);
 
   // ─── Effects ───

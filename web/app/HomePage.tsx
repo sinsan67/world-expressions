@@ -363,7 +363,6 @@ export default function HomePage() {
   // ─── Handlers ───
 
   const runConceptSearch = useCallback(async (tag: string, rf: string[] = []) => {
-    const regionCodes = rf.length ? rf : allRegionCodes;
     setQuery(tagNames[tag] ?? tag);
     setSearchMode("concept");
     setFilterRegions([]);
@@ -375,7 +374,7 @@ export default function HomePage() {
     window.history.replaceState(null, "", "#concept=" + encodeURIComponent(tag));
     exploreRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     try {
-      const data = await searchByConcept([tag], [], LIMIT, 0, undefined, undefined, undefined, regionCodes);
+      const data = await searchByConcept([tag], [], LIMIT, 0, undefined, undefined, undefined, rf.length ? rf : []);
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
@@ -403,7 +402,7 @@ export default function HomePage() {
     setResults([]);
     window.history.replaceState(null, "", "#q=" + encodeURIComponent(q));
     try {
-      const data = await searchExpressions(q, [], LIMIT, 0, undefined, uiLang, undefined, allRegionCodes);
+      const data = await searchExpressions(q, [], LIMIT, 0, undefined, uiLang, undefined, []);
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
@@ -422,14 +421,13 @@ export default function HomePage() {
     if (!hasMore || loadingMore) return;
     setLoadingMore(true);
     const offset = results.length;
-    const activeRegions = filterRegions.length > 0 ? filterRegions : allRegionCodes;
     try {
       const data =
         searchMode === "browse"
-          ? await browseByCountry(activeRegions, LIMIT, offset)
+          ? await browseByCountry(filterRegions, LIMIT, offset)
           : searchMode === "concept"
-          ? await searchByConcept([query], [], LIMIT, offset, undefined, undefined, undefined, activeRegions)
-          : await searchExpressions(query, [], LIMIT, offset, typeFilter ?? undefined, uiLang, undefined, activeRegions);
+          ? await searchByConcept([query], [], LIMIT, offset, undefined, undefined, undefined, filterRegions)
+          : await searchExpressions(query, [], LIMIT, offset, typeFilter ?? undefined, uiLang, undefined, filterRegions);
       setResults((prev) => [...prev, ...data.results]);
       setHasMore(offset + data.results.length < data.total);
     } catch {
@@ -442,7 +440,6 @@ export default function HomePage() {
 
   const handleFilterChange = useCallback(async (newFilter: string[]) => {
     setFilterRegions(newFilter);
-    const regionCodes = newFilter.length > 0 ? newFilter : allRegionCodes;
     setLoading(true);
     setHasError(false);
     setResults([]);
@@ -453,10 +450,10 @@ export default function HomePage() {
     try {
       const data =
         effectiveMode === "browse"
-          ? await browseByCountry(regionCodes, LIMIT, 0, typeFilter ?? undefined, uiLang)
+          ? await browseByCountry(newFilter, LIMIT, 0, typeFilter ?? undefined, uiLang)
           : effectiveMode === "concept"
-          ? await searchByConcept([query], [], LIMIT, 0, undefined, undefined, undefined, regionCodes)
-          : await searchExpressions(query, [], LIMIT, 0, typeFilter ?? undefined, uiLang, undefined, regionCodes);
+          ? await searchByConcept([query], [], LIMIT, 0, undefined, undefined, undefined, newFilter)
+          : await searchExpressions(query, [], LIMIT, 0, typeFilter ?? undefined, uiLang, undefined, newFilter);
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
@@ -472,7 +469,6 @@ export default function HomePage() {
 
   const handleTypeChange = useCallback(async (newType: string | null) => {
     setTypeFilter(newType);
-    const regionCodes = filterRegions.length > 0 ? filterRegions : allRegionCodes;
     setLoading(true);
     setHasError(false);
     setResults([]);
@@ -483,8 +479,8 @@ export default function HomePage() {
     try {
       const data =
         effectiveMode === "browse"
-          ? await browseByCountry(regionCodes, LIMIT, 0, newType ?? undefined, uiLang)
-          : await searchExpressions(query, [], LIMIT, 0, newType ?? undefined, uiLang, undefined, regionCodes);
+          ? await browseByCountry(filterRegions, LIMIT, 0, newType ?? undefined, uiLang)
+          : await searchExpressions(query, [], LIMIT, 0, newType ?? undefined, uiLang, undefined, filterRegions);
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
