@@ -6,7 +6,7 @@ import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
-import { getCountries, RegionInfo } from "@/lib/api";
+import { getCountries, CountryInfo } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
 type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
@@ -77,7 +77,7 @@ const T: Record<UILang, {
   },
 };
 
-const HERO_IMAGES = new Set(["fr", "uk", "us", "au", "es", "tr", "it", "de", "jp", "ar", "pe", "co", "me", "cu"]);
+const HERO_IMAGES = new Set(["fr", "uk", "us", "au", "es", "tr", "it", "de", "jp", "ar", "pe", "co", "cu"]);
 const SUB_REGION_CODES = new Set(["alsace", "bretagne"]);
 
 const PASTEL_GRADIENTS: Record<string, string> = {
@@ -91,17 +91,15 @@ const PASTEL_GRADIENTS: Record<string, string> = {
   default: "linear-gradient(135deg, #9090b8 0%, #c8b8d8 100%)",
 };
 
-const COUNTRY_LANG: Record<string, string> = {
-  fr: "Français", uk: "English", us: "English", au: "English",
-  es: "Español", tr: "Türkçe", it: "Italiano", de: "Deutsch", jp: "日本語",
-  ar: "Español", mx: "Español", co: "Español", cl: "Español",
-  pe: "Español", cu: "Español", ve: "Español",
+const LANG_NAME: Record<string, string> = {
+  fr: "Français", en: "English", es: "Español", tr: "Türkçe",
+  it: "Italiano", de: "Deutsch", ja: "日本語",
 };
 
 export default function AtlasPage() {
   const router = useRouter();
   const [uiLang, setUILang] = useState<UILang>("fr");
-  const [regions, setRegions] = useState<RegionInfo[]>([]);
+  const [regions, setRegions] = useState<CountryInfo[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -224,7 +222,7 @@ export default function AtlasPage() {
                   : (PASTEL_GRADIENTS[r.code] ?? PASTEL_GRADIENTS.default);
                 const flag = FLAG[r.code] ?? "🌍";
                 const name = COUNTRY_NAME[r.code] ?? r.code.toUpperCase();
-                const lang = COUNTRY_LANG[r.code] ?? "";
+                const lang = (r.languages ?? []).map(l => LANG_NAME[l] ?? l).join(", ");
 
                 return (
                   <Link
