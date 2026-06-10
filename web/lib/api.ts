@@ -158,6 +158,13 @@ export async function browseByRegion(
   return res.json();
 }
 
+// country → language fallback for backends that don't support country= yet
+const COUNTRY_LANG_MAP: Record<string, string> = {
+  fr: "fr", it: "it", tr: "tr", de: "de", jp: "ja",
+  es: "es", ar: "es", mx: "es", co: "es", pe: "es", cu: "es", ve: "es", cl: "es",
+  uk: "en", us: "en", au: "en", en: "en",
+};
+
 export async function browseByCountry(
   countries: string[],
   limit = 20,
@@ -169,7 +176,12 @@ export async function browseByCountry(
     limit: String(limit),
     offset: String(offset),
   });
-  if (countries.length) params.set("country", countries.join(","));
+  if (countries.length) {
+    params.set("country", countries.join(","));
+    // Fallback for old backend: also send language= so it can filter correctly
+    const langs = [...new Set(countries.map((c) => COUNTRY_LANG_MAP[c]).filter(Boolean))];
+    if (langs.length) params.set("language", langs.join(","));
+  }
   if (typeFilter) params.set("type_filter", typeFilter);
   if (lang) params.set("locale", lang);
   const res = await fetch(`${API}/browse?${params}`);
@@ -236,10 +248,23 @@ export async function getRegions(): Promise<RegionInfo[]> {
   return res.json();
 }
 
+// Fallback used when the backend doesn't have /countries yet (deploy lag)
+const KNOWN_COUNTRIES: RegionInfo[] = [
+  { code: "tr", count: 2551 }, { code: "it", count: 2438 }, { code: "fr", count: 2249 },
+  { code: "es", count: 1484 }, { code: "de", count: 1424 }, { code: "en", count: 1259 },
+  { code: "jp", count: 1139 }, { code: "mx", count: 379 }, { code: "pe", count: 348 },
+  { code: "ar", count: 347 }, { code: "co", count: 340 }, { code: "us", count: 300 },
+  { code: "uk", count: 100 }, { code: "au", count: 99 },
+];
+
 export async function getCountries(): Promise<RegionInfo[]> {
-  const res = await fetch(`${API}/countries`);
-  if (!res.ok) return [];
-  return res.json();
+  try {
+    const res = await fetch(`${API}/countries`);
+    if (!res.ok) return KNOWN_COUNTRIES;
+    return res.json();
+  } catch {
+    return KNOWN_COUNTRIES;
+  }
 }
 
 export type TypeCounts = {
