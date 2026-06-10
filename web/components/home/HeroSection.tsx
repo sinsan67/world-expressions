@@ -158,6 +158,22 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
 
                 {/* Tags + actions row */}
                 <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.4rem" }}>
+                  {featured.type && featured.type !== "idiom" && t.types[featured.type] && (
+                    <span style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      padding: "2px 8px",
+                      borderRadius: "var(--r-pill)",
+                      border: "1.5px solid var(--terra-soft)",
+                      background: "var(--terra-bg)",
+                      color: "var(--terra)",
+                      fontFamily: "var(--font-body)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.06em",
+                    }}>
+                      {t.types[featured.type]}
+                    </span>
+                  )}
                   {featured.tags.slice(0, 3).map((tag) => {
                     const icon = tagIcon(tag) ?? "";
                     const name = tagNames[tag] ?? tag;
