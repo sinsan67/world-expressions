@@ -245,10 +245,18 @@ def get_regions() -> list[dict]:
 
 
 def get_countries() -> list[dict]:
-    """Retourne tous les pays présents en base avec leur nombre d'expressions, triés par count desc."""
+    """Retourne les pays réels avec au moins 10 expressions, triés par count desc.
+    Exclut 'en' (code langue générique, pas un pays) et les pays sous le seuil."""
     with engine.connect() as conn:
         rows = conn.execute(
-            text("SELECT country, COUNT(*) AS n FROM expressions WHERE country IS NOT NULL GROUP BY country ORDER BY n DESC")
+            text("""
+                SELECT country, COUNT(*) AS n
+                FROM expressions
+                WHERE country IS NOT NULL AND country != 'en'
+                GROUP BY country
+                HAVING COUNT(*) >= 10
+                ORDER BY n DESC
+            """)
         ).fetchall()
     return [{"code": r.country, "count": r.n} for r in rows]
 
