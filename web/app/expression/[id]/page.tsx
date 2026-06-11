@@ -754,20 +754,27 @@ function ExpressionPageContent({ id }: { id: string }) {
             <SectionLabel>{t.tags}</SectionLabel>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {getTypeLabel(expr.type, lang) && (
-                <span style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  padding: "2px 8px",
-                  borderRadius: "var(--r-pill)",
-                  border: "1.5px solid var(--terra-soft)",
-                  background: "var(--terra-bg)",
-                  color: "var(--terra)",
-                  fontFamily: "var(--font-body)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                }}>
+                <Link
+                  href={`/type/${expr.type}${expr.country ? `?country=${expr.country}` : ""}`}
+                  onClick={(ev) => ev.stopPropagation()}
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    padding: "2px 8px",
+                    borderRadius: "var(--r-pill)",
+                    border: "1.5px solid var(--terra-soft)",
+                    background: "var(--terra-bg)",
+                    color: "var(--terra)",
+                    fontFamily: "var(--font-body)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    textDecoration: "none",
+                    cursor: "pointer",
+                    transition: "all 0.12s",
+                  }}
+                >
                   {getTypeLabel(expr.type, lang)}
-                </span>
+                </Link>
               )}
               {expr.tags.map((tag) => {
                 const icon = tagIcon(tag);

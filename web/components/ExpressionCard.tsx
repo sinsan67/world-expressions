@@ -99,12 +99,22 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
             </span>
             <div className="flex flex-wrap gap-1 mt-0.5">
               {typeLabel && (
-                <span
+                <Link
+                  href={`/type/${e.type}${e.country ? `?country=${e.country}` : ""}`}
+                  onClick={(ev) => ev.stopPropagation()}
                   className="text-xs px-1.5 py-0.5 rounded inline-block"
-                  style={{ background: "var(--plum-bg)", color: "var(--plum)", fontWeight: 500 }}
+                  style={{
+                    background: "var(--terra-bg)",
+                    color: "var(--terra)",
+                    border: "1px solid var(--terra-soft)",
+                    fontWeight: 600,
+                    textDecoration: "none",
+                    letterSpacing: "0.04em",
+                    textTransform: "uppercase",
+                  }}
                 >
                   {typeLabel}
-                </span>
+                </Link>
               )}
               {e.register && e.register !== "standard" && (
                 <span
