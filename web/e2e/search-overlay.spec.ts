@@ -143,7 +143,7 @@ test.describe('SearchOverlay (US-005)', () => {
     await expect(page).toHaveURL(/\/search\?q=argent/, { timeout: T });
   });
 
-  test('#O13 texte + pays FR → navigue vers /search?q=mot&region=fr', async ({ page }) => {
+  test('#O13 texte + pays FR → navigue vers /search?q=mot&country=fr', async ({ page }) => {
     await page.goto('/');
     await openOverlay(page);
     const overlayInput = page.locator('[data-testid="overlay-input"]').first();
@@ -151,10 +151,10 @@ test.describe('SearchOverlay (US-005)', () => {
     const frPill = page.locator('button').filter({ hasText: / FR$/ }).first();
     await frPill.click();
     await overlayInput.press('Enter');
-    await expect(page).toHaveURL(/\/search\?q=peur.*region=fr|region=fr.*q=peur/, { timeout: T });
+    await expect(page).toHaveURL(/\/search\?q=peur.*country=fr|country=fr.*q=peur/, { timeout: T });
   });
 
-  test('#O14 texte + deux pays → URL contient les deux régions', async ({ page }) => {
+  test('#O14 texte + deux pays → URL contient les deux pays', async ({ page }) => {
     await page.goto('/');
     await openOverlay(page);
     const overlayInput = page.locator('[data-testid="overlay-input"]').first();
@@ -163,10 +163,10 @@ test.describe('SearchOverlay (US-005)', () => {
     await page.locator('button').filter({ hasText: / EN$/ }).first().click();
     const submitBtn = page.locator('button').filter({ hasText: /Rechercher →|Search →/ }).first();
     await submitBtn.click();
-    await expect(page).toHaveURL(/region=fr.*uk|region=uk.*fr|region=fr%2Cuk|region=uk%2Cfr/, { timeout: T });
+    await expect(page).toHaveURL(/country=fr.*uk|country=uk.*fr|country=fr%2Cuk|country=uk%2Cfr/, { timeout: T });
   });
 
-  test('#O15 chip concept + pays → navigue vers /search?concept=slug&region=...', async ({ page }) => {
+  test('#O15 chip concept + pays → navigue vers /search?concept=slug&country=...', async ({ page }) => {
     await page.goto('/');
     await openOverlay(page);
     // Sélectionner FR
@@ -178,7 +178,7 @@ test.describe('SearchOverlay (US-005)', () => {
       expect(await chips.count()).toBeGreaterThan(0);
     }).toPass({ timeout: T });
     await chips.first().click();
-    await expect(page).toHaveURL(/\/search\?concept=.*region=fr|\/search\?concept=/, { timeout: T });
+    await expect(page).toHaveURL(/\/search\?concept=.*country=fr|\/search\?concept=/, { timeout: T });
   });
 
   test('#O16 touche Entrée soumet la recherche (sans cliquer le bouton)', async ({ page }) => {
