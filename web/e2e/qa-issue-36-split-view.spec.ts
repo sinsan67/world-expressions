@@ -28,7 +28,7 @@ test("S1 — badge langue détecté + toggle + split sections visibles", async (
   await expect(page.getByText(/par le sens/i).first()).toBeVisible();
 
   // Section "Dans les autres langues" présente plus bas
-  await expect(page.getByText(/dans les autres langues/i)).toBeVisible();
+  await expect(page.getByText(/dans les autres langues/i).first()).toBeVisible();
 });
 
 // Scénario 2 — Cap 6 + expand
@@ -134,7 +134,7 @@ test("S5b — mode domaine : pas de badge, pas de toggle split", async ({ page }
 
 // Scénario 6 — Non-régression : filtre région + tri pays + tags cliquables
 test("S6a — filtre région fonctionne toujours", async ({ page }) => {
-  await page.goto("/search?q=argent&region=fr");
+  await page.goto("/search?q=argent&country=fr");
   await page.waitForTimeout(3_000);
 
   // Des résultats sont affichés

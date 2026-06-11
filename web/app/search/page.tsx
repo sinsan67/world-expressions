@@ -216,7 +216,7 @@ function SearchPageContent() {
   const qParam = searchParams.get("q") ?? "";
   const conceptParam = searchParams.get("concept") ?? "";
   const domainParam = searchParams.get("domain") ?? "";
-  const regionParam = searchParams.get("region") ?? "";
+  const countryParam = searchParams.get("country") ?? searchParams.get("region") ?? "";
   const typeParam = searchParams.get("type_filter") ?? "";
 
   const [uiLang, setUILang] = useState<UILang>("en");
@@ -231,7 +231,7 @@ function SearchPageContent() {
   const [hasMore, setHasMore] = useState(false);
   const [searchMode, setSearchMode] = useState<"text" | "concept">("text");
   const [filterRegions, setFilterRegions] = useState<string[]>(
-    regionParam ? regionParam.split(",").filter(Boolean) : []
+    countryParam ? countryParam.split(",").filter(Boolean) : []
   );
   const [sortMode, setSortMode] = useState<"relevance" | "country">("relevance");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
@@ -320,13 +320,13 @@ function SearchPageContent() {
       let data;
       if (domain && !q && !concept) {
         setSearchMode("concept");
-        data = await searchByDomain(domain, rf, LIMIT, 0, lang, tf ?? undefined, undefined, "random");
+        data = await searchByDomain(domain, [], LIMIT, 0, lang, tf ?? undefined, rf, "random");
       } else if (concept && !q) {
         setSearchMode("concept");
-        data = await searchByConcept([concept], rf, LIMIT, 0, tf ?? undefined, lang);
+        data = await searchByConcept([concept], [], LIMIT, 0, tf ?? undefined, lang, undefined, rf);
       } else {
         setSearchMode("text");
-        data = await searchExpressions(q, rf, LIMIT, 0, tf ?? undefined, lang);
+        data = await searchExpressions(q, [], LIMIT, 0, tf ?? undefined, lang, undefined, rf);
         if (data.detected_concepts?.length) {
           setDetectedConceptSlugs(data.detected_concepts);
           searchByConcept(data.detected_concepts, [], 12, 0, undefined, lang).then(bridge => {
@@ -353,11 +353,11 @@ function SearchPageContent() {
     try {
       let data;
       if (searchMode === "concept" && domainParam && !conceptParam) {
-        data = await searchByDomain(domainParam, activeRegions, LIMIT, offset, uiLang, undefined, undefined, "random");
+        data = await searchByDomain(domainParam, [], LIMIT, offset, uiLang, undefined, activeRegions, "random");
       } else if (searchMode === "concept") {
-        data = await searchByConcept([conceptParam], activeRegions, LIMIT, offset, undefined, uiLang);
+        data = await searchByConcept([conceptParam], [], LIMIT, offset, undefined, uiLang, undefined, activeRegions);
       } else {
-        data = await searchExpressions(qParam, activeRegions, LIMIT, offset, undefined, uiLang);
+        data = await searchExpressions(qParam, [], LIMIT, offset, undefined, uiLang, undefined, activeRegions);
       }
       setResults((prev) => [...prev, ...data.results]);
       setHasMore(offset + data.results.length < data.total);
@@ -372,13 +372,13 @@ function SearchPageContent() {
   const submitSearch = useCallback((q: string) => {
     if (q.trim().length < 2) return;
     const params = new URLSearchParams({ q: q.trim() });
-    if (filterRegions.length) params.set("region", filterRegions.join(","));
+    if (filterRegions.length) params.set("country", filterRegions.join(","));
     router.push(`/search?${params}`);
   }, [router, filterRegions]);
 
   const handleTagClick = useCallback((tag: string) => {
     const params = new URLSearchParams({ concept: tag });
-    if (filterRegions.length) params.set("region", filterRegions.join(","));
+    if (filterRegions.length) params.set("country", filterRegions.join(","));
     router.push(`/search?${params}`);
   }, [router, filterRegions]);
 
@@ -422,13 +422,13 @@ function SearchPageContent() {
   useEffect(() => {
     if (!allRegionCodesKey) return;
     if (!qParam && !conceptParam && !domainParam) return;
-    const rf = regionParam ? regionParam.split(",").filter(Boolean) : [];
+    const rf = countryParam ? countryParam.split(",").filter(Boolean) : [];
     const tf = typeParam || null;
     setFilterRegions(rf);
     setTypeFilter(tf);
     runSearch(qParam, conceptParam, domainParam, rf, allRegionCodes, uiLang, tf);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [qParam, conceptParam, domainParam, regionParam, typeParam, allRegionCodesKey, runSearch]);
+  }, [qParam, conceptParam, domainParam, countryParam, typeParam, allRegionCodesKey, runSearch]);
 
   // Keep input in sync with URL (e.g. after browser back)
   useEffect(() => {

@@ -55,7 +55,7 @@ test.describe('Page /search (US-006)', () => {
 
   // ─── Filtre région ────────────────────────────────────────────────────────────
 
-  test('#S6 filtre région "France" → URL mise à jour avec region=fr', async ({ page }) => {
+  test('#S6 filtre pays "France" → URL mise à jour avec country=fr', async ({ page }) => {
     await page.goto('/search?q=argent');
     await page.locator(CARD).first().waitFor({ timeout: T });
     // Ouvrir le dropdown pays
@@ -66,11 +66,11 @@ test.describe('Page /search (US-006)', () => {
     const franceLabel = page.locator('label').filter({ hasText: /France/ }).first();
     if (!await franceLabel.isVisible({ timeout: 3000 }).catch(() => false)) return;
     await franceLabel.click();
-    await expect(page).toHaveURL(/region=fr/, { timeout: T });
+    await expect(page).toHaveURL(/country=fr/, { timeout: T });
   });
 
-  test('#S7 URL /search?q=argent&region=fr → au moins une carte FR visible', async ({ page }) => {
-    await page.goto('/search?q=argent&region=fr');
+  test('#S7 URL /search?q=argent&country=fr → au moins une carte FR visible', async ({ page }) => {
+    await page.goto('/search?q=argent&country=fr');
     await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
   });
 
