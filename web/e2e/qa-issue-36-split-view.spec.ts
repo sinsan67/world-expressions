@@ -83,7 +83,10 @@ test("S3 — toggle Tout mélanger désactive le split, retour Langue d'abord le
 // Scénario 4 — Mot multilingue "para" (TR + ES)
 test("S4 — para : langue détectée ou mode mélangé si ambiguë", async ({ page }) => {
   await page.goto("/search?q=para");
-  await page.waitForTimeout(3_000); // laisser le temps aux résultats de charger
+
+  // Attendre qu'au moins une carte soit chargée (couvre cold start backend)
+  const card = page.locator('[data-testid="expression-card"]').first();
+  await expect(card).toBeVisible({ timeout: 25_000 });
 
   // Soit une langue est détectée (badge visible), soit on est en mode mélangé
   const hasBadge = await page.getByText(/détecté/i).isVisible().catch(() => false);
