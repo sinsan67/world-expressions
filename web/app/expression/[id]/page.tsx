@@ -11,6 +11,7 @@ import {
   ConceptEquivalent,
 } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
+import { getTypeLabel } from "@/lib/typeLabels";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { cap } from "@/lib/utils";
 import CountryPhotoBackdrop from "@/components/home/CountryPhotoBackdrop";
@@ -744,11 +745,27 @@ function ExpressionPageContent({ id }: { id: string }) {
 
         </div>
 
-        {/* Tags */}
-        {expr.tags.length > 0 && (
+        {/* Type badge + Tags */}
+        {(expr.tags.length > 0 || getTypeLabel(expr.type, lang)) && (
           <div style={{ marginTop: "1.25rem" }}>
             <SectionLabel>{t.tags}</SectionLabel>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {getTypeLabel(expr.type, lang) && (
+                <span style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  padding: "2px 8px",
+                  borderRadius: "var(--r-pill)",
+                  border: "1.5px solid var(--terra-soft)",
+                  background: "var(--terra-bg)",
+                  color: "var(--terra)",
+                  fontFamily: "var(--font-body)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                }}>
+                  {getTypeLabel(expr.type, lang)}
+                </span>
+              )}
               {expr.tags.map((tag) => {
                 const icon = tagIcon(tag);
                 const localLabel = tagNames[tag] || tag;

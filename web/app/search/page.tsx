@@ -320,7 +320,7 @@ function SearchPageContent() {
       let data;
       if (domain && !q && !concept) {
         setSearchMode("concept");
-        data = await searchByDomain(domain, rf, LIMIT, 0, lang, tf ?? undefined);
+        data = await searchByDomain(domain, rf, LIMIT, 0, lang, tf ?? undefined, undefined, "random");
       } else if (concept && !q) {
         setSearchMode("concept");
         data = await searchByConcept([concept], rf, LIMIT, 0, tf ?? undefined, lang);
@@ -337,7 +337,7 @@ function SearchPageContent() {
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
-      getFacets(rf, q, tf).then(setFacets);
+      getFacets(rf, q, tf, domain || "").then(setFacets);
     } catch {
       setHasError(true);
     } finally {
@@ -353,7 +353,7 @@ function SearchPageContent() {
     try {
       let data;
       if (searchMode === "concept" && domainParam && !conceptParam) {
-        data = await searchByDomain(domainParam, activeRegions, LIMIT, offset, uiLang);
+        data = await searchByDomain(domainParam, activeRegions, LIMIT, offset, uiLang, undefined, undefined, "random");
       } else if (searchMode === "concept") {
         data = await searchByConcept([conceptParam], activeRegions, LIMIT, offset, undefined, uiLang);
       } else {
