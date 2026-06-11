@@ -536,7 +536,11 @@ function ExpressionPageContent({ id }: { id: string }) {
           <h1 style={{
             fontFamily: "var(--font-display)",
             fontStyle: "italic",
-            fontSize: "clamp(28px, 6vw, 52px)",
+            fontSize: expr.expression.length > 100
+              ? "clamp(22px, 4.5vw, 38px)"
+              : expr.expression.length > 60
+              ? "clamp(26px, 5vw, 44px)"
+              : "clamp(28px, 6vw, 52px)",
             fontWeight: 500,
             color: "#fff",
             lineHeight: 1.15,
@@ -557,21 +561,20 @@ function ExpressionPageContent({ id }: { id: string }) {
               display: "inline-flex",
               alignItems: "center",
               gap: "0.4rem",
-              background: speaking ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.15)",
-              border: "1px solid rgba(255,255,255,0.35)",
+              background: speaking ? "var(--plum-soft)" : "var(--plum-bg)",
+              border: "none",
               borderRadius: "var(--r-pill)",
-              color: "#fff",
+              color: "var(--plum-deep)",
               fontSize: 13,
               fontFamily: "var(--font-body)",
               fontWeight: 500,
               padding: "6px 14px",
               cursor: voiceAvailable === false ? "not-allowed" : "pointer",
               opacity: voiceAvailable === false ? 0.4 : 1,
-              backdropFilter: "blur(4px)",
               transition: "background 150ms ease",
             }}
-            onMouseEnter={(e) => { if (voiceAvailable !== false) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.28)"; }}
-            onMouseLeave={(e) => { if (voiceAvailable !== false) (e.currentTarget as HTMLElement).style.background = speaking ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.15)"; }}
+            onMouseEnter={(e) => { if (voiceAvailable !== false) (e.currentTarget as HTMLElement).style.background = "var(--plum-soft)"; }}
+            onMouseLeave={(e) => { if (voiceAvailable !== false) (e.currentTarget as HTMLElement).style.background = speaking ? "var(--plum-soft)" : "var(--plum-bg)"; }}
           >
             {speaking
               ? <VolumeX size={14} strokeWidth={1.5} />
