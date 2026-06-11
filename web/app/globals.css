@@ -68,9 +68,9 @@ body {
   content: "";
   position: absolute; inset: 0;
   background-image: var(--photo);
-  background-size: contain;
+  background-size: cover;
   background-repeat: no-repeat;
-  background-position: center;
+  background-position: center 30%;
   pointer-events: none;
   z-index: 0;
 }
