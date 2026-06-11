@@ -263,11 +263,31 @@ def get_countries() -> list[dict]:
     return [{"code": r.country, "count": r.n, "languages": r.languages or []} for r in rows]
 
 
-_TSQ = "websearch_to_tsquery('simple', :q)"
-_TEXT_VEC = "to_tsvector('simple', text)"
-_CONTENT_VEC = """to_tsvector('simple',
+# Language code → PostgreSQL stemming dictionary (Snowball).
+# 'simple' = no stemming (lowercase only). Used as fallback and for CJK (handled by trgm).
+_PG_DICT: dict[str, str] = {
+    "fr": "french",
+    "en": "english",
+    "es": "spanish",
+    "it": "italian",
+    "de": "german",
+    "tr": "turkish",
+}
+
+
+def _pg_dict(locale: Optional[str]) -> str:
+    return _PG_DICT.get(locale or "", "simple")
+
+
+def _build_fts_fragments(pg_dict: str) -> tuple[str, str, str]:
+    """Returns (tsq, text_vec, content_vec) SQL fragments for the given PG dictionary."""
+    tsq = f"websearch_to_tsquery('{pg_dict}', :q)"
+    text_vec = f"to_tsvector('{pg_dict}', text)"
+    content_vec = f"""to_tsvector('{pg_dict}',
             coalesce(meaning, '') || ' ' || coalesce(origin, '') || ' ' ||
             coalesce(example, '') || ' ' || coalesce(tags_text, ''))"""
+    return tsq, text_vec, content_vec
+
 
 # CJK Unicode blocks: CJK Unified Ideographs, Hiragana, Katakana, Hangul, etc.
 _CJK_RE = re.compile(r'[　-鿿ꀀ-꒏가-힯豈-﫿゠-ヿ぀-ゟ]')
@@ -333,12 +353,14 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
                         "coalesce(ct.example,'') ILIKE :q_trgm")
         cjk_params: dict = {"q_trgm": f"%{query.strip()}%"}
     else:
-        _exact_rank = f"ts_rank({_TEXT_VEC}, {_TSQ})"
-        _exact_where = f"{_TEXT_VEC} @@ {_TSQ}"
-        _sem_rank = f"ts_rank({_CONTENT_VEC}, {_TSQ})"
-        _sem_where = f"NOT ({_TEXT_VEC} @@ {_TSQ}) AND {_CONTENT_VEC} @@ {_TSQ}"
-        _trans_where = (f"to_tsvector('simple', coalesce(ct.meaning,'') || ' ' || "
-                        f"coalesce(ct.origin,'') || ' ' || coalesce(ct.example,'')) @@ {_TSQ}")
+        _dict = _pg_dict(locale)
+        _tsq, _text_vec, _content_vec = _build_fts_fragments(_dict)
+        _exact_rank = f"ts_rank({_text_vec}, {_tsq})"
+        _exact_where = f"{_text_vec} @@ {_tsq}"
+        _sem_rank = f"ts_rank({_content_vec}, {_tsq})"
+        _sem_where = f"NOT ({_text_vec} @@ {_tsq}) AND {_content_vec} @@ {_tsq}"
+        _trans_where = (f"to_tsvector('{_dict}', coalesce(ct.meaning,'') || ' ' || "
+                        f"coalesce(ct.origin,'') || ' ' || coalesce(ct.example,'')) @@ {_tsq}")
         cjk_params = {}
 
     concept_cte_sql = ""
@@ -588,6 +610,7 @@ def get_facets(
     query: Optional[str] = None,
     type_filter: Optional[str] = None,
     domain: Optional[str] = None,
+    locale: Optional[str] = None,
 ) -> dict:
     """
     Retourne les comptages par pays et par type pour les filtres facettés.
@@ -618,10 +641,11 @@ def get_facets(
             )"""
             fts_params = {"q_trgm_f": f"%{query.strip()}%"}
         else:
-            fts_cond = """ AND (
-                to_tsvector('simple', e.text) @@ websearch_to_tsquery('simple', :q_f)
-                OR to_tsvector('simple', coalesce(ec_f.meaning,'') || ' ' || coalesce(ec_f.example,''))
-                   @@ websearch_to_tsquery('simple', :q_f)
+            _dict_f = _pg_dict(locale)
+            fts_cond = f""" AND (
+                to_tsvector('{_dict_f}', e.text) @@ websearch_to_tsquery('{_dict_f}', :q_f)
+                OR to_tsvector('{_dict_f}', coalesce(ec_f.meaning,'') || ' ' || coalesce(ec_f.example,''))
+                   @@ websearch_to_tsquery('{_dict_f}', :q_f)
             )"""
             fts_params = {"q_f": query.strip()}
 

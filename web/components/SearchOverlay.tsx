@@ -92,7 +92,7 @@ export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
     if (!q) return;
     const params = new URLSearchParams();
     params.set("q", q);
-    if (selectedRegions.length) params.set("region", selectedRegions.join(","));
+    if (selectedRegions.length) params.set("country", selectedRegions.join(","));
     if (selectedType) params.set("type_filter", selectedType);
     router.push(`/search?${params}`);
     onClose();
@@ -101,7 +101,7 @@ export default function SearchOverlay({ uiLang = "en", onClose }: Props) {
   const handleDomainClick = useCallback((slug: string) => {
     const params = new URLSearchParams();
     params.set("concept", slug);
-    if (selectedRegions.length) params.set("region", selectedRegions.join(","));
+    if (selectedRegions.length) params.set("country", selectedRegions.join(","));
     if (selectedType) params.set("type_filter", selectedType);
     router.push(`/search?${params}`);
     onClose();

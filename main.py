@@ -227,13 +227,15 @@ def get_facets(
     country: str = Query("", description="Comma-separated country codes for kind facets"),
     type_filter: str = Query("", description="Type filter (idiom|proverb|locution|word) for country facets"),
     domain: str = Query("", description="Domain slug to scope facets to a thematic domain"),
+    locale: str = Query("", description="UI locale for stemmed FTS (fr, en, es, it, de, tr)"),
 ):
     """Return facet counts: country counts (with type_filter) + kind counts (with country filter)."""
     countries = set(c.strip() for c in country.split(",") if c.strip()) or None
     type_f = type_filter.strip() or None
     query = q.strip() or None
     domain_f = domain.strip() or None
-    return database.get_facets(countries, query, type_f, domain_f)
+    loc = locale.strip() or None
+    return database.get_facets(countries, query, type_f, domain_f, loc)
 
 
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
