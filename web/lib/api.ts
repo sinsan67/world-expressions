@@ -121,7 +121,8 @@ export async function searchByDomain(
   offset = 0,
   lang?: string,
   typeFilter?: string,
-  countries?: string[]
+  countries?: string[],
+  sort?: string,
 ): Promise<ConceptResponse> {
   const params = new URLSearchParams({
     domain,
@@ -132,6 +133,7 @@ export async function searchByDomain(
   if (countries && countries.length) params.set("country", countries.join(","));
   if (lang) params.set("locale", lang);
   if (typeFilter) params.set("type_filter", typeFilter);
+  if (sort) params.set("sort", sort);
   const res = await fetch(`${API}/concept?${params}`);
   if (!res.ok) throw new Error("API error");
   return res.json();
@@ -277,11 +279,13 @@ export async function getFacets(
   countries: string[] = [],
   query = "",
   typeFilter: string | null = null,
+  domain = "",
 ): Promise<Facets> {
   const params = new URLSearchParams();
   if (query) params.set("q", query);
   if (countries.length) params.set("country", countries.join(","));
   if (typeFilter) params.set("type_filter", typeFilter);
+  if (domain) params.set("domain", domain);
   const res = await fetch(`${API}/facets?${params}`);
   if (!res.ok) return { region: {}, kind: {} };
   return res.json();

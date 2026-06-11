@@ -91,6 +91,7 @@ def search_by_concept(
     offset: int = Query(0, ge=0, description="Number of results to skip"),
     type_filter: str = Query("", description="Filter by expression type: idiom, proverb, locution, word"),
     locale: str = Query("", description="UI locale for translated meanings: fr, en, es, it, tr."),
+    sort: str = Query("", description="Sort order: 'random' for random order (domain browsing), empty for default alphabetical."),
 ):
     """
     Return all expressions that have at least one of the given tags.
@@ -106,7 +107,8 @@ def search_by_concept(
     languages = set(language.split(",")) - {""} if language else None
     tf = type_filter.strip() or None
     loc = locale.strip() or None
-    results, total = database.search_by_concept(tag_set, regions, limit, offset, tf, loc, languages, countries)
+    random_order = sort.strip() == "random"
+    results, total = database.search_by_concept(tag_set, regions, limit, offset, tf, loc, languages, countries, random_order)
     return {
         "concept_tags": sorted(tag_set),
         "total": total,
@@ -224,12 +226,14 @@ def get_facets(
     q: str = Query("", description="Text query for query-aware facets"),
     country: str = Query("", description="Comma-separated country codes for kind facets"),
     type_filter: str = Query("", description="Type filter (idiom|proverb|locution|word) for country facets"),
+    domain: str = Query("", description="Domain slug to scope facets to a thematic domain"),
 ):
     """Return facet counts: country counts (with type_filter) + kind counts (with country filter)."""
     countries = set(c.strip() for c in country.split(",") if c.strip()) or None
     type_f = type_filter.strip() or None
     query = q.strip() or None
-    return database.get_facets(countries, query, type_f)
+    domain_f = domain.strip() or None
+    return database.get_facets(countries, query, type_f, domain_f)
 
 
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")

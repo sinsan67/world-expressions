@@ -479,7 +479,7 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
     return results, total, matching_tags
 
 
-def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0, type_filter: Optional[str] = None, locale: Optional[str] = None, languages: Optional[set[str]] = None, countries: Optional[set[str]] = None) -> tuple[list[dict], int]:
+def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, limit: int = 20, offset: int = 0, type_filter: Optional[str] = None, locale: Optional[str] = None, languages: Optional[set[str]] = None, countries: Optional[set[str]] = None, random_order: bool = False) -> tuple[list[dict], int]:
     """
     Retourne toutes les expressions ayant au moins un tag parmi tag_set (logique OR).
     Utilisé pour la recherche cross-lingue par concept (argent + money + wealth...).
@@ -508,9 +508,9 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, lim
             WHERE et.expression_id = e.id AND t.slug = ANY(:tag_set)
         )
         {region_clause}{country_clause}{lang_clause}{exclude_phrasebook}{type_clause}
-        ORDER BY e.language, CASE WHEN e.kind = 'word' THEN 1 ELSE 0 END, e.text
+        ORDER BY {order_clause}
         LIMIT :limit OFFSET :offset
-    """.format(region_clause=region_sql, country_clause=country_sql, lang_clause=lang_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK, type_clause=type_sql)
+    """.format(region_clause=region_sql, country_clause=country_sql, lang_clause=lang_sql, exclude_phrasebook=_EXCLUDE_PHRASEBOOK, type_clause=type_sql, order_clause="RANDOM()" if random_order else "e.language, CASE WHEN e.kind = 'word' THEN 1 ELSE 0 END, e.text")
 
     params = {"tag_set": list(tag_set), **region_params, **country_params, **lang_params, **type_params, "limit": limit, "offset": offset}
 
@@ -587,6 +587,7 @@ def get_facets(
     countries: Optional[set[str]] = None,
     query: Optional[str] = None,
     type_filter: Optional[str] = None,
+    domain: Optional[str] = None,
 ) -> dict:
     """
     Retourne les comptages par pays et par type pour les filtres facettés.
@@ -594,9 +595,15 @@ def get_facets(
     - kind: tous types, filtre pays appliqué, sans filtre type
     Chaque facette est calculée en excluant son propre filtre (comportement standard faceted search).
     Si query est fourni, les comptages sont filtrés par FTS approximatif (text + meaning).
+    Si domain est fourni, seules les expressions du domaine sont comptées.
     """
     country_sql = "AND e.country = ANY(:countries_f)" if countries else ""
     type_sql = "AND e.kind = :type_filter_f" if type_filter else ""
+    domain_sql = """AND EXISTS (
+            SELECT 1 FROM expression_tags et_d
+            JOIN concept_domains cd ON cd.tag_id = et_d.tag_id
+            WHERE et_d.expression_id = e.id AND cd.domain_slug = :domain_f
+        )""" if domain else ""
 
     fts_join = ""
     fts_cond = ""
@@ -621,22 +628,26 @@ def get_facets(
     sql_country = f"""
         SELECT e.country, COUNT(DISTINCT e.id) AS n
         FROM expressions e {fts_join}
-        WHERE 1=1 {_EXCLUDE_PHRASEBOOK} {type_sql} {fts_cond}
+        WHERE 1=1 {_EXCLUDE_PHRASEBOOK} {type_sql} {domain_sql} {fts_cond}
         GROUP BY e.country
     """
 
     sql_kind = f"""
         SELECT e.kind, COUNT(DISTINCT e.id) AS n
         FROM expressions e {fts_join}
-        WHERE 1=1 {_EXCLUDE_PHRASEBOOK} {country_sql} {fts_cond}
+        WHERE 1=1 {_EXCLUDE_PHRASEBOOK} {country_sql} {domain_sql} {fts_cond}
         GROUP BY e.kind
     """
 
+    domain_params = {"domain_f": domain} if domain else {}
+
     params_country = ({**{"type_filter_f": type_filter}} if type_filter else {})
     params_country.update(fts_params)
+    params_country.update(domain_params)
 
     params_kind = ({**{"countries_f": list(countries)}} if countries else {})
     params_kind.update(fts_params)
+    params_kind.update(domain_params)
 
     with engine.connect() as conn:
         country_rows = conn.execute(text(sql_country), params_country).fetchall()

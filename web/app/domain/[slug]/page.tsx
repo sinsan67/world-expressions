@@ -192,7 +192,7 @@ export default function DomainPage() {
 
     Promise.all([
       getConcepts(uiLang, "", slug, 1),
-      searchByDomain(slug, [], LIMIT, 0, uiLang),
+      searchByDomain(slug, [], LIMIT, 0, uiLang, undefined, undefined, "random"),
       getAllTagNames(uiLang),
     ])
       .then(([conceptsData, exprData, names]) => {
@@ -201,7 +201,7 @@ export default function DomainPage() {
         setTotal(exprData.total);
         setOffset(LIMIT);
         setTagNames(names);
-        getFacets([], "", null).then(setFacets);
+        getFacets([], "", null, slug).then(setFacets);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -213,11 +213,11 @@ export default function DomainPage() {
     setExpressions([]);
     setOffset(0);
     try {
-      const data = await searchByDomain(slug, filterRegions, LIMIT, 0, uiLang, newType ?? undefined);
+      const data = await searchByDomain(slug, filterRegions, LIMIT, 0, uiLang, newType ?? undefined, undefined, "random");
       setExpressions(data.results);
       setTotal(data.total);
       setOffset(LIMIT);
-      getFacets(filterRegions, "", newType).then(setFacets);
+      getFacets(filterRegions, "", newType, slug).then(setFacets);
     } catch {
       // silent
     } finally {
@@ -231,11 +231,11 @@ export default function DomainPage() {
     setExpressions([]);
     setOffset(0);
     try {
-      const data = await searchByDomain(slug, newRegions, LIMIT, 0, uiLang, typeFilter ?? undefined);
+      const data = await searchByDomain(slug, newRegions, LIMIT, 0, uiLang, typeFilter ?? undefined, undefined, "random");
       setExpressions(data.results);
       setTotal(data.total);
       setOffset(LIMIT);
-      getFacets(newRegions, "", typeFilter).then(setFacets);
+      getFacets(newRegions, "", typeFilter, slug).then(setFacets);
     } catch {
       // silent
     } finally {
@@ -247,7 +247,7 @@ export default function DomainPage() {
     if (loadingMore) return;
     setLoadingMore(true);
     try {
-      const data = await searchByDomain(slug, filterRegions, LIMIT, offset, uiLang, typeFilter ?? undefined);
+      const data = await searchByDomain(slug, filterRegions, LIMIT, offset, uiLang, typeFilter ?? undefined, undefined, "random");
       setExpressions((prev) => [...prev, ...data.results]);
       setOffset((o) => o + LIMIT);
     } finally {
