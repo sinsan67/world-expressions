@@ -1,10 +1,1 @@
-{
-  "redirects": [
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "worldexpressions.app" }],
-      "destination": "https://worldexpressions.app/:path*",
-      "permanent": true
-    }
-  ]
-}
+{}
