@@ -88,8 +88,8 @@ test.describe('Homepage — recherche', () => {
     await input.press('Enter');
     const card = page.locator(CARD).first();
     await card.waitFor({ timeout: T });
-    await card.click();
-    await expect(page).toHaveURL(/\/expression\//);
+    await card.locator('span').first().click();
+    await expect(page).toHaveURL(/\/expression\//, { timeout: T });
   });
 
   test('#13 clic sur un tag relance la recherche', async ({ page }) => {

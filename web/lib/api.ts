@@ -39,6 +39,7 @@ export type Expression = {
   type: string;
   source: string | null;
   match_type: "exact" | "semantic" | "translation" | "concept" | "direct" | "tag";
+  literal: string | null;
   literal_fr: string | null;
   translation: ExpressionTranslation | null;
   concept_equivalents: ConceptEquivalent[];

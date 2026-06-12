@@ -11,6 +11,7 @@ import { tagIcon } from "@/lib/tagIcons";
 import { Dice5, Heart } from "lucide-react";
 import { cap } from "@/lib/utils";
 import { isFavorite, toggleFavorite } from "@/lib/carnet";
+import { getTypeLabel } from "@/lib/typeLabels";
 
 type Featured = Expression & { meaning_locale: string; literal: string | null };
 
@@ -81,7 +82,29 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
           {featured ? (
             <div style={{ flex: "1 1 320px", maxWidth: 520, animation: "fadeSlideUp 0.5s ease-out both" }}>
               <Postcard tilt={-0.4} large>
-                <Postmark date={day} month={month} year={year} region={effectiveRegion} />
+                <div style={{ position: "absolute", top: "1rem", right: "1rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+                  <Postmark date={day} month={month} year={year} region={effectiveRegion} inline />
+                  <button
+                    onClick={handleFav}
+                    title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
+                    style={{
+                      padding: "5px 8px",
+                      borderRadius: "var(--r-pill)",
+                      border: `1.5px solid ${fav ? "var(--terra)" : "var(--paper-edge)"}`,
+                      background: fav ? "rgba(180,80,40,0.08)" : "transparent",
+                      color: fav ? "var(--terra)" : "var(--ink-faint)",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transition: "all 150ms ease",
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.1)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
+                  >
+                    <Heart size={14} strokeWidth={1.5} fill={fav ? "var(--terra)" : "none"} />
+                  </button>
+                </div>
 
                 {/* Expression du jour label */}
                 <div style={{ marginBottom: "0.4rem", marginRight: 88 }}>
@@ -158,21 +181,28 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
 
                 {/* Tags + actions row */}
                 <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.4rem" }}>
-                  {featured.type && featured.type !== "idiom" && t.types[featured.type] && (
-                    <span style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      padding: "2px 8px",
-                      borderRadius: "var(--r-pill)",
-                      border: "1.5px solid var(--terra-soft)",
-                      background: "var(--terra-bg)",
-                      color: "var(--terra)",
-                      fontFamily: "var(--font-body)",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.06em",
-                    }}>
-                      {t.types[featured.type]}
-                    </span>
+                  {featured.type && getTypeLabel(featured.type, uiLang) && (
+                    <button
+                      onClick={() => router.push(`/type/${featured.type}`)}
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        padding: "2px 8px",
+                        borderRadius: "var(--r-pill)",
+                        border: "1.5px solid var(--terra-soft)",
+                        background: "var(--terra-bg)",
+                        color: "var(--terra)",
+                        fontFamily: "var(--font-body)",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                        cursor: "pointer",
+                        transition: "border-color 150ms ease",
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--terra)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--terra-soft)"; }}
+                    >
+                      {getTypeLabel(featured.type, uiLang)}
+                    </button>
                   )}
                   {featured.tags.slice(0, 3).map((tag) => {
                     const icon = tagIcon(tag) ?? "";
@@ -201,25 +231,6 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                   })}
 
                   <div style={{ marginLeft: "auto", display: "flex", gap: "0.4rem", flexShrink: 0 }}>
-                    <button
-                      onClick={handleFav}
-                      title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
-                      style={{
-                        padding: "6px 10px",
-                        borderRadius: "var(--r-pill)",
-                        border: `1.5px solid ${fav ? "var(--terra)" : "var(--paper-edge)"}`,
-                        background: fav ? "var(--terra-soft, rgba(180,80,40,0.08))" : "transparent",
-                        color: fav ? "var(--terra)" : "var(--ink-faint)",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        transition: "all 150ms ease",
-                      }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.1)"; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
-                    >
-                      <Heart size={15} strokeWidth={1.5} fill={fav ? "var(--terra)" : "none"} />
-                    </button>
                     <button
                       onClick={onRefresh}
                       style={{

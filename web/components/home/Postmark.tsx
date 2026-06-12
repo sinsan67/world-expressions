@@ -7,16 +7,15 @@ type Props = {
   region?: string | null;
   size?: number;
   tilt?: number;
+  inline?: boolean;
 };
 
-export default function Postmark({ date, month, year, region, size = 72, tilt = 8 }: Props) {
+export default function Postmark({ date, month, year, region, size = 72, tilt = 8, inline }: Props) {
   const flag = region ? (FLAG[region] ?? null) : null;
 
   return (
     <div style={{
-      position: "absolute",
-      top: "1rem",
-      right: "1rem",
+      ...(inline ? {} : { position: "absolute", top: "1rem", right: "1rem" }),
       transform: `rotate(${tilt}deg)`,
       display: "flex",
       flexDirection: "column",

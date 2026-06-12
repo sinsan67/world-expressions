@@ -35,8 +35,8 @@ test("S1 — badge langue détecté + toggle + split sections visibles", async (
 test("S2 — cap 6 cartes + bouton Voir les N autres", async ({ page }) => {
   await page.goto("/search?q=pied");
 
-  // Attendre que les résultats arrivent
-  await expect(page.getByText(/dans le texte/i)).toBeVisible({ timeout: 15_000 });
+  // Attendre que les résultats arrivent (cold start Render peut prendre ~25s)
+  await expect(page.getByText(/dans le texte/i)).toBeVisible({ timeout: 25_000 });
 
   // Le bouton "Voir les N autres" doit être présent (cap déclenché)
   const expandBtn = page.getByRole("button", { name: /voir les .+ autres/i }).first();
@@ -60,7 +60,7 @@ test("S2 — cap 6 cartes + bouton Voir les N autres", async ({ page }) => {
 // Scénario 3 — Toggle "Tout mélanger" puis retour
 test("S3 — toggle Tout mélanger désactive le split, retour Langue d'abord le restaure", async ({ page }) => {
   await page.goto("/search?q=argent");
-  await expect(page.getByText(/détecté/i)).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(/détecté/i)).toBeVisible({ timeout: 25_000 });
 
   // Clic sur "Tout mélanger"
   const mixBtn = page.getByRole("button", { name: /tout mélanger/i });
@@ -118,7 +118,7 @@ test("S5 — mode concept : pas de badge, pas de toggle split", async ({ page })
   await expect(page.getByRole("button", { name: /tout mélanger/i })).not.toBeVisible({ timeout: 3_000 });
 
   // Des résultats sont bien affichés (cards visibles)
-  await expect(page.locator('[data-testid="expression-card"]').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('[data-testid="expression-card"]').first()).toBeVisible({ timeout: 25_000 });
 });
 
 test("S5b — mode domaine : pas de badge, pas de toggle split", async ({ page }) => {
@@ -132,7 +132,7 @@ test("S5b — mode domaine : pas de badge, pas de toggle split", async ({ page }
   await expect(page.getByRole("button", { name: /langue d.abord/i })).not.toBeVisible({ timeout: 3_000 });
 
   // Des résultats sont bien affichés
-  await expect(page.locator('[data-testid="expression-card"]').first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('[data-testid="expression-card"]').first()).toBeVisible({ timeout: 25_000 });
 });
 
 // Scénario 6 — Non-régression : filtre région + tri pays + tags cliquables
@@ -142,7 +142,7 @@ test("S6a — filtre région fonctionne toujours", async ({ page }) => {
 
   // Des résultats sont affichés
   const cards = page.locator('[data-testid="expression-card"]');
-  await expect(cards.first()).toBeVisible({ timeout: 15_000 });
+  await expect(cards.first()).toBeVisible({ timeout: 25_000 });
 
   // Vérifier qu'on n'a que des expressions françaises (flags 🇫🇷)
   // On vérifie que la page ne crashe pas avec le filtre région + split view
@@ -152,7 +152,7 @@ test("S6a — filtre région fonctionne toujours", async ({ page }) => {
 
 test("S6b — tri Par pays désactive le split", async ({ page }) => {
   await page.goto("/search?q=argent");
-  await expect(page.getByText(/détecté/i)).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(/détecté/i)).toBeVisible({ timeout: 25_000 });
 
   // Trouver et cliquer le bouton "Par pays" dans ResultsFilterBar
   const sortByCountry = page.getByRole("button", { name: /par pays/i });
@@ -171,7 +171,7 @@ test("S6c — tag cliquable navigue correctement", async ({ page }) => {
 
   // Attendre qu'une carte soit visible
   const firstCard = page.locator('[data-testid="expression-card"]').first();
-  await expect(firstCard).toBeVisible({ timeout: 15_000 });
+  await expect(firstCard).toBeVisible({ timeout: 25_000 });
 
   // Clic sur un tag dans la première carte
   const tag = firstCard.locator("button, a").filter({ hasText: /\w+/ }).first();

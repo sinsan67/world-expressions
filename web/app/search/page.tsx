@@ -337,7 +337,7 @@ function SearchPageContent() {
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
-      getFacets(rf, q, tf, domain || "", uiLang).then(setFacets);
+      getFacets(rf, q, tf, domain || "", lang).then(setFacets);
     } catch {
       setHasError(true);
     } finally {
@@ -417,7 +417,7 @@ function SearchPageContent() {
     return () => { cancelled = true; };
   }, [uiLang]);
 
-  // Trigger search when URL params or regions change
+  // Trigger search when URL params, regions, or UI language change
   const allRegionCodesKey = allRegionCodes.join(",");
   useEffect(() => {
     if (!allRegionCodesKey) return;
@@ -472,7 +472,11 @@ function SearchPageContent() {
   const changeLang = useCallback((lang: UILang) => {
     setUILang(lang);
     localStorage.setItem("wex_lang", lang);
-  }, []);
+    const rf = countryParam ? countryParam.split(",").filter(Boolean) : [];
+    const tf = typeParam || null;
+    runSearch(qParam, conceptParam, domainParam, rf, allRegionCodes, lang, tf);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countryParam, typeParam, runSearch, qParam, conceptParam, domainParam, allRegionCodes]);
 
   // ─── Render helpers ───
 
@@ -497,7 +501,7 @@ function SearchPageContent() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
           {visible.map((expr, i) => (
-            <div key={expr.id} style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
+            <div key={expr.id} style={{ height: "100%", animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
               <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} />
             </div>
           ))}

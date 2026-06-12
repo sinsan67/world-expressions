@@ -184,6 +184,7 @@ export default function DomainPage() {
   // Fetch concepts and initial expressions
   useEffect(() => {
     if (!slug) return;
+    let active = true;
     setLoading(true);
     setExpressions([]);
     setOffset(0);
@@ -196,15 +197,17 @@ export default function DomainPage() {
       getAllTagNames(uiLang),
     ])
       .then(([conceptsData, exprData, names]) => {
+        if (!active) return;
         setConcepts(conceptsData.concepts);
         setExpressions(exprData.results);
         setTotal(exprData.total);
         setOffset(LIMIT);
         setTagNames(names);
-        getFacets([], "", null, slug, uiLang).then(setFacets);
+        getFacets([], "", null, slug, uiLang).then((f) => { if (active) setFacets(f); });
       })
       .catch(() => {})
-      .finally(() => setLoading(false));
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [slug, uiLang]);
 
   const applyTypeFilter = useCallback(async (newType: string | null) => {
@@ -574,6 +577,7 @@ export default function DomainPage() {
                       <div
                         key={expr.id}
                         style={{
+                          height: "100%",
                           animation: "fadeSlideUp 0.35s ease-out both",
                           animationDelay: `${Math.min(i % LIMIT, 8) * 45}ms`,
                         }}
