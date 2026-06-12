@@ -1,10 +1,15 @@
 import os
 import re
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 import database
+
+
+def _cache_public_1h(response: Response) -> None:
+    """Dependency: marks a GET response as publicly cacheable for 1 h (CDN + browser)."""
+    response.headers["Cache-Control"] = "public, max-age=3600, stale-while-revalidate=86400"
 
 app = FastAPI(title="Expressions du Monde API")
 
@@ -31,13 +36,13 @@ def home():
 
 
 @app.get("/regions")
-def get_regions():
+def get_regions(_: None = Depends(_cache_public_1h)):
     """Return sub-regions (alsace, bretagne) present in the database with their expression counts."""
     return database.get_regions()
 
 
 @app.get("/countries")
-def get_countries():
+def get_countries(_: None = Depends(_cache_public_1h)):
     """Return all countries present in the database with their expression counts."""
     return database.get_countries()
 
@@ -149,6 +154,7 @@ def get_tags(
     limit: int = Query(30, ge=1, le=500, description="Number of top tags to return"),
     language: str = Query("", description="Filter tags by expression language: fr, en, es, it, tr. Empty = all."),
     locale: str = Query("en", description="Locale for tag display names: fr, en, es, it, tr."),
+    _: None = Depends(_cache_public_1h),
 ):
     """Return the most represented tags, excluding meta-tags. Pass language= to filter by expression language, locale= for display names."""
     lang = language.strip() or None
@@ -163,6 +169,7 @@ def get_concepts_endpoint(
     domain: str = Query("", description="Filter to a single domain slug (e.g. 'emotions'). Empty = all."),
     min_count: int = Query(5, ge=1, description="Minimum number of expressions per concept."),
     kind: str = Query("", description="Filter by expression kind: idiom, proverb, locution. Empty = all."),
+    _: None = Depends(_cache_public_1h),
 ):
     """Return tags that have been assigned to a thematic domain, grouped with their domains.
     Includes domain_counts (number of concepts per domain) and a flat concept list."""
@@ -211,6 +218,7 @@ def get_type_counts(
     language: str = Query("", description="Comma-separated language codes, e.g. 'es'. Filters by expression language."),
     tag: str = Query("", description="Comma-separated tag slugs for concept filter."),
     q: str = Query("", description="Text search query."),
+    _: None = Depends(_cache_public_1h),
 ):
     """Return count of expressions per type, given optional country/region/concept/search filters."""
     regions = set(region.split(",")) - {""} if region else None
@@ -228,6 +236,7 @@ def get_facets(
     type_filter: str = Query("", description="Type filter (idiom|proverb|locution|word) for country facets"),
     domain: str = Query("", description="Domain slug to scope facets to a thematic domain"),
     locale: str = Query("", description="UI locale for stemmed FTS (fr, en, es, it, de, tr)"),
+    _: None = Depends(_cache_public_1h),
 ):
     """Return facet counts: country counts (with type_filter) + kind counts (with country filter)."""
     countries = set(c.strip() for c in country.split(",") if c.strip()) or None
@@ -330,7 +339,7 @@ class SubscribeRequest(BaseModel):
 
 
 @app.get("/slugs")
-def get_slugs():
+def get_slugs(_: None = Depends(_cache_public_1h)):
     """Return all expression IDs — used for sitemap generation only."""
     return {"slugs": database.get_all_slugs()}
 
