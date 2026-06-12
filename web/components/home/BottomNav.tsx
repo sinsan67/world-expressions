@@ -17,6 +17,16 @@ const NAV_LABELS: Record<string, Record<string, string>> = {
   carnet:    { fr: "Carnet",   en: "Notebook",    es: "Cuaderno",  it: "Taccuino",  tr: "Defter",    de: "Notizbuch",  ja: "ノート" },
 };
 
+const NAV_ARIA_LABEL: Record<string, string> = {
+  fr: "Navigation principale",
+  en: "Main navigation",
+  es: "Navegación principal",
+  it: "Navigazione principale",
+  tr: "Ana gezinme",
+  de: "Hauptnavigation",
+  ja: "メインナビゲーション",
+};
+
 type Props = {
   uiLang?: string;
 };
@@ -27,6 +37,7 @@ export default function BottomNav({ uiLang = "fr" }: Props) {
   return (
     <nav
       className="wex-bottom-nav"
+      aria-label={NAV_ARIA_LABEL[uiLang] ?? NAV_ARIA_LABEL.en}
       style={{
         position: "fixed",
         bottom: 0, left: 0, right: 0,
@@ -42,6 +53,7 @@ export default function BottomNav({ uiLang = "fr" }: Props) {
           <Link
             key={item.id}
             href={item.href}
+            aria-current={isActive ? "page" : undefined}
             style={{
               flex: 1,
               display: "flex",
@@ -56,6 +68,7 @@ export default function BottomNav({ uiLang = "fr" }: Props) {
             }}
           >
             <item.icon
+              aria-hidden="true"
               size={21}
               strokeWidth={1.5}
               color={isActive ? "var(--plum)" : "var(--ink-faint)"}

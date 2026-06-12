@@ -32,6 +32,8 @@ export default function LangDropdown({ uiLang, onLangChange }: Props) {
     <div ref={ref} style={{ position: "relative" }}>
       <button
         onClick={() => setOpen((o) => !o)}
+        aria-haspopup="true"
+        aria-expanded={open}
         style={{
           display: "flex",
           alignItems: "center",
@@ -47,11 +49,12 @@ export default function LangDropdown({ uiLang, onLangChange }: Props) {
           fontSize: 12,
         }}
       >
-        <span style={{ fontSize: 14, lineHeight: 1 }}>{current.flag}</span>
+        <span aria-hidden="true" style={{ fontSize: 14, lineHeight: 1 }}>{current.flag}</span>
         <span style={{ fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", fontSize: 11 }}>
           {current.code}
         </span>
         <span
+          aria-hidden="true"
           style={{
             fontSize: 8,
             opacity: 0.6,
@@ -86,6 +89,7 @@ export default function LangDropdown({ uiLang, onLangChange }: Props) {
                 onLangChange(lang.code);
                 setOpen(false);
               }}
+              aria-current={lang.code === uiLang ? "true" : undefined}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -104,10 +108,10 @@ export default function LangDropdown({ uiLang, onLangChange }: Props) {
                 transition: "background 100ms",
               }}
             >
-              <span style={{ fontSize: 16 }}>{lang.flag}</span>
+              <span aria-hidden="true" style={{ fontSize: 16 }}>{lang.flag}</span>
               <span style={{ flex: 1 }}>{lang.name}</span>
               {lang.code === uiLang && (
-                <span style={{ fontSize: 10, color: "var(--plum)" }}>✓</span>
+                <span aria-hidden="true" style={{ fontSize: 10, color: "var(--plum)" }}>✓</span>
               )}
             </button>
           ))}

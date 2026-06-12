@@ -23,6 +23,16 @@ const NAV_LABELS: Record<string, Record<string, string>> = {
   carnet:    { fr: "Mon carnet",   en: "My notebook", es: "Mi cuaderno", it: "Il mio taccuino",    tr: "Defterim",  de: "Mein Notizbuch",  ja: "ノート" },
 };
 
+const NAV_ARIA_LABEL: Record<string, string> = {
+  fr: "Navigation principale",
+  en: "Main navigation",
+  es: "Navegación principal",
+  it: "Navigazione principale",
+  tr: "Ana gezinme",
+  de: "Hauptnavigation",
+  ja: "メインナビゲーション",
+};
+
 const TAGLINE: Record<string, string> = {
   fr: "Chaque langue a sa propre folie.",
   en: "Every language has its own madness.",
@@ -91,7 +101,10 @@ export default function Sidebar({ uiLang }: Props) {
       </a>
 
       {/* Nav */}
-      <nav style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
+      <nav
+        aria-label={NAV_ARIA_LABEL[uiLang] ?? NAV_ARIA_LABEL.en}
+        style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}
+      >
         {navItems.map((item) => {
           const isActive = item.href !== null && pathname === item.href;
           const sharedStyle = {
@@ -115,6 +128,7 @@ export default function Sidebar({ uiLang }: Props) {
           const inner = (
             <>
               <item.icon
+                aria-hidden="true"
                 size={17}
                 strokeWidth={1.5}
                 color={iconColor}
@@ -144,6 +158,7 @@ export default function Sidebar({ uiLang }: Props) {
             <Link
               key={item.id}
               href={item.href}
+              aria-current={isActive ? "page" : undefined}
               style={{ ...sharedStyle, textDecoration: "none" }}
               onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "var(--paper-deep)"; }}
               onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
