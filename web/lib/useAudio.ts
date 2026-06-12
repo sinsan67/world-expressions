@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 const SPEECH_LANG: Record<string, string> = {
-  fr: "fr-FR", en: "en-GB", es: "es-ES", it: "it-IT", tr: "tr-TR",
+  fr: "fr-FR", en: "en-GB", es: "es-ES", it: "it-IT", tr: "tr-TR", de: "de-DE", ja: "ja-JP",
 };
 
 function findVoice(language: string): SpeechSynthesisVoice | undefined {

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Postcard from "./Postcard";
 
-const LANGS = ["fr", "en", "es", "it", "tr"] as const;
+const LANGS = ["fr", "en", "es", "it", "tr", "de", "ja"] as const;
 type L = (typeof LANGS)[number];
 
 const MSG: Record<L, { expr: string; flag: string; meaning: string; hint: string }> = {
@@ -35,6 +35,18 @@ const MSG: Record<L, { expr: string; flag: string; meaning: string; hint: string
     flag: "🇹🇷",
     meaning: "Sabretmek zordur ama sonuçları güzel olur.",
     hint: "Sunucumuz (ücretsiz plan) uyanıyor — yaklaşık 30 saniye",
+  },
+  de: {
+    expr: "Gut Ding will Weile haben",
+    flag: "🇩🇪",
+    meaning: "Gute Dinge brauchen Zeit.",
+    hint: "Unser Server (kostenloser Plan) erwacht — ca. 30 Sekunden",
+  },
+  ja: {
+    expr: "待てば海路の日和あり",
+    flag: "🇯🇵",
+    meaning: "辛抱強く待てば、いつかチャンスが訪れる。",
+    hint: "サーバー（無料プラン）が起動中 — 約30秒",
   },
 };
 

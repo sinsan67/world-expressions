@@ -9,6 +9,8 @@ const OG_DESCRIPTIONS: Record<string, string> = {
   es: "Cada idioma tiene su propia locura.",
   it: "Ogni lingua ha la sua follia.",
   tr: "Her dilin kendine özgü çılgınlığı vardır.",
+  de: "Jede Sprache hat ihren eigenen Wahnsinn.",
+  ja: "すべての言語には、固有の狂気がある。",
 };
 
 type Props = { searchParams: Promise<{ og_lang?: string }> };

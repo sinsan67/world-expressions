@@ -11,10 +11,10 @@ const NAV_ITEMS = [
 ];
 
 const NAV_LABELS: Record<string, Record<string, string>> = {
-  home:      { fr: "Accueil",  en: "Home",       es: "Inicio",    it: "Home",      tr: "Ana sayfa" },
-  atlas:     { fr: "Atlas",    en: "Atlas",       es: "Atlas",     it: "Atlante",   tr: "Atlas" },
-  concepts:  { fr: "Concepts", en: "Concepts",    es: "Conceptos", it: "Concetti",  tr: "Kavramlar" },
-  carnet:    { fr: "Carnet",   en: "Notebook",    es: "Cuaderno",  it: "Taccuino",  tr: "Defter" },
+  home:      { fr: "Accueil",  en: "Home",       es: "Inicio",    it: "Home",      tr: "Ana sayfa", de: "Startseite", ja: "ホーム" },
+  atlas:     { fr: "Atlas",    en: "Atlas",       es: "Atlas",     it: "Atlante",   tr: "Atlas",     de: "Atlas",      ja: "地図" },
+  concepts:  { fr: "Concepts", en: "Concepts",    es: "Conceptos", it: "Concetti",  tr: "Kavramlar", de: "Konzepte",   ja: "概念" },
+  carnet:    { fr: "Carnet",   en: "Notebook",    es: "Cuaderno",  it: "Taccuino",  tr: "Defter",    de: "Notizbuch",  ja: "ノート" },
 };
 
 type Props = {
@@ -58,10 +58,7 @@ export default function BottomNav({ uiLang = "fr" }: Props) {
             <item.icon
               size={21}
               strokeWidth={1.5}
-              color={isActive
-                ? (item.id === "favorites" ? "var(--terra)" : "var(--plum)")
-                : "var(--ink-faint)"}
-              fill={isActive && item.id === "favorites" ? "var(--terra)" : "none"}
+              color={isActive ? "var(--plum)" : "var(--ink-faint)"}
             />
             <span style={{ fontSize: 10, fontWeight: 600, fontFamily: "var(--font-body)" }}>
               {NAV_LABELS[item.id]?.[uiLang] ?? NAV_LABELS[item.id]?.fr}
