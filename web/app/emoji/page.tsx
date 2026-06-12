@@ -9,8 +9,7 @@ import LangBar from "@/components/ui/LangBar";
 import { tagIcon } from "@/lib/tagIcons";
 import { getConcepts, ConceptItem } from "@/lib/api";
 import { DOMAIN_DEFS, DOMAIN_COLORS, DomainDef } from "@/lib/domainDefs";
-
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
+import { useUILang, type UILang } from "@/lib/useUILang";
 
 // ─── Localisation ────────────────────────────────────────────────────────────
 
@@ -193,7 +192,7 @@ const LANG_API: Record<string, string>   = { fr: "fr", en: "uk", es: "es", it: "
 
 export default function ConceptsPage() {
   const router = useRouter();
-  const [uiLang, setUILang] = useState<UILang>("fr");
+  const [uiLang, changeLang] = useUILang();
   const [langFilter, setLangFilter] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<"themes" | "styles">("themes");
   const [activeDomain, setActiveDomain] = useState<string | null>(null);
@@ -205,8 +204,6 @@ export default function ConceptsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("wex_lang") as UILang | null;
-    if (stored && ["fr", "en", "es", "it", "tr", "de", "ja"].includes(stored)) setUILang(stored);
     // Restore active domain from URL on mount (e.g. /concepts?domain=emotions)
     const domFromUrl = new URLSearchParams(window.location.search).get("domain");
     if (domFromUrl) setActiveDomain(domFromUrl);
@@ -250,11 +247,6 @@ export default function ConceptsPage() {
       .catch(() => setConcepts([]))
       .finally(() => setLoading(false));
   }, [uiLang, langFilter]);
-
-  const changeLang = useCallback((lang: UILang) => {
-    setUILang(lang);
-    localStorage.setItem("wex_lang", lang);
-  }, []);
 
   const handleConceptClick = useCallback((concept: ConceptItem) => {
     router.push(`/search?concept=${encodeURIComponent(concept.slug)}`);

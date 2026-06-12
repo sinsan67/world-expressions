@@ -4,8 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Session } from "next-auth";
 import Eyebrow from "@/components/home/Eyebrow";
 import AuthModal from "@/components/profile/AuthModal";
-
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
+import type { UILang } from "@/lib/useUILang";
 type ExploreMode = "multilingual" | "single";
 type ContentType = "all" | "proverbs" | "everyday" | "slang";
 

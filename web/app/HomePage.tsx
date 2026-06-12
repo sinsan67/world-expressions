@@ -22,11 +22,10 @@ import {
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { EDITORIAL_DOMAINS } from "@/lib/editorialDomains";
+import { useUILang, UI_LANGS, type UILang } from "@/lib/useUILang";
 
 const LIMIT = 20;
 const MAX_SECTION_PREVIEW = 6;
-
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
 
 const T = {
   fr: {
@@ -295,7 +294,7 @@ function sectionExprCount(n: number, lang: UILang): string {
 
 export default function HomePage() {
   const router = useRouter();
-  const [uiLang, setUILang] = useState<UILang>("en");
+  const [uiLang, changeLang] = useUILang();
   const [showWelcome, setShowWelcome] = useState<boolean | null>(null);
   const [query, setQuery] = useState("");
   const [regions, setRegions] = useState<{ code: string; label: string }[]>([]);
@@ -530,14 +529,8 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    const stored = localStorage.getItem("wex_lang") as UILang | null;
-    const valid: UILang[] = ["fr", "en", "es", "it", "tr", "de", "ja"];
-    if (stored && valid.includes(stored)) {
-      setUILang(stored);
-      setShowWelcome(false);
-    } else {
-      setShowWelcome(true);
-    }
+    const stored = localStorage.getItem("wex_lang");
+    setShowWelcome(!stored || !UI_LANGS.includes(stored as UILang));
   }, []);
 
   useEffect(() => {
@@ -650,11 +643,6 @@ export default function HomePage() {
     observer.observe(el);
     return () => observer.disconnect();
   }, [hasMore, loadingMore, loadMore]);
-
-  const changeLang = useCallback((lang: UILang) => {
-    setUILang(lang);
-    localStorage.setItem("wex_lang", lang);
-  }, []);
 
   // ─── Render ───
 

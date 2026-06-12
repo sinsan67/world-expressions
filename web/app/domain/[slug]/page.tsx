@@ -12,8 +12,7 @@ import { searchByDomain, getConcepts, getAllTagNames, getRegions, getFacets, Con
 import { EDITORIAL_DOMAIN_MAP } from "@/lib/editorialDomains";
 import { TYPE_LABELS } from "@/lib/typeLabels";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
-
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
+import { useUILang, type UILang } from "@/lib/useUILang";
 
 const LIMIT = 30;
 const CONCEPTS_PREVIEW = 6;
@@ -147,7 +146,7 @@ export default function DomainPage() {
 
   const domain = EDITORIAL_DOMAIN_MAP[slug];
 
-  const [uiLang, setUILang] = useState<UILang>("en");
+  const [uiLang, changeLang] = useUILang();
   const [concepts, setConcepts] = useState<ConceptItem[]>([]);
   const [conceptsExpanded, setConceptsExpanded] = useState(false);
   const [expressions, setExpressions] = useState<Expression[]>([]);
@@ -162,11 +161,6 @@ export default function DomainPage() {
   const [filterRegions, setFilterRegions] = useState<string[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("wex_lang") as UILang | null;
-    if (stored && ["fr", "en", "es", "it", "tr", "de", "ja"].includes(stored)) setUILang(stored);
-  }, []);
 
   useEffect(() => {
     getRegions().then((data) => setRegions(data.map((r) => ({ code: r.code }))));
@@ -257,11 +251,6 @@ export default function DomainPage() {
       setLoadingMore(false);
     }
   }, [slug, offset, filterRegions, loadingMore, uiLang, typeFilter]);
-
-  const changeLang = useCallback((lang: UILang) => {
-    setUILang(lang);
-    localStorage.setItem("wex_lang", lang);
-  }, []);
 
   // Unknown domain → redirect home
   useEffect(() => {

@@ -16,8 +16,7 @@ import { getCarnet, getStats, getProgressByCountry } from "@/lib/carnet";
 import { getExpression, getRegions, getAllTagNames, Expression, RegionInfo } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { tagIcon } from "@/lib/tagIcons";
-
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
+import type { UILang } from "@/lib/useUILang";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 

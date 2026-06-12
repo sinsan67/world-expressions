@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
+import type { UILang } from "@/lib/useUILang";
 
 const LABELS: Record<UILang, { btn: string; done: string }> = {
   fr: { btn: "Partager",  done: "Lien copié !" },

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
+import type { UILang } from "@/lib/useUILang";
 
 const LANGS: { code: UILang; flag: string; name: string }[] = [
   { code: "fr", flag: "🇫🇷", name: "Français" },

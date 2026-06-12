@@ -11,8 +11,7 @@ import { tagIcon } from "@/lib/tagIcons";
 import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { LANG_FLAG, LANG_NATIVE } from "@/lib/langDefs";
 import { getConcepts } from "@/lib/api";
-
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
+import { useUILang, type UILang } from "@/lib/useUILang";
 type TagEntry = { slug: string; name: string; count: number };
 
 const LANG_FILTER_OPTIONS: { value: string }[] = [
@@ -165,18 +164,13 @@ const T: Record<UILang, {
 
 export default function EmojisPage() {
   const router = useRouter();
-  const [uiLang, setUILang] = useState<UILang>("fr");
+  const [uiLang, changeLang] = useUILang();
   const [viewMode, setViewMode] = useState<"domains" | "keyboard">("domains");
   const [activeDomain, setActiveDomain] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterLang, setFilterLang] = useState("");
   const [filterKind, setFilterKind] = useState("");
   const [domainTagMap, setDomainTagMap] = useState<Record<string, TagEntry[]>>({});
-
-  useEffect(() => {
-    const stored = localStorage.getItem("wex_lang") as UILang | null;
-    if (stored && ["fr", "en", "es", "it", "tr", "de", "ja"].includes(stored)) setUILang(stored);
-  }, []);
 
   useEffect(() => {
     getConcepts(uiLang, filterLang, "", 1, filterKind).then(({ concepts }) => {
@@ -192,11 +186,6 @@ export default function EmojisPage() {
       setDomainTagMap(map);
     });
   }, [uiLang, filterLang, filterKind]);
-
-  const changeLang = (lang: UILang) => {
-    setUILang(lang);
-    localStorage.setItem("wex_lang", lang);
-  };
 
   const t = T[uiLang];
 

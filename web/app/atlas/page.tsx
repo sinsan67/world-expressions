@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
@@ -8,8 +8,7 @@ import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
 import { getCountries, CountryInfo } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
-
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
+import { useUILang, type UILang } from "@/lib/useUILang";
 
 const T: Record<UILang, {
   eyebrow: string;
@@ -98,14 +97,9 @@ const LANG_NAME: Record<string, string> = {
 
 export default function AtlasPage() {
   const router = useRouter();
-  const [uiLang, setUILang] = useState<UILang>("fr");
+  const [uiLang, changeLang] = useUILang();
   const [regions, setRegions] = useState<CountryInfo[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("wex_lang") as UILang | null;
-    if (stored && ["fr", "en", "es", "it", "tr", "de", "ja"].includes(stored)) setUILang(stored);
-  }, []);
 
   useEffect(() => {
     getCountries()
@@ -114,11 +108,6 @@ export default function AtlasPage() {
         setRegions(sorted);
       })
       .finally(() => setLoading(false));
-  }, []);
-
-  const changeLang = useCallback((lang: UILang) => {
-    setUILang(lang);
-    localStorage.setItem("wex_lang", lang);
   }, []);
 
   const t = T[uiLang];

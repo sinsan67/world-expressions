@@ -16,9 +16,9 @@ import { tagIcon } from "@/lib/tagIcons";
 import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { LANG_FLAG, LANG_NATIVE } from "@/lib/langDefs";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
+import { useUILang, type UILang } from "@/lib/useUILang";
 
 const LIMIT = 20;
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
 
 const MAX_SECTION_PREVIEW = 6;
 
@@ -219,7 +219,7 @@ function SearchPageContent() {
   const countryParam = searchParams.get("country") ?? searchParams.get("region") ?? "";
   const typeParam = searchParams.get("type_filter") ?? "";
 
-  const [uiLang, setUILang] = useState<UILang>("en");
+  const [uiLang, setUILang] = useUILang();
   const [query, setQuery] = useState(qParam);
   const [regions, setRegions] = useState<{ code: string; label: string }[]>([]);
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
@@ -400,12 +400,6 @@ function SearchPageContent() {
   // ─── Effects ───
 
   useEffect(() => {
-    const stored = localStorage.getItem("wex_lang") as UILang | null;
-    const valid: UILang[] = ["fr", "en", "es", "it", "tr", "de", "ja"];
-    if (stored && valid.includes(stored)) setUILang(stored);
-  }, []);
-
-  useEffect(() => {
     getRegions().then((data) => {
       setRegions(data.map((r) => ({ code: r.code, label: `${FLAG[r.code] ?? "🌍"} ${COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}` })));
     });
@@ -471,7 +465,6 @@ function SearchPageContent() {
 
   const changeLang = useCallback((lang: UILang) => {
     setUILang(lang);
-    localStorage.setItem("wex_lang", lang);
     const rf = countryParam ? countryParam.split(",").filter(Boolean) : [];
     const tf = typeParam || null;
     runSearch(qParam, conceptParam, domainParam, rf, allRegionCodes, lang, tf);

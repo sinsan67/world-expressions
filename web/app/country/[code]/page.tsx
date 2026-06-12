@@ -14,6 +14,7 @@ import {
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { TYPE_LABELS } from "@/lib/typeLabels";
+import { useUILang, type UILang } from "@/lib/useUILang";
 
 const LIMIT = 20;
 const HERO_IMAGES = new Set(["fr", "uk", "us", "au", "es", "tr", "it", "de", "jp", "ar", "pe", "co", "cu"]);
@@ -44,8 +45,6 @@ const REGION_GRADIENTS: Record<string, string> = {
   mx: "linear-gradient(135deg, #90b8a0 0%, #d8e8d8 45%, #c49090 100%)",
   default: "linear-gradient(135deg, #9090b8 0%, #b0a0c8 50%, #c8b0d8 100%)",
 };
-
-type UILang = "fr" | "en" | "es" | "tr" | "it" | "de" | "ja";
 
 const T: Record<UILang, {
   backHome: string;
@@ -158,7 +157,7 @@ function CountryPageContent({ code }: { code: string }) {
   // Countries with many expressions default to idioms only.
   const defaultTypeFilter = "idiom";
 
-  const [uiLang, setUILang] = useState<UILang>("en");
+  const [uiLang, changeLang] = useUILang();
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
@@ -179,17 +178,6 @@ function CountryPageContent({ code }: { code: string }) {
   const countryName = COUNTRY_NAME[code] || code.toUpperCase();
   const hasHeroImage = HERO_IMAGES.has(code);
   const t = T[uiLang];
-
-  useEffect(() => {
-    const stored = localStorage.getItem("wex_lang") as UILang | null;
-    const valid: UILang[] = ["fr", "en", "es", "it", "tr", "de", "ja"];
-    if (stored && valid.includes(stored)) setUILang(stored);
-  }, []);
-
-  const changeLang = useCallback((lang: UILang) => {
-    setUILang(lang);
-    localStorage.setItem("wex_lang", lang);
-  }, []);
 
   useEffect(() => {
     getAllTagNames(uiLang).then(setTagNames);

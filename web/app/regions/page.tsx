@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
 import { REGION_DEFS } from "@/lib/regionDefs";
-
-type UILang = "fr" | "en" | "es" | "tr" | "it" | "de" | "ja";
+import { useUILang, type UILang } from "@/lib/useUILang";
 
 const T = {
   fr: {
@@ -60,18 +58,7 @@ const REGION_COUNTS: Record<string, number> = {
 };
 
 export default function RegionsPage() {
-  const [uiLang, setUILang] = useState<UILang>("fr");
-
-  useEffect(() => {
-    const stored = localStorage.getItem("wex_lang") as UILang | null;
-    const valid: UILang[] = ["fr", "en", "es", "it", "tr", "de", "ja"];
-    if (stored && valid.includes(stored)) setUILang(stored);
-  }, []);
-
-  const changeLang = (lang: UILang) => {
-    setUILang(lang);
-    localStorage.setItem("wex_lang", lang);
-  };
+  const [uiLang, changeLang] = useUILang();
 
   const t = T[uiLang] ?? T.fr;
   const regions = Object.values(REGION_DEFS);
