@@ -98,6 +98,11 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
             <span className="text-base font-semibold leading-snug" style={{ color: "var(--ink)", fontFamily: "var(--font-body)" }}>
               {cap(e.expression)}
             </span>
+            {e.literal && e.language !== uiLang && (
+              <p className="text-xs" style={{ color: "var(--ink-faint)", fontStyle: "italic", margin: "2px 0 0" }}>
+                {e.literal}
+              </p>
+            )}
             <div className="flex flex-wrap gap-1 mt-0.5">
               {typeLabel && (
                 <Link

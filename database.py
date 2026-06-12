@@ -53,23 +53,24 @@ def _build_expression_dict(row, match_type: str) -> dict:
 
 def _get_preferred_content(ids: list, locale: str, conn) -> dict:
     """
-    Batch-fetches meaning/origin/example in the preferred locale for a list of expression IDs.
+    Batch-fetches meaning/origin/example/literal in the preferred locale for a list of expression IDs.
     expression_content takes priority over content_translations.
-    Returns {expression_id: {meaning, origin, example}}.
+    Returns {expression_id: {meaning, origin, example, literal}}.
     """
     if not ids or not locale:
         return {}
     result: dict = {}
     for row in conn.execute(text("""
-        SELECT expression_id, meaning, origin, example FROM content_translations
+        SELECT expression_id, meaning, origin, example, literal FROM content_translations
         WHERE expression_id = ANY(:ids) AND target_lang = :locale
     """), {"ids": ids, "locale": locale}).fetchall():
-        result[row.expression_id] = {"meaning": row.meaning, "origin": row.origin, "example": row.example}
+        result[row.expression_id] = {"meaning": row.meaning, "origin": row.origin, "example": row.example, "literal": row.literal}
     for row in conn.execute(text("""
         SELECT expression_id, meaning, origin, example FROM expression_content
         WHERE expression_id = ANY(:ids) AND locale = :locale
     """), {"ids": ids, "locale": locale}).fetchall():
-        result[row.expression_id] = {"meaning": row.meaning, "origin": row.origin, "example": row.example}
+        # expression_content rows: same language, no literal needed
+        result[row.expression_id] = {"meaning": row.meaning, "origin": row.origin, "example": row.example, "literal": None}
     return result
 
 
@@ -497,6 +498,7 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
                 if p["meaning"]: r["meaning"] = p["meaning"]
                 if p["origin"]:  r["origin"]  = p["origin"]
                 if p["example"]: r["example"] = p["example"]
+                r["literal"] = p.get("literal")
 
     return results, total, matching_tags
 
@@ -551,6 +553,7 @@ def search_by_concept(tag_set: set[str], regions: Optional[set[str]] = None, lim
                 if p["meaning"]: r["meaning"] = p["meaning"]
                 if p["origin"]:  r["origin"]  = p["origin"]
                 if p["example"]: r["example"] = p["example"]
+                r["literal"] = p.get("literal")
 
     return results, total
 
@@ -601,6 +604,7 @@ def browse_by_region(regions: Optional[set[str]] = None, limit: int = 20, offset
                 if p["meaning"]: r["meaning"] = p["meaning"]
                 if p["origin"]:  r["origin"]  = p["origin"]
                 if p["example"]: r["example"] = p["example"]
+                r["literal"] = p.get("literal")
 
     return results, total
 
