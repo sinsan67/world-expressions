@@ -280,12 +280,14 @@ export async function getFacets(
   query = "",
   typeFilter: string | null = null,
   domain = "",
+  locale = "",
 ): Promise<Facets> {
   const params = new URLSearchParams();
   if (query) params.set("q", query);
   if (countries.length) params.set("country", countries.join(","));
   if (typeFilter) params.set("type_filter", typeFilter);
   if (domain) params.set("domain", domain);
+  if (locale) params.set("locale", locale);
   const res = await fetch(`${API}/facets?${params}`);
   if (!res.ok) return { region: {}, kind: {} };
   return res.json();

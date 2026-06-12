@@ -337,7 +337,7 @@ function SearchPageContent() {
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
-      getFacets(rf, q, tf, domain || "").then(setFacets);
+      getFacets(rf, q, tf, domain || "", uiLang).then(setFacets);
     } catch {
       setHasError(true);
     } finally {
