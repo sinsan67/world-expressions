@@ -9,8 +9,7 @@ import LangBar from "@/components/ui/LangBar";
 import ExpressionCard from "@/components/ExpressionCard";
 import { browseByCountry, getCountries, getAllTagNames, getFacets, Expression, Facets } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
-
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
+import { useUILang, type UILang } from "@/lib/useUILang";
 
 const LIMIT = 30;
 
@@ -64,7 +63,7 @@ function TypePageContent() {
 
   const meta = TYPE_META[slug];
 
-  const [uiLang, setUILang] = useState<UILang>("en");
+  const [uiLang, changeLang] = useUILang();
   const [expressions, setExpressions] = useState<Expression[]>([]);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
@@ -78,11 +77,6 @@ function TypePageContent() {
   );
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("wex_lang") as UILang | null;
-    if (stored && ["fr", "en", "es", "it", "tr", "de", "ja"].includes(stored)) setUILang(stored);
-  }, []);
 
   useEffect(() => {
     getCountries().then((data) => setCountries(data.map((c) => ({ code: c.code }))));
@@ -150,11 +144,6 @@ function TypePageContent() {
       setLoadingMore(false);
     }
   }, [slug, offset, filterCountries, loadingMore, uiLang]);
-
-  const changeLang = useCallback((lang: UILang) => {
-    setUILang(lang);
-    localStorage.setItem("wex_lang", lang);
-  }, []);
 
   useEffect(() => {
     if (slug && !meta) router.replace("/");

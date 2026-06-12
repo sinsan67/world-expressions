@@ -10,8 +10,7 @@ import { toggleFavorite, isFavorite } from "@/lib/carnet";
 import { Heart } from "lucide-react";
 import { browseByRegion, Expression } from "@/lib/api";
 import { REGION_DEFS, RegionDef, getSectionStyle } from "@/lib/regionDefs";
-
-type UILang = "fr" | "en" | "es" | "tr" | "it" | "de" | "ja";
+import { useUILang, type UILang } from "@/lib/useUILang";
 
 // ─── RegionCard ───────────────────────────────────────────────────────────────
 
@@ -143,18 +142,12 @@ function RegionCard({
 // ─── Page content ─────────────────────────────────────────────────────────────
 
 function RegionPageContent({ code }: { code: string }) {
-  const [uiLang, setUILang] = useState<UILang>("fr");
+  const [uiLang, changeLang] = useUILang();
   const [expressions, setExpressions] = useState<Expression[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
   const region = REGION_DEFS[code];
-
-  useEffect(() => {
-    const stored = localStorage.getItem("wex_lang") as UILang | null;
-    const valid: UILang[] = ["fr", "en", "es", "it", "tr", "de", "ja"];
-    if (stored && valid.includes(stored)) setUILang(stored);
-  }, []);
 
   useEffect(() => {
     browseByRegion([code], 100, 0)
@@ -163,10 +156,6 @@ function RegionPageContent({ code }: { code: string }) {
       .finally(() => setLoading(false));
   }, [code]);
 
-  const changeLang = (lang: UILang) => {
-    setUILang(lang);
-    localStorage.setItem("wex_lang", lang);
-  };
 
   const filtered = activeSection
     ? expressions.filter((e) => e.tags.some((t) => t === activeSection))

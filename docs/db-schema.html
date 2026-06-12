@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World Expressions — Database Schema</title>
+<style>
+  :root {
+    --paper: #fdf8ee; --paper-deep: #f3e8d4; --paper-edge: #e8dcc4;
+    --ink: #1c1410; --ink-soft: #5c4f47; --ink-softer: #8b7d72;
+    --plum: #6b4d8f; --plum-bg: #ebe3f1;
+    --terra: #c1543a; --terra-bg: #f7e3d8;
+    --ochre: #8b6b1c; --ochre-bg: #faf2cf;
+    --slate: #4a6274; --slate-bg: #e3ebf1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 2rem 1.5rem 4rem;
+    background: var(--paper); color: var(--ink);
+    font-family: "Iowan Old Style", Georgia, "Inter", system-ui, sans-serif;
+    line-height: 1.45;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  h1 { font-size: 2rem; margin: 0 0 0.2rem; }
+  .sub { color: var(--ink-softer); margin: 0 0 0.4rem; font-size: 0.95rem; }
+  .meta { font-size: 0.8rem; color: var(--ink-softer); margin-bottom: 2rem; }
+
+  .zone { margin-bottom: 2.2rem; }
+  .zone-title {
+    font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; margin-bottom: 0.25rem;
+  }
+  .zone-desc { font-size: 0.88rem; color: var(--ink-soft); margin: 0 0 0.9rem; max-width: 850px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 1rem; }
+
+  .table-card {
+    background: #fff; border: 1px solid var(--paper-edge); border-radius: 10px;
+    overflow: hidden; box-shadow: 0 1px 2px rgba(28,20,16,0.05), 0 4px 12px rgba(28,20,16,0.06);
+  }
+  .table-head { padding: 0.55rem 0.9rem; color: #fff; }
+  .table-head .tname { font-family: ui-monospace, Menlo, monospace; font-weight: 700; font-size: 0.95rem; }
+  .table-head .tdesc { font-size: 0.74rem; opacity: 0.92; margin-top: 1px; }
+  .cols { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  .cols td { padding: 0.22rem 0.9rem; border-top: 1px solid #f4ede0; vertical-align: top; }
+  .cols tr:first-child td { border-top: none; }
+  .cname { font-family: ui-monospace, Menlo, monospace; white-space: nowrap; font-weight: 600; }
+  .ctype { color: var(--ink-softer); white-space: nowrap; font-size: 0.72rem; }
+  .cnote { color: var(--ink-soft); }
+  .badge {
+    display: inline-block; font-size: 0.6rem; font-weight: 700; border-radius: 4px;
+    padding: 0 4px; margin-left: 4px; vertical-align: 1px; letter-spacing: 0.03em;
+  }
+  .pk { background: var(--ochre-bg); color: var(--ochre); border: 1px solid #e8d89a; }
+  .fk { background: var(--plum-bg); color: var(--plum); border: 1px solid #d4c3e3; }
+  .uq { background: var(--slate-bg); color: var(--slate); border: 1px solid #c6d4de; }
+
+  .terra-h { background: var(--terra); } .terra-t { color: var(--terra); }
+  .plum-h { background: var(--plum); } .plum-t { color: var(--plum); }
+  .ochre-h { background: #b08a2e; } .ochre-t { color: var(--ochre); }
+  .slate-h { background: var(--slate); } .slate-t { color: var(--slate); }
+
+  .rel {
+    background: var(--paper-deep); border: 1px solid var(--paper-edge); border-radius: 10px;
+    padding: 1rem 1.2rem; margin-bottom: 2.2rem; font-size: 0.85rem;
+  }
+  .rel h2 { font-size: 0.95rem; margin: 0 0 0.5rem; }
+  .rel ul { margin: 0; padding-left: 1.1rem; }
+  .rel li { margin-bottom: 0.3rem; }
+  .rel code, .note code {
+    font-family: ui-monospace, Menlo, monospace; font-size: 0.78rem;
+    background: #fff; border: 1px solid var(--paper-edge); border-radius: 4px; padding: 0 4px;
+  }
+  .arrow { color: var(--terra); font-weight: 700; }
+
+  .note {
+    border-left: 3px solid var(--ochre); background: var(--ochre-bg);
+    padding: 0.7rem 1rem; border-radius: 0 8px 8px 0; font-size: 0.82rem; margin-top: 2rem;
+    color: var(--ink-soft);
+  }
+  .legend { font-size: 0.75rem; color: var(--ink-softer); margin-bottom: 1.6rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Database schema</h1>
+  <p class="sub">World Expressions — PostgreSQL (Neon) · 12 tables · managed with SQLAlchemy + Alembic</p>
+  <p class="meta">Generated 2026-06-12 from <code>models.py</code> + Alembic migrations (the live DB is the source of truth). Indicative volume: ~15,000 expressions, 7 UI languages, 14+ countries.</p>
+
+  <p class="legend">
+    <span class="badge pk">PK</span> primary key &nbsp;·&nbsp;
+    <span class="badge fk">FK</span> foreign key &nbsp;·&nbsp;
+    <span class="badge uq">UQ</span> unique &nbsp;·&nbsp;
+    composite primary keys are marked on each participating column
+  </p>
+
+  <!-- ZONE 1 : CONTENT CORE -->
+  <div class="zone">
+    <div class="zone-title terra-t">1 · Content core</div>
+    <p class="zone-desc">An expression is a cultural artifact: its <strong>text is never translated</strong>. Everything explanatory lives in two satellite tables — <code>expression_content</code> (native explanation, one row per locale) and <code>content_translations</code> (translation kit for foreign readers: literal, idiomatic equivalent…). Display rule: <strong>expression_content takes priority over content_translations</strong> for the requested locale.</p>
+    <div class="grid">
+
+      <div class="table-card">
+        <div class="table-head terra-h">
+          <div class="tname">expressions</div>
+          <div class="tdesc">One row per expression, in its original language</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">id <span class="badge pk">PK</span></td><td class="ctype">varchar(120)</td><td class="cnote">kebab-case slug, e.g. <code>avoir-le-cafard</code></td></tr>
+          <tr><td class="cname">text</td><td class="ctype">text</td><td class="cnote">original text — never translated</td></tr>
+          <tr><td class="cname">language</td><td class="ctype">varchar(10)</td><td class="cnote">ISO 639-1: fr, en, es, it, tr, de, ja…</td></tr>
+          <tr><td class="cname">country</td><td class="ctype">varchar(20)</td><td class="cnote">fr, tr, mx, pe… (indexed, added S114)</td></tr>
+          <tr><td class="cname">region</td><td class="ctype">varchar(10)</td><td class="cnote">sub-region only (alsace, bretagne)</td></tr>
+          <tr><td class="cname">kind</td><td class="ctype">varchar(20)</td><td class="cnote">idiom | word | proverb | locution</td></tr>
+          <tr><td class="cname">register</td><td class="ctype">varchar(20)</td><td class="cnote">standard | informal | slang | vulgar | formal</td></tr>
+          <tr><td class="cname">concept_id <span class="badge fk">FK</span></td><td class="ctype">uuid → concepts</td><td class="cnote">"Same idea" bridge (nullable)</td></tr>
+          <tr><td class="cname">concept_confidence</td><td class="ctype">float</td><td class="cnote">0–1 → UI badges Mirror / Equivalent / Same vein</td></tr>
+          <tr><td class="cname">literal_fr</td><td class="ctype">text</td><td class="cnote">word-for-word FR gloss (fallback)</td></tr>
+          <tr><td class="cname">rationale</td><td class="ctype">text</td><td class="cnote">why the concept link (Mistral output)</td></tr>
+          <tr><td class="cname">source</td><td class="ctype">text</td><td class="cnote">URL (TDK, Treccani, kaikki…)</td></tr>
+          <tr><td class="cname">illustration</td><td class="ctype">text</td><td class="cnote">URL or SVG — reserved for V4</td></tr>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <div class="table-head terra-h">
+          <div class="tname">expression_content</div>
+          <div class="tdesc">Native explanation — one row per (expression, locale)</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">expression_id <span class="badge pk">PK</span><span class="badge fk">FK</span></td><td class="ctype">varchar(120)</td><td class="cnote">CASCADE on delete</td></tr>
+          <tr><td class="cname">locale <span class="badge pk">PK</span></td><td class="ctype">varchar(10)</td><td class="cnote">ISO 639-1</td></tr>
+          <tr><td class="cname">meaning</td><td class="ctype">text</td><td class="cnote">what it means</td></tr>
+          <tr><td class="cname">origin</td><td class="ctype">text</td><td class="cnote">where it comes from</td></tr>
+          <tr><td class="cname">example</td><td class="ctype">text</td><td class="cnote">usage sentence</td></tr>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <div class="table-head terra-h">
+          <div class="tname">content_translations</div>
+          <div class="tdesc">Translation kit for readers of another language</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">expression_id <span class="badge pk">PK</span><span class="badge fk">FK</span></td><td class="ctype">varchar(120)</td><td class="cnote">CASCADE on delete</td></tr>
+          <tr><td class="cname">target_lang <span class="badge pk">PK</span></td><td class="ctype">varchar(10)</td><td class="cnote">reader's language</td></tr>
+          <tr><td class="cname">meaning</td><td class="ctype">text</td><td class="cnote">meaning in target language</td></tr>
+          <tr><td class="cname">literal</td><td class="ctype">text</td><td class="cnote">word-for-word translation</td></tr>
+          <tr><td class="cname">idiomatic</td><td class="ctype">text</td><td class="cnote">closest idiom in target language</td></tr>
+          <tr><td class="cname">origin</td><td class="ctype">text</td><td class="cnote">origin story, translated</td></tr>
+          <tr><td class="cname">example</td><td class="ctype">text</td><td class="cnote">example, translated</td></tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ZONE 2 : TAXONOMY -->
+  <div class="zone">
+    <div class="zone-title plum-t">2 · Taxonomy &amp; cross-language bridges</div>
+    <p class="zone-desc">Two distinct "concept" systems coexist. <strong>Tags</strong> (canonical English slugs + localized names) are what the UI calls "concepts" — the 540+ thematic pills, grouped into 16 domains via <code>concept_domains</code>. The <strong>concepts table</strong> is narrower: it links expressions that express the <em>same idea</em> across languages, powering the "Same idea" section with a confidence score.</p>
+    <div class="grid">
+
+      <div class="table-card">
+        <div class="table-head plum-h">
+          <div class="tname">tags</div>
+          <div class="tdesc">Thematic tag — canonical English slug</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">id <span class="badge pk">PK</span></td><td class="ctype">varchar(60)</td><td class="cnote">English slug, e.g. <code>animals</code></td></tr>
+          <tr><td class="cname">slug <span class="badge uq">UQ</span></td><td class="ctype">varchar(60)</td><td class="cnote">stable reference for URLs</td></tr>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <div class="table-head plum-h">
+          <div class="tname">tag_names</div>
+          <div class="tdesc">Localized display name of a tag</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">tag_id <span class="badge pk">PK</span><span class="badge fk">FK</span></td><td class="ctype">varchar(60)</td><td class="cnote">CASCADE on delete</td></tr>
+          <tr><td class="cname">locale <span class="badge pk">PK</span></td><td class="ctype">varchar(10)</td><td class="cnote"></td></tr>
+          <tr><td class="cname">name</td><td class="ctype">varchar(120)</td><td class="cnote"><code>animals</code> → "animaux" (fr)</td></tr>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <div class="table-head plum-h">
+          <div class="tname">expression_tags</div>
+          <div class="tdesc">Many-to-many join: expressions ↔ tags</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">expression_id <span class="badge pk">PK</span><span class="badge fk">FK</span></td><td class="ctype">varchar(120)</td><td class="cnote"></td></tr>
+          <tr><td class="cname">tag_id <span class="badge pk">PK</span><span class="badge fk">FK</span></td><td class="ctype">varchar(60)</td><td class="cnote"></td></tr>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <div class="table-head plum-h">
+          <div class="tname">concept_domains</div>
+          <div class="tdesc">Assigns each tag to 1–2 of the 16 domains</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">tag_id <span class="badge pk">PK</span><span class="badge fk">FK</span></td><td class="ctype">varchar(60)</td><td class="cnote">CASCADE on delete</td></tr>
+          <tr><td class="cname">domain_slug <span class="badge pk">PK</span></td><td class="ctype">varchar(30)</td><td class="cnote">emotions, money, humor… (populated via Mistral)</td></tr>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <div class="table-head plum-h">
+          <div class="tname">concepts</div>
+          <div class="tdesc">"Same idea" bridge across languages</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">id <span class="badge pk">PK</span></td><td class="ctype">uuid</td><td class="cnote"></td></tr>
+          <tr><td class="cname">slug <span class="badge uq">UQ</span></td><td class="ctype">varchar(120)</td><td class="cnote">e.g. "melancholic sadness"</td></tr>
+          <tr><td class="cname">name_fr</td><td class="ctype">varchar</td><td class="cnote">French display name</td></tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ZONE 3 : USERS -->
+  <div class="zone">
+    <div class="zone-title ochre-t">3 · Users &amp; accounts</div>
+    <p class="zone-desc">Auth supports Google OAuth <em>and</em> email + password (hence <code>google_id</code> nullable + <code>password_hash</code>). Onboarding answers land in the preference columns. Favorites sync from localStorage on first login.</p>
+    <div class="grid">
+
+      <div class="table-card">
+        <div class="table-head ochre-h">
+          <div class="tname">users</div>
+          <div class="tdesc">Account — Google OAuth or email/password</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">id <span class="badge pk">PK</span></td><td class="ctype">uuid</td><td class="cnote"></td></tr>
+          <tr><td class="cname">google_id <span class="badge uq">UQ</span></td><td class="ctype">varchar(255)</td><td class="cnote">nullable since email auth</td></tr>
+          <tr><td class="cname">email <span class="badge uq">UQ</span></td><td class="ctype">varchar(255)</td><td class="cnote"></td></tr>
+          <tr><td class="cname">password_hash</td><td class="ctype">text</td><td class="cnote">null for Google-only accounts</td></tr>
+          <tr><td class="cname">email_verified</td><td class="ctype">boolean</td><td class="cnote">via email_tokens</td></tr>
+          <tr><td class="cname">name / avatar_url</td><td class="ctype">varchar / text</td><td class="cnote"></td></tr>
+          <tr><td class="cname">ui_lang</td><td class="ctype">varchar(10)</td><td class="cnote">default "en"</td></tr>
+          <tr><td class="cname">native_lang</td><td class="ctype">varchar(10)</td><td class="cnote">onboarding v2</td></tr>
+          <tr><td class="cname">user_goal</td><td class="ctype">varchar(30)</td><td class="cnote">onboarding v2</td></tr>
+          <tr><td class="cname">explore_mode</td><td class="ctype">varchar(20)</td><td class="cnote">multilingual | mono</td></tr>
+          <tr><td class="cname">learning_langs</td><td class="ctype">varchar(10)[]</td><td class="cnote">multi-select</td></tr>
+          <tr><td class="cname">content_type</td><td class="ctype">varchar(20)</td><td class="cnote">all | proverbs | …</td></tr>
+          <tr><td class="cname">created_at</td><td class="ctype">timestamptz</td><td class="cnote"></td></tr>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <div class="table-head ochre-h">
+          <div class="tname">user_favorites</div>
+          <div class="tdesc">Saved expressions (synced from localStorage)</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">user_id <span class="badge pk">PK</span><span class="badge fk">FK</span></td><td class="ctype">uuid</td><td class="cnote">CASCADE on delete</td></tr>
+          <tr><td class="cname">expression_id <span class="badge pk">PK</span><span class="badge fk">FK</span></td><td class="ctype">varchar(120)</td><td class="cnote">CASCADE on delete</td></tr>
+          <tr><td class="cname">saved_at</td><td class="ctype">timestamptz</td><td class="cnote"></td></tr>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <div class="table-head ochre-h">
+          <div class="tname">email_tokens</div>
+          <div class="tdesc">Verify-email &amp; reset-password tokens</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">id <span class="badge pk">PK</span></td><td class="ctype">uuid</td><td class="cnote"></td></tr>
+          <tr><td class="cname">user_id <span class="badge fk">FK</span></td><td class="ctype">uuid</td><td class="cnote">CASCADE on delete</td></tr>
+          <tr><td class="cname">token <span class="badge uq">UQ</span></td><td class="ctype">varchar(64)</td><td class="cnote"></td></tr>
+          <tr><td class="cname">purpose</td><td class="ctype">varchar(16)</td><td class="cnote">verify | reset</td></tr>
+          <tr><td class="cname">created_at / expires_at</td><td class="ctype">timestamptz</td><td class="cnote"></td></tr>
+          <tr><td class="cname">used</td><td class="ctype">boolean</td><td class="cnote">single-use, consumed atomically</td></tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ZONE 4 : MISC -->
+  <div class="zone">
+    <div class="zone-title slate-t">4 · Standalone</div>
+    <div class="grid">
+      <div class="table-card">
+        <div class="table-head slate-h">
+          <div class="tname">newsletter_subscribers</div>
+          <div class="tdesc">One expression a day, by email</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">id <span class="badge pk">PK</span></td><td class="ctype">uuid</td><td class="cnote"></td></tr>
+          <tr><td class="cname">email <span class="badge uq">UQ</span></td><td class="ctype">varchar(255)</td><td class="cnote"></td></tr>
+          <tr><td class="cname">language</td><td class="ctype">varchar(10)</td><td class="cnote">preferred language, default "en"</td></tr>
+          <tr><td class="cname">created_at</td><td class="ctype">timestamptz</td><td class="cnote"></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- RELATIONSHIPS -->
+  <div class="rel">
+    <h2>Relationships at a glance</h2>
+    <ul>
+      <li><code>expressions</code> <span class="arrow">1 → N</span> <code>expression_content</code> (one row per locale) and <span class="arrow">1 → N</span> <code>content_translations</code> (one row per target language)</li>
+      <li><code>expressions</code> <span class="arrow">N ↔ N</span> <code>tags</code> via <code>expression_tags</code> · each tag has localized names in <code>tag_names</code> and 1–2 domains in <code>concept_domains</code></li>
+      <li><code>expressions</code> <span class="arrow">N → 1</span> <code>concepts</code> (nullable, with <code>concept_confidence</code>) — expressions sharing a concept appear in each other's "Same idea" section</li>
+      <li><code>users</code> <span class="arrow">1 → N</span> <code>user_favorites</code> and <span class="arrow">1 → N</span> <code>email_tokens</code></li>
+      <li>Search (4 passes) runs on this schema with PostgreSQL FTS — see <code>docs/search-engine.md</code></li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <strong>Known drift:</strong> <code>models.py</code> is partially out of date vs. the live database — migrations added
+    <code>expressions.country / literal_fr / concept_confidence / rationale</code>, <code>concepts.name_fr</code>,
+    7 user columns and the <code>email_tokens</code> table without updating the SQLAlchemy models.
+    The Alembic migration chain is the source of truth. Tracked in tech debt (2026-06-12).
+  </div>
+
+</div>
+</body>
+</html>

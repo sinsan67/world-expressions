@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession, signOut } from "next-auth/react";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { updateUserName } from "@/lib/api";
 import Link from "next/link";
 import Image from "next/image";
@@ -11,10 +11,9 @@ import LangBar from "@/components/ui/LangBar";
 import CarnetTab from "@/components/profile/CarnetTab";
 import PreferencesTab from "@/components/profile/PreferencesTab";
 import AuthModal from "@/components/profile/AuthModal";
+import { useUILang, type UILang } from "@/lib/useUILang";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
 type TopTab = "carnet" | "preferences" | "account";
 
 const TOP_TABS: { id: TopTab; label: Record<UILang, string> }[] = [
@@ -25,7 +24,7 @@ const TOP_TABS: { id: TopTab; label: Record<UILang, string> }[] = [
 
 export default function ProfilePage() {
   const { data: session, status, update: updateSession } = useSession();
-  const [uiLang, setUiLang] = useState<UILang>("en");
+  const [uiLang, handleLangChange] = useUILang();
   const [activeTab, setActiveTab] = useState<TopTab>("carnet");
   const [authModal, setAuthModal] = useState(false);
   const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
@@ -36,9 +35,6 @@ export default function ProfilePage() {
   const nameTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("wex_lang") as UILang | null;
-    if (stored && ["fr", "en", "es", "it", "tr", "de", "ja"].includes(stored)) setUiLang(stored);
-
     const hash = window.location.hash.replace("#", "");
     if (hash === "preferences") setActiveTab("preferences");
     else if (hash === "account") setActiveTab("account");
@@ -72,11 +68,6 @@ export default function ProfilePage() {
       setNameSaving(false);
     }
   }
-
-  const handleLangChange = useCallback((lang: UILang) => {
-    setUiLang(lang);
-    localStorage.setItem("wex_lang", lang);
-  }, []);
 
   if (status === "loading") return null;
 

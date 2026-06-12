@@ -1,11 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
-
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
+import { useUILang, type UILang } from "@/lib/useUILang";
 
 type TypeCard = { label: string; title: string; body: string; example: string };
 type Pass = { title: string; body: string };
@@ -353,12 +351,7 @@ function diffTitle(accent: string): React.CSSProperties {
 const diffBody: React.CSSProperties = { fontFamily: "var(--font-body)", fontSize: "0.8rem", color: "var(--ink-soft)", lineHeight: 1.55 };
 
 export default function AboutPage() {
-  const [uiLang, setUiLang] = useState<UILang>("en");
-
-  useEffect(() => {
-    const stored = localStorage.getItem("wex_lang");
-    if (stored) setUiLang(stored as UILang);
-  }, []);
+  const [uiLang, setUiLang] = useUILang();
 
   const t = fallback(uiLang);
 

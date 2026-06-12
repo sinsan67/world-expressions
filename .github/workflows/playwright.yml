@@ -6,12 +6,13 @@ on:
   pull_request:
     branches: [staging, main]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - uses: actions/checkout@v4
@@ -58,3 +59,42 @@ jobs:
           name: playwright-report
           path: web/playwright-report/
           retention-days: 7
+
+  backend-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install backend + test dependencies
+        run: pip install --quiet -r requirements.txt -r requirements-test.txt
+
+      # Le backend est lancé depuis CE commit (pas Render, qui déploie main :
+      # une feature backend de staging n'y existe pas encore avant le merge).
+      # Tests en lecture seule (GET uniquement) — aucune écriture en DB.
+      - name: Start backend from this commit
+        run: |
+          python3 -m uvicorn main:app --port 8000 > uvicorn.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl --silent --fail --max-time 5 http://localhost:8000/ > /dev/null; then
+              echo "Backend is up."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Backend failed to start:"
+          cat uvicorn.log
+          exit 1
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_PROD }}
+
+      - name: Run backend tests (pytest)
+        run: python3 -m pytest tests/ -q
+        env:
+          BASE_URL: http://localhost:8000

@@ -3,8 +3,7 @@
 import AuthButton from "./AuthButton";
 import LangDropdown from "./LangDropdown";
 import ShareButton from "./ShareButton";
-
-type UILang = "fr" | "en" | "es" | "it" | "tr" | "de" | "ja";
+import type { UILang } from "@/lib/useUILang";
 
 type Props = {
   uiLang: UILang;
