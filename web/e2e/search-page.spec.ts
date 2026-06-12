@@ -49,7 +49,7 @@ test.describe('Page /search (US-006)', () => {
     await page.goto('/search?q=argent');
     const card = page.locator(CARD).first();
     await card.waitFor({ timeout: T });
-    await card.click();
+    await card.locator('span').first().click();
     await expect(page).toHaveURL(/\/expression\//, { timeout: T });
   });
 

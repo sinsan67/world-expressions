@@ -428,7 +428,7 @@ function SearchPageContent() {
     setTypeFilter(tf);
     runSearch(qParam, conceptParam, domainParam, rf, allRegionCodes, uiLang, tf);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [qParam, conceptParam, domainParam, countryParam, typeParam, allRegionCodesKey, uiLang, runSearch]);
+  }, [qParam, conceptParam, domainParam, countryParam, typeParam, allRegionCodesKey, runSearch]);
 
   // Keep input in sync with URL (e.g. after browser back)
   useEffect(() => {
@@ -472,7 +472,11 @@ function SearchPageContent() {
   const changeLang = useCallback((lang: UILang) => {
     setUILang(lang);
     localStorage.setItem("wex_lang", lang);
-  }, []);
+    const rf = countryParam ? countryParam.split(",").filter(Boolean) : [];
+    const tf = typeParam || null;
+    runSearch(qParam, conceptParam, domainParam, rf, allRegionCodes, lang, tf);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countryParam, typeParam, runSearch, qParam, conceptParam, domainParam, allRegionCodes]);
 
   // ─── Render helpers ───
 
