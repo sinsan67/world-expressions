@@ -63,7 +63,7 @@ export default function BottomNav({ uiLang = "fr" }: Props) {
               padding: "0.5rem 0 0.75rem",
               gap: "0.2rem",
               textDecoration: "none",
-              color: isActive ? "var(--plum)" : "var(--ink-faint)",
+              color: isActive ? "var(--plum)" : "var(--ink-softer)",
               transition: "color 120ms ease",
             }}
           >
@@ -71,7 +71,7 @@ export default function BottomNav({ uiLang = "fr" }: Props) {
               aria-hidden="true"
               size={21}
               strokeWidth={1.5}
-              color={isActive ? "var(--plum)" : "var(--ink-faint)"}
+              color={isActive ? "var(--plum)" : "var(--ink-softer)"}
             />
             <span style={{ fontSize: 10, fontWeight: 600, fontFamily: "var(--font-body)" }}>
               {NAV_LABELS[item.id]?.[uiLang] ?? NAV_LABELS[item.id]?.fr}

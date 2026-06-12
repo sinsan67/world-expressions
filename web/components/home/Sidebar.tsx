@@ -136,7 +136,7 @@ export default function Sidebar({ uiLang }: Props) {
               />
               <span style={{ flex: 1 }}>{NAV_LABELS[item.id]?.[uiLang] ?? NAV_LABELS[item.id]?.fr}</span>
               {item.count !== undefined && (
-                <span style={{ fontSize: 11, color: "var(--ink-faint)" }}>{item.count}</span>
+                <span style={{ fontSize: 11, color: "var(--ink-softer)" }}>{item.count}</span>
               )}
             </>
           );
@@ -189,7 +189,7 @@ export default function Sidebar({ uiLang }: Props) {
           Emoji map
         </a>
       </div>
-      <p style={{ fontSize: 11, color: "var(--ink-faint)", marginTop: "0.75rem", fontFamily: "var(--font-body)", lineHeight: 1.5 }}>
+      <p style={{ fontSize: 11, color: "var(--ink-softer)", marginTop: "0.75rem", fontFamily: "var(--font-body)", lineHeight: 1.5 }}>
         1 580+ expressions<br />5 langues · {countryCount ?? "…"} pays
       </p>
     </aside>
