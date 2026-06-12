@@ -111,7 +111,7 @@ function TypePageContent() {
         setTotal(exprData.total);
         setOffset(LIMIT);
         setTagNames(names);
-        getFacets(filterCountries, "", slug, "").then(setFacets);
+        getFacets(filterCountries, "", slug, "", uiLang).then(setFacets);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -128,7 +128,7 @@ function TypePageContent() {
       setExpressions(data.results);
       setTotal(data.total);
       setOffset(LIMIT);
-      getFacets(newCountries, "", slug, "").then(setFacets);
+      getFacets(newCountries, "", slug, "", uiLang).then(setFacets);
     } catch {
       // silent
     } finally {

@@ -201,7 +201,7 @@ export default function DomainPage() {
         setTotal(exprData.total);
         setOffset(LIMIT);
         setTagNames(names);
-        getFacets([], "", null, slug).then(setFacets);
+        getFacets([], "", null, slug, uiLang).then(setFacets);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -217,7 +217,7 @@ export default function DomainPage() {
       setExpressions(data.results);
       setTotal(data.total);
       setOffset(LIMIT);
-      getFacets(filterRegions, "", newType, slug).then(setFacets);
+      getFacets(filterRegions, "", newType, slug, uiLang).then(setFacets);
     } catch {
       // silent
     } finally {
@@ -235,7 +235,7 @@ export default function DomainPage() {
       setExpressions(data.results);
       setTotal(data.total);
       setOffset(LIMIT);
-      getFacets(newRegions, "", typeFilter, slug).then(setFacets);
+      getFacets(newRegions, "", typeFilter, slug, uiLang).then(setFacets);
     } catch {
       // silent
     } finally {

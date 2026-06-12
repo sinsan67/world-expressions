@@ -378,7 +378,7 @@ export default function HomePage() {
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
-      getFacets(rf.length ? rf : [], "", null).then(setFacets);
+      getFacets(rf.length ? rf : [], "", null, "", uiLang).then(setFacets);
     } catch {
       setHasError(true);
       setResults([]);
@@ -406,7 +406,7 @@ export default function HomePage() {
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
-      getFacets([], q, null).then(setFacets);
+      getFacets([], q, null, "", uiLang).then(setFacets);
     } catch {
       setHasError(true);
       setResults([]);
@@ -463,7 +463,7 @@ export default function HomePage() {
     } finally {
       setLoading(false);
     }
-    getFacets(newFilter, query || "", typeFilter).then(setFacets);
+    getFacets(newFilter, query || "", typeFilter, "", uiLang).then(setFacets);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchMode, query, allRegionCodes, typeFilter, uiLang]);
 
@@ -490,7 +490,7 @@ export default function HomePage() {
     } finally {
       setLoading(false);
     }
-    getFacets(filterRegions, query || "", newType).then(setFacets);
+    getFacets(filterRegions, query || "", newType, "", uiLang).then(setFacets);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchMode, query, allRegionCodes, filterRegions, uiLang]);
 
@@ -526,7 +526,7 @@ export default function HomePage() {
     getCountries().then((data) => {
       setRegions(data.map((r) => ({ code: r.code, label: `${FLAG[r.code] ?? "🌍"} ${COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}` })));
     });
-    getFacets().then(setFacets);
+    getFacets([], "", null, "", uiLang).then(setFacets);
   }, []);
 
   useEffect(() => {
