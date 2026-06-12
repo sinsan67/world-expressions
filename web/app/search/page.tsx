@@ -337,7 +337,7 @@ function SearchPageContent() {
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
-      getFacets(rf, q, tf, domain || "", uiLang).then(setFacets);
+      getFacets(rf, q, tf, domain || "", lang).then(setFacets);
     } catch {
       setHasError(true);
     } finally {
@@ -417,7 +417,7 @@ function SearchPageContent() {
     return () => { cancelled = true; };
   }, [uiLang]);
 
-  // Trigger search when URL params or regions change
+  // Trigger search when URL params, regions, or UI language change
   const allRegionCodesKey = allRegionCodes.join(",");
   useEffect(() => {
     if (!allRegionCodesKey) return;
@@ -428,7 +428,7 @@ function SearchPageContent() {
     setTypeFilter(tf);
     runSearch(qParam, conceptParam, domainParam, rf, allRegionCodes, uiLang, tf);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [qParam, conceptParam, domainParam, countryParam, typeParam, allRegionCodesKey, runSearch]);
+  }, [qParam, conceptParam, domainParam, countryParam, typeParam, allRegionCodesKey, uiLang, runSearch]);
 
   // Keep input in sync with URL (e.g. after browser back)
   useEffect(() => {
