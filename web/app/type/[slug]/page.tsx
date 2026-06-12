@@ -99,6 +99,7 @@ function TypePageContent() {
 
   useEffect(() => {
     if (!slug || !meta) return;
+    let active = true;
     setLoading(true);
     setExpressions([]);
     setOffset(0);
@@ -107,14 +108,16 @@ function TypePageContent() {
       getAllTagNames(uiLang),
     ])
       .then(([exprData, names]) => {
+        if (!active) return;
         setExpressions(exprData.results);
         setTotal(exprData.total);
         setOffset(LIMIT);
         setTagNames(names);
-        getFacets(filterCountries, "", slug, "", uiLang).then(setFacets);
+        getFacets(filterCountries, "", slug, "", uiLang).then((f) => { if (active) setFacets(f); });
       })
       .catch(() => {})
-      .finally(() => setLoading(false));
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, uiLang]);
 
@@ -340,6 +343,7 @@ function TypePageContent() {
                       <div
                         key={expr.id}
                         style={{
+                          height: "100%",
                           animation: "fadeSlideUp 0.35s ease-out both",
                           animationDelay: `${Math.min(i % LIMIT, 8) * 45}ms`,
                         }}

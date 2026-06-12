@@ -673,6 +673,7 @@ function CountryPageContent({ code }: { code: string }) {
                   <div
                     key={expr.id}
                     style={{
+                      height: "100%",
                       animation: "fadeSlideUp 0.35s ease-out both",
                       animationDelay: `${Math.min(i % LIMIT, 8) * 45}ms`,
                     }}

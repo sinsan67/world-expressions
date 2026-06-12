@@ -79,6 +79,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
       data-testid="expression-card"
       className="rounded-2xl flex flex-col transition-shadow hover:shadow-md overflow-hidden"
       style={{
+        height: "100%",
         background: "var(--paper)",
         border: "1px solid var(--paper-edge)",
         borderTop: "1px solid var(--paper-edge)",
@@ -104,6 +105,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
                   onClick={(ev) => ev.stopPropagation()}
                   className="text-xs px-1.5 py-0.5 rounded inline-block"
                   style={{
+                    fontSize: 10,
                     background: "var(--terra-bg)",
                     color: "var(--terra)",
                     border: "1px solid var(--terra-soft)",
@@ -119,7 +121,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
               {e.register && e.register !== "standard" && (
                 <span
                   className="text-xs px-1.5 py-0.5 rounded inline-block"
-                  style={{ background: "var(--paper-deep)", color: "var(--ink-softer)" }}
+                  style={{ fontSize: 10, background: "rgba(107,122,153,0.1)", color: "#6B7A99" }}
                 >
                   {(REGISTER_LABEL[uiLang] ?? REGISTER_LABEL.en)[e.register] || e.register}
                 </span>
