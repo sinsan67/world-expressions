@@ -32,21 +32,25 @@ jobs:
         working-directory: web
 
       - name: Wait for Vercel staging to serve this commit
+        env:
+          # On pull_request, github.sha is the merge preview commit (never deployed).
+          # Use the branch HEAD SHA instead, which Vercel staging actually serves.
+          COMMIT_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
         run: |
-          echo "Waiting for Vercel to serve commit ${{ github.sha }}..."
+          echo "Waiting for Vercel to serve commit $COMMIT_SHA..."
           for i in $(seq 1 60); do
             deployed_sha=$(curl --silent --max-time 10 \
               -H "x-vercel-protection-bypass: ${{ secrets.VERCEL_BYPASS_TOKEN }}" \
               "https://world-expressions-git-staging-ssinanusa-gmailcoms-projects.vercel.app/api/version" \
               | jq -r '.sha // ""' 2>/dev/null || echo "")
             echo "Attempt $i — deployed: $deployed_sha"
-            if [ "$deployed_sha" = "${{ github.sha }}" ]; then
+            if [ "$deployed_sha" = "$COMMIT_SHA" ]; then
               echo "Vercel is serving the correct commit."
               exit 0
             fi
             sleep 5
           done
-          echo "Timeout: Vercel did not serve commit ${{ github.sha }} within 5 minutes."
+          echo "Timeout: Vercel did not serve commit $COMMIT_SHA within 5 minutes."
           exit 1
 
       - name: Warm up Render backend
