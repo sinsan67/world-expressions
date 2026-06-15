@@ -29,9 +29,10 @@ test.describe('Page /atlas', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/atlas');
     const bottomNavAtlas = page.locator('[class*="BottomNav"] a[href="/atlas"], [class*="bottom-nav"] a[href="/atlas"]').first();
-    if (await bottomNavAtlas.isVisible({ timeout: T }).catch(() => false)) {
-      const color = await bottomNavAtlas.evaluate((el) => getComputedStyle(el).color);
-      expect(color).not.toBe('rgb(92, 79, 58)');
-    }
+    // Sélecteur class* fragile (CSS modules) — à remplacer par data-testid="bottom-nav"
+    const hasBottomNav = await bottomNavAtlas.isVisible({ timeout: 5000 }).catch(() => false);
+    test.skip(!hasBottomNav, 'BottomNav introuvable — sélecteur class* fragile, ajouter data-testid="bottom-nav"');
+    const color = await bottomNavAtlas.evaluate((el) => getComputedStyle(el).color);
+    expect(color).not.toBe('rgb(92, 79, 58)');
   });
 });

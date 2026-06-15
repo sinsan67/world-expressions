@@ -58,11 +58,10 @@ test("S2a — split view : sous-section others.exact étiquetée Équivalents (p
   // Si la sous-section others.exact est rendue (correspondances exactes/concept dans d'autres langues),
   // son label doit être "🔗 Équivalents" et non "Dans le texte" (regression guard pour la correction S64).
   // Pour "argent", others.exact peut être vide si toutes les expressions non-françaises
-  // passent en translation_pass — dans ce cas la section ne se rend pas et l'assertion est ignorée.
+  // passent en translation_pass — dans ce cas la section ne se rend pas (donnée variable).
   const othersExact = page.locator('[data-testid="split-others-exact"]');
-  if (await othersExact.count() > 0) {
-    await expect(othersExact.getByText(/équivalents/i)).toBeVisible();
-  }
+  test.skip(await othersExact.count() === 0, 'split-others-exact absent pour "argent" (données variables, section non rendue)');
+  await expect(othersExact.getByText(/équivalents/i)).toBeVisible();
 });
 
 test("S2b — split view : la section principale garde bien 'Dans le texte'", async ({ page }) => {

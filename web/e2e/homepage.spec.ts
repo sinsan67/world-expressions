@@ -78,7 +78,7 @@ test.describe('Homepage — recherche', () => {
     await page.locator(CARD).first().waitFor({ timeout: T });
     const initialCount = await page.locator(CARD).count();
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(2000); // IntersectionObserver → fetch → re-render : pas de signal DOM unique observable
     const newCount = await page.locator(CARD).count();
     expect(newCount).toBeGreaterThanOrEqual(initialCount);
   });

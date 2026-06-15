@@ -25,10 +25,10 @@ test.describe('Page /expression/[id]', () => {
     await page.goto(expressionUrl);
     await page.locator('h1, h2').first().waitFor({ timeout: T });
     const flagLink = page.locator('a[href*="/country/"]').first();
-    if (await flagLink.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await flagLink.click();
-      await expect(page).toHaveURL(/\/country\//);
-    }
+    const hasFlag = await flagLink.isVisible({ timeout: 5000 }).catch(() => false);
+    test.skip(!hasFlag, 'expression aléatoire sans lien pays (donnée variable)');
+    await flagLink.click();
+    await expect(page).toHaveURL(/\/country\//);
   });
 
   test('#37 les 3 sections de contenu sont visibles', async ({ page }) => {
@@ -62,58 +62,56 @@ test.describe('Page /expression/[id]', () => {
     await page.goto(expressionUrl);
     await page.locator('h1, h2').first().waitFor({ timeout: T });
     const tag = page.locator('[class*="tag"], [class*="Tag"]').first();
-    if (await tag.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await tag.click();
-      await expect(page).toHaveURL(/\/#q=|\/\?q=/);
-    }
+    const hasTag = await tag.isVisible({ timeout: 5000 }).catch(() => false);
+    test.skip(!hasTag, 'expression aléatoire sans tag (donnée variable)');
+    await tag.click();
+    await expect(page).toHaveURL(/\/#q=|\/\?q=/);
   });
 
   test('#42 cœur sur la page expression toggle le favori', async ({ page }) => {
     await page.goto(expressionUrl);
     await page.locator('h1, h2').first().waitFor({ timeout: T });
     const heart = page.locator('button[aria-label*="favori"], button[aria-label*="favorite"], [class*="heart"], [class*="Heart"]').first();
-    if (await heart.isVisible({ timeout: 5000 }).catch(() => false)) {
-      const before = await page.evaluate(() => {
-        try { return JSON.parse(localStorage.getItem('wex_carnet') || '{}').favorites?.length ?? 0; }
-        catch { return 0; }
-      });
-      await heart.click();
-      const after = await page.evaluate(() => {
-        try { return JSON.parse(localStorage.getItem('wex_carnet') || '{}').favorites?.length ?? 0; }
-        catch { return 0; }
-      });
-      expect(after).not.toBe(before);
-    }
+    await expect(heart).toBeVisible({ timeout: T });
+    const before = await page.evaluate(() => {
+      try { return JSON.parse(localStorage.getItem('wex_carnet') || '{}').favorites?.length ?? 0; }
+      catch { return 0; }
+    });
+    await heart.click();
+    const after = await page.evaluate(() => {
+      try { return JSON.parse(localStorage.getItem('wex_carnet') || '{}').favorites?.length ?? 0; }
+      catch { return 0; }
+    });
+    expect(after).not.toBe(before);
   });
 
   test('#43 visiter une expression l\'ajoute à l\'historique /carnet', async ({ page }) => {
     await page.goto(expressionUrl);
     await page.locator('h1, h2').first().waitFor({ timeout: T });
-    await page.waitForTimeout(1000); // laisser recordView s'exécuter
-    const historyLength = await page.evaluate(() => {
-      try { return JSON.parse(localStorage.getItem('wex_carnet') || '{}').history?.length ?? 0; }
-      catch { return 0; }
-    });
-    expect(historyLength).toBeGreaterThan(0);
+    await expect.poll(
+      () => page.evaluate(() => {
+        try { return JSON.parse(localStorage.getItem('wex_carnet') || '{}').history?.length ?? 0; }
+        catch { return 0; }
+      }),
+      { timeout: 5000 }
+    ).toBeGreaterThan(0);
   });
 
   test('#44 bouton "Expression au hasard" navigue vers une autre expression', async ({ page }) => {
     await page.goto(expressionUrl);
     await page.locator('h1, h2').first().waitFor({ timeout: T });
     const randomBtn = page.locator('a[href="/random"], a[href*="random"]').first();
-    if (await randomBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await randomBtn.click();
-      await expect(page).toHaveURL(/\/expression\//, { timeout: T });
-    }
+    await expect(randomBtn).toBeVisible({ timeout: T });
+    await randomBtn.click();
+    await expect(page).toHaveURL(/\/expression\//, { timeout: T });
   });
 
   test('#45 bouton retour ramène à la homepage', async ({ page }) => {
     await page.goto(expressionUrl);
     await page.locator('h1, h2').first().waitFor({ timeout: T });
     const backLink = page.locator('a[href="/"]').first();
-    if (await backLink.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await backLink.click();
-      await expect(page).toHaveURL(/\/(\?.*|#.*)?$/);
-    }
+    await expect(backLink).toBeVisible({ timeout: T });
+    await backLink.click();
+    await expect(page).toHaveURL(/\/(\?.*|#.*)?$/);
   });
 });

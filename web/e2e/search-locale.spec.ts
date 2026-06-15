@@ -38,12 +38,11 @@ test.describe('Search — locale-aware meanings (bug fix: sense in UI language)'
 
     // Switch to EN via the language button in the UI
     const enBtn = page.locator('button').filter({ hasText: /^en$/i }).first();
-    if (await enBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await enBtn.click();
-      // After lang switch, if there are new search requests, they should use locale=en
-    }
+    await expect(enBtn).toBeVisible({ timeout: T });
+    await enBtn.click();
+    // After lang switch, new search requests should use locale=en
 
-    // Verify cards are still visible
+    // Verify cards are still visible after language switch
     await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
   });
 });
