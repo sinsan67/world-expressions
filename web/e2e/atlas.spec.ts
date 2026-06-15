@@ -28,10 +28,8 @@ test.describe('Page /atlas', () => {
   test('#23 icône Atlas active dans la BottomNav (mobile)', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/atlas');
-    const bottomNavAtlas = page.locator('[class*="BottomNav"] a[href="/atlas"], [class*="bottom-nav"] a[href="/atlas"]').first();
-    // Sélecteur class* fragile (CSS modules) — à remplacer par data-testid="bottom-nav"
-    const hasBottomNav = await bottomNavAtlas.isVisible({ timeout: 5000 }).catch(() => false);
-    test.skip(!hasBottomNav, 'BottomNav introuvable — sélecteur class* fragile, ajouter data-testid="bottom-nav"');
+    const bottomNavAtlas = page.locator('[data-testid="bottom-nav"] a[href="/atlas"]');
+    await expect(bottomNavAtlas).toBeVisible({ timeout: T });
     const color = await bottomNavAtlas.evaluate((el) => getComputedStyle(el).color);
     expect(color).not.toBe('rgb(92, 79, 58)');
   });

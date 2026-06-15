@@ -74,10 +74,8 @@ test.describe('Page /emoji', () => {
   test('#32 icône Concepts active dans la BottomNav (mobile)', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/emoji');
-    const link = page.locator('[class*="BottomNav"] a[href="/emoji"], [class*="bottom-nav"] a[href="/emoji"]').first();
-    // Sélecteur class* fragile (CSS modules) — à remplacer par data-testid="bottom-nav"
-    const hasBottomNav = await link.isVisible({ timeout: 5000 }).catch(() => false);
-    test.skip(!hasBottomNav, 'BottomNav introuvable — sélecteur class* fragile, ajouter data-testid="bottom-nav"');
+    const link = page.locator('[data-testid="bottom-nav"] a[href="/emoji"]');
+    await expect(link).toBeVisible({ timeout: T });
     const color = await link.evaluate((el) => getComputedStyle(el).color);
     expect(color).not.toBe('rgb(92, 79, 58)');
   });

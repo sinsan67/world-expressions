@@ -13,16 +13,19 @@ def test_search_result_has_required_fields(api):
     r = api.get("/search", params={"q": "pied"})
     assert r.status_code == 200
     item = r.json()["results"][0]
-    for field in ("id", "expression", "language", "region"):
+    for field in ("id", "expression", "language", "region", "country"):
         assert field in item, f"champ manquant : {field}"
 
 
-def test_search_region_filter(api):
-    r = api.get("/search", params={"q": "money", "region": "uk"})
+def test_search_country_filter(api):
+    # "country" filtre par code pays (uk/fr/tr…) ; "region" filtre les sous-régions (alsace/bretagne).
+    # "make" apparaît dans de nombreuses expressions anglaises (make up, make do…) → résultats garantis.
+    r = api.get("/search", params={"q": "make", "country": "uk"})
     assert r.status_code == 200
     results = r.json()["results"]
+    assert len(results) > 0, "country=uk avec q='make' doit retourner des résultats"
     for item in results:
-        assert item["region"] == "uk"
+        assert item["country"] == "uk"
 
 
 def test_search_empty_query_returns_400_or_empty(api):
