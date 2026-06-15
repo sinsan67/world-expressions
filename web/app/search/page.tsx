@@ -436,7 +436,7 @@ function SearchPageContent() {
     setTypeFilter(tf);
     runSearch(qParam, conceptParam, domainParam, rf, allCountryCodes, uiLang, tf);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [qParam, conceptParam, domainParam, filterParam, typeParam, allCountryCodesKey, runSearch]);
+  }, [qParam, conceptParam, domainParam, filterParam, typeParam, allCountryCodesKey, runSearch, uiLang]);
 
   // Keep input in sync with URL (e.g. after browser back)
   useEffect(() => {
@@ -477,13 +477,6 @@ function SearchPageContent() {
     return () => observer.disconnect();
   }, [hasMore, loadingMore, loadMore]);
 
-  const changeLang = useCallback((lang: UILang) => {
-    setUILang(lang);
-    const rf = filterParam ? filterParam.split(",").filter(Boolean) : [];
-    const tf = typeParam || null;
-    runSearch(qParam, conceptParam, domainParam, rf, allCountryCodes, lang, tf);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterParam, typeParam, runSearch, qParam, conceptParam, domainParam, allCountryCodes]);
 
   // ─── Render helpers ───
 
@@ -537,7 +530,7 @@ function SearchPageContent() {
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
       <Sidebar uiLang={uiLang} />
-      <LangBar uiLang={uiLang} onLangChange={changeLang} />
+      <LangBar uiLang={uiLang} onLangChange={setUILang} />
 
       <main className="wex-main" style={{ paddingBottom: 80 }}>
         <div style={{

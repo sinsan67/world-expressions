@@ -525,8 +525,11 @@ export default function HomePage() {
     getCountries().then((data) => {
       setRegions(data.map((r) => ({ code: r.code, label: `${FLAG[r.code] ?? "🌍"} ${COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}` })));
     });
-    getFacets([], "", null, "", uiLang).then(setFacets);
   }, []);
+
+  useEffect(() => {
+    getFacets([], "", null, "", uiLang).then(setFacets);
+  }, [uiLang]);
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang");
@@ -631,6 +634,39 @@ export default function HomePage() {
     let cancelled = false;
     getAllTagNames(uiLang).then((tags) => { if (!cancelled) setTagNames(tags); });
     return () => { cancelled = true; };
+  }, [uiLang]);
+
+  // Re-fetch current search/browse results when lang changes (only if user has already searched)
+  useEffect(() => {
+    if (!searched) return;
+    let cancelled = false;
+    const doReFetch = async () => {
+      setLoading(true);
+      setHasError(false);
+      setResults([]);
+      try {
+        let data;
+        if (searchMode === "browse") {
+          data = await browseByCountry(filterRegions, LIMIT, 0, typeFilter ?? undefined, uiLang);
+        } else if (searchMode === "concept" && query) {
+          data = await searchByConcept([query], [], LIMIT, 0, undefined, undefined, undefined, filterRegions.length ? filterRegions : []);
+        } else if (searchMode === "text" && query) {
+          data = await searchExpressions(query.trim(), [], LIMIT, 0, typeFilter ?? undefined, uiLang, undefined, filterRegions);
+        }
+        if (!cancelled && data) {
+          setResults(data.results);
+          setTotal(data.total);
+          setHasMore(data.results.length < data.total);
+        }
+      } catch {
+        if (!cancelled) setHasError(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    doReFetch();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uiLang]);
 
   useEffect(() => {
