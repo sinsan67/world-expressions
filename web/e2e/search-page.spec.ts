@@ -58,7 +58,9 @@ test.describe('Page /search (US-006)', () => {
   // S133: bug corrigé — /search utilise désormais getCountries() (filtre PAYS uniforme,
   // via le composant partagé ResultsFilterBar) et handleFilterChange écrit le param
   // `country` (et non plus `region`). « France » apparaît donc dans le déroulant et le
-  // clic met l'URL à jour. Test réactivé et durci (plus de garde silencieuse).
+  // clic met l'URL à jour.
+  // S135: sélecteur corrigé — France a des sous-régions (bretagne, alsace) donc son
+  // élément de ligne est un <div>, pas un <label>. On cible la checkbox via data-testid.
   test('#S6 filtre pays "France" → URL mise à jour avec country=fr', async ({ page }) => {
     await page.goto('/search?q=argent');
     await page.locator(CARD).first().waitFor({ timeout: T });
@@ -66,10 +68,10 @@ test.describe('Page /search (US-006)', () => {
     const filterBtn = page.locator('button').filter({ hasText: /Tous les pays/i }).first();
     await expect(filterBtn).toBeVisible({ timeout: T });
     await filterBtn.click();
-    // Cocher France
-    const franceLabel = page.locator('label').filter({ hasText: /France/ }).first();
-    await expect(franceLabel).toBeVisible({ timeout: T });
-    await franceLabel.click();
+    // Cocher France via sa checkbox (la ligne est un <div> car France a des sous-régions)
+    const franceRow = page.locator('[data-testid="filter-country-fr"]');
+    await expect(franceRow).toBeVisible({ timeout: T });
+    await franceRow.locator('input[type="checkbox"]').click();
     await expect(page).toHaveURL(/country=fr/, { timeout: T });
   });
 
@@ -119,30 +121,26 @@ test.describe('Page /search (US-006)', () => {
 
   // ─── En-têtes de section match_type ─────────────────────────────────────────
 
-  test('#S11 en-têtes de section (🎯💡🏷️🌍) visibles quand plusieurs types', async ({ page }) => {
-    // "argent" produit des résultats exact + semantic + concept → headers attendus
+  test('#S11 section des résultats exacte visible après recherche', async ({ page }) => {
+    // "argent" → forte majorité de résultats exacts en français → mode langSplitSections
+    // La section exact a data-testid="split-main-exact"
     await page.goto('/search?q=argent');
     await page.locator(CARD).first().waitFor({ timeout: T });
-    // Chercher au moins un emoji de section parmi les 4 possibles
-    const sectionEmoji = page.locator('span').filter({ hasText: /^(🎯|💡|🏷️|🌍)$/ });
-    if (await sectionEmoji.count() > 0) {
-      await expect(sectionEmoji.first()).toBeVisible({ timeout: T });
-    }
-    // Le label de section "Dans le texte" doit accompagner l'emoji 🎯
-    const exactLabel = page.locator('span').filter({ hasText: /Dans le texte|In the text/ });
-    if (await exactLabel.count() > 0) {
-      await expect(exactLabel.first()).toBeVisible({ timeout: T });
-    }
+    const exactSection = page.locator('[data-testid="split-main-exact"]');
+    await expect(exactSection).toBeVisible({ timeout: T });
   });
 
   // ─── Cap 6 cartes + bouton "Voir les N autres" ─────────────────────────────
 
   test('#S12 bouton "Voir les N autres →" apparaît pour une section > 6 cartes', async ({ page }) => {
-    // "avoir" a de nombreuses correspondances exactes → section exact > 6
+    // "avoir" → de nombreuses correspondances exactes en français (>6) → bouton show-more obligatoire
     await page.goto('/search?q=avoir');
     await page.locator(CARD).first().waitFor({ timeout: T });
-    const showMoreBtn = page.locator('button').filter({ hasText: /Voir les \d+ autres|Show \d+ more|Ver \d+ más|Vedi altri \d+|\d+ tane daha/ }).first();
-    if (!await showMoreBtn.isVisible({ timeout: 8000 }).catch(() => false)) return;
+    // Le bouton show-more doit être présent dans la section exact principale
+    const exactSection = page.locator('[data-testid="split-main-exact"]');
+    await expect(exactSection).toBeVisible({ timeout: T });
+    const showMoreBtn = exactSection.locator('[data-testid="show-more-btn"]');
+    await expect(showMoreBtn).toBeVisible({ timeout: T });
     const countBefore = await page.locator(CARD).count();
     await showMoreBtn.click();
     const countAfter = await page.locator(CARD).count();
@@ -150,15 +148,17 @@ test.describe('Page /search (US-006)', () => {
   });
 
   test('#S13 le bouton "Voir les N autres" disparaît après expansion', async ({ page }) => {
+    // "avoir" → section exact > 6 résultats → bouton show-more présent
     await page.goto('/search?q=avoir');
     await page.locator(CARD).first().waitFor({ timeout: T });
-    const showMoreBtn = page.locator('button').filter({ hasText: /Voir les \d+ autres|Show \d+ more/ }).first();
-    if (!await showMoreBtn.isVisible({ timeout: 8000 }).catch(() => false)) return;
+    const exactSection = page.locator('[data-testid="split-main-exact"]');
+    await expect(exactSection).toBeVisible({ timeout: T });
+    const showMoreBtn = exactSection.locator('[data-testid="show-more-btn"]');
+    await expect(showMoreBtn).toBeVisible({ timeout: T });
     await showMoreBtn.click();
     // Après expansion, le bouton de CETTE section ne doit plus être visible
-    // (d'autres sections peuvent encore avoir leur propre bouton)
-    await page.waitForTimeout(500);
-    // On vérifie juste que le clic a fonctionné (plus de cartes)
+    await expect(showMoreBtn).not.toBeVisible({ timeout: T });
+    // Et plus de cartes sont visibles
     await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
   });
 

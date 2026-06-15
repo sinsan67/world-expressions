@@ -137,7 +137,7 @@ export default function ResultsFilterBar({
               const subCodes = showSubregions ? COUNTRY_SUBREGIONS[r.code] : undefined;
               const isExpanded = expandedCountry === r.code;
               return (
-                <div key={r.code}>
+                <div key={r.code} data-testid={`filter-country-${r.code}`}>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.35rem 0.75rem", fontSize: 13, color: "var(--ink)" }}>
                     {/* La case coche/décoche le pays ; cocher le pays retire ses sous-régions */}
                     <input

@@ -508,6 +508,7 @@ function SearchPageContent() {
         </div>
         {!isExpanded && hidden > 0 && (
           <button
+            data-testid="show-more-btn"
             onClick={() => setExpandedSections(prev => new Set(prev).add(sectionKey))}
             style={{ marginTop: "0.75rem", background: "none", border: "none", color: "var(--ink-soft)", fontSize: 12, fontFamily: "var(--font-body)", cursor: "pointer", padding: "0.25rem 0", textDecoration: "underline", textUnderlineOffset: 3 }}
           >

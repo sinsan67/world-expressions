@@ -240,6 +240,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
               return (
                 <button
                   key={tag}
+                  data-testid="tag-button"
                   onClick={(ev) => { ev.stopPropagation(); onTagClick(tag); }}
                   className="flex items-center gap-1 text-xs rounded-full px-2.5 py-1 transition-colors"
                   style={{ background: "var(--paper-deep)", color: "var(--ink-soft)", fontFamily: "var(--font-body)" }}

@@ -1021,6 +1021,7 @@ export default function HomePage() {
                 {PINNED_EMOJI_WALL.map((item) => (
                   <button
                     key={item.slug}
+                    data-testid="emoji-wall-btn"
                     onClick={() => { setSearchLabel(`${item.emoji} ${item.labels[uiLang]}`); runConceptSearch(item.slug); }}
                     style={{
                       display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem",
