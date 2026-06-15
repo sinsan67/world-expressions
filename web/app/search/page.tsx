@@ -16,6 +16,7 @@ import { tagIcon } from "@/lib/tagIcons";
 import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { LANG_FLAG, LANG_NATIVE } from "@/lib/langDefs";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
+import { splitCountryRegion } from "@/lib/subregions";
 import { useUILang, type UILang } from "@/lib/useUILang";
 
 const LIMIT = 20;
@@ -216,7 +217,11 @@ function SearchPageContent() {
   const qParam = searchParams.get("q") ?? "";
   const conceptParam = searchParams.get("concept") ?? "";
   const domainParam = searchParams.get("domain") ?? "";
-  const countryParam = searchParams.get("country") ?? searchParams.get("region") ?? "";
+  // Le filtre d'origine combine pays (param `country`) et sous-régions (param `region`).
+  // On les fusionne en une seule liste de codes pour l'état du filtre.
+  const countryParam = searchParams.get("country") ?? "";
+  const regionParam = searchParams.get("region") ?? "";
+  const filterParam = [countryParam, regionParam].filter(Boolean).join(",");
   const typeParam = searchParams.get("type_filter") ?? "";
 
   const [uiLang, setUILang] = useUILang();
@@ -231,7 +236,7 @@ function SearchPageContent() {
   const [hasMore, setHasMore] = useState(false);
   const [searchMode, setSearchMode] = useState<"text" | "concept">("text");
   const [filterCountries, setFilterCountries] = useState<string[]>(
-    countryParam ? countryParam.split(",").filter(Boolean) : []
+    filterParam ? filterParam.split(",").filter(Boolean) : []
   );
   const [sortMode, setSortMode] = useState<"relevance" | "country">("relevance");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
@@ -316,17 +321,19 @@ function SearchPageContent() {
     setDisplayMode("split");
     setConceptBridgeResults([]);
     setDetectedConceptSlugs([]);
+    // Le filtre combine pays et sous-régions : on les route vers les bons params API.
+    const { countries: cf, regions: rg } = splitCountryRegion(rf);
     try {
       let data;
       if (domain && !q && !concept) {
         setSearchMode("concept");
-        data = await searchByDomain(domain, [], LIMIT, 0, lang, tf ?? undefined, rf, "random");
+        data = await searchByDomain(domain, rg, LIMIT, 0, lang, tf ?? undefined, cf, "random");
       } else if (concept && !q) {
         setSearchMode("concept");
-        data = await searchByConcept([concept], [], LIMIT, 0, tf ?? undefined, lang, undefined, rf);
+        data = await searchByConcept([concept], rg, LIMIT, 0, tf ?? undefined, lang, undefined, cf);
       } else {
         setSearchMode("text");
-        data = await searchExpressions(q, [], LIMIT, 0, tf ?? undefined, lang, undefined, rf);
+        data = await searchExpressions(q, rg, LIMIT, 0, tf ?? undefined, lang, undefined, cf);
         if (data.detected_concepts?.length) {
           setDetectedConceptSlugs(data.detected_concepts);
           searchByConcept(data.detected_concepts, [], 12, 0, undefined, lang).then(bridge => {
@@ -337,7 +344,7 @@ function SearchPageContent() {
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
-      getFacets(rf, q, tf, domain || "", lang).then(setFacets);
+      getFacets(cf, q, tf, domain || "", lang).then(setFacets);
     } catch {
       setHasError(true);
     } finally {
@@ -349,15 +356,15 @@ function SearchPageContent() {
     if (!hasMore || loadingMore) return;
     setLoadingMore(true);
     const offset = results.length;
-    const activeCountries = filterCountries;
+    const { countries: cf, regions: rg } = splitCountryRegion(filterCountries);
     try {
       let data;
       if (searchMode === "concept" && domainParam && !conceptParam) {
-        data = await searchByDomain(domainParam, [], LIMIT, offset, uiLang, undefined, activeCountries, "random");
+        data = await searchByDomain(domainParam, rg, LIMIT, offset, uiLang, undefined, cf, "random");
       } else if (searchMode === "concept") {
-        data = await searchByConcept([conceptParam], [], LIMIT, offset, undefined, uiLang, undefined, activeCountries);
+        data = await searchByConcept([conceptParam], rg, LIMIT, offset, undefined, uiLang, undefined, cf);
       } else {
-        data = await searchExpressions(qParam, [], LIMIT, offset, undefined, uiLang, undefined, activeCountries);
+        data = await searchExpressions(qParam, rg, LIMIT, offset, undefined, uiLang, undefined, cf);
       }
       setResults((prev) => [...prev, ...data.results]);
       setHasMore(offset + data.results.length < data.total);
@@ -369,16 +376,23 @@ function SearchPageContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMore, loadingMore, searchMode, qParam, conceptParam, domainParam, results.length, allCountryCodes, filterCountries, uiLang]);
 
+  // Écrit les codes du filtre dans l'URL en les répartissant entre `country` et `region`.
+  const setOriginParams = (params: URLSearchParams, codes: string[]) => {
+    const { countries: cf, regions: rg } = splitCountryRegion(codes);
+    if (cf.length) params.set("country", cf.join(","));
+    if (rg.length) params.set("region", rg.join(","));
+  };
+
   const submitSearch = useCallback((q: string) => {
     if (q.trim().length < 2) return;
     const params = new URLSearchParams({ q: q.trim() });
-    if (filterCountries.length) params.set("country", filterCountries.join(","));
+    setOriginParams(params, filterCountries);
     router.push(`/search?${params}`);
   }, [router, filterCountries]);
 
   const handleTagClick = useCallback((tag: string) => {
     const params = new URLSearchParams({ concept: tag });
-    if (filterCountries.length) params.set("country", filterCountries.join(","));
+    setOriginParams(params, filterCountries);
     router.push(`/search?${params}`);
   }, [router, filterCountries]);
 
@@ -388,7 +402,7 @@ function SearchPageContent() {
     if (qParam) params.set("q", qParam);
     if (conceptParam) params.set("concept", conceptParam);
     if (domainParam) params.set("domain", domainParam);
-    if (newFilter.length) params.set("country", newFilter.join(","));
+    setOriginParams(params, newFilter);
     router.replace(`/search?${params}`);
   }, [router, qParam, conceptParam, domainParam]);
 
@@ -416,13 +430,13 @@ function SearchPageContent() {
   useEffect(() => {
     if (!allCountryCodesKey) return;
     if (!qParam && !conceptParam && !domainParam) return;
-    const rf = countryParam ? countryParam.split(",").filter(Boolean) : [];
+    const rf = filterParam ? filterParam.split(",").filter(Boolean) : [];
     const tf = typeParam || null;
     setFilterCountries(rf);
     setTypeFilter(tf);
     runSearch(qParam, conceptParam, domainParam, rf, allCountryCodes, uiLang, tf);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [qParam, conceptParam, domainParam, countryParam, typeParam, allCountryCodesKey, runSearch]);
+  }, [qParam, conceptParam, domainParam, filterParam, typeParam, allCountryCodesKey, runSearch]);
 
   // Keep input in sync with URL (e.g. after browser back)
   useEffect(() => {
@@ -465,11 +479,11 @@ function SearchPageContent() {
 
   const changeLang = useCallback((lang: UILang) => {
     setUILang(lang);
-    const rf = countryParam ? countryParam.split(",").filter(Boolean) : [];
+    const rf = filterParam ? filterParam.split(",").filter(Boolean) : [];
     const tf = typeParam || null;
     runSearch(qParam, conceptParam, domainParam, rf, allCountryCodes, lang, tf);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countryParam, typeParam, runSearch, qParam, conceptParam, domainParam, allCountryCodes]);
+  }, [filterParam, typeParam, runSearch, qParam, conceptParam, domainParam, allCountryCodes]);
 
   // ─── Render helpers ───
 
@@ -563,6 +577,7 @@ function SearchPageContent() {
                 uiLang={uiLang}
                 typeFilter={typeFilter}
                 onTypeChange={handleTypeFilter}
+                showSubregions
                 facets={facets}
               />
             </div>
