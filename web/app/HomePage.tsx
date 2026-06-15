@@ -720,8 +720,8 @@ export default function HomePage() {
           </div>
           <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
             <ResultsFilterBar
-              regions={regions.length > 0 ? regions : STATIC_REGIONS}
-              filterRegions={filterRegions}
+              countries={regions.length > 0 ? regions : STATIC_REGIONS}
+              filterCountries={filterRegions}
               onFilterChange={handleFilterChange}
               sortMode={sortMode}
               onSortChange={setSortMode}

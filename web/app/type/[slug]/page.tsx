@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
 import ExpressionCard from "@/components/ExpressionCard";
+import ResultsFilterBar from "@/components/home/ResultsFilterBar";
 import { browseByCountry, getCountries, getAllTagNames, getFacets, Expression, Facets } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { useUILang, type UILang } from "@/lib/useUILang";
@@ -71,25 +72,14 @@ function TypePageContent() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [facets, setFacets] = useState<Facets | undefined>(undefined);
-  const [countries, setCountries] = useState<{ code: string }[]>([]);
+  const [countries, setCountries] = useState<{ code: string; label: string }[]>([]);
   const [filterCountries, setFilterCountries] = useState<string[]>(
     initialCountry ? initialCountry.split(",").filter(Boolean) : []
   );
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    getCountries().then((data) => setCountries(data.map((c) => ({ code: c.code }))));
+    getCountries().then((data) => setCountries(data.map((c) => ({ code: c.code, label: `${FLAG[c.code] ?? "🌍"} ${COUNTRY_NAME[c.code] ?? c.code.toUpperCase()}` }))));
   }, []);
-
-  useEffect(() => {
-    if (!dropdownOpen) return;
-    const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setDropdownOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [dropdownOpen]);
 
   useEffect(() => {
     if (!slug || !meta) return;
@@ -248,60 +238,19 @@ function TypePageContent() {
             </div>
           ) : (
             <>
-              {/* Country filter */}
+              {/* Country filter — shared component (country only, no types, no sort) */}
               <section style={{ marginBottom: "1.75rem" }}>
-                <div ref={dropdownRef} style={{ position: "relative", display: "inline-block" }}>
-                  <button
-                    onClick={() => setDropdownOpen((o) => !o)}
-                    style={{
-                      display: "inline-flex", alignItems: "center", gap: 5,
-                      padding: "6px 12px", borderRadius: "var(--r-pill)",
-                      border: `1.5px solid ${filterCountries.length > 0 ? "var(--terra)" : "var(--paper-edge)"}`,
-                      background: filterCountries.length > 0 ? "rgba(180,80,40,0.08)" : "var(--paper)",
-                      color: filterCountries.length > 0 ? "var(--terra)" : "var(--ink-soft)",
-                      fontSize: 13, fontWeight: 600, cursor: "pointer",
-                      fontFamily: "var(--font-body)", transition: "all 0.15s",
-                    }}
-                  >
-                    {filterCountries.length === 0
-                      ? t.allCountries
-                      : filterCountries.map((c) => FLAG[c] ?? c.toUpperCase()).join(" ")}
-                    <span style={{ fontSize: 9, opacity: 0.5 }}>{dropdownOpen ? "▲" : "▼"}</span>
-                  </button>
-                  {dropdownOpen && (
-                    <div style={{
-                      position: "absolute", top: "calc(100% + 4px)", left: 0, zIndex: 50,
-                      background: "var(--paper)", border: "1px solid var(--paper-edge)",
-                      borderRadius: 10, padding: "0.4rem 0", minWidth: 200,
-                      boxShadow: "0 4px 16px rgba(0,0,0,0.12)", maxHeight: 320, overflowY: "auto",
-                    }}>
-                      <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.3rem 0.7rem", cursor: "pointer", fontSize: 13, color: "var(--ink)" }}>
-                        <input type="checkbox" checked={filterCountries.length === 0}
-                          onChange={() => { applyCountryFilter([]); setDropdownOpen(false); }}
-                          style={{ accentColor: "var(--terra)", width: 14, height: 14 }} />
-                        {t.allCountries}
-                      </label>
-                      <div style={{ height: 1, background: "var(--paper-edge)", margin: "0.2rem 0" }} />
-                      {countries.map((c) => {
-                        const cnt = facets?.region[c.code];
-                        return (
-                          <label key={c.code} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.3rem 0.7rem", cursor: "pointer", fontSize: 13, color: "var(--ink)" }}>
-                            <input type="checkbox" checked={filterCountries.includes(c.code)}
-                              onChange={() => {
-                                const next = filterCountries.includes(c.code)
-                                  ? filterCountries.filter((x) => x !== c.code)
-                                  : [...filterCountries, c.code];
-                                applyCountryFilter(next);
-                              }}
-                              style={{ accentColor: "var(--terra)", width: 14, height: 14 }} />
-                            <span style={{ flex: 1 }}>{FLAG[c.code] ?? ""} {COUNTRY_NAME[c.code] ?? c.code.toUpperCase()}</span>
-                            {cnt != null && <span style={{ fontSize: 11, color: "var(--ink-faint)" }}>({cnt})</span>}
-                          </label>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
+                <ResultsFilterBar
+                  countries={countries}
+                  filterCountries={filterCountries}
+                  onFilterChange={applyCountryFilter}
+                  sortMode="relevance"
+                  onSortChange={() => {}}
+                  uiLang={uiLang}
+                  showTypes={false}
+                  showSort={false}
+                  facets={facets}
+                />
               </section>
 
               {/* Expression list */}

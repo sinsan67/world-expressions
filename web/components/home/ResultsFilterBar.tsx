@@ -17,24 +17,26 @@ const T = {
 };
 
 interface Props {
-  regions: { code: string; label: string }[];
-  filterRegions: string[];
-  onFilterChange: (regions: string[]) => void;
+  countries: { code: string; label: string }[];
+  filterCountries: string[];
+  onFilterChange: (countries: string[]) => void;
   sortMode: "relevance" | "country";
   onSortChange: (mode: "relevance" | "country") => void;
   uiLang: UILang;
   typeFilter?: string | null;
   onTypeChange?: (type: string | null) => void;
   showSort?: boolean;
+  showTypes?: boolean;
   facets?: Facets;
 }
 
 export default function ResultsFilterBar({
-  regions, filterRegions, onFilterChange,
+  countries, filterCountries, onFilterChange,
   sortMode, onSortChange,
   uiLang,
   typeFilter, onTypeChange,
   showSort = true,
+  showTypes = true,
   facets,
 }: Props) {
   const t = T[uiLang];
@@ -51,15 +53,15 @@ export default function ResultsFilterBar({
   }, [open]);
 
   const toggle = (code: string) => {
-    const next = filterRegions.includes(code)
-      ? filterRegions.filter((c) => c !== code)
-      : [...filterRegions, code];
+    const next = filterCountries.includes(code)
+      ? filterCountries.filter((c) => c !== code)
+      : [...filterCountries, code];
     onFilterChange(next);
   };
 
-  const activeLabel = filterRegions.length === 0
+  const activeLabel = filterCountries.length === 0
     ? t.filterAll
-    : filterRegions.map((c) => FLAG[c] ?? c.toUpperCase()).join(" ");
+    : filterCountries.map((c) => FLAG[c] ?? c.toUpperCase()).join(" ");
 
   const pillBase: React.CSSProperties = {
     padding: "6px 14px",
@@ -94,7 +96,7 @@ export default function ResultsFilterBar({
           onClick={() => setOpen((o) => !o)}
           style={{
             ...pillBase,
-            ...(filterRegions.length > 0 ? {
+            ...(filterCountries.length > 0 ? {
               background: "rgba(107,77,143,0.08)",
               borderColor: "var(--plum)",
               color: "var(--plum)",
@@ -116,20 +118,22 @@ export default function ResultsFilterBar({
             <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.35rem 0.75rem", cursor: "pointer", fontSize: 13, color: "var(--ink)" }}>
               <input
                 type="checkbox"
-                checked={filterRegions.length === 0}
+                checked={filterCountries.length === 0}
                 onChange={() => { onFilterChange([]); setOpen(false); }}
                 style={{ accentColor: "var(--plum)", width: 15, height: 15 }}
               />
               {t.filterAll}
             </label>
             <div style={{ height: 1, background: "var(--paper-edge)", margin: "0.25rem 0" }} />
-            {regions.map((r) => {
+            {countries.map((r) => {
+              // NB: backend renvoie les comptages par pays sous la clé wire `facets.region`
+              // (nommage historique trompeur — renommage à faire en deploy backend+front coordonné).
               const cnt = facets?.region[r.code];
               return (
                 <label key={r.code} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.35rem 0.75rem", cursor: "pointer", fontSize: 13, color: "var(--ink)" }}>
                   <input
                     type="checkbox"
-                    checked={filterRegions.includes(r.code)}
+                    checked={filterCountries.includes(r.code)}
                     onChange={() => toggle(r.code)}
                     style={{ accentColor: "var(--plum)", width: 15, height: 15 }}
                   />
@@ -142,6 +146,7 @@ export default function ResultsFilterBar({
         )}
       </div>
 
+      {showTypes && (<>
       {sep}
 
       {/* Type pills */}
@@ -171,6 +176,7 @@ export default function ResultsFilterBar({
           </button>
         );
       })}
+      </>)}
 
       {showSort && (<>
         {sep}

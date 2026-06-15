@@ -55,14 +55,11 @@ test.describe('Page /search (US-006)', () => {
 
   // ─── Filtre région ────────────────────────────────────────────────────────────
 
-  // FIXME (S132): BUG produit confirmé en live — le dropdown « pays » de /search liste
-  // les SOUS-RÉGIONS (Bretagne, Alsace) au lieu des pays, car la page utilise
-  // getRegions() au lieu de getCountries() (HomePage et Atlas le font correctement).
-  // « France » n'apparaît donc jamais : l'ancienne garde `if (!isVisible) return`
-  // faisait passer ce test à vide → le faux-vert a MASQUÉ le bug. À corriger à
-  // l'atelier pages de recherche (S133) puis durcir ce test. Voir
-  // feature-search-pages-workshop en mémoire projet.
-  test.fixme('#S6 filtre pays "France" → URL mise à jour avec country=fr', async ({ page }) => {
+  // S133: bug corrigé — /search utilise désormais getCountries() (filtre PAYS uniforme,
+  // via le composant partagé ResultsFilterBar) et handleFilterChange écrit le param
+  // `country` (et non plus `region`). « France » apparaît donc dans le déroulant et le
+  // clic met l'URL à jour. Test réactivé et durci (plus de garde silencieuse).
+  test('#S6 filtre pays "France" → URL mise à jour avec country=fr', async ({ page }) => {
     await page.goto('/search?q=argent');
     await page.locator(CARD).first().waitFor({ timeout: T });
     // Ouvrir le dropdown pays
@@ -171,7 +168,9 @@ test.describe('Page /search (US-006)', () => {
     await page.goto('/search?q=argent');
     await page.locator(CARD).first().waitFor({ timeout: T });
     const sortCountryBtn = page.locator('button').filter({ hasText: /Par pays|By country/i }).first();
-    if (!await sortCountryBtn.isVisible({ timeout: 5000 }).catch(() => false)) return;
+    // S133: garde silencieuse retirée — avec des résultats, le tri "Par pays" est
+    // toujours présent (showSort défaut true). Son absence doit FAIRE ÉCHOUER le test.
+    await expect(sortCountryBtn).toBeVisible({ timeout: T });
     await sortCountryBtn.click();
     // Des en-têtes avec drapeaux doivent apparaître
     const flagHeader = page.locator('span').filter({ hasText: /🇫🇷|🇬🇧|🇪🇸|🇮🇹|🇹🇷/ }).first();
