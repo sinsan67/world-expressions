@@ -36,11 +36,13 @@ test.describe('Search — locale-aware meanings (bug fix: sense in UI language)'
       if (req.url().includes('/search?')) searchUrlsAfterLangSwitch.push(req.url());
     });
 
-    // Switch to EN via the language button in the UI
-    const enBtn = page.locator('button').filter({ hasText: /^en$/i }).first();
-    await expect(enBtn).toBeVisible({ timeout: T });
-    await enBtn.click();
-    // After lang switch, new search requests should use locale=en
+    // Open the LangDropdown then click the EN option
+    const trigger = page.locator('[data-testid="lang-trigger"]').first();
+    await expect(trigger).toBeVisible({ timeout: T });
+    await trigger.click();
+    const enOption = page.locator('[data-testid="lang-option-en"]').first();
+    await expect(enOption).toBeVisible({ timeout: T });
+    await enOption.click();
 
     // Verify cards are still visible after language switch
     await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });

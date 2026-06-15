@@ -15,7 +15,7 @@ test.describe('Page /emoji', () => {
   test('#26 filtre FR — affiche les concepts de la langue FR', async ({ page }) => {
     await page.goto('/emoji');
     await page.locator(DOMAIN).first().waitFor({ timeout: T });
-    const frBtn = page.locator('button').filter({ hasText: /^FR$/ }).first();
+    const frBtn = page.locator('[data-testid="lang-filter-fr"]');
     await expect(frBtn).toBeVisible({ timeout: T });
     await frBtn.click();
     await page.locator(DOMAIN).first().click();
@@ -27,7 +27,7 @@ test.describe('Page /emoji', () => {
   test('#27 filtre EN — affiche les concepts anglais', async ({ page }) => {
     await page.goto('/emoji');
     await page.locator(DOMAIN).first().waitFor({ timeout: T });
-    const enBtn = page.locator('button').filter({ hasText: /^EN$/ }).first();
+    const enBtn = page.locator('[data-testid="lang-filter-en"]');
     await expect(enBtn).toBeVisible({ timeout: T });
     await enBtn.click();
     await page.locator(DOMAIN).first().click();
@@ -41,7 +41,7 @@ test.describe('Page /emoji', () => {
     await page.locator(DOMAIN).first().click();
     await page.locator(CONCEPT).first().waitFor({ timeout: T });
     const initialCount = await page.locator(CONCEPT).count();
-    const frBtn = page.locator('button').filter({ hasText: /^FR$/ }).first();
+    const frBtn = page.locator('[data-testid="lang-filter-fr"]');
     await expect(frBtn).toBeVisible({ timeout: T });
     await frBtn.click();
     // Filtre client-side : attendre que les concepts soient re-rendus

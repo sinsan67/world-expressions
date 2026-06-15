@@ -36,9 +36,9 @@ test.describe('Page /country/[code]', () => {
   });
 
   test('#49 bouton "Explorer toutes les langues" navigue vers /search', async ({ page }) => {
-    await page.goto('/country/fr');
+    // /country/cl (Chile) has 0 expressions — triggers the explore-all button
+    await page.goto('/country/cl');
     await page.locator('h1, h2').first().waitFor({ timeout: T });
-    // Le bouton "Explorer toutes les langues / Explore all languages" navigue vers /search
     const exploreBtn = page.locator('button').filter({ hasText: /Explorer toutes|Explore all|Explorar todos|Esplora tutte|Tüm dilleri/ }).first();
     await expect(exploreBtn).toBeVisible({ timeout: T });
     await exploreBtn.click();

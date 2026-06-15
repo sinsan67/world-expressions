@@ -101,7 +101,7 @@ test.describe('Homepage — recherche', () => {
     const tag = page.locator('[data-testid="tag-button"]').first();
     await expect(tag).toBeVisible({ timeout: T });
     await tag.click();
-    await expect(page).toHaveURL(/#q=/);
+    await expect(page).toHaveURL(/#concept=/);
   });
 
   test('#15 clic sur un bouton emoji-wall lance la recherche par concept', async ({ page }) => {
