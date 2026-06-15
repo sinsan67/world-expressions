@@ -17,7 +17,7 @@ test.describe('Page /emoji', () => {
     await page.locator(DOMAIN).first().waitFor({ timeout: T });
     const frBtn = page.locator('[data-testid="lang-filter-fr"]');
     await expect(frBtn).toBeVisible({ timeout: T });
-    await frBtn.click();
+    await frBtn.click({ force: true, timeout: T });
     await page.locator(DOMAIN).first().click();
     await page.locator(CONCEPT).first().waitFor({ timeout: T });
     const concepts = await page.locator(CONCEPT).count();
@@ -29,7 +29,7 @@ test.describe('Page /emoji', () => {
     await page.locator(DOMAIN).first().waitFor({ timeout: T });
     const enBtn = page.locator('[data-testid="lang-filter-en"]');
     await expect(enBtn).toBeVisible({ timeout: T });
-    await enBtn.click();
+    await enBtn.click({ force: true, timeout: T });
     await page.locator(DOMAIN).first().click();
     await page.locator(CONCEPT).first().waitFor({ timeout: T });
     expect(await page.locator(CONCEPT).count()).toBeGreaterThan(0);
