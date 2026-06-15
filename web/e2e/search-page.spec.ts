@@ -55,16 +55,23 @@ test.describe('Page /search (US-006)', () => {
 
   // ─── Filtre région ────────────────────────────────────────────────────────────
 
-  test('#S6 filtre pays "France" → URL mise à jour avec country=fr', async ({ page }) => {
+  // FIXME (S132): BUG produit confirmé en live — le dropdown « pays » de /search liste
+  // les SOUS-RÉGIONS (Bretagne, Alsace) au lieu des pays, car la page utilise
+  // getRegions() au lieu de getCountries() (HomePage et Atlas le font correctement).
+  // « France » n'apparaît donc jamais : l'ancienne garde `if (!isVisible) return`
+  // faisait passer ce test à vide → le faux-vert a MASQUÉ le bug. À corriger à
+  // l'atelier pages de recherche (S133) puis durcir ce test. Voir
+  // feature-search-pages-workshop en mémoire projet.
+  test.fixme('#S6 filtre pays "France" → URL mise à jour avec country=fr', async ({ page }) => {
     await page.goto('/search?q=argent');
     await page.locator(CARD).first().waitFor({ timeout: T });
     // Ouvrir le dropdown pays
     const filterBtn = page.locator('button').filter({ hasText: /Tous les pays/i }).first();
-    if (!await filterBtn.isVisible({ timeout: 5000 }).catch(() => false)) return;
+    await expect(filterBtn).toBeVisible({ timeout: T });
     await filterBtn.click();
     // Cocher France
     const franceLabel = page.locator('label').filter({ hasText: /France/ }).first();
-    if (!await franceLabel.isVisible({ timeout: 3000 }).catch(() => false)) return;
+    await expect(franceLabel).toBeVisible({ timeout: T });
     await franceLabel.click();
     await expect(page).toHaveURL(/country=fr/, { timeout: T });
   });
