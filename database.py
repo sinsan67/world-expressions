@@ -353,16 +353,48 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
                         "coalesce(ct.origin,'') ILIKE :q_trgm OR "
                         "coalesce(ct.example,'') ILIKE :q_trgm")
         cjk_params: dict = {"q_trgm": f"%{query.strip()}%"}
+        _semantic_cte = f"""semantic_pass AS (
+            SELECT
+                id, text, language, region, country, register, illustration, kind, source,
+                meaning, origin, example, tags_text, tags,
+                {_sem_rank} AS rank,
+                2 AS pass_order, 'semantic'::text AS match_type
+            FROM base
+            WHERE {_sem_where}
+        )"""
     else:
         _dict = _pg_dict(locale)
         _tsq, _text_vec, _content_vec = _build_fts_fragments(_dict)
         _exact_rank = f"ts_rank({_text_vec}, {_tsq})"
         _exact_where = f"{_text_vec} @@ {_tsq}"
-        _sem_rank = f"ts_rank({_content_vec}, {_tsq})"
-        _sem_where = f"NOT ({_text_vec} @@ {_tsq}) AND {_content_vec} @@ {_tsq}"
-        _trans_where = (f"to_tsvector('{_dict}', coalesce(ct.meaning,'') || ' ' || "
-                        f"coalesce(ct.origin,'') || ' ' || coalesce(ct.example,'')) @@ {_tsq}")
+        _trans_where = ("to_tsvector('simple', coalesce(ct.meaning,'') || ' ' || "
+                        "coalesce(ct.origin,'') || ' ' || coalesce(ct.example,'')) "
+                        "@@ websearch_to_tsquery('simple', :q)")
         cjk_params = {}
+        # Semantic pass queries expression_content directly via idx_expression_content_fts ('simple'),
+        # bypassing the materialized base CTE to avoid an on-the-fly tsvector on 14K rows.
+        _semantic_cte = f"""semantic_pass AS (
+            SELECT
+                e.id, e.text, e.language, e.region, e.country, e.register,
+                e.illustration, e.kind, e.source,
+                ec.meaning, ec.origin, ec.example,
+                NULL::text AS tags_text,
+                (SELECT STRING_AGG(t2.slug, ',')
+                 FROM expression_tags et2 JOIN tags t2 ON t2.id = et2.tag_id
+                 WHERE et2.expression_id = e.id) AS tags,
+                ts_rank(
+                    to_tsvector('simple', coalesce(ec.meaning,'') || ' ' || coalesce(ec.origin,'') || ' ' || coalesce(ec.example,'')),
+                    websearch_to_tsquery('simple', :q)
+                ) AS rank,
+                2 AS pass_order, 'semantic'::text AS match_type
+            FROM expression_content ec
+            JOIN expressions e ON e.id = ec.expression_id AND e.language = ec.locale
+            WHERE to_tsvector('simple', coalesce(ec.meaning,'') || ' ' || coalesce(ec.origin,'') || ' ' || coalesce(ec.example,''))
+                  @@ websearch_to_tsquery('simple', :q)
+              AND NOT (to_tsvector('simple', e.text) @@ websearch_to_tsquery('simple', :q))
+              {region_sql}{country_sql}{lang_sql}{_EXCLUDE_PHRASEBOOK}{type_sql}
+              AND e.id NOT IN (SELECT id FROM exact_pass)
+        )"""
 
     concept_cte_sql = ""
     concept_union_sql = ""
@@ -422,15 +454,7 @@ def search_expressions(query: str, regions: Optional[set[str]] = None, limit: in
             FROM base
             WHERE {_exact_where}
         ),
-        semantic_pass AS (
-            SELECT
-                id, text, language, region, country, register, illustration, kind, source,
-                meaning, origin, example, tags_text, tags,
-                {_sem_rank} AS rank,
-                2 AS pass_order, 'semantic'::text AS match_type
-            FROM base
-            WHERE {_sem_where}
-        ),
+        {_semantic_cte},
         translation_pass AS (
             SELECT
                 e.id, e.text, e.language, e.region, e.country, e.register,
