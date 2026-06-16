@@ -12,52 +12,42 @@ test.describe('Page /emoji', () => {
     expect(count).toBeGreaterThanOrEqual(10);
   });
 
-  test('#26 filtre FR — affiche les concepts de la langue FR', async ({ page }) => {
+  // Domain cards now navigate to /search?domain= directly (commit 11fa98d).
+  // Tests that need concept cards use /emoji?domain=X (URL-based panel still works).
+  test('#26 clic domaine → navigue vers /search?domain=', async ({ page }) => {
     await page.goto('/emoji');
     await page.locator(DOMAIN).first().waitFor({ timeout: T });
-    const frBtn = page.locator('[data-testid="lang-filter-fr"]');
-    await expect(frBtn).toBeVisible({ timeout: T });
-    await frBtn.click({ force: true, timeout: T });
     await page.locator(DOMAIN).first().click();
-    await page.locator(CONCEPT).first().waitFor({ timeout: T });
-    const concepts = await page.locator(CONCEPT).count();
-    expect(concepts).toBeGreaterThan(0);
+    await expect(page).toHaveURL(/\/search\?domain=\w+/, { timeout: T });
   });
 
   test.fixme('#27 filtre EN — affiche les concepts anglais', async ({ page }) => {
-    await page.goto('/emoji');
-    await page.locator(DOMAIN).first().waitFor({ timeout: T });
+    await page.goto('/emoji?domain=emotions');
+    await page.locator(CONCEPT).first().waitFor({ timeout: T });
     const enBtn = page.locator('[data-testid="lang-filter-en"]');
     await expect(enBtn).toBeVisible({ timeout: T });
     await enBtn.click({ force: true, timeout: T });
-    await page.locator(DOMAIN).first().click();
     await page.locator(CONCEPT).first().waitFor({ timeout: T });
     expect(await page.locator(CONCEPT).count()).toBeGreaterThan(0);
   });
 
   test('#28 filtre "Tous" restaure tous les concepts', async ({ page }) => {
-    await page.goto('/emoji');
-    await page.locator(DOMAIN).first().waitFor({ timeout: T });
-    await page.locator(DOMAIN).first().click();
+    await page.goto('/emoji?domain=emotions');
     await page.locator(CONCEPT).first().waitFor({ timeout: T });
     const initialCount = await page.locator(CONCEPT).count();
     const frBtn = page.locator('[data-testid="lang-filter-fr"]');
     await expect(frBtn).toBeVisible({ timeout: T });
     await frBtn.click();
-    // Filtre client-side : attendre que les concepts soient re-rendus
     await expect(page.locator(CONCEPT).first()).toBeVisible({ timeout: T });
     const tousBtn = page.locator('button').filter({ hasText: /^Tous$|^All$|^Tümü$|^Todos$|^Tutti$/ }).first();
     await tousBtn.click();
-    // Après "Tous", tous les concepts doivent être de retour
     await expect(page.locator(CONCEPT).first()).toBeVisible({ timeout: T });
     const afterCount = await page.locator(CONCEPT).count();
     expect(afterCount).toBeGreaterThanOrEqual(initialCount);
   });
 
   test('#30 clic sur un concept redirige vers search', async ({ page }) => {
-    await page.goto('/emoji');
-    await page.locator(DOMAIN).first().waitFor({ timeout: T });
-    await page.locator(DOMAIN).first().click();
+    await page.goto('/emoji?domain=emotions');
     await page.locator(CONCEPT).first().waitFor({ timeout: T });
     await page.locator(CONCEPT).first().click();
     await expect(page).toHaveURL(/\/search\?concept=/, { timeout: T });
