@@ -468,6 +468,7 @@ export default function HomePage() {
 
   const handleTypeChange = useCallback(async (newType: string | null) => {
     setTypeFilter(newType);
+    setSortMode("relevance");
     setLoading(true);
     setHasError(false);
     setResults([]);
@@ -980,7 +981,7 @@ export default function HomePage() {
                 {EDITORIAL_DOMAINS.map((d) => (
                   <button
                     key={d.slug}
-                    onClick={() => router.push(`/domain/${encodeURIComponent(d.slug)}`)}
+                    onClick={() => router.push(`/search?domain=${encodeURIComponent(d.slug)}`)}
                     style={{
                       display: "flex", flexDirection: "column", alignItems: "flex-start",
                       background: d.bg, border: `1px solid ${d.border}`, borderRadius: 14,
