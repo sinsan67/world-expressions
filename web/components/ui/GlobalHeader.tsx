@@ -10,7 +10,23 @@ export default function GlobalHeader() {
   const pathname = usePathname();
   const { uiLang, setUILang } = useUILangContext();
 
-  if (pathname === "/") return null;
+  if (pathname === "/") {
+    return (
+      <div style={{
+        position: "fixed",
+        top: "0.75rem",
+        right: "1rem",
+        zIndex: 50,
+        display: "flex",
+        alignItems: "center",
+        gap: "0.5rem",
+      }}>
+        <LangDropdown uiLang={uiLang} onLangChange={setUILang} />
+        <span style={{ width: 1, height: 14, background: "var(--paper-edge)", flexShrink: 0 }} />
+        <AuthButton uiLang={uiLang} />
+      </div>
+    );
+  }
 
   return (
     <header
@@ -52,7 +68,7 @@ export default function GlobalHeader() {
       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
         <LangDropdown uiLang={uiLang} onLangChange={setUILang} />
         <span style={{ width: 1, height: 14, background: "var(--paper-edge)", flexShrink: 0 }} />
-        <AuthButton />
+        <AuthButton uiLang={uiLang} />
       </div>
     </header>
   );
