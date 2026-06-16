@@ -45,7 +45,7 @@ def _build_expression_dict(row, match_type: str) -> dict:
         "country":      getattr(row, "country", None) or row.language or "",
         "illustration": row.illustration,
         "language":     row.language or "",
-        "type":         getattr(row, "kind", "expression") or "expression",
+        "type":         getattr(row, "kind", "idiom") or "idiom",
         "source":       getattr(row, "source", None),
         "match_type":   match_type,
     }

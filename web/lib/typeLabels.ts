@@ -23,7 +23,9 @@ export const TYPE_LABELS: Record<ExpressionType, LocaleMap> = {
  * Falls back to English if the locale is not yet defined.
  */
 export function getTypeLabel(type: string, locale: string): string | null {
-  const labels = TYPE_LABELS[type as ExpressionType];
+  // "expression" is a legacy backend fallback for null kind — treat as "idiom"
+  const normalized = type === "expression" ? "idiom" : type;
+  const labels = TYPE_LABELS[normalized as ExpressionType];
   if (!labels) return null;
   return labels[locale] ?? labels["en"] ?? type;
 }
