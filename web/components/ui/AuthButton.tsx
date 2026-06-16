@@ -55,7 +55,7 @@ export default function AuthButton({ uiLang = "en" }: Props) {
               padding: "2px 9px",
               borderRadius: "var(--r-pill)",
               border: "1.5px solid var(--paper-edge)",
-              background: "transparent",
+              background: "var(--paper)",
               color: "var(--ink-soft)",
               cursor: "pointer",
               fontFamily: "var(--font-body)",
