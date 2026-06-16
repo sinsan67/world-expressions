@@ -348,7 +348,7 @@ function ExpressionPageContent({ id }: { id: string }) {
         setTagNames(tags);
         recordView(id, exprData.country, exprData.language);
         if (exprData.tags.length > 0) {
-          searchByConcept(exprData.tags.slice(0, 3), [], 5)
+          searchByConcept(exprData.tags.slice(0, 3), [], 5, 0, undefined, lang)
             .then((data) => {
               setRelated(data.results.filter((r) => r.id !== id).slice(0, 4));
             })
