@@ -27,6 +27,7 @@ type Props = {
     expressionOfDay: string;
     anotherOne: string;
     readFile: string;
+    share: string;
     types: Record<string, string>;
     registers: Record<string, string>;
   };
@@ -50,6 +51,17 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
     if (!featured?.id) return;
     toggleFavorite(featured.id);
     setFav((v) => !v);
+  }
+
+  function handleShare(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!featured?.id) return;
+    const url = `${window.location.origin}/expression/${featured.id}`;
+    if (navigator.share) {
+      navigator.share({ title: featured.expression, url });
+    } else {
+      navigator.clipboard.writeText(url);
+    }
   }
 
   const now = new Date();
@@ -135,7 +147,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                 </div>
 
                 {/* Expression du jour label */}
-                <div style={{ marginBottom: "0.4rem", marginRight: 130 }}>
+                <div style={{ marginTop: "-0.6rem", marginBottom: "0.4rem", marginRight: 130 }}>
                   <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--terra)", fontFamily: "var(--font-body)" }}>
                     ✦ {t.expressionOfDay}
                   </span>
@@ -260,47 +272,54 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
 
                 </div>
 
-                {/* Footer C2 — full-width split bar */}
+                {/* Footer V1 — ultra-discret, transparent */}
                 <div style={{
                   marginLeft: "-1.75rem", marginRight: "-1.75rem", marginBottom: "-1.75rem",
                   marginTop: "1.25rem",
                   borderTop: "1px solid var(--paper-edge)",
-                  background: "var(--paper-deep)",
+                  background: "transparent",
                   display: "flex",
                 }}>
                   <button
                     onClick={onRefresh}
                     style={{
-                      flex: 1,
-                      padding: "0.7rem 1rem",
-                      background: "transparent",
-                      border: "none",
+                      flex: 1, padding: "0.7rem 0.75rem",
+                      background: "transparent", border: "none",
                       borderRight: "1px solid var(--paper-edge)",
-                      color: "var(--ink-soft)",
-                      fontSize: 13, fontWeight: 600, cursor: "pointer",
-                      fontFamily: "var(--font-body)",
-                      borderRadius: "0 0 0 var(--r-lg)",
-                      transition: "background 150ms ease",
+                      color: "var(--ink-faint)", fontSize: 12, fontWeight: 500,
+                      cursor: "pointer", fontFamily: "var(--font-body)",
+                      borderRadius: "0 0 0 var(--r-lg)", transition: "background 150ms ease",
                     }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.04)"; }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.03)"; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                   >
                     🎲 {t.anotherOne}
                   </button>
                   <button
-                    onClick={() => router.push(`/expression/${featured.id}?lang=${uiLang}`)}
+                    onClick={handleShare}
                     style={{
-                      flex: 1,
-                      padding: "0.7rem 1rem",
-                      background: "transparent",
-                      border: "none",
-                      color: "var(--ink-soft)",
-                      fontSize: 13, fontWeight: 600, cursor: "pointer",
-                      fontFamily: "var(--font-body)",
-                      borderRadius: "0 0 var(--r-lg) 0",
+                      flex: 1, padding: "0.7rem 0.75rem",
+                      background: "transparent", border: "none",
+                      borderRight: "1px solid var(--paper-edge)",
+                      color: "var(--ink-faint)", fontSize: 12, fontWeight: 500,
+                      cursor: "pointer", fontFamily: "var(--font-body)",
                       transition: "background 150ms ease",
                     }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--plum-bg)"; }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.03)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                  >
+                    🔗 {t.share}
+                  </button>
+                  <button
+                    onClick={() => router.push(`/expression/${featured.id}?lang=${uiLang}`)}
+                    style={{
+                      flex: 1, padding: "0.7rem 0.75rem",
+                      background: "transparent", border: "none",
+                      color: "var(--ink-faint)", fontSize: 12, fontWeight: 500,
+                      cursor: "pointer", fontFamily: "var(--font-body)",
+                      borderRadius: "0 0 var(--r-lg) 0", transition: "background 150ms ease",
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.03)"; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                   >
                     📖 {t.readFile}
