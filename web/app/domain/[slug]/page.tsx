@@ -5,14 +5,14 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
-import LangBar from "@/components/ui/LangBar";
 import ExpressionCard from "@/components/ExpressionCard";
 import ResultsFilterBar from "@/components/home/ResultsFilterBar";
 import { tagIcon } from "@/lib/tagIcons";
 import { searchByDomain, getConcepts, getAllTagNames, getCountries, getFacets, ConceptItem, Expression, Facets } from "@/lib/api";
 import { EDITORIAL_DOMAIN_MAP } from "@/lib/editorialDomains";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
-import { useUILang, type UILang } from "@/lib/useUILang";
+import { useUILangContext } from "@/lib/UILangContext";
+import type { UILang } from "@/lib/useUILang";
 
 const LIMIT = 30;
 const CONCEPTS_PREVIEW = 6;
@@ -146,7 +146,7 @@ export default function DomainPage() {
 
   const domain = EDITORIAL_DOMAIN_MAP[slug];
 
-  const [uiLang, changeLang] = useUILang();
+  const { uiLang } = useUILangContext();
   const [concepts, setConcepts] = useState<ConceptItem[]>([]);
   const [conceptsExpanded, setConceptsExpanded] = useState(false);
   const [expressions, setExpressions] = useState<Expression[]>([]);
@@ -256,7 +256,6 @@ export default function DomainPage() {
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
       <Sidebar uiLang={uiLang} />
-      <LangBar uiLang={uiLang} onLangChange={changeLang} />
 
       <main className="wex-main" style={{ paddingBottom: 80 }}>
 

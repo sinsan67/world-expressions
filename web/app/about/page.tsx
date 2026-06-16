@@ -2,8 +2,8 @@
 
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
-import LangBar from "@/components/ui/LangBar";
-import { useUILang, type UILang } from "@/lib/useUILang";
+import { useUILangContext } from "@/lib/UILangContext";
+import type { UILang } from "@/lib/useUILang";
 
 type TypeCard = { label: string; title: string; body: string; example: string };
 type Pass = { title: string; body: string };
@@ -351,7 +351,7 @@ function diffTitle(accent: string): React.CSSProperties {
 const diffBody: React.CSSProperties = { fontFamily: "var(--font-body)", fontSize: "0.8rem", color: "var(--ink-soft)", lineHeight: 1.55 };
 
 export default function AboutPage() {
-  const [uiLang, setUiLang] = useUILang();
+  const { uiLang } = useUILangContext();
 
   const t = fallback(uiLang);
 
@@ -359,10 +359,6 @@ export default function AboutPage() {
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--cream)" }}>
       <Sidebar uiLang={uiLang} />
       <main className="wex-main" style={s.page}>
-        <div style={{ marginBottom: "2.5rem" }}>
-          <LangBar uiLang={uiLang} onLangChange={setUiLang} />
-        </div>
-
         <div style={s.eyebrow}>{t.eyebrow}</div>
         <h1 style={s.title}>{t.title}</h1>
         <p style={s.subtitle}>{t.subtitle}</p>

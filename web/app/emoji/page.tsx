@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
-import LangBar from "@/components/ui/LangBar";
 import { tagIcon } from "@/lib/tagIcons";
 import { getConcepts, ConceptItem } from "@/lib/api";
 import { DOMAIN_DEFS, DOMAIN_COLORS, DomainDef } from "@/lib/domainDefs";
-import { useUILang, type UILang } from "@/lib/useUILang";
+import { useUILangContext } from "@/lib/UILangContext";
+import type { UILang } from "@/lib/useUILang";
 
 // ─── Localisation ────────────────────────────────────────────────────────────
 
@@ -192,7 +192,7 @@ const LANG_API: Record<string, string>   = { fr: "fr", en: "uk", es: "es", it: "
 
 export default function ConceptsPage() {
   const router = useRouter();
-  const [uiLang, changeLang] = useUILang();
+  const { uiLang } = useUILangContext();
   const [langFilter, setLangFilter] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<"themes" | "styles">("themes");
   const [activeDomain, setActiveDomain] = useState<string | null>(null);
@@ -269,7 +269,6 @@ export default function ConceptsPage() {
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
       <Sidebar uiLang={uiLang} />
-      <LangBar uiLang={uiLang} onLangChange={changeLang} />
 
       <main className="wex-main" style={{ paddingBottom: 80 }}>
 

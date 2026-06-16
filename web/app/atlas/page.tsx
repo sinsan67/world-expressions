@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
-import LangBar from "@/components/ui/LangBar";
 import { getCountries, CountryInfo } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
-import { useUILang, type UILang } from "@/lib/useUILang";
+import { useUILangContext } from "@/lib/UILangContext";
+import type { UILang } from "@/lib/useUILang";
 
 const T: Record<UILang, {
   eyebrow: string;
@@ -97,7 +97,7 @@ const LANG_NAME: Record<string, string> = {
 
 export default function AtlasPage() {
   const router = useRouter();
-  const [uiLang, changeLang] = useUILang();
+  const { uiLang } = useUILangContext();
   const [regions, setRegions] = useState<CountryInfo[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -115,7 +115,6 @@ export default function AtlasPage() {
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
       <Sidebar uiLang={uiLang} />
-      <LangBar uiLang={uiLang} onLangChange={changeLang} />
 
       <main className="wex-main" style={{ paddingBottom: 80 }}>
 

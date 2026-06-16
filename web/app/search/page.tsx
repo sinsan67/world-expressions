@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import ExpressionCard from "@/components/ExpressionCard";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
-import LangBar from "@/components/ui/LangBar";
 import SearchBar from "@/components/ui/SearchBar";
 import ResultsFilterBar from "@/components/home/ResultsFilterBar";
 import {
@@ -17,7 +16,8 @@ import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { LANG_FLAG, LANG_NATIVE } from "@/lib/langDefs";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { splitCountryRegion } from "@/lib/subregions";
-import { useUILang, type UILang } from "@/lib/useUILang";
+import { useUILangContext } from "@/lib/UILangContext";
+import type { UILang } from "@/lib/useUILang";
 
 const LIMIT = 20;
 
@@ -224,7 +224,7 @@ function SearchPageContent() {
   const filterParam = [countryParam, regionParam].filter(Boolean).join(",");
   const typeParam = searchParams.get("type_filter") ?? "";
 
-  const [uiLang, setUILang] = useUILang();
+  const { uiLang } = useUILangContext();
   const [query, setQuery] = useState(qParam);
   const [countries, setCountries] = useState<{ code: string; label: string }[]>([]);
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
@@ -531,7 +531,6 @@ function SearchPageContent() {
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
       <Sidebar uiLang={uiLang} />
-      <LangBar uiLang={uiLang} onLangChange={setUILang} />
 
       <main className="wex-main" style={{ paddingBottom: 80 }}>
         <div style={{

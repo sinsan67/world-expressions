@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
-import LangBar from "@/components/ui/LangBar";
 import EmojiKeyboard from "@/components/EmojiKeyboard";
 import { tagIcon } from "@/lib/tagIcons";
 import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { LANG_FLAG, LANG_NATIVE } from "@/lib/langDefs";
 import { getConcepts } from "@/lib/api";
-import { useUILang, type UILang } from "@/lib/useUILang";
+import { useUILangContext } from "@/lib/UILangContext";
+import type { UILang } from "@/lib/useUILang";
 type TagEntry = { slug: string; name: string; count: number };
 
 const LANG_FILTER_OPTIONS: { value: string }[] = [
@@ -164,7 +164,7 @@ const T: Record<UILang, {
 
 export default function EmojisPage() {
   const router = useRouter();
-  const [uiLang, changeLang] = useUILang();
+  const { uiLang } = useUILangContext();
   const [viewMode, setViewMode] = useState<"domains" | "keyboard">("domains");
   const [activeDomain, setActiveDomain] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -222,7 +222,6 @@ export default function EmojisPage() {
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
       <Sidebar uiLang={uiLang} />
-      <LangBar uiLang={uiLang} onLangChange={changeLang} />
 
       <main className="wex-main" style={{ paddingBottom: 80 }}>
 

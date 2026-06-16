@@ -3,6 +3,7 @@ import { Fraunces, Inter, Caveat } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import Providers from "@/components/Providers";
 import AuthGate from "@/components/AuthGate";
+import GlobalHeader from "@/components/ui/GlobalHeader";
 import "./globals.css";
 
 const inter = Inter({
@@ -55,6 +56,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <Providers>
           <AuthGate />
+          <GlobalHeader />
           {children}
         </Providers>
         <Analytics />

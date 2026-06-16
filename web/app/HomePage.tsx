@@ -7,9 +7,6 @@ import WelcomeModal from "@/components/WelcomeModal";
 import HeroSection from "@/components/home/HeroSection";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
-import LangBar from "@/components/ui/LangBar";
-import LangDropdown from "@/components/ui/LangDropdown";
-import ShareButton from "@/components/ui/ShareButton";
 import CountryStamp from "@/components/home/CountryStamp";
 import SearchBar from "@/components/ui/SearchBar";
 import ResultsFilterBar from "@/components/home/ResultsFilterBar";
@@ -22,7 +19,8 @@ import {
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { EDITORIAL_DOMAINS } from "@/lib/editorialDomains";
-import { useUILang, UI_LANGS, type UILang } from "@/lib/useUILang";
+import { useUILangContext } from "@/lib/UILangContext";
+import { UI_LANGS, type UILang } from "@/lib/useUILang";
 
 const LIMIT = 20;
 const MAX_SECTION_PREVIEW = 6;
@@ -301,7 +299,7 @@ function sectionExprCount(n: number, lang: UILang): string {
 
 export default function HomePage() {
   const router = useRouter();
-  const [uiLang, changeLang] = useUILang();
+  const { uiLang, setUILang: changeLang } = useUILangContext();
   const [showWelcome, setShowWelcome] = useState<boolean | null>(null);
   const [query, setQuery] = useState("");
   const [regions, setRegions] = useState<{ code: string; label: string }[]>([]);
@@ -698,8 +696,6 @@ export default function HomePage() {
 
       {/* Sidebar — desktop only */}
       <Sidebar uiLang={uiLang} />
-      <LangBar uiLang={uiLang} onLangChange={changeLang} />
-
       {/* Main content */}
       <main className="wex-main" style={{ paddingBottom: 80 }}>
 
@@ -716,11 +712,7 @@ export default function HomePage() {
           />
         )}
 
-        {/* Mobile header — share + lang switcher */}
-        <div className="wex-mobile-header" style={{ justifyContent: "flex-end", padding: "0.6rem 1rem", gap: "0.5rem", background: "var(--paper)", borderBottom: "1px solid var(--paper-edge)" }}>
-          <ShareButton uiLang={uiLang} />
-          <LangDropdown uiLang={uiLang} onLangChange={changeLang} />
-        </div>
+
 
         {/* Sticky search + filter bar */}
         <div style={{

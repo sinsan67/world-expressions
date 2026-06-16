@@ -5,12 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
-import LangBar from "@/components/ui/LangBar";
 import { toggleFavorite, isFavorite } from "@/lib/carnet";
 import { Heart } from "lucide-react";
 import { browseByRegion, Expression } from "@/lib/api";
 import { REGION_DEFS, RegionDef, getSectionStyle } from "@/lib/regionDefs";
-import { useUILang, type UILang } from "@/lib/useUILang";
+import { useUILangContext } from "@/lib/UILangContext";
+import type { UILang } from "@/lib/useUILang";
 
 // ─── RegionCard ───────────────────────────────────────────────────────────────
 
@@ -142,7 +142,7 @@ function RegionCard({
 // ─── Page content ─────────────────────────────────────────────────────────────
 
 function RegionPageContent({ code }: { code: string }) {
-  const [uiLang, changeLang] = useUILang();
+  const { uiLang } = useUILangContext();
   const [expressions, setExpressions] = useState<Expression[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -172,7 +172,6 @@ function RegionPageContent({ code }: { code: string }) {
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
       <Sidebar uiLang={uiLang} />
-      <LangBar uiLang={uiLang} onLangChange={changeLang} />
 
       <main className="wex-main" style={{ paddingBottom: 80 }}>
 

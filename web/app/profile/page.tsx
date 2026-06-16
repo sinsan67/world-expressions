@@ -7,11 +7,11 @@ import Link from "next/link";
 import Image from "next/image";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
-import LangBar from "@/components/ui/LangBar";
 import CarnetTab from "@/components/profile/CarnetTab";
 import PreferencesTab from "@/components/profile/PreferencesTab";
 import AuthModal from "@/components/profile/AuthModal";
-import { useUILang, type UILang } from "@/lib/useUILang";
+import { useUILangContext } from "@/lib/UILangContext";
+import type { UILang } from "@/lib/useUILang";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 type TopTab = "carnet" | "preferences" | "account";
@@ -24,7 +24,7 @@ const TOP_TABS: { id: TopTab; label: Record<UILang, string> }[] = [
 
 export default function ProfilePage() {
   const { data: session, status, update: updateSession } = useSession();
-  const [uiLang, handleLangChange] = useUILang();
+  const { uiLang, setUILang: handleLangChange } = useUILangContext();
   const [activeTab, setActiveTab] = useState<TopTab>("carnet");
   const [authModal, setAuthModal] = useState(false);
   const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
@@ -96,7 +96,6 @@ export default function ProfilePage() {
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
       <Sidebar uiLang={uiLang} />
-      <LangBar uiLang={uiLang} onLangChange={handleLangChange} />
 
       <main className="wex-main" style={{ paddingBottom: 80 }}>
 
