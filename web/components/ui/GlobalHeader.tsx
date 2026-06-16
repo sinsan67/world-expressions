@@ -1,12 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import AuthButton from "./AuthButton";
 import LangDropdown from "./LangDropdown";
 import { useUILangContext } from "@/lib/UILangContext";
 
 export default function GlobalHeader() {
+  const pathname = usePathname();
   const { uiLang, setUILang } = useUILangContext();
+
+  if (pathname === "/") return null;
 
   return (
     <header
