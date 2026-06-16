@@ -221,7 +221,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
 
                 {/* Tags + actions row */}
                 <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.4rem" }}>
-                  {featured.type && getTypeLabel(featured.type, uiLang) && (
+                  {getTypeLabel(featured.type, uiLang) && (
                     <button
                       onClick={() => router.push(`/type/${featured.type}`)}
                       style={{

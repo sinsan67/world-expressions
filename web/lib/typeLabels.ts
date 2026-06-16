@@ -19,7 +19,7 @@ export const TYPE_LABELS: Record<ExpressionType, LocaleMap> = {
 
 /**
  * Returns the localized label for a given type slug and UI locale.
- * Returns null for "idiom" (the default — no badge shown on cards).
+ * Returns null only for unknown types (not in TYPE_LABELS).
  * Falls back to English if the locale is not yet defined.
  */
 export function getTypeLabel(type: string, locale: string): string | null {
