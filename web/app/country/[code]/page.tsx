@@ -258,10 +258,11 @@ function CountryPageContent({ code }: { code: string }) {
     }
   }, [hasMore, loadingMore, expressions.length, activeTag, searchQuery, typeFilter, doFetch]);
 
+  // Re-fetch when lang changes; on initial mount activeTag/searchQuery/typeFilter are null/null/defaultTypeFilter.
   useEffect(() => {
-    load(null, null, defaultTypeFilter);
+    load(activeTag, searchQuery, typeFilter);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [uiLang]);
 
   useEffect(() => {
     const el = sentinelRef.current;

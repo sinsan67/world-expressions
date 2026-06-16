@@ -525,8 +525,11 @@ export default function HomePage() {
     getCountries().then((data) => {
       setRegions(data.map((r) => ({ code: r.code, label: `${FLAG[r.code] ?? "🌍"} ${COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}` })));
     });
-    getFacets([], "", null, "", uiLang).then(setFacets);
   }, []);
+
+  useEffect(() => {
+    getFacets([], "", null, "", uiLang).then(setFacets);
+  }, [uiLang]);
 
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang");
@@ -633,6 +636,39 @@ export default function HomePage() {
     return () => { cancelled = true; };
   }, [uiLang]);
 
+  // Re-fetch current search/browse results when lang changes (only if user has already searched)
+  useEffect(() => {
+    if (!searched) return;
+    let cancelled = false;
+    const doReFetch = async () => {
+      setLoading(true);
+      setHasError(false);
+      setResults([]);
+      try {
+        let data;
+        if (searchMode === "browse") {
+          data = await browseByCountry(filterRegions, LIMIT, 0, typeFilter ?? undefined, uiLang);
+        } else if (searchMode === "concept" && query) {
+          data = await searchByConcept([query], [], LIMIT, 0, undefined, undefined, undefined, filterRegions.length ? filterRegions : []);
+        } else if (searchMode === "text" && query) {
+          data = await searchExpressions(query.trim(), [], LIMIT, 0, typeFilter ?? undefined, uiLang, undefined, filterRegions);
+        }
+        if (!cancelled && data) {
+          setResults(data.results);
+          setTotal(data.total);
+          setHasMore(data.results.length < data.total);
+        }
+      } catch {
+        if (!cancelled) setHasError(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    doReFetch();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uiLang]);
+
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el || !hasMore || loadingMore) return;
@@ -720,8 +756,8 @@ export default function HomePage() {
           </div>
           <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
             <ResultsFilterBar
-              regions={regions.length > 0 ? regions : STATIC_REGIONS}
-              filterRegions={filterRegions}
+              countries={regions.length > 0 ? regions : STATIC_REGIONS}
+              filterCountries={filterRegions}
               onFilterChange={handleFilterChange}
               sortMode={sortMode}
               onSortChange={setSortMode}
@@ -985,6 +1021,7 @@ export default function HomePage() {
                 {PINNED_EMOJI_WALL.map((item) => (
                   <button
                     key={item.slug}
+                    data-testid="emoji-wall-btn"
                     onClick={() => { setSearchLabel(`${item.emoji} ${item.labels[uiLang]}`); runConceptSearch(item.slug); }}
                     style={{
                       display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem",

@@ -196,9 +196,9 @@ test.describe('SearchOverlay (US-005)', () => {
     await page.goto('/random');
     await page.waitForURL(/\/expression\//, { timeout: T });
     const searchIconBtn = page.locator('button[title*="earch"], button[aria-label*="earch"]').first();
-    if (await searchIconBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await searchIconBtn.click();
-      await expect(page.locator('[data-testid="overlay-input"]').first()).toBeVisible({ timeout: T });
-    }
+    const hasSearchBtn = await searchIconBtn.isVisible({ timeout: 5000 }).catch(() => false);
+    test.skip(!hasSearchBtn, 'pas de bouton recherche contextuel sur /expression — à valider si US-005 le requiert');
+    await searchIconBtn.click();
+    await expect(page.locator('[data-testid="overlay-input"]').first()).toBeVisible({ timeout: T });
   });
 });

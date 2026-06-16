@@ -37,6 +37,7 @@ export default function BottomNav({ uiLang = "fr" }: Props) {
   return (
     <nav
       className="wex-bottom-nav"
+      data-testid="bottom-nav"
       aria-label={NAV_ARIA_LABEL[uiLang] ?? NAV_ARIA_LABEL.en}
       style={{
         position: "fixed",

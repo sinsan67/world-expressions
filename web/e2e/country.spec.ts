@@ -21,23 +21,26 @@ test.describe('Page /country/[code]', () => {
     await page.locator('h1, h2').first().waitFor({ timeout: T });
     // Les chips concept sont des boutons dans la section "Filtrer par concept"
     const chip = page.locator('button').filter({ hasText: /💰|❤️|😱|🐾|🏃|👁️|🎭|🎵|😄|😔/ }).first();
-    if (!await chip.isVisible({ timeout: 5000 }).catch(() => false)) return;
+    // Sélecteur emoji fragile en CI (rendu Linux ≠ macOS) — à remplacer par data-testid
+    const hasChip = await chip.isVisible({ timeout: 5000 }).catch(() => false);
+    test.skip(!hasChip, 'chip concept invisible — sélecteur emoji fragile en CI, ajouter data-testid');
     await chip.click();
     // La page RESTE sur /country/fr (filtre local, pas de navigation)
     await expect(page).toHaveURL(/\/country\/fr/, { timeout: T });
-    // Des cartes doivent toujours s'afficher (ou l'état "aucun résultat")
-    await page.waitForTimeout(1500);
-    const hasCards = await page.locator('[data-testid="expression-card"]').count();
+    // Attendre la fin du filtre client-side : cartes ou état vide
+    const cards = page.locator('[data-testid="expression-card"]');
+    await cards.first().or(page.locator('text=Aucun résultat')).waitFor({ timeout: T });
+    const hasCards = await cards.count();
     const hasEmpty = await page.locator('text=Aucun résultat').isVisible().catch(() => false);
     expect(hasCards > 0 || hasEmpty).toBe(true);
   });
 
   test('#49 bouton "Explorer toutes les langues" navigue vers /search', async ({ page }) => {
-    await page.goto('/country/fr');
+    // /country/cl (Chile) has 0 expressions — triggers the explore-all button
+    await page.goto('/country/cl');
     await page.locator('h1, h2').first().waitFor({ timeout: T });
-    // Le bouton "Explorer toutes les langues / Explore all languages" navigue vers /search
     const exploreBtn = page.locator('button').filter({ hasText: /Explorer toutes|Explore all|Explorar todos|Esplora tutte|Tüm dilleri/ }).first();
-    if (!await exploreBtn.isVisible({ timeout: 5000 }).catch(() => false)) return;
+    await expect(exploreBtn).toBeVisible({ timeout: T });
     await exploreBtn.click();
     await expect(page).toHaveURL(/\/search/, { timeout: T });
   });

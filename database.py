@@ -667,6 +667,18 @@ def get_facets(
         GROUP BY e.kind
     """
 
+    # Comptages par sous-région (bretagne, alsace…), filtrés par type/domaine/requête
+    # comme la facette pays. Permet d'afficher des chiffres dynamiques sur le filtre
+    # imbriqué pays → région. Clé "subregion" additive : un client qui l'ignore n'est
+    # pas affecté.
+    sql_subregion = f"""
+        SELECT e.region, COUNT(DISTINCT e.id) AS n
+        FROM expressions e {fts_join}
+        WHERE 1=1 {_EXCLUDE_PHRASEBOOK} {type_sql} {domain_sql} {fts_cond}
+          AND e.region IS NOT NULL
+        GROUP BY e.region
+    """
+
     domain_params = {"domain_f": domain} if domain else {}
 
     params_country = ({**{"type_filter_f": type_filter}} if type_filter else {})
@@ -677,13 +689,18 @@ def get_facets(
     params_kind.update(fts_params)
     params_kind.update(domain_params)
 
+    # même filtrage que la facette pays (type + domaine + requête)
+    params_subregion = dict(params_country)
+
     with engine.connect() as conn:
         country_rows = conn.execute(text(sql_country), params_country).fetchall()
         kind_rows = conn.execute(text(sql_kind), params_kind).fetchall()
+        subregion_rows = conn.execute(text(sql_subregion), params_subregion).fetchall()
 
     return {
         "region": {r.country: r.n for r in country_rows if r.country},
         "kind": {r.kind: r.n for r in kind_rows if r.kind},
+        "subregion": {r.region: r.n for r in subregion_rows if r.region},
     }
 
 

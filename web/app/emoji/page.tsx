@@ -355,6 +355,7 @@ export default function ConceptsPage() {
                   return (
                     <button
                       key={lang}
+                      data-testid={lang === "all" ? "lang-filter-all" : `lang-filter-${lang}`}
                       onClick={() => setLangFilter(lang)}
                       style={{
                         fontFamily: "var(--font-body)",

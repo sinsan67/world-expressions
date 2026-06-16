@@ -212,6 +212,7 @@ export default function WelcomeModal({ onSelect }: Props) {
           {ALL_LANGS.map((lang) => (
             <button
               key={lang}
+              data-testid={`lang-btn-${lang}`}
               onClick={() => setSelected(lang)}
               style={{
                 padding: "0.45rem 1rem", borderRadius: "var(--r-pill)", fontSize: 13, fontWeight: 700,

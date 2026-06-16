@@ -24,7 +24,13 @@ async function seedCarnet(page: import('@playwright/test').Page) {
   });
 }
 
-test.describe('Page /carnet', () => {
+// FIXME (S132): le carnet a migré vers /profile#carnet et tout son contenu est
+// désormais derrière un mur d'authentification (CarnetTab: `if (!session) return`),
+// avec les favoris servis par l'API (plus le localStorage que seedCarnet remplit).
+// Ces tests tournent sans session → onglets/stats/export/bannière ne sont jamais
+// rendus : ils passaient à vide (faux verts) en testant une archi disparue.
+// À RÉÉCRIRE au chantier 8 (auth E2E) — voir prompts-audit-bob-1 en mémoire projet.
+test.describe.fixme('Page /carnet (à réécrire — carnet derrière auth sur /profile, chantier 8)', () => {
   test('#50 se charge et affiche la carte de profil (CoverCard)', async ({ page }) => {
     await page.goto('/');
     await seedCarnet(page);

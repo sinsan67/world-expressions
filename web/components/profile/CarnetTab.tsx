@@ -13,7 +13,7 @@ import NoteCard from "@/components/carnet/NoteCard";
 import ExportCard from "@/components/carnet/ExportCard";
 import AuthModal from "@/components/profile/AuthModal";
 import { getCarnet, getStats, getProgressByCountry } from "@/lib/carnet";
-import { getExpression, getRegions, getAllTagNames, Expression, RegionInfo } from "@/lib/api";
+import { getExpression, getCountries, getAllTagNames, Expression, CountryInfo } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { tagIcon } from "@/lib/tagIcons";
 import type { UILang } from "@/lib/useUILang";
@@ -187,7 +187,7 @@ export default function CarnetTab({ session, uiLang, onAuthRequired }: Props) {
   const [progressByCountry, setProgressByCountry] = useState<Array<{ region: string; seen: number }>>([]);
 
   // API data
-  const [regions, setRegions] = useState<RegionInfo[]>([]);
+  const [countries, setCountries] = useState<CountryInfo[]>([]);
   const [expressionMap, setExpressionMap] = useState<Record<string, Expression>>({});
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [filterQuery, setFilterQuery] = useState("");
@@ -214,7 +214,7 @@ export default function CarnetTab({ session, uiLang, onAuthRequired }: Props) {
   }, [userId]);
 
   useEffect(() => {
-    getRegions().then(setRegions).catch(() => {});
+    getCountries().then(setCountries).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -339,7 +339,7 @@ export default function CarnetTab({ session, uiLang, onAuthRequired }: Props) {
     .map((p) => ({
       region: p.region,
       seen: p.seen,
-      total: regions.find((r) => r.code === p.region)?.count ?? 0,
+      total: countries.find((r) => r.code === p.region)?.count ?? 0,
       flag: FLAG[p.region] ?? "🌍",
       name: COUNTRY_NAME[p.region] ?? p.region.toUpperCase(),
     }))

@@ -31,6 +31,7 @@ export default function LangDropdown({ uiLang, onLangChange }: Props) {
   return (
     <div ref={ref} style={{ position: "relative" }}>
       <button
+        data-testid="lang-trigger"
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="true"
         aria-expanded={open}
@@ -85,6 +86,7 @@ export default function LangDropdown({ uiLang, onLangChange }: Props) {
           {LANGS.map((lang, i) => (
             <button
               key={lang.code}
+              data-testid={`lang-option-${lang.code}`}
               onClick={() => {
                 onLangChange(lang.code);
                 setOpen(false);

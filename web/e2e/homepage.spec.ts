@@ -17,11 +17,12 @@ test.describe('Homepage — modal bienvenue', () => {
     await page.reload();
     const modal = page.locator('[role="dialog"]').first();
     await modal.waitFor({ timeout: T });
-    const enBtn = modal.locator('button, [role="button"]').filter({ hasText: /^EN$|^English$|english/i }).first();
-    if (await enBtn.isVisible()) {
-      await enBtn.click();
-      await expect(modal.locator('button').filter({ hasText: /let.s go/i }).first()).toBeVisible();
-    }
+    // Cliquer FR d'abord pour un état de départ déterministe
+    await modal.locator('[data-testid="lang-btn-fr"]').click();
+    await expect(modal.locator('button').filter({ hasText: /Commencer/i }).first()).toBeVisible({ timeout: T });
+    // Cliquer EN → le CTA doit changer pour "Let's go"
+    await modal.locator('[data-testid="lang-btn-en"]').click();
+    await expect(modal.locator('button').filter({ hasText: /Let.s go/i }).first()).toBeVisible({ timeout: T });
   });
 
   test('#3 fermer le modal affiche l\'app', async ({ page }) => {
@@ -77,7 +78,7 @@ test.describe('Homepage — recherche', () => {
     await page.locator(CARD).first().waitFor({ timeout: T });
     const initialCount = await page.locator(CARD).count();
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(2000); // IntersectionObserver → fetch → re-render : pas de signal DOM unique observable
     const newCount = await page.locator(CARD).count();
     expect(newCount).toBeGreaterThanOrEqual(initialCount);
   });
@@ -97,19 +98,18 @@ test.describe('Homepage — recherche', () => {
     await input.fill('argent');
     await input.press('Enter');
     await page.locator(CARD).first().waitFor({ timeout: T });
-    const tag = page.locator('[class*="tag"], [class*="Tag"]').first();
-    if (await tag.isVisible()) {
-      await tag.click();
-      await expect(page).toHaveURL(/#q=/);
-    }
+    const tag = page.locator('[data-testid="tag-button"]').first();
+    await expect(tag).toBeVisible({ timeout: T });
+    await tag.click();
+    await expect(page).toHaveURL(/#concept=/);
   });
 
-  test('#15 clic sur un chip de suggestion lance la recherche', async ({ page }) => {
-    const chip = page.locator('[class*="chip"], [class*="Chip"], [class*="hint"]').first();
-    if (await chip.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await chip.click();
-      await expect(page).toHaveURL(/#q=/);
-    }
+  test('#15 clic sur un bouton emoji-wall lance la recherche par concept', async ({ page }) => {
+    // Les chips de suggestion V1 ont été remplacés par l'Emoji Wall (section de navigation rapide par concept)
+    const emojiBtn = page.locator('[data-testid="emoji-wall-btn"]').first();
+    await expect(emojiBtn).toBeVisible({ timeout: T });
+    await emojiBtn.click();
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
   });
 });
 

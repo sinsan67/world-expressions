@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { TYPE_LABELS } from "@/lib/typeLabels";
+import { COUNTRY_SUBREGIONS, SUBREGION_LABELS } from "@/lib/subregions";
 import type { Facets } from "@/lib/api";
 import type { UILang } from "@/lib/useUILang";
 
@@ -17,29 +18,35 @@ const T = {
 };
 
 interface Props {
-  regions: { code: string; label: string }[];
-  filterRegions: string[];
-  onFilterChange: (regions: string[]) => void;
+  countries: { code: string; label: string }[];
+  filterCountries: string[];
+  onFilterChange: (countries: string[]) => void;
   sortMode: "relevance" | "country";
   onSortChange: (mode: "relevance" | "country") => void;
   uiLang: UILang;
   typeFilter?: string | null;
   onTypeChange?: (type: string | null) => void;
   showSort?: boolean;
+  showTypes?: boolean;
+  showSubregions?: boolean;
   facets?: Facets;
 }
 
 export default function ResultsFilterBar({
-  regions, filterRegions, onFilterChange,
+  countries, filterCountries, onFilterChange,
   sortMode, onSortChange,
   uiLang,
   typeFilter, onTypeChange,
   showSort = true,
+  showTypes = true,
+  showSubregions = false,
   facets,
 }: Props) {
   const t = T[uiLang];
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  // Pays actuellement déplié pour montrer ses sous-régions (filtre imbriqué)
+  const [expandedCountry, setExpandedCountry] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -51,15 +58,15 @@ export default function ResultsFilterBar({
   }, [open]);
 
   const toggle = (code: string) => {
-    const next = filterRegions.includes(code)
-      ? filterRegions.filter((c) => c !== code)
-      : [...filterRegions, code];
+    const next = filterCountries.includes(code)
+      ? filterCountries.filter((c) => c !== code)
+      : [...filterCountries, code];
     onFilterChange(next);
   };
 
-  const activeLabel = filterRegions.length === 0
+  const activeLabel = filterCountries.length === 0
     ? t.filterAll
-    : filterRegions.map((c) => FLAG[c] ?? c.toUpperCase()).join(" ");
+    : filterCountries.map((c) => FLAG[c] ?? c.toUpperCase()).join(" ");
 
   const pillBase: React.CSSProperties = {
     padding: "6px 14px",
@@ -94,7 +101,7 @@ export default function ResultsFilterBar({
           onClick={() => setOpen((o) => !o)}
           style={{
             ...pillBase,
-            ...(filterRegions.length > 0 ? {
+            ...(filterCountries.length > 0 ? {
               background: "rgba(107,77,143,0.08)",
               borderColor: "var(--plum)",
               color: "var(--plum)",
@@ -116,32 +123,83 @@ export default function ResultsFilterBar({
             <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.35rem 0.75rem", cursor: "pointer", fontSize: 13, color: "var(--ink)" }}>
               <input
                 type="checkbox"
-                checked={filterRegions.length === 0}
+                checked={filterCountries.length === 0}
                 onChange={() => { onFilterChange([]); setOpen(false); }}
                 style={{ accentColor: "var(--plum)", width: 15, height: 15 }}
               />
               {t.filterAll}
             </label>
             <div style={{ height: 1, background: "var(--paper-edge)", margin: "0.25rem 0" }} />
-            {regions.map((r) => {
+            {countries.map((r) => {
+              // NB: backend renvoie les comptages par pays sous la clé wire `facets.region`
+              // (nommage historique trompeur — renommage à faire en deploy backend+front coordonné).
               const cnt = facets?.region[r.code];
+              const subCodes = showSubregions ? COUNTRY_SUBREGIONS[r.code] : undefined;
+              const isExpanded = expandedCountry === r.code;
               return (
-                <label key={r.code} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.35rem 0.75rem", cursor: "pointer", fontSize: 13, color: "var(--ink)" }}>
-                  <input
-                    type="checkbox"
-                    checked={filterRegions.includes(r.code)}
-                    onChange={() => toggle(r.code)}
-                    style={{ accentColor: "var(--plum)", width: 15, height: 15 }}
-                  />
-                  <span style={{ flex: 1 }}>{FLAG[r.code] ?? ""} {COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}</span>
-                  {cnt != null && <span style={{ fontSize: 11, color: "var(--ink-faint)", flexShrink: 0 }}>({cnt})</span>}
-                </label>
+                <div key={r.code} data-testid={`filter-country-${r.code}`}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.35rem 0.75rem", fontSize: 13, color: "var(--ink)" }}>
+                    {/* La case coche/décoche le pays ; cocher le pays retire ses sous-régions */}
+                    <input
+                      type="checkbox"
+                      checked={filterCountries.includes(r.code)}
+                      onChange={() => {
+                        if (subCodes) {
+                          const has = filterCountries.includes(r.code);
+                          let next = has ? filterCountries.filter((c) => c !== r.code) : [...filterCountries, r.code];
+                          if (!has) next = next.filter((c) => !subCodes.includes(c));
+                          onFilterChange(next);
+                        } else {
+                          toggle(r.code);
+                        }
+                      }}
+                      style={{ accentColor: "var(--plum)", width: 15, height: 15, cursor: "pointer", flexShrink: 0 }}
+                    />
+                    {/* Zone nom : large zone cliquable. Si le pays a des sous-régions,
+                        cliquer le nom déplie/replie ; sinon il coche le pays. */}
+                    <div
+                      onClick={() => {
+                        if (subCodes) setExpandedCountry(isExpanded ? null : r.code);
+                        else toggle(r.code);
+                      }}
+                      style={{ display: "flex", alignItems: "center", gap: "0.4rem", flex: 1, cursor: "pointer" }}
+                    >
+                      <span style={{ flex: 1 }}>{FLAG[r.code] ?? ""} {COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}</span>
+                      {cnt != null && <span style={{ fontSize: 11, color: "var(--ink-faint)", flexShrink: 0 }}>({cnt})</span>}
+                      {subCodes && (
+                        <span style={{ fontSize: 10, opacity: 0.6, flexShrink: 0 }}>{isExpanded ? "▲" : "▼"}</span>
+                      )}
+                    </div>
+                  </div>
+                  {/* Sous-régions imbriquées : cocher une région retire le pays parent */}
+                  {subCodes && isExpanded && subCodes.map((sc) => {
+                    const scnt = facets?.subregion?.[sc];
+                    return (
+                      <label key={sc} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.3rem 0.75rem 0.3rem 2.2rem", cursor: "pointer", fontSize: 12.5, color: "var(--ink-soft)" }}>
+                        <input
+                          type="checkbox"
+                          checked={filterCountries.includes(sc)}
+                          onChange={() => {
+                            const has = filterCountries.includes(sc);
+                            let next = has ? filterCountries.filter((c) => c !== sc) : [...filterCountries, sc];
+                            if (!has) next = next.filter((c) => c !== r.code);
+                            onFilterChange(next);
+                          }}
+                          style={{ accentColor: "var(--terra)", width: 14, height: 14 }}
+                        />
+                        <span style={{ flex: 1 }}>{SUBREGION_LABELS[sc] ?? sc}</span>
+                        {scnt != null && <span style={{ fontSize: 11, color: "var(--ink-faint)", flexShrink: 0 }}>({scnt})</span>}
+                      </label>
+                    );
+                  })}
+                </div>
               );
             })}
           </div>
         )}
       </div>
 
+      {showTypes && (<>
       {sep}
 
       {/* Type pills */}
@@ -171,6 +229,7 @@ export default function ResultsFilterBar({
           </button>
         );
       })}
+      </>)}
 
       {showSort && (<>
         {sep}

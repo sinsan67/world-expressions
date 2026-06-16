@@ -274,6 +274,7 @@ export async function getTypeCounts(
 export type Facets = {
   region: Record<string, number>;
   kind: Record<string, number>;
+  subregion?: Record<string, number>;
 };
 
 export async function getFacets(
@@ -290,7 +291,7 @@ export async function getFacets(
   if (domain) params.set("domain", domain);
   if (locale) params.set("locale", locale);
   const res = await fetch(`${API}/facets?${params}`);
-  if (!res.ok) return { region: {}, kind: {} };
+  if (!res.ok) return { region: {}, kind: {}, subregion: {} };
   return res.json();
 }
 

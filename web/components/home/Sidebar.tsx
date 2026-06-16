@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Home, Globe, Lightbulb, Search, Heart } from "lucide-react";
 import { getCarnet } from "@/lib/carnet";
-import { getRegions } from "@/lib/api";
+import { getCountries } from "@/lib/api";
 import SearchOverlay from "@/components/SearchOverlay";
 
 const BASE_NAV_ITEMS = [
@@ -64,7 +64,7 @@ export default function Sidebar({ uiLang }: Props) {
   }, []);
 
   useEffect(() => {
-    getRegions().then((regions) => setCountryCount(regions.length));
+    getCountries().then((countries) => setCountryCount(countries.length));
   }, []);
 
   const navItems = BASE_NAV_ITEMS.map((item) => {

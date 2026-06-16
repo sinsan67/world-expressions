@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
 import LangBar from "@/components/ui/LangBar";
 import ExpressionCard from "@/components/ExpressionCard";
+import ResultsFilterBar from "@/components/home/ResultsFilterBar";
 import { tagIcon } from "@/lib/tagIcons";
-import { searchByDomain, getConcepts, getAllTagNames, getRegions, getFacets, ConceptItem, Expression, Facets } from "@/lib/api";
+import { searchByDomain, getConcepts, getAllTagNames, getCountries, getFacets, ConceptItem, Expression, Facets } from "@/lib/api";
 import { EDITORIAL_DOMAIN_MAP } from "@/lib/editorialDomains";
-import { TYPE_LABELS } from "@/lib/typeLabels";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { useUILang, type UILang } from "@/lib/useUILang";
 
@@ -157,23 +157,12 @@ export default function DomainPage() {
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [facets, setFacets] = useState<Facets | undefined>(undefined);
-  const [regions, setRegions] = useState<{ code: string }[]>([]);
-  const [filterRegions, setFilterRegions] = useState<string[]>([]);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [countries, setCountries] = useState<{ code: string; label: string }[]>([]);
+  const [filterCountries, setFilterCountries] = useState<string[]>([]);
 
   useEffect(() => {
-    getRegions().then((data) => setRegions(data.map((r) => ({ code: r.code }))));
+    getCountries().then((data) => setCountries(data.map((r) => ({ code: r.code, label: `${FLAG[r.code] ?? "🌍"} ${COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}` }))));
   }, []);
-
-  useEffect(() => {
-    if (!dropdownOpen) return;
-    const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setDropdownOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [dropdownOpen]);
 
   // Fetch concepts and initial expressions
   useEffect(() => {
@@ -210,29 +199,29 @@ export default function DomainPage() {
     setExpressions([]);
     setOffset(0);
     try {
-      const data = await searchByDomain(slug, filterRegions, LIMIT, 0, uiLang, newType ?? undefined, undefined, "random");
+      const data = await searchByDomain(slug, filterCountries, LIMIT, 0, uiLang, newType ?? undefined, undefined, "random");
       setExpressions(data.results);
       setTotal(data.total);
       setOffset(LIMIT);
-      getFacets(filterRegions, "", newType, slug, uiLang).then(setFacets);
+      getFacets(filterCountries, "", newType, slug, uiLang).then(setFacets);
     } catch {
       // silent
     } finally {
       setLoading(false);
     }
-  }, [slug, filterRegions, uiLang]);
+  }, [slug, filterCountries, uiLang]);
 
-  const applyCountryFilter = useCallback(async (newRegions: string[]) => {
-    setFilterRegions(newRegions);
+  const applyCountryFilter = useCallback(async (newCountries: string[]) => {
+    setFilterCountries(newCountries);
     setLoading(true);
     setExpressions([]);
     setOffset(0);
     try {
-      const data = await searchByDomain(slug, newRegions, LIMIT, 0, uiLang, typeFilter ?? undefined, undefined, "random");
+      const data = await searchByDomain(slug, newCountries, LIMIT, 0, uiLang, typeFilter ?? undefined, undefined, "random");
       setExpressions(data.results);
       setTotal(data.total);
       setOffset(LIMIT);
-      getFacets(newRegions, "", typeFilter, slug, uiLang).then(setFacets);
+      getFacets(newCountries, "", typeFilter, slug, uiLang).then(setFacets);
     } catch {
       // silent
     } finally {
@@ -244,13 +233,13 @@ export default function DomainPage() {
     if (loadingMore) return;
     setLoadingMore(true);
     try {
-      const data = await searchByDomain(slug, filterRegions, LIMIT, offset, uiLang, typeFilter ?? undefined, undefined, "random");
+      const data = await searchByDomain(slug, filterCountries, LIMIT, offset, uiLang, typeFilter ?? undefined, undefined, "random");
       setExpressions((prev) => [...prev, ...data.results]);
       setOffset((o) => o + LIMIT);
     } finally {
       setLoadingMore(false);
     }
-  }, [slug, offset, filterRegions, loadingMore, uiLang, typeFilter]);
+  }, [slug, offset, filterCountries, loadingMore, uiLang, typeFilter]);
 
   // Unknown domain → redirect home
   useEffect(() => {
@@ -443,99 +432,20 @@ export default function DomainPage() {
                 </section>
               )}
 
-              {/* Type filter pills */}
+              {/* Filter bar — shared component (country + type, no sort) */}
               <section style={{ marginBottom: "1.75rem" }}>
-                <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.4rem" }}>
-
-                  {/* Country dropdown */}
-                  <div ref={dropdownRef} style={{ position: "relative", flexShrink: 0 }}>
-                    <button
-                      onClick={() => setDropdownOpen((o) => !o)}
-                      style={{
-                        display: "inline-flex", alignItems: "center", gap: 5,
-                        padding: "6px 12px", borderRadius: "var(--r-pill)",
-                        border: `1.5px solid ${filterRegions.length > 0 ? "var(--plum)" : "var(--paper-edge)"}`,
-                        background: filterRegions.length > 0 ? "rgba(107,77,143,0.08)" : "var(--paper)",
-                        color: filterRegions.length > 0 ? "var(--plum)" : "var(--ink-soft)",
-                        fontSize: 13, fontWeight: 600, cursor: "pointer",
-                        fontFamily: "var(--font-body)", transition: "all 0.15s",
-                      }}
-                    >
-                      {filterRegions.length === 0
-                        ? t.allCountries
-                        : filterRegions.map((c) => FLAG[c] ?? c.toUpperCase()).join(" ")}
-                      <span style={{ fontSize: 9, opacity: 0.5 }}>{dropdownOpen ? "▲" : "▼"}</span>
-                    </button>
-                    {dropdownOpen && (
-                      <div style={{
-                        position: "absolute", top: "calc(100% + 4px)", left: 0, zIndex: 50,
-                        background: "var(--paper)", border: "1px solid var(--paper-edge)",
-                        borderRadius: 10, padding: "0.4rem 0", minWidth: 180,
-                        boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
-                      }}>
-                        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.3rem 0.7rem", cursor: "pointer", fontSize: 13, color: "var(--ink)" }}>
-                          <input type="checkbox" checked={filterRegions.length === 0}
-                            onChange={() => { applyCountryFilter([]); setDropdownOpen(false); }}
-                            style={{ accentColor: "var(--plum)", width: 14, height: 14 }} />
-                          {t.allCountries}
-                        </label>
-                        <div style={{ height: 1, background: "var(--paper-edge)", margin: "0.2rem 0" }} />
-                        {regions.map((r) => {
-                          const cnt = facets?.region[r.code];
-                          return (
-                            <label key={r.code} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.3rem 0.7rem", cursor: "pointer", fontSize: 13, color: "var(--ink)" }}>
-                              <input type="checkbox" checked={filterRegions.includes(r.code)}
-                                onChange={() => {
-                                  const next = filterRegions.includes(r.code)
-                                    ? filterRegions.filter((c) => c !== r.code)
-                                    : [...filterRegions, r.code];
-                                  applyCountryFilter(next);
-                                }}
-                                style={{ accentColor: "var(--plum)", width: 14, height: 14 }} />
-                              <span style={{ flex: 1 }}>{FLAG[r.code] ?? ""} {COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}</span>
-                              {cnt != null && <span style={{ fontSize: 11, color: "var(--ink-faint)" }}>({cnt})</span>}
-                            </label>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Separator */}
-                  <div style={{ width: 1, height: 18, background: "var(--paper-edge)", flexShrink: 0, margin: "0 0.1rem" }} />
-
-                  {/* Type pills */}
-                  {([null, "idiom", "proverb", "locution"] as const).map((type) => {
-                    const isActive = typeFilter === type;
-                    const label = type === null
-                      ? t.allTypes
-                      : (TYPE_LABELS[type]?.[uiLang] ?? TYPE_LABELS[type]?.["en"] ?? type);
-                    const cnt = type !== null ? facets?.kind[type] : undefined;
-                    return (
-                      <button
-                        key={type ?? "all"}
-                        onClick={() => applyTypeFilter(type)}
-                        style={{
-                          fontSize: 13,
-                          padding: "6px 14px",
-                          borderRadius: "var(--r-pill)",
-                          background: isActive ? "var(--terra)" : "var(--paper)",
-                          border: `1.5px solid ${isActive ? "var(--terra)" : "var(--paper-edge)"}`,
-                          color: isActive ? "#fff" : "var(--terra)",
-                          cursor: "pointer",
-                          fontWeight: 500,
-                          boxShadow: isActive ? "var(--shadow-stamp)" : "none",
-                          transition: "all 0.15s",
-                          fontFamily: "var(--font-body)",
-                          display: "flex", alignItems: "center", gap: "0.3rem",
-                        }}
-                      >
-                        <span>{label}</span>
-                        {cnt != null && <span style={{ fontSize: 11, opacity: isActive ? 0.85 : 0.55 }}>({cnt})</span>}
-                      </button>
-                    );
-                  })}
-                </div>
+                <ResultsFilterBar
+                  countries={countries}
+                  filterCountries={filterCountries}
+                  onFilterChange={applyCountryFilter}
+                  sortMode="relevance"
+                  onSortChange={() => {}}
+                  uiLang={uiLang}
+                  typeFilter={typeFilter}
+                  onTypeChange={applyTypeFilter}
+                  showSort={false}
+                  facets={facets}
+                />
               </section>
 
               {/* Expression list */}
