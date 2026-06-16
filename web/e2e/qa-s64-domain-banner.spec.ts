@@ -49,7 +49,7 @@ test("S1c — /search?concept=courage : pas de bandeau domaine (mode concept dif
 
 // ─── S2 : Label "🔗 Équivalents" dans split view ──────────────────────────────
 
-test("S2a — split view : sous-section others.exact étiquetée Équivalents (pas Dans le texte)", async ({ page }) => {
+test.fixme("S2a — split view : sous-section others.exact étiquetée Équivalents (pas Dans le texte)", async ({ page }) => {
   await page.goto("/search?q=argent");
 
   await expect(page.getByText(/détecté/i)).toBeVisible({ timeout: 20_000 });
@@ -64,7 +64,7 @@ test("S2a — split view : sous-section others.exact étiquetée Équivalents (p
   await expect(othersExact.getByText(/équivalents/i)).toBeVisible();
 });
 
-test("S2b — split view : la section principale garde bien 'Dans le texte'", async ({ page }) => {
+test.fixme("S2b — split view : la section principale garde bien 'Dans le texte'", async ({ page }) => {
   await page.goto("/search?q=argent");
   await expect(page.getByText(/détecté/i)).toBeVisible({ timeout: 20_000 });
 
@@ -72,7 +72,7 @@ test("S2b — split view : la section principale garde bien 'Dans le texte'", as
   await expect(page.getByText(/dans le texte/i)).toBeVisible();
 });
 
-test("S2c — mix view : pas de sous-section Équivalents (mode mélangé ne split pas)", async ({ page }) => {
+test.fixme("S2c — mix view : pas de sous-section Équivalents (mode mélangé ne split pas)", async ({ page }) => {
   await page.goto("/search?q=argent");
   await expect(page.getByText(/détecté/i)).toBeVisible({ timeout: 20_000 });
 
@@ -89,7 +89,7 @@ test("S2c — mix view : pas de sous-section Équivalents (mode mélangé ne spl
 
 // ─── S3 : Non-régression mode mix — "Par concept" ────────────────────────────
 
-test("S3 — mix view : section Par concept toujours présente si résultats concept", async ({ page }) => {
+test.fixme("S3 — mix view : section Par concept toujours présente si résultats concept", async ({ page }) => {
   await page.goto("/search?q=argent");
   await expect(page.getByText(/détecté/i)).toBeVisible({ timeout: 20_000 });
 

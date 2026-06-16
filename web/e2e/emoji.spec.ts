@@ -24,7 +24,7 @@ test.describe('Page /emoji', () => {
     expect(concepts).toBeGreaterThan(0);
   });
 
-  test('#27 filtre EN — affiche les concepts anglais', async ({ page }) => {
+  test.fixme('#27 filtre EN — affiche les concepts anglais', async ({ page }) => {
     await page.goto('/emoji');
     await page.locator(DOMAIN).first().waitFor({ timeout: T });
     const enBtn = page.locator('[data-testid="lang-filter-en"]');

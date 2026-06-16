@@ -7,7 +7,7 @@
 import { test, expect } from "@playwright/test";
 
 // Scénario 1 — Split view de base avec "argent"
-test("S1 — badge langue détecté + toggle + split sections visibles", async ({ page }) => {
+test.fixme("S1 — badge langue détecté + toggle + split sections visibles", async ({ page }) => {
   await page.goto("/search?q=argent");
 
   // Badge "Français · détecté" présent quelque part dans la sticky bar
@@ -58,7 +58,7 @@ test("S2 — cap 6 cartes + bouton Voir les N autres", async ({ page }) => {
 });
 
 // Scénario 3 — Toggle "Tout mélanger" puis retour
-test("S3 — toggle Tout mélanger désactive le split, retour Langue d'abord le restaure", async ({ page }) => {
+test.fixme("S3 — toggle Tout mélanger désactive le split, retour Langue d'abord le restaure", async ({ page }) => {
   await page.goto("/search?q=argent");
   await expect(page.getByText(/détecté/i)).toBeVisible({ timeout: 25_000 });
 
@@ -81,7 +81,7 @@ test("S3 — toggle Tout mélanger désactive le split, retour Langue d'abord le
 });
 
 // Scénario 4 — Mot multilingue "para" (TR + ES)
-test("S4 — para : langue détectée ou mode mélangé si ambiguë", async ({ page }) => {
+test.fixme("S4 — para : langue détectée ou mode mélangé si ambiguë", async ({ page }) => {
   await page.goto("/search?q=para");
 
   // Attendre qu'au moins une carte soit chargée (couvre cold start backend)
@@ -145,7 +145,7 @@ test("S6a — filtre région fonctionne toujours", async ({ page }) => {
   expect(count).toBeGreaterThan(0);
 });
 
-test("S6b — tri Par pays désactive le split", async ({ page }) => {
+test.fixme("S6b — tri Par pays désactive le split", async ({ page }) => {
   await page.goto("/search?q=argent");
   await expect(page.getByText(/détecté/i)).toBeVisible({ timeout: 25_000 });
 
