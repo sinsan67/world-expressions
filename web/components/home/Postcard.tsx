@@ -15,6 +15,7 @@ export default function Postcard({ tilt = -0.4, large, children }: Props) {
       transform: `rotate(${tilt}deg)`,
       position: "relative",
       transition: "box-shadow 150ms ease",
+      overflow: "hidden",
     }}>
       {children}
     </div>

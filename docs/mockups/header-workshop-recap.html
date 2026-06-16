@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atelier UX — Header unifié</title>
+<style>
+  :root {
+    --paper: #faf8f5;
+    --paper-deep: #f3ede5;
+    --paper-edge: #e6ddd2;
+    --ink: #1c1410;
+    --ink-soft: #5c4b3a;
+    --ink-faint: #9a8070;
+    --ink-softer: #7a6555;
+    --plum: #6b4fa0;
+    --plum-bg: #f0eaf9;
+    --terra: #c1440e;
+    --terra-soft: #e8c4b2;
+    --green: #4a7c41;
+    --green-bg: #eef5eb;
+    --font-display: Georgia, 'Times New Roman', serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --r-pill: 999px;
+    --r-md: 10px;
+    --r-sm: 6px;
+    --r-lg: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-body); background: #e8e0d8; color: var(--ink); }
+
+  /* ── LAYOUT ── */
+  .page-wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+  }
+
+  /* ── HEADER DOC ── */
+  .doc-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--paper-edge);
+  }
+  .doc-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+    background: var(--paper);
+    border: 1px solid var(--paper-edge);
+    border-radius: var(--r-pill);
+    padding: 2px 10px;
+    margin-bottom: 0.75rem;
+  }
+  .doc-title {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--ink);
+    margin-bottom: 0.4rem;
+  }
+  .doc-title em { color: var(--terra); font-style: italic; }
+  .doc-meta {
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 2.5rem; }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-title::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--paper-edge);
+  }
+
+  /* ── DECISION TABLE ── */
+  .decision-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  @media (max-width: 600px) { .decision-grid { grid-template-columns: 1fr; } }
+
+  .decision-card {
+    background: var(--paper);
+    border: 1px solid var(--paper-edge);
+    border-radius: var(--r-md);
+    padding: 0.875rem 1rem;
+  }
+  .decision-card.remove { border-left: 3px solid var(--terra); }
+  .decision-card.keep   { border-left: 3px solid var(--green); }
+  .decision-card.new    { border-left: 3px solid var(--plum); }
+
+  .dc-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+    margin-bottom: 0.35rem;
+  }
+  .dc-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .dc-note {
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 0.3rem;
+    line-height: 1.4;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: var(--r-pill);
+    margin-bottom: 0.35rem;
+  }
+  .badge.remove { background: #fdeee8; color: var(--terra); }
+  .badge.keep   { background: var(--green-bg); color: var(--green); }
+  .badge.new    { background: var(--plum-bg); color: var(--plum); }
+
+  /* ── MOCKUP FRAMES ── */
+  .mockup-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    align-items: start;
+  }
+  @media (max-width: 700px) { .mockup-group { grid-template-columns: 1fr; } }
+  .mockup-group.single { grid-template-columns: 1fr; }
+
+  .frame-wrap { }
+  .frame-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+    margin-bottom: 0.4rem;
+  }
+
+  .frame {
+    background: var(--paper);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: 0 3px 16px rgba(0,0,0,0.12);
+  }
+
+  /* ── COMPONENTS INSIDE FRAMES ── */
+  .g-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--paper-edge);
+    gap: 10px;
+  }
+  .g-header.two-line {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: 8px 14px 10px;
+  }
+
+  .logo {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 14px;
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .logo .w { color: var(--ink); font-weight: 500; }
+  .logo .e { color: var(--terra); }
+
+  .lang-pills {
+    display: flex;
+    gap: 3px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    flex: 1;
+    justify-content: center;
+  }
+  .lang-pills.left { justify-content: flex-start; }
+  .lang-pills::-webkit-scrollbar { display: none; }
+
+  .pill {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--paper-edge);
+    background: transparent;
+    color: var(--ink-faint);
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: var(--font-body);
+  }
+  .pill.active {
+    background: var(--plum);
+    color: #fff;
+    border-color: var(--plum);
+  }
+
+  .auth-area {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .sep { width: 1px; height: 14px; background: var(--paper-edge); }
+
+  .btn-si {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: var(--r-pill);
+    border: 1.5px solid var(--paper-edge);
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-family: var(--font-body);
+    white-space: nowrap;
+  }
+  .btn-ca {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: var(--r-pill);
+    border: none;
+    background: var(--terra);
+    color: #fff;
+    cursor: pointer;
+    font-family: var(--font-body);
+    white-space: nowrap;
+  }
+  .avatar-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px 2px 2px;
+    border-radius: var(--r-pill);
+    border: 1.5px solid var(--paper-edge);
+    background: transparent;
+    cursor: pointer;
+    font-family: var(--font-body);
+  }
+  .avatar {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--plum-bg);
+    color: var(--plum);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700;
+  }
+  .avatar-name { font-size: 11px; font-weight: 700; color: var(--ink-soft); }
+
+  .icon-acc {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid var(--paper-edge);
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--ink-faint);
+  }
+
+  /* sub-nav */
+  .sub-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 14px;
+    border-bottom: 1px solid var(--paper-edge);
+    background: var(--paper);
+  }
+  .back { font-size: 12px; color: var(--ink-faint); font-family: var(--font-body); }
+  .sub-icons { display: flex; gap: 2px; color: var(--ink-faint); }
+  .icon-btn {
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: none; cursor: pointer; color: var(--ink-faint);
+  }
+
+  /* zone contenu placeholder */
+  .body-area {
+    padding: 1rem;
+    background: var(--paper);
+    min-height: 100px;
+  }
+  .skel {
+    background: var(--paper-deep);
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+
+  /* ── ANNOTATION ── */
+  .anno-list {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .anno {
+    font-size: 11px;
+    color: var(--ink-faint);
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  .anno::before { content: "→"; color: var(--terra); flex-shrink: 0; }
+
+  /* ── WHAT CHANGES TABLE ── */
+  .change-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--paper);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    font-size: 13px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .change-table th {
+    background: var(--paper-deep);
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+    border-bottom: 1px solid var(--paper-edge);
+  }
+  .change-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #f3ede5;
+    vertical-align: top;
+    line-height: 1.4;
+  }
+  .change-table tr:last-child td { border-bottom: none; }
+  .change-table td:first-child { color: var(--ink-soft); font-weight: 500; }
+  .del { text-decoration: line-through; color: var(--ink-faint); }
+  .add { color: var(--green); font-weight: 600; }
+  .unchanged { color: var(--ink-faint); }
+
+  /* ── COMPONENT MAP ── */
+  .comp-map {
+    background: var(--paper);
+    border: 1px solid var(--paper-edge);
+    border-radius: var(--r-md);
+    padding: 1.25rem;
+    font-size: 13px;
+    font-family: monospace;
+    line-height: 2;
+    color: var(--ink-soft);
+  }
+  .comp-map .component { color: var(--plum); font-weight: 700; }
+  .comp-map .removed   { color: var(--terra); text-decoration: line-through; opacity: 0.6; }
+  .comp-map .new       { color: var(--green); font-weight: 700; }
+  .comp-map .indent    { padding-left: 1.5rem; }
+  .comp-map .indent2   { padding-left: 3rem; }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- EN-TÊTE DU DOCUMENT -->
+  <div class="doc-header">
+    <div class="doc-tag">Atelier UX — 2026-06-16</div>
+    <h1 class="doc-title">Header unifié — <em>World Expressions</em></h1>
+    <p class="doc-meta">Décisions validées · Mockups desktop &amp; mobile · Plan d'implémentation</p>
+  </div>
+
+  <!-- ══ CONTEXTE ══ -->
+  <div class="section">
+    <div class="section-title">Contexte &amp; problème</div>
+    <div style="background:var(--paper); border-radius:var(--r-md); padding:1rem 1.25rem; font-size:13px; color:var(--ink-soft); line-height:1.7; border:1px solid var(--paper-edge);">
+      <p>Chaque page avait sa propre gestion du header — la homepage avec sa <code>LangBar</code> (top-right desktop) + <code>wex-mobile-header</code> (mobile), la page expression avec sa navbar maison (logo + pills langue différentes + boutons contextuels), les autres pages sans header unifié. Résultat : look, placement et comportement incohérents selon la page.</p>
+      <p style="margin-top:0.6rem;">Décision : un composant <strong>GlobalHeader</strong> unique, monté sur toutes les pages, avec responsabilité claire : logo + langue + auth. Les éléments contextuels (← Retour, recherche, dé) restent dans leurs pages respectives.</p>
+    </div>
+  </div>
+
+  <!-- ══ DÉCISIONS ══ -->
+  <div class="section">
+    <div class="section-title">Décisions validées</div>
+    <div class="decision-grid">
+      <div class="decision-card new">
+        <div class="badge new">Nouveau</div>
+        <div class="dc-label">Logo</div>
+        <div class="dc-value">Dans le header sur toutes les pages</div>
+        <div class="dc-note">Logo "World Expressions" (italic + terra) ancré à gauche, cliquable → /</div>
+      </div>
+      <div class="decision-card new">
+        <div class="badge new">Remplacé</div>
+        <div class="dc-label">Sélecteur de langue</div>
+        <div class="dc-value">Pills compactes — fr · en · es · tr · it · de · ja</div>
+        <div class="dc-note">Remplace le LangDropdown (homepage) et les pills locales (page expression). Format unifié.</div>
+      </div>
+      <div class="decision-card keep">
+        <div class="badge keep">Conservé</div>
+        <div class="dc-label">Auth (Sign in / Create account)</div>
+        <div class="dc-value">Sur toutes les pages, desktop et mobile</div>
+        <div class="dc-note">Desktop : boutons texte. Mobile : icône personne (ou avatar si connecté).</div>
+      </div>
+      <div class="decision-card remove">
+        <div class="badge remove">Supprimé</div>
+        <div class="dc-label">Bouton Partager</div>
+        <div class="dc-value">Retiré de partout</div>
+        <div class="dc-note">Présent dans LangBar, wex-mobile-header, Sidebar, about, type/slug, domain/slug.</div>
+      </div>
+      <div class="decision-card keep">
+        <div class="badge keep">Inchangé</div>
+        <div class="dc-label">Boutons contextuels (expression)</div>
+        <div class="dc-value">Restent dans la sub-nav locale</div>
+        <div class="dc-note">← Retour, icône recherche, dé : propres à la page expression, sous le GlobalHeader.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MOCKUPS ══ -->
+  <div class="section">
+    <div class="section-title">Mockups — Desktop</div>
+    <div class="mockup-group">
+
+      <!-- Desktop non connecté -->
+      <div class="frame-wrap">
+        <div class="frame-label">Non connecté</div>
+        <div class="frame">
+          <div class="g-header">
+            <a class="logo" href="#"><span class="w">World </span><em class="e">Expressions</em></a>
+            <div class="lang-pills">
+              <button class="pill active">fr</button>
+              <button class="pill">en</button>
+              <button class="pill">es</button>
+              <button class="pill">tr</button>
+              <button class="pill">it</button>
+              <button class="pill">de</button>
+              <button class="pill">ja</button>
+            </div>
+            <div class="auth-area">
+              <div class="sep"></div>
+              <button class="btn-si">Sign in</button>
+              <button class="btn-ca">Create account ▼</button>
+            </div>
+          </div>
+          <div class="body-area">
+            <div class="skel" style="height:60px; width:65%;"></div>
+            <div class="skel" style="height:16px; width:45%;"></div>
+            <div class="skel" style="height:16px; width:55%;"></div>
+          </div>
+        </div>
+        <div class="anno-list">
+          <span class="anno">Pill active = langue UI courante</span>
+          <span class="anno">Logo → homepage</span>
+        </div>
+      </div>
+
+      <!-- Desktop connecté -->
+      <div class="frame-wrap">
+        <div class="frame-label">Connecté</div>
+        <div class="frame">
+          <div class="g-header">
+            <a class="logo" href="#"><span class="w">World </span><em class="e">Expressions</em></a>
+            <div class="lang-pills">
+              <button class="pill active">fr</button>
+              <button class="pill">en</button>
+              <button class="pill">es</button>
+              <button class="pill">tr</button>
+              <button class="pill">it</button>
+              <button class="pill">de</button>
+              <button class="pill">ja</button>
+            </div>
+            <div class="auth-area">
+              <div class="sep"></div>
+              <button class="avatar-btn">
+                <span class="avatar">S</span>
+                <span class="avatar-name">Sinan</span>
+              </button>
+            </div>
+          </div>
+          <div class="body-area">
+            <div class="skel" style="height:60px; width:65%;"></div>
+            <div class="skel" style="height:16px; width:45%;"></div>
+            <div class="skel" style="height:16px; width:55%;"></div>
+          </div>
+        </div>
+        <div class="anno-list">
+          <span class="anno">Sign in + Create account → avatar + prénom</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Mockups — Mobile</div>
+    <div class="mockup-group">
+
+      <!-- Mobile non connecté -->
+      <div class="frame-wrap">
+        <div class="frame-label">Non connecté</div>
+        <div class="frame" style="max-width:360px;">
+          <div class="g-header two-line">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <a class="logo" href="#"><span class="w">World </span><em class="e">Expressions</em></a>
+              <button class="icon-acc" title="Sign in">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                </svg>
+              </button>
+            </div>
+            <div class="lang-pills left">
+              <button class="pill active">fr</button>
+              <button class="pill">en</button>
+              <button class="pill">es</button>
+              <button class="pill">tr</button>
+              <button class="pill">it</button>
+              <button class="pill">de</button>
+              <button class="pill">ja</button>
+            </div>
+          </div>
+          <div class="body-area">
+            <div class="skel" style="height:80px;"></div>
+            <div class="skel" style="height:16px; width:60%;"></div>
+          </div>
+        </div>
+        <div class="anno-list">
+          <span class="anno">Ligne 1 : logo + icône compte</span>
+          <span class="anno">Ligne 2 : pills scrollables (overflow horizontal)</span>
+          <span class="anno">Tap icône → modal Sign in / Create account</span>
+        </div>
+      </div>
+
+      <!-- Mobile connecté -->
+      <div class="frame-wrap">
+        <div class="frame-label">Connecté</div>
+        <div class="frame" style="max-width:360px;">
+          <div class="g-header two-line">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <a class="logo" href="#"><span class="w">World </span><em class="e">Expressions</em></a>
+              <button class="avatar-btn">
+                <span class="avatar">S</span>
+                <span class="avatar-name">Sinan</span>
+              </button>
+            </div>
+            <div class="lang-pills left">
+              <button class="pill active">fr</button>
+              <button class="pill">en</button>
+              <button class="pill">es</button>
+              <button class="pill">tr</button>
+              <button class="pill">it</button>
+              <button class="pill">de</button>
+              <button class="pill">ja</button>
+            </div>
+          </div>
+          <div class="body-area">
+            <div class="skel" style="height:80px;"></div>
+            <div class="skel" style="height:16px; width:60%;"></div>
+          </div>
+        </div>
+        <div class="anno-list">
+          <span class="anno">Avatar + prénom remplacent l'icône</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Mockup — Page expression (desktop)</div>
+    <div class="mockup-group single">
+      <div class="frame-wrap">
+        <div class="frame-label">GlobalHeader + sub-nav contextuelle</div>
+        <div class="frame">
+          <!-- GlobalHeader -->
+          <div style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#aaa; background:#f7f3ee; padding:3px 14px; border-bottom:1px solid var(--paper-edge);">GlobalHeader</div>
+          <div class="g-header">
+            <a class="logo" href="#"><span class="w">World </span><em class="e">Expressions</em></a>
+            <div class="lang-pills">
+              <button class="pill">fr</button>
+              <button class="pill active">en</button>
+              <button class="pill">es</button>
+              <button class="pill">tr</button>
+              <button class="pill">it</button>
+              <button class="pill">de</button>
+              <button class="pill">ja</button>
+            </div>
+            <div class="auth-area">
+              <div class="sep"></div>
+              <button class="btn-si">Sign in</button>
+              <button class="btn-ca">Create account ▼</button>
+            </div>
+          </div>
+          <!-- Sub-nav contextuelle -->
+          <div style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#9a7abf; background:#f3eef9; padding:3px 14px; border-bottom:1px solid #e0d5ef;">Sub-nav (locale à la page expression)</div>
+          <div class="sub-nav">
+            <span class="back">← Back</span>
+            <div class="sub-icons">
+              <button class="icon-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              </button>
+              <button class="icon-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="8" r="1.5" fill="currentColor"/><circle cx="8" cy="16" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="body-area">
+            <div class="skel" style="height:50px; width:75%;"></div>
+            <div class="skel" style="height:14px; width:40%; margin-top:6px;"></div>
+            <div class="skel" style="height:90px; margin-top:14px;"></div>
+          </div>
+        </div>
+        <div class="anno-list">
+          <span class="anno">2 barres : GlobalHeader (toutes pages) + sub-nav (page expression seulement)</span>
+          <span class="anno">Langue active = lang URL (?lang=en)</span>
+          <span class="anno">Logo visible — n'était pas là avant sur cette page</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CE QUI CHANGE ══ -->
+  <div class="section">
+    <div class="section-title">Ce qui change — vue fichier par fichier</div>
+    <table class="change-table">
+      <thead>
+        <tr>
+          <th>Fichier / Composant</th>
+          <th>Avant</th>
+          <th>Après</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>components/ui/LangBar.tsx</code></td>
+          <td><span class="del">AuthButton + ShareButton + LangDropdown</span></td>
+          <td><span class="add">→ Remplacé par GlobalHeader</span></td>
+        </tr>
+        <tr>
+          <td><code>components/ui/ShareButton.tsx</code></td>
+          <td><span class="del">Composant utilisé</span></td>
+          <td><span class="add">Supprimé</span></td>
+        </tr>
+        <tr>
+          <td><code>app/HomePage.tsx</code><br><small>wex-mobile-header</small></td>
+          <td><span class="del">ShareButton + LangDropdown</span></td>
+          <td><span class="add">→ Supprimé (couvert par GlobalHeader)</span></td>
+        </tr>
+        <tr>
+          <td><code>app/expression/[id]/page.tsx</code></td>
+          <td><span class="del">Navbar maison (logo + pills locales)</span><br><span class="unchanged">← Back + search + dé</span></td>
+          <td><span class="add">GlobalHeader au-dessus</span><br><span class="unchanged">← Back + search + dé → sub-nav conservée</span></td>
+        </tr>
+        <tr>
+          <td><code>components/home/Sidebar.tsx</code></td>
+          <td><span class="del">ShareButton</span></td>
+          <td><span class="add">Retiré</span></td>
+        </tr>
+        <tr>
+          <td><code>app/about/page.tsx</code><br><code>app/type/[slug]/page.tsx</code><br><code>app/domain/[slug]/page.tsx</code></td>
+          <td><span class="del">ShareButton</span></td>
+          <td><span class="add">Retiré</span></td>
+        </tr>
+        <tr>
+          <td><code>components/ui/GlobalHeader.tsx</code> <em>(nouveau)</em></td>
+          <td>—</td>
+          <td><span class="add">Logo + pills lang + AuthButton. Monté dans layout.tsx</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══ ARCHITECTURE COMPOSANTS ══ -->
+  <div class="section">
+    <div class="section-title">Architecture composants cible</div>
+    <div class="comp-map">
+      <div><span class="component">layout.tsx</span></div>
+      <div class="indent">└── <span class="new">GlobalHeader</span>  <span style="color:#aaa;">← nouveau, monté une fois</span></div>
+      <div class="indent2">├── Logo (lien /)</div>
+      <div class="indent2">├── LangPills  <span style="color:#aaa;">← unifié (remplace LangDropdown)</span></div>
+      <div class="indent2">└── AuthButton  <span style="color:#aaa;">← conservé tel quel</span></div>
+      <div style="margin-top:0.5rem;"><span class="component">app/page.tsx</span>  (homepage)</div>
+      <div class="indent">├── <span class="removed">LangBar</span>  ← supprimé</div>
+      <div class="indent">├── <span class="removed">wex-mobile-header (ShareButton)</span>  ← supprimé</div>
+      <div class="indent">└── HeroSection, Search, Atlas…  <span style="color:#aaa;">← inchangé</span></div>
+      <div style="margin-top:0.5rem;"><span class="component">app/expression/[id]/page.tsx</span></div>
+      <div class="indent">├── <span class="removed">Navbar maison (logo + pills locales)</span>  ← supprimée</div>
+      <div class="indent">└── Sub-nav contextuelle  <span style="color:#aaa;">← conservée (← Back + search + dé)</span></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -402,19 +402,19 @@ function ExpressionPageContent({ id }: { id: string }) {
   return (
     <div style={{ minHeight: "100vh", background: "var(--paper)" }}>
 
-      {/* Sticky navbar */}
+      {/* Sub-nav: Back + search + random — sits below GlobalHeader */}
       <nav style={{
         padding: "0.6rem 1.25rem",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         position: "sticky",
-        top: 0,
-        zIndex: 10,
+        top: 48,
+        zIndex: 40,
         background: "var(--paper)",
         borderBottom: "1px solid var(--paper-edge)",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div>
           {prev ? (
             <Link
               href={`/expression/${prev}?lang=${lang}`}
@@ -441,54 +441,27 @@ function ExpressionPageContent({ id }: { id: string }) {
               ← {t.back}
             </button>
           )}
-          <Link href="/" style={{ textDecoration: "none", fontFamily: "var(--font-display)" }}>
-            <span style={{ color: "var(--ink)", fontWeight: 500, fontStyle: "italic", fontSize: 16 }}>World </span>
-            <em style={{ color: "var(--terra)", fontStyle: "italic", fontSize: 16 }}>Expressions</em>
-          </Link>
         </div>
 
-        {/* Nav icons + language switcher */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <button
-          onClick={() => setShowSearch(true)}
-          title="Search"
-          style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink-faint)", display: "flex", padding: 4, transition: "color 120ms ease" }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink)"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-faint)"; }}
-        >
-          <Search size={16} strokeWidth={1.5} />
-        </button>
-        <Link
-          href={`/random?prev=${id}&lang=${lang}`}
-          title={t.randomBtn}
-          style={{ color: "var(--ink-faint)", textDecoration: "none", display: "flex", padding: 4, alignItems: "center", transition: "color 120ms ease" }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink)"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-faint)"; }}
-        >
-          <Dice5 size={16} strokeWidth={1.5} />
-        </Link>
-        <div style={{ display: "flex", gap: 4 }}>
-          {(["fr", "en", "es", "tr", "it", "de", "ja"] as UILang[]).map((l) => (
-            <Link
-              key={l}
-              href={`/expression/${id}?lang=${l}`}
-              style={{
-                fontSize: 11,
-                padding: "3px 9px",
-                borderRadius: "var(--r-pill)",
-                fontWeight: 600,
-                fontFamily: "var(--font-body)",
-                background: lang === l ? "var(--plum)" : "transparent",
-                color: lang === l ? "var(--paper)" : "var(--ink-faint)",
-                border: `1px solid ${lang === l ? "var(--plum)" : "var(--paper-edge)"}`,
-                textDecoration: "none",
-                transition: "all 120ms ease",
-              }}
-            >
-              {l}
-            </Link>
-          ))}
-        </div>
+          <button
+            onClick={() => setShowSearch(true)}
+            title="Search"
+            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink-faint)", display: "flex", padding: 4, transition: "color 120ms ease" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-faint)"; }}
+          >
+            <Search size={16} strokeWidth={1.5} />
+          </button>
+          <Link
+            href={`/random?prev=${id}&lang=${lang}`}
+            title={t.randomBtn}
+            style={{ color: "var(--ink-faint)", textDecoration: "none", display: "flex", padding: 4, alignItems: "center", transition: "color 120ms ease" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-faint)"; }}
+          >
+            <Dice5 size={16} strokeWidth={1.5} />
+          </Link>
         </div>
       </nav>
 

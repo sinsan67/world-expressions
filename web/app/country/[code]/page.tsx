@@ -6,7 +6,6 @@ import Link from "next/link";
 import ExpressionCard from "@/components/ExpressionCard";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
-import LangBar from "@/components/ui/LangBar";
 import {
   browseByCountry, searchExpressions, searchByConcept,
   getTopTags, getAllTagNames, getTypeCounts, Expression, TypeCounts,
@@ -14,7 +13,8 @@ import {
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { TYPE_LABELS } from "@/lib/typeLabels";
-import { useUILang, type UILang } from "@/lib/useUILang";
+import { useUILangContext } from "@/lib/UILangContext";
+import type { UILang } from "@/lib/useUILang";
 
 const LIMIT = 20;
 const HERO_IMAGES = new Set(["fr", "uk", "us", "au", "es", "tr", "it", "de", "jp", "ar", "pe", "co", "cu"]);
@@ -157,7 +157,7 @@ function CountryPageContent({ code }: { code: string }) {
   // Countries with many expressions default to idioms only.
   const defaultTypeFilter = "idiom";
 
-  const [uiLang, changeLang] = useUILang();
+  const { uiLang } = useUILangContext();
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
@@ -317,7 +317,6 @@ function CountryPageContent({ code }: { code: string }) {
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
       <Sidebar uiLang={uiLang} />
-      <LangBar uiLang={uiLang} onLangChange={changeLang} />
 
       <main className="wex-main" style={{ paddingBottom: 80 }}>
 

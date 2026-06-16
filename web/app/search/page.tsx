@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import ExpressionCard from "@/components/ExpressionCard";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
-import LangBar from "@/components/ui/LangBar";
 import SearchBar from "@/components/ui/SearchBar";
 import ResultsFilterBar from "@/components/home/ResultsFilterBar";
 import {
@@ -17,7 +16,8 @@ import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { LANG_FLAG, LANG_NATIVE } from "@/lib/langDefs";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { splitCountryRegion } from "@/lib/subregions";
-import { useUILang, type UILang } from "@/lib/useUILang";
+import { useUILangContext } from "@/lib/UILangContext";
+import type { UILang } from "@/lib/useUILang";
 
 const LIMIT = 20;
 
@@ -56,7 +56,7 @@ const T: Record<UILang, {
     titleSearch: (q) => `Recherche : « ${q} » — World Expressions`,
     titleConcept: (name) => `${name} — World Expressions`,
     titleDefault: "Recherche — World Expressions",
-    types: { idiom: "expression", proverb: "proverbe", locution: "locution", word: "mot", expression: "expression" },
+    types: { idiom: "idiotisme", proverb: "proverbe", locution: "locution", word: "mot", expression: "expression" },
     registers: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" },
     matchSections: { exact: "Dans le texte", semantic: "Par le sens", translation: "Via les traductions", concept: "Par concept" },
     showMore: (n) => `Voir les ${n} autres →`,
@@ -122,7 +122,7 @@ const T: Record<UILang, {
     titleSearch: (q) => `Ricerca: "${q}" — World Expressions`,
     titleConcept: (name) => `${name} — World Expressions`,
     titleDefault: "Ricerca — World Expressions",
-    types: { idiom: "espressione", proverb: "proverbio", locution: "locuzione", word: "parola", expression: "espressione" },
+    types: { idiom: "idiotismo", proverb: "proverbio", locution: "locuzione", word: "parola", expression: "espressione" },
     registers: { standard: "standard", informal: "informale", slang: "gergone", vulgar: "volgare", formal: "formale" },
     matchSections: { exact: "Nel testo", semantic: "Per il senso", translation: "Via traduzioni", concept: "Per concetto" },
     showMore: (n) => `Vedi altri ${n} →`,
@@ -144,7 +144,7 @@ const T: Record<UILang, {
     titleSearch: (q) => `Arama: "${q}" — World Expressions`,
     titleConcept: (name) => `${name} — World Expressions`,
     titleDefault: "Arama — World Expressions",
-    types: { idiom: "deyim", proverb: "atasözü", locution: "deyiş", word: "kelime", expression: "ifade" },
+    types: { idiom: "deyim", proverb: "atasözü", locution: "kalıp ifade", word: "kelime", expression: "ifade" },
     registers: { standard: "standart", informal: "gündelik", slang: "argo", vulgar: "kaba", formal: "resmi" },
     matchSections: { exact: "Metinde", semantic: "Anlama göre", translation: "Çeviri yoluyla", concept: "Kavram ile" },
     showMore: (n) => `${n} tane daha gör →`,
@@ -224,7 +224,7 @@ function SearchPageContent() {
   const filterParam = [countryParam, regionParam].filter(Boolean).join(",");
   const typeParam = searchParams.get("type_filter") ?? "";
 
-  const [uiLang, setUILang] = useUILang();
+  const { uiLang } = useUILangContext();
   const [query, setQuery] = useState(qParam);
   const [countries, setCountries] = useState<{ code: string; label: string }[]>([]);
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
@@ -531,7 +531,6 @@ function SearchPageContent() {
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
       <Sidebar uiLang={uiLang} />
-      <LangBar uiLang={uiLang} onLangChange={setUILang} />
 
       <main className="wex-main" style={{ paddingBottom: 80 }}>
         <div style={{

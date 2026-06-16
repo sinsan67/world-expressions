@@ -7,9 +7,6 @@ import WelcomeModal from "@/components/WelcomeModal";
 import HeroSection from "@/components/home/HeroSection";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
-import LangBar from "@/components/ui/LangBar";
-import LangDropdown from "@/components/ui/LangDropdown";
-import ShareButton from "@/components/ui/ShareButton";
 import CountryStamp from "@/components/home/CountryStamp";
 import SearchBar from "@/components/ui/SearchBar";
 import ResultsFilterBar from "@/components/home/ResultsFilterBar";
@@ -22,7 +19,8 @@ import {
 import { tagIcon } from "@/lib/tagIcons";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { EDITORIAL_DOMAINS } from "@/lib/editorialDomains";
-import { useUILang, UI_LANGS, type UILang } from "@/lib/useUILang";
+import { useUILangContext } from "@/lib/UILangContext";
+import { UI_LANGS, type UILang } from "@/lib/useUILang";
 
 const LIMIT = 20;
 const MAX_SECTION_PREVIEW = 6;
@@ -31,7 +29,8 @@ const T = {
   fr: {
     expressionOfDay: "Expression du jour",
     anotherOne: "Une autre",
-    readFile: "Lire la fiche →",
+    readFile: "La fiche",
+    share: "Partager",
     atlasTitle: (n: number) => `${n} pays, à toi`,
     emojiEyebrow: "Par emoji",
     emojiTitle: "Clique, explore, découvre",
@@ -53,7 +52,7 @@ const T = {
     newsletterSuccess: "C'est noté ! Une expression par jour arrive dans ta boîte.",
     newsletterAlready: "Tu es déjà abonné(e) !",
     newsletterError: "Une erreur s'est produite, réessaie.",
-    types: { idiom: "expression", proverb: "proverbe", locution: "locution", word: "mot", expression: "expression" } as Record<string, string>,
+    types: { idiom: "idiotisme", proverb: "proverbe", locution: "locution", word: "mot", expression: "expression" } as Record<string, string>,
     registers: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" } as Record<string, string>,
     matchSections: { exact: "Dans le texte", semantic: "Par le sens", translation: "Via les traductions", concept: "Par concept" } as Record<string, string>,
     showMore: (n: number) => `Voir les ${n} autres →`,
@@ -61,7 +60,8 @@ const T = {
   en: {
     expressionOfDay: "Expression of the day",
     anotherOne: "Another one",
-    readFile: "Read the card →",
+    readFile: "The card",
+    share: "Share",
     atlasTitle: (n: number) => `${n} countries, yours to explore`,
     emojiEyebrow: "By emoji",
     emojiTitle: "Click, explore, discover",
@@ -91,7 +91,8 @@ const T = {
   es: {
     expressionOfDay: "Expresión del día",
     anotherOne: "Otra",
-    readFile: "Ver la ficha →",
+    readFile: "La ficha",
+    share: "Compartir",
     atlasTitle: (n: number) => `${n} países, para ti`,
     emojiEyebrow: "Por emoji",
     emojiTitle: "Haz clic, explora, descubre",
@@ -121,7 +122,8 @@ const T = {
   tr: {
     expressionOfDay: "Günün deyimi",
     anotherOne: "Başka biri",
-    readFile: "Kartı oku →",
+    readFile: "Kart",
+    share: "Paylaş",
     atlasTitle: (n: number) => `${n} ülke, senin için`,
     emojiEyebrow: "Emoji ile keşfet",
     emojiTitle: "Tıkla, keşfet, keşfet",
@@ -143,7 +145,7 @@ const T = {
     newsletterSuccess: "Kaydoldun! Her gün bir deyim gelen kutuna gelecek.",
     newsletterAlready: "Zaten abonesin!",
     newsletterError: "Bir şeyler ters gitti, tekrar dene.",
-    types: { idiom: "deyim", proverb: "atasözü", locution: "deyiş", word: "kelime", expression: "ifade" } as Record<string, string>,
+    types: { idiom: "deyim", proverb: "atasözü", locution: "kalıp ifade", word: "kelime", expression: "ifade" } as Record<string, string>,
     registers: { standard: "standart", informal: "gündelik", slang: "argo", vulgar: "kaba", formal: "resmi" } as Record<string, string>,
     matchSections: { exact: "Metinde", semantic: "Anlama göre", translation: "Çeviri yoluyla", concept: "Kavram ile" } as Record<string, string>,
     showMore: (n: number) => `${n} tanesini daha gör →`,
@@ -151,7 +153,8 @@ const T = {
   it: {
     expressionOfDay: "Espressione del giorno",
     anotherOne: "Un'altra",
-    readFile: "Leggi la scheda →",
+    readFile: "La scheda",
+    share: "Condividi",
     atlasTitle: (n: number) => `${n} paesi, tuoi da esplorare`,
     emojiEyebrow: "Per emoji",
     emojiTitle: "Clicca, esplora, scopri",
@@ -173,7 +176,7 @@ const T = {
     newsletterSuccess: "Iscritto! Un'espressione al giorno ti aspetta.",
     newsletterAlready: "Sei già iscritto/a!",
     newsletterError: "Qualcosa è andato storto, riprova.",
-    types: { idiom: "espressione", proverb: "proverbio", locution: "locuzione", word: "parola", expression: "espressione" } as Record<string, string>,
+    types: { idiom: "idiotismo", proverb: "proverbio", locution: "locuzione", word: "parola", expression: "espressione" } as Record<string, string>,
     registers: { standard: "standard", informal: "informale", slang: "gergone", vulgar: "volgare", formal: "formale" } as Record<string, string>,
     matchSections: { exact: "Nel testo", semantic: "Per il senso", translation: "Via traduzioni", concept: "Per concetto" } as Record<string, string>,
     showMore: (n: number) => `Vedi altri ${n} →`,
@@ -181,7 +184,8 @@ const T = {
   de: {
     expressionOfDay: "Ausdruck des Tages",
     anotherOne: "Noch einer",
-    readFile: "Karte lesen →",
+    readFile: "Die Karte",
+    share: "Teilen",
     atlasTitle: (n: number) => `${n} Länder, entdecke sie`,
     emojiEyebrow: "Per Emoji",
     emojiTitle: "Klicken, entdecken, lernen",
@@ -211,7 +215,8 @@ const T = {
   ja: {
     expressionOfDay: "今日の表現",
     anotherOne: "別の表現",
-    readFile: "カードを読む →",
+    readFile: "カード",
+    share: "共有",
     atlasTitle: (n: number) => `${n}ヶ国を探索`,
     emojiEyebrow: "絵文字で",
     emojiTitle: "クリック、探索、発見",
@@ -294,7 +299,7 @@ function sectionExprCount(n: number, lang: UILang): string {
 
 export default function HomePage() {
   const router = useRouter();
-  const [uiLang, changeLang] = useUILang();
+  const { uiLang, setUILang: changeLang } = useUILangContext();
   const [showWelcome, setShowWelcome] = useState<boolean | null>(null);
   const [query, setQuery] = useState("");
   const [regions, setRegions] = useState<{ code: string; label: string }[]>([]);
@@ -691,8 +696,6 @@ export default function HomePage() {
 
       {/* Sidebar — desktop only */}
       <Sidebar uiLang={uiLang} />
-      <LangBar uiLang={uiLang} onLangChange={changeLang} />
-
       {/* Main content */}
       <main className="wex-main" style={{ paddingBottom: 80 }}>
 
@@ -705,15 +708,11 @@ export default function HomePage() {
             tagNames={tagNames}
             onRefresh={refreshFeatured}
             onConceptClick={(tag) => { const icon = tagIcon(tag) ?? ""; const name = tagNames[tag] ?? tag; setSearchLabel(`${icon ? icon + " " : ""}${name}`); runConceptSearch(tag); }}
-            t={{ expressionOfDay: t.expressionOfDay, anotherOne: t.anotherOne, readFile: t.readFile, types: t.types, registers: t.registers }}
+            t={{ expressionOfDay: t.expressionOfDay, anotherOne: t.anotherOne, readFile: t.readFile, share: t.share, types: t.types, registers: t.registers }}
           />
         )}
 
-        {/* Mobile header — share + lang switcher */}
-        <div className="wex-mobile-header" style={{ justifyContent: "flex-end", padding: "0.6rem 1rem", gap: "0.5rem", background: "var(--paper)", borderBottom: "1px solid var(--paper-edge)" }}>
-          <ShareButton uiLang={uiLang} />
-          <LangDropdown uiLang={uiLang} onLangChange={changeLang} />
-        </div>
+
 
         {/* Sticky search + filter bar */}
         <div style={{

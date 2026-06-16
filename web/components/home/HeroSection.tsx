@@ -8,7 +8,8 @@ import ColdStartCard from "./ColdStartCard";
 import { Expression } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { tagIcon } from "@/lib/tagIcons";
-import { Dice5, Heart } from "lucide-react";
+import { Heart, Volume2, VolumeX } from "lucide-react";
+import { useAudio } from "@/lib/useAudio";
 import { cap } from "@/lib/utils";
 import { isFavorite, toggleFavorite } from "@/lib/carnet";
 import { getTypeLabel } from "@/lib/typeLabels";
@@ -26,6 +27,7 @@ type Props = {
     expressionOfDay: string;
     anotherOne: string;
     readFile: string;
+    share: string;
     types: Record<string, string>;
     registers: Record<string, string>;
   };
@@ -39,11 +41,27 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
     if (featured?.id) setFav(isFavorite(featured.id));
   }, [featured?.id]);
 
+  const { speaking, voiceAvailable, handleListen } = useAudio(
+    featured?.expression ?? "",
+    featured?.language ?? ""
+  );
+
   function handleFav(e: React.MouseEvent) {
     e.stopPropagation();
     if (!featured?.id) return;
     toggleFavorite(featured.id);
     setFav((v) => !v);
+  }
+
+  function handleShare(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!featured?.id) return;
+    const url = `${window.location.origin}/expression/${featured.id}`;
+    if (navigator.share) {
+      navigator.share({ title: featured.expression, url });
+    } else {
+      navigator.clipboard.writeText(url);
+    }
   }
 
   const now = new Date();
@@ -82,8 +100,29 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
           {featured ? (
             <div style={{ flex: "1 1 320px", maxWidth: 520, animation: "fadeSlideUp 0.5s ease-out both" }}>
               <Postcard tilt={-0.4} large>
-                <div style={{ position: "absolute", top: "1rem", right: "1rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
-                  <Postmark date={day} month={month} year={year} region={effectiveRegion} inline />
+                <div style={{ position: "absolute", top: "1rem", right: "1rem", display: "flex", flexDirection: "row", alignItems: "flex-start", gap: 10 }}>
+                  {voiceAvailable && (
+                    <button
+                      onClick={handleListen}
+                      title={speaking ? "Stop" : "Écouter"}
+                      style={{
+                        padding: "5px 8px",
+                        borderRadius: "var(--r-pill)",
+                        border: `1.5px solid ${speaking ? "var(--plum-soft)" : "var(--paper-edge)"}`,
+                        background: speaking ? "var(--plum-bg)" : "transparent",
+                        color: speaking ? "var(--plum)" : "var(--ink-faint)",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "all 150ms ease",
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.1)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
+                    >
+                      {speaking ? <VolumeX size={14} strokeWidth={1.5} /> : <Volume2 size={14} strokeWidth={1.5} />}
+                    </button>
+                  )}
                   <button
                     onClick={handleFav}
                     title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
@@ -104,10 +143,11 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                   >
                     <Heart size={14} strokeWidth={1.5} fill={fav ? "var(--terra)" : "none"} />
                   </button>
+                  <Postmark date={day} month={month} year={year} region={effectiveRegion} inline />
                 </div>
 
                 {/* Expression du jour label */}
-                <div style={{ marginBottom: "0.4rem", marginRight: 88 }}>
+                <div style={{ marginTop: "-0.6rem", marginBottom: "0.4rem", marginRight: 130 }}>
                   <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--terra)", fontFamily: "var(--font-body)" }}>
                     ✦ {t.expressionOfDay}
                   </span>
@@ -115,7 +155,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
 
                 {/* Country — flag + name, clickable → /country/[code] */}
                 {effectiveRegion && (
-                  <div style={{ marginBottom: "0.6rem", marginRight: 88 }}>
+                  <div style={{ marginBottom: "0.6rem", marginRight: 130 }}>
                     <a
                       href={`/country/${effectiveRegion}`}
                       onClick={(e) => { e.preventDefault(); router.push(`/country/${effectiveRegion}`); }}
@@ -153,7 +193,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                     lineHeight: 1.2,
                     marginBottom: "0.5rem",
                     cursor: "pointer",
-                    marginRight: 88,
+                    marginRight: 130,
                   }}
                 >
                   {cap(featured.expression)}
@@ -181,7 +221,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
 
                 {/* Tags + actions row */}
                 <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.4rem" }}>
-                  {featured.type && getTypeLabel(featured.type, uiLang) && (
+                  {getTypeLabel(featured.type, uiLang) && (
                     <button
                       onClick={() => router.push(`/type/${featured.type}`)}
                       style={{
@@ -230,42 +270,60 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                     );
                   })}
 
-                  <div style={{ marginLeft: "auto", display: "flex", gap: "0.4rem", flexShrink: 0 }}>
-                    <button
-                      onClick={onRefresh}
-                      style={{
-                        padding: "6px 14px",
-                        borderRadius: "var(--r-pill)",
-                        border: "1.5px solid var(--paper-edge)",
-                        background: "transparent",
-                        color: "var(--ink-soft)",
-                        fontSize: 13, fontWeight: 600, cursor: "pointer",
-                        fontFamily: "var(--font-body)",
-                        transition: "all 150ms ease",
-                      }}
-                      onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--ink)"; el.style.background = "var(--paper-deep)"; }}
-                      onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--paper-edge)"; el.style.background = "transparent"; }}
-                    >
-                      <Dice5 size={14} strokeWidth={1.5} style={{ display: "inline", verticalAlign: "middle", marginRight: "0.3rem" }} />{t.anotherOne}
-                    </button>
-                    <button
-                      onClick={() => router.push(`/expression/${featured.id}?lang=${uiLang}`)}
-                      style={{
-                        padding: "6px 14px",
-                        borderRadius: "var(--r-pill)",
-                        border: "none",
-                        background: "var(--plum)",
-                        color: "var(--paper)",
-                        fontSize: 13, fontWeight: 600, cursor: "pointer",
-                        fontFamily: "var(--font-body)",
-                        transition: "background 150ms ease",
-                      }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--plum-deep)"; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--plum)"; }}
-                    >
-                      {t.readFile}
-                    </button>
-                  </div>
+                </div>
+
+                {/* Footer V1 — ultra-discret, transparent */}
+                <div style={{
+                  marginLeft: "-1.75rem", marginRight: "-1.75rem", marginBottom: "-1.75rem",
+                  marginTop: "1.25rem",
+                  borderTop: "1px solid var(--paper-edge)",
+                  background: "transparent",
+                  display: "flex",
+                }}>
+                  <button
+                    onClick={onRefresh}
+                    style={{
+                      flex: 1, padding: "0.7rem 0.75rem",
+                      background: "transparent", border: "none",
+                      borderRight: "1px solid var(--paper-edge)",
+                      color: "var(--ink-faint)", fontSize: 12, fontWeight: 500,
+                      cursor: "pointer", fontFamily: "var(--font-body)",
+                      borderRadius: "0 0 0 var(--r-lg)", transition: "background 150ms ease",
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.03)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                  >
+                    🎲 {t.anotherOne}
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    style={{
+                      flex: 1, padding: "0.7rem 0.75rem",
+                      background: "transparent", border: "none",
+                      borderRight: "1px solid var(--paper-edge)",
+                      color: "var(--ink-faint)", fontSize: 12, fontWeight: 500,
+                      cursor: "pointer", fontFamily: "var(--font-body)",
+                      transition: "background 150ms ease",
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.03)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                  >
+                    🔗 {t.share}
+                  </button>
+                  <button
+                    onClick={() => router.push(`/expression/${featured.id}?lang=${uiLang}`)}
+                    style={{
+                      flex: 1, padding: "0.7rem 0.75rem",
+                      background: "transparent", border: "none",
+                      color: "var(--ink-faint)", fontSize: 12, fontWeight: 500,
+                      cursor: "pointer", fontFamily: "var(--font-body)",
+                      borderRadius: "0 0 var(--r-lg) 0", transition: "background 150ms ease",
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.03)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                  >
+                    📖 {t.readFile}
+                  </button>
                 </div>
               </Postcard>
             </div>

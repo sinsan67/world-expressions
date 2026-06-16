@@ -4,6 +4,16 @@ import { useSession, signIn } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 import AuthModal from "@/components/profile/AuthModal";
 
+type Props = { uiLang?: string };
+
+const L: Record<string, Record<string, string>> = {
+  signIn:     { fr: "Se connecter",       en: "Sign in",              es: "Iniciar sesión",       it: "Accedi",              tr: "Giriş yap",          de: "Anmelden",            ja: "ログイン" },
+  create:     { fr: "Créer un compte",    en: "Create account",       es: "Crear cuenta",         it: "Crea account",        tr: "Hesap oluştur",      de: "Konto erstellen",     ja: "アカウント作成" },
+  withGoogle: { fr: "Continuer avec Google", en: "Continue with Google", es: "Continuar con Google", it: "Continua con Google", tr: "Google ile devam et", de: "Mit Google fortfahren", ja: "Googleで続ける" },
+  withEmail:  { fr: "S'inscrire par e-mail", en: "Sign up with email",  es: "Registrarse por correo", it: "Iscriviti con email", tr: "E-posta ile kaydol", de: "Mit E-Mail registrieren", ja: "メールで登録" },
+};
+const t = (key: string, lang: string) => L[key]?.[lang] ?? L[key]?.["en"] ?? key;
+
 const GoogleIcon = () => (
   <svg width="14" height="14" viewBox="0 0 18 18" fill="none" style={{ flexShrink: 0 }}>
     <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
@@ -13,7 +23,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
-export default function AuthButton() {
+export default function AuthButton({ uiLang = "en" }: Props) {
   const { data: session, status } = useSession();
   const [imgError, setImgError] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -45,7 +55,7 @@ export default function AuthButton() {
               padding: "2px 9px",
               borderRadius: "var(--r-pill)",
               border: "1.5px solid var(--paper-edge)",
-              background: "transparent",
+              background: "var(--paper)",
               color: "var(--ink-soft)",
               cursor: "pointer",
               fontFamily: "var(--font-body)",
@@ -53,7 +63,7 @@ export default function AuthButton() {
               whiteSpace: "nowrap",
             }}
           >
-            Sign in
+            {t("signIn", uiLang)}
           </button>
 
           {/* Create account dropdown */}
@@ -77,7 +87,7 @@ export default function AuthButton() {
                 whiteSpace: "nowrap",
               }}
             >
-              Create account
+              {t("create", uiLang)}
               <span style={{ fontSize: 8, opacity: 0.8, marginTop: 1 }}>▼</span>
             </button>
 
@@ -120,7 +130,7 @@ export default function AuthButton() {
                   onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--paper-tint)"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                 >
-                  <GoogleIcon /> Continue with Google
+                  <GoogleIcon /> {t("withGoogle", uiLang)}
                 </button>
                 <button
                   onClick={() => {
@@ -145,7 +155,7 @@ export default function AuthButton() {
                   onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--paper-tint)"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                 >
-                  ✉ Sign up with email
+                  ✉ {t("withEmail", uiLang)}
                 </button>
               </div>
             )}
