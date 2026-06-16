@@ -434,7 +434,7 @@ export default function ConceptsPage() {
                           {/* Main clickable area */}
                           <button
                             data-testid="domain-card"
-                            onClick={() => openDomain(domSlug)}
+                            onClick={() => router.push(`/search?domain=${encodeURIComponent(domSlug)}`)}
                             style={{
                               display: "flex",
                               flexDirection: "column",

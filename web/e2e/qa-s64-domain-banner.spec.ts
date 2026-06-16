@@ -103,35 +103,25 @@ test.fixme("S3 — mix view : section Par concept toujours présente si résulta
 
 // ─── S4 : Bouton "Voir les N expressions" dans /emoji?domain=X ────────────
 
-test("S4a — /emoji : clic domaine → bouton Voir expressions visible", async ({ page }) => {
+// Since commit 11fa98d, domain cards navigate directly to /search?domain= (no intermediate panel).
+// S4a verifies the navigation. S4b verifies the "Voir expressions" button on the URL-accessed panel.
+test("S4a — /emoji : clic domaine → navigue vers /search?domain=", async ({ page }) => {
   await page.goto("/emoji");
 
-  // Attendre les cartes domaines
   const domainCard = page.locator('[data-testid="domain-card"]').first();
   await expect(domainCard).toBeVisible({ timeout: 20_000 });
-
-  // Cliquer sur le premier domaine
   await domainCard.click();
 
-  // Le bouton "Voir les N expressions" doit apparaître dans l'en-tête
-  const seeExpressionsBtn = page.getByRole("button", { name: /voir les .* expressions|see .* expressions|ver .* expresiones|vedi .* espressioni|\d+ deyimi gör/i });
-  await expect(seeExpressionsBtn).toBeVisible({ timeout: 5_000 });
+  await expect(page).toHaveURL(/\/search\?domain=\w+/, { timeout: 10_000 });
 });
 
-test("S4b — clic bouton 'Voir expressions' navigue vers /search?domain=X", async ({ page }) => {
-  await page.goto("/emoji");
+test("S4b — /emoji?domain=X direct : bouton 'Voir expressions' navigue vers /search?domain=X", async ({ page }) => {
+  await page.goto("/emoji?domain=emotions");
 
-  // Attendre et cliquer sur le premier domaine
-  const domainCard = page.locator('[data-testid="domain-card"]').first();
-  await expect(domainCard).toBeVisible({ timeout: 20_000 });
-  await domainCard.click();
-
-  // Cliquer sur "Voir les N expressions"
   const seeExpressionsBtn = page.getByRole("button", { name: /voir les .* expressions|see .* expressions|ver .* expresiones|vedi .* espressioni|\d+ deyimi gör/i });
-  await expect(seeExpressionsBtn).toBeVisible({ timeout: 5_000 });
+  await expect(seeExpressionsBtn).toBeVisible({ timeout: 20_000 });
   await seeExpressionsBtn.click();
 
-  // Vérifier qu'on est sur /search?domain=...
   await expect(page).toHaveURL(/\/search\?domain=\w+/, { timeout: 10_000 });
 });
 

@@ -373,7 +373,7 @@ export default function HomePage() {
     window.history.replaceState(null, "", "#concept=" + encodeURIComponent(tag));
     exploreRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     try {
-      const data = await searchByConcept([tag], [], LIMIT, 0, undefined, undefined, undefined, rf.length ? rf : []);
+      const data = await searchByConcept([tag], [], LIMIT, 0, undefined, uiLang, undefined, rf.length ? rf : []);
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
@@ -386,7 +386,7 @@ export default function HomePage() {
       setLoading(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allRegionCodes, tagNames]);
+  }, [allRegionCodes, tagNames, uiLang]);
 
   const handleSearch = useCallback(async (q: string) => {
     if (q.trim().length < 2) return;
@@ -425,7 +425,7 @@ export default function HomePage() {
         searchMode === "browse"
           ? await browseByCountry(filterRegions, LIMIT, offset)
           : searchMode === "concept"
-          ? await searchByConcept([query], [], LIMIT, offset, undefined, undefined, undefined, filterRegions)
+          ? await searchByConcept([query], [], LIMIT, offset, undefined, uiLang, undefined, filterRegions)
           : await searchExpressions(query, [], LIMIT, offset, typeFilter ?? undefined, uiLang, undefined, filterRegions);
       setResults((prev) => [...prev, ...data.results]);
       setHasMore(offset + data.results.length < data.total);
@@ -451,7 +451,7 @@ export default function HomePage() {
         effectiveMode === "browse"
           ? await browseByCountry(newFilter, LIMIT, 0, typeFilter ?? undefined, uiLang)
           : effectiveMode === "concept"
-          ? await searchByConcept([query], [], LIMIT, 0, undefined, undefined, undefined, newFilter)
+          ? await searchByConcept([query], [], LIMIT, 0, undefined, uiLang, undefined, newFilter)
           : await searchExpressions(query, [], LIMIT, 0, typeFilter ?? undefined, uiLang, undefined, newFilter);
       setResults(data.results);
       setTotal(data.total);
@@ -468,6 +468,7 @@ export default function HomePage() {
 
   const handleTypeChange = useCallback(async (newType: string | null) => {
     setTypeFilter(newType);
+    setSortMode("relevance");
     setLoading(true);
     setHasError(false);
     setResults([]);
@@ -649,7 +650,7 @@ export default function HomePage() {
         if (searchMode === "browse") {
           data = await browseByCountry(filterRegions, LIMIT, 0, typeFilter ?? undefined, uiLang);
         } else if (searchMode === "concept" && query) {
-          data = await searchByConcept([query], [], LIMIT, 0, undefined, undefined, undefined, filterRegions.length ? filterRegions : []);
+          data = await searchByConcept([query], [], LIMIT, 0, undefined, uiLang, undefined, filterRegions.length ? filterRegions : []);
         } else if (searchMode === "text" && query) {
           data = await searchExpressions(query.trim(), [], LIMIT, 0, typeFilter ?? undefined, uiLang, undefined, filterRegions);
         }
@@ -980,7 +981,7 @@ export default function HomePage() {
                 {EDITORIAL_DOMAINS.map((d) => (
                   <button
                     key={d.slug}
-                    onClick={() => router.push(`/domain/${encodeURIComponent(d.slug)}`)}
+                    onClick={() => router.push(`/search?domain=${encodeURIComponent(d.slug)}`)}
                     style={{
                       display: "flex", flexDirection: "column", alignItems: "flex-start",
                       background: d.bg, border: `1px solid ${d.border}`, borderRadius: 14,
