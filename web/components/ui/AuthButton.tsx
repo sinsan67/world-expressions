@@ -55,6 +55,7 @@ export default function AuthButton({ uiLang = "en" }: Props) {
       <>
         <div ref={dropdownRef} style={{ position: "relative" }}>
           <button
+            data-testid="auth-btn-main"
             onClick={() => setDropdownOpen((v) => !v)}
             style={{
               display: "flex",
@@ -121,6 +122,7 @@ export default function AuthButton({ uiLang = "en" }: Props) {
 
               {/* Sign in */}
               <button
+                data-testid="auth-dropdown-signin"
                 onClick={() => openModal("login")}
                 style={{
                   display: "flex", alignItems: "center", gap: "0.6rem",
@@ -137,6 +139,7 @@ export default function AuthButton({ uiLang = "en" }: Props) {
 
               {/* Create account */}
               <button
+                data-testid="auth-dropdown-register"
                 onClick={() => openModal("register")}
                 style={{
                   display: "flex", alignItems: "center", gap: "0.6rem",

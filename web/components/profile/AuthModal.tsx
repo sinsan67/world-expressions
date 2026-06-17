@@ -152,6 +152,10 @@ export default function AuthModal({ onClose, defaultView = "login" }: Props) {
       onClick={onClose}
     >
       <div
+        data-testid="auth-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Authentication"
         style={{
           background: "var(--paper)",
           borderRadius: "var(--r-lg)",
