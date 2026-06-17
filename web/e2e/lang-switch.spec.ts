@@ -11,6 +11,36 @@ async function switchLang(page: import('@playwright/test').Page, langCode: strin
   await page.locator(`[data-testid="lang-option-${langCode}"]`).click({ timeout: T });
 }
 
+// Expression path retrieved once for the whole describe (avoid repeated /random navigations)
+let sharedExpressionPath: string;
+
+test.describe('Lang switch — expression page (#WWWW)', () => {
+  test.beforeAll(async ({ browser }) => {
+    const page = await browser.newPage();
+    await page.goto('/random');
+    await page.waitForURL(/\/expression\//, { timeout: T });
+    sharedExpressionPath = new URL(page.url()).pathname;
+    await page.close();
+  });
+
+  test('expression page: lang switch triggers API re-call with new lang', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('wex_lang', 'en'));
+    await page.goto(sharedExpressionPath);
+    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: T });
+
+    // getExpression uses ?lang= (not ?locale= like browse endpoints)
+    const frCallPromise = page.waitForRequest(
+      req => req.url().includes('/expression/') && req.url().includes('lang=fr'),
+      { timeout: T },
+    );
+    await switchLang(page, 'fr');
+    await frCallPromise;
+
+    // Content should still be visible after reload
+    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: T });
+  });
+});
+
 test.describe('Lang switch — content reloads in new language (#WWWW)', () => {
 
   test('search page: lang switch triggers API re-call with new locale', async ({ page }) => {

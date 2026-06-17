@@ -44,5 +44,11 @@ export default defineConfig({
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'mobile-chrome',
+      use: { ...devices['Pixel 7'] },
+      // Only run specs that contain meaningful mobile-specific tests
+      testMatch: ['**/homepage.spec.ts', '**/search-page.spec.ts', '**/type-page.spec.ts'],
+    },
   ],
 });
