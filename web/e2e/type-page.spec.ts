@@ -12,6 +12,9 @@ async function switchLang(page: import('@playwright/test').Page, langCode: strin
 }
 
 test.describe('Page /type/[slug]', () => {
+  // #T5 lang switch uses the sidebar LangBar which is desktop-only (display:none < 1024px)
+  test.use({ viewport: { width: 1280, height: 800 } });
+
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('wex_lang', 'fr'));
   });

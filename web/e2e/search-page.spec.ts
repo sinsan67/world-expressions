@@ -4,6 +4,11 @@ const T = 90_000;
 const CARD = '[data-testid="expression-card"]';
 
 test.describe('Page /search (US-006)', () => {
+  // Sidebar and sort/filter features rely on desktop layout — force desktop viewport
+  // even when run by the mobile-chrome project. Mobile BottomNav tests are in a
+  // separate describe at the bottom of this file.
+  test.use({ viewport: { width: 1280, height: 800 } });
+
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('wex_lang', 'fr'));
   });
