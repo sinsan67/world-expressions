@@ -30,13 +30,13 @@ export default function GlobalHeader() {
 
   return (
     <header
+      className="wex-desktop-only"
       style={{
         position: "sticky",
         top: 0,
         zIndex: 50,
         background: "var(--paper)",
         borderBottom: "1px solid var(--paper-edge)",
-        display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         padding: "0.5rem 1.25rem",
