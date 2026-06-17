@@ -147,6 +147,10 @@ body {
 
 /* ─── Expression page: sub-nav sticky (below GlobalHeader on desktop, at top on mobile) ─── */
 .expr-sub-nav { position: sticky; top: 0; z-index: 40; }
+@media (min-width: 1024px) {
+  /* GlobalHeader fixed at right:1rem spans ~11rem — push dice button out of its zone */
+  .expr-sub-nav { padding-right: 11.5rem !important; }
+}
 
 /* ─── Expression floating nav ─── */
 .expr-float-left  { position: fixed; top: 50%; left: 4px;  transform: translateY(-50%); z-index: 45; }

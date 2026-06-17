@@ -580,6 +580,7 @@ function ExpressionPageContent({ id }: { id: string }) {
           {/* Favorite button — top-right of card */}
           <button
             onClick={handleFav}
+            aria-label={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
             title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
             style={{
               position: "absolute",
