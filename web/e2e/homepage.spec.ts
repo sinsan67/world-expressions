@@ -114,6 +114,9 @@ test.describe('Homepage — recherche', () => {
 });
 
 test.describe('Homepage — navigation sidebar', () => {
+  // Sidebar is display:none below 1024px — force desktop viewport for this describe
+  test.use({ viewport: { width: 1280, height: 800 } });
+
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('wex_lang', 'fr'));
     await page.goto('/');
@@ -135,5 +138,31 @@ test.describe('Homepage — navigation sidebar', () => {
     const color = await homeLink.evaluate((el) => getComputedStyle(el).color);
     // La couleur active est --plum (#7c3aed), pas la couleur par défaut
     expect(color).not.toBe('rgb(92, 79, 58)'); // --ink-soft
+  });
+});
+
+test.describe('Homepage — BottomNav mobile (< 1024px)', () => {
+  // BottomNav is display:none above 1024px — force mobile viewport for this describe
+  // On mobile-chrome project (Pixel 7, 412px) these tests also run at this viewport
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('wex_lang', 'fr'));
+    await page.goto('/');
+    await page.locator('input.wex-input').first().waitFor({ timeout: T });
+  });
+
+  test('#18 BottomNav est visible sur mobile', async ({ page }) => {
+    const nav = page.locator('[data-testid="bottom-nav"]');
+    await expect(nav).toBeVisible({ timeout: T });
+    // 4 liens de navigation
+    expect(await nav.locator('a').count()).toBe(4);
+  });
+
+  test('#19 lien Accueil dans BottomNav est cliquable', async ({ page }) => {
+    const homeLink = page.locator('[data-testid="bottom-nav"] a[href="/"]');
+    await expect(homeLink).toBeVisible({ timeout: T });
+    await homeLink.click();
+    await expect(page).toHaveURL(/\/(\?.*|#.*)?$/);
   });
 });

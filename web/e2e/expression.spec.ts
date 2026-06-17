@@ -71,7 +71,7 @@ test.describe('Page /expression/[id]', () => {
   test('#42 cœur sur la page expression toggle le favori', async ({ page }) => {
     await page.goto(expressionUrl);
     await page.locator('h1, h2').first().waitFor({ timeout: T });
-    const heart = page.locator('button[aria-label*="favori"], button[aria-label*="favorite"], [class*="heart"], [class*="Heart"]').first();
+    const heart = page.locator('button[aria-label*="favori"], button[aria-label*="favorite"], button[title*="favori"], button[title*="favorite"]').first();
     await expect(heart).toBeVisible({ timeout: T });
     const before = await page.evaluate(() => {
       try { return JSON.parse(localStorage.getItem('wex_carnet') || '{}').favorites?.length ?? 0; }

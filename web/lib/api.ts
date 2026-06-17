@@ -241,18 +241,20 @@ export type ExpressionNeighbor = {
 export type ExpressionNeighbors = {
   prev: ExpressionNeighbor | null;
   next: ExpressionNeighbor | null;
-  mode_used: "random" | "country" | "tag";
+  mode_used: "random" | "country" | "tag" | "country_type";
 };
 
 export async function getExpressionNeighbors(
   id: string,
-  mode: "random" | "country" | "tag",
+  mode: "random" | "country" | "tag" | "country_type",
   country = "",
-  tag = ""
+  tag = "",
+  kind = ""
 ): Promise<ExpressionNeighbors> {
   const params = new URLSearchParams({ mode });
   if (country) params.set("country", country);
   if (tag) params.set("tag", tag);
+  if (kind) params.set("kind", kind);
   const res = await fetch(`${API}/expression/${id}/neighbors?${params}`);
   if (!res.ok) throw new Error("Failed to fetch neighbors");
   return res.json();

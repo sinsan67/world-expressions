@@ -4,6 +4,11 @@ const T = 90_000;
 const CARD = '[data-testid="expression-card"]';
 
 test.describe('Page /search (US-006)', () => {
+  // Sidebar and sort/filter features rely on desktop layout — force desktop viewport
+  // even when run by the mobile-chrome project. Mobile BottomNav tests are in a
+  // separate describe at the bottom of this file.
+  test.use({ viewport: { width: 1280, height: 800 } });
+
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('wex_lang', 'fr'));
   });
@@ -319,5 +324,19 @@ test.describe('Page /search (US-006)', () => {
     // matchTypeGroups actif en mode mix — des cartes restent visibles
     await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
     expect(await page.locator(CARD).count()).toBeGreaterThan(0);
+  });
+});
+
+test.describe('Page /search — BottomNav mobile (< 1024px)', () => {
+  // BottomNav is display:none above 1024px — force mobile viewport
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test('#S28 BottomNav visible sur page /search en mobile', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('wex_lang', 'fr'));
+    await page.goto('/search?q=argent');
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
+    const nav = page.locator('[data-testid="bottom-nav"]');
+    await expect(nav).toBeVisible({ timeout: T });
+    expect(await nav.locator('a').count()).toBe(4);
   });
 });

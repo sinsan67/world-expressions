@@ -22,6 +22,8 @@ import { Heart, Dice5, Search, Volume2, VolumeX } from "lucide-react";
 import SearchOverlay from "@/components/SearchOverlay";
 import { useUILangContext } from "@/lib/UILangContext";
 import ExpressionFloatingNav from "@/components/ui/ExpressionFloatingNav";
+import BottomNav from "@/components/home/BottomNav";
+import Sidebar from "@/components/home/Sidebar";
 
 type UILang = "fr" | "en" | "es" | "tr" | "it" | "de" | "ja";
 
@@ -404,6 +406,8 @@ function ExpressionPageContent({ id }: { id: string }) {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--paper)" }}>
+      <Sidebar uiLang={lang} />
+      <div className="wex-main">
 
       {/* Sub-nav: Back + search + random */}
       <nav className="expr-sub-nav" style={{
@@ -555,7 +559,7 @@ function ExpressionPageContent({ id }: { id: string }) {
       </CountryPhotoBackdrop>
 
       {/* Content */}
-      <main style={{ maxWidth: 720, margin: "0 auto", padding: "0 1.25rem 4rem" }}>
+      <main style={{ maxWidth: 720, margin: "0 auto", padding: "0 1.25rem 6rem" }}>
 
         {/* Main content card */}
         <div style={{
@@ -576,6 +580,7 @@ function ExpressionPageContent({ id }: { id: string }) {
           {/* Favorite button — top-right of card */}
           <button
             onClick={handleFav}
+            aria-label={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
             title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
             style={{
               position: "absolute",
@@ -797,13 +802,14 @@ function ExpressionPageContent({ id }: { id: string }) {
         <SearchOverlay uiLang={lang} onClose={() => setShowSearch(false)} />
       )}
 
+      </div>{/* end wex-main */}
       <ExpressionFloatingNav
         expressionId={id}
         country={expr.country}
-        tags={expr.tags}
+        kind={expr.type}
         uiLang={lang}
-        tagNames={tagNames}
       />
+      <BottomNav uiLang={lang} />
     </div>
   );
 }
