@@ -753,11 +753,12 @@ def get_expression_neighbors(
     mode: str,
     country: str = "",
     tag: str = "",
+    kind: str = "",
 ) -> dict:
     """
     Returns two random neighbor expressions for ‹/› floating navigation.
-    mode: 'random' | 'country' | 'tag'
-    Falls back: tag → country → random when fewer than 1 result is found.
+    mode: 'country_type' | 'random' | 'country' | 'tag'
+    Falls back: country_type → country → random.
     """
 
     def _row_to_neighbor(row) -> dict:
@@ -769,6 +770,22 @@ def get_expression_neighbors(
         }
 
     with engine.connect() as conn:
+        # Country+type mode: same country AND same kind
+        if mode == "country_type" and country and kind:
+            rows = conn.execute(
+                text("""
+                    SELECT e.id, e.text AS expression, e.language, e.country
+                    FROM expressions e
+                    WHERE COALESCE(e.country, e.language) = :country AND e.kind = :kind AND e.id != :id
+                    ORDER BY RANDOM() LIMIT 2
+                """),
+                {"country": country, "kind": kind, "id": expression_id},
+            ).fetchall()
+            if rows:
+                ns = [_row_to_neighbor(r) for r in rows]
+                return {"prev": ns[0], "next": ns[-1], "mode_used": "country_type"}
+            mode = "country"  # fallback
+
         # Tag mode: expressions sharing the given tag
         if mode == "tag" and tag:
             rows = conn.execute(

@@ -22,6 +22,7 @@ import { Heart, Dice5, Search, Volume2, VolumeX } from "lucide-react";
 import SearchOverlay from "@/components/SearchOverlay";
 import { useUILangContext } from "@/lib/UILangContext";
 import ExpressionFloatingNav from "@/components/ui/ExpressionFloatingNav";
+import BottomNav from "@/components/home/BottomNav";
 
 type UILang = "fr" | "en" | "es" | "tr" | "it" | "de" | "ja";
 
@@ -555,7 +556,7 @@ function ExpressionPageContent({ id }: { id: string }) {
       </CountryPhotoBackdrop>
 
       {/* Content */}
-      <main style={{ maxWidth: 720, margin: "0 auto", padding: "0 1.25rem 4rem" }}>
+      <main style={{ maxWidth: 720, margin: "0 auto", padding: "0 1.25rem 6rem" }}>
 
         {/* Main content card */}
         <div style={{
@@ -800,10 +801,10 @@ function ExpressionPageContent({ id }: { id: string }) {
       <ExpressionFloatingNav
         expressionId={id}
         country={expr.country}
-        tags={expr.tags}
+        kind={expr.type}
         uiLang={lang}
-        tagNames={tagNames}
       />
+      <BottomNav uiLang={lang} />
     </div>
   );
 }

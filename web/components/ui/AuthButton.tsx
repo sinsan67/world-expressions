@@ -7,10 +7,10 @@ import AuthModal from "@/components/profile/AuthModal";
 type Props = { uiLang?: string };
 
 const L: Record<string, Record<string, string>> = {
-  signIn:     { fr: "Se connecter",       en: "Sign in",              es: "Iniciar sesión",       it: "Accedi",              tr: "Giriş yap",          de: "Anmelden",            ja: "ログイン" },
-  create:     { fr: "Créer un compte",    en: "Create account",       es: "Crear cuenta",         it: "Crea account",        tr: "Hesap oluştur",      de: "Konto erstellen",     ja: "アカウント作成" },
-  withGoogle: { fr: "Continuer avec Google", en: "Continue with Google", es: "Continuar con Google", it: "Continua con Google", tr: "Google ile devam et", de: "Mit Google fortfahren", ja: "Googleで続ける" },
-  withEmail:  { fr: "S'inscrire par e-mail", en: "Sign up with email",  es: "Registrarse por correo", it: "Iscriviti con email", tr: "E-posta ile kaydol", de: "Mit E-Mail registrieren", ja: "メールで登録" },
+  btnLabel:   { fr: "Connexion",              en: "Sign in",              es: "Acceder",              it: "Accedi",              tr: "Giriş",              de: "Anmelden",            ja: "ログイン" },
+  withGoogle: { fr: "Continuer avec Google",  en: "Continue with Google", es: "Continuar con Google", it: "Continua con Google", tr: "Google ile devam et", de: "Mit Google fortfahren", ja: "Googleで続ける" },
+  signIn:     { fr: "Se connecter",           en: "Sign in",              es: "Iniciar sesión",       it: "Accedi",              tr: "Giriş yap",          de: "Anmelden",            ja: "ログイン" },
+  create:     { fr: "Créer un compte",        en: "Create account",       es: "Crear cuenta",         it: "Crea account",        tr: "Hesap oluştur",      de: "Konto erstellen",     ja: "アカウント作成" },
 };
 const t = (key: string, lang: string) => L[key]?.[lang] ?? L[key]?.["en"] ?? key;
 
@@ -27,6 +27,7 @@ export default function AuthButton({ uiLang = "en" }: Props) {
   const { data: session, status } = useSession();
   const [imgError, setImgError] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [modalView, setModalView] = useState<"login" | "register">("login");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -41,129 +42,121 @@ export default function AuthButton({ uiLang = "en" }: Props) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [dropdownOpen]);
 
+  function openModal(view: "login" | "register") {
+    setDropdownOpen(false);
+    setModalView(view);
+    setShowModal(true);
+  }
+
   if (status === "loading") return null;
 
   if (!session) {
     return (
       <>
-        <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
+        <div ref={dropdownRef} style={{ position: "relative" }}>
           <button
-            onClick={() => setShowModal(true)}
+            onClick={() => setDropdownOpen((v) => !v)}
             style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.3rem",
               fontSize: 11,
               fontWeight: 700,
               padding: "2px 9px",
               borderRadius: "var(--r-pill)",
-              border: "1.5px solid var(--paper-edge)",
-              background: "var(--paper)",
-              color: "var(--ink-soft)",
+              border: "none",
+              background: "var(--terra)",
+              color: "#fff",
               cursor: "pointer",
               fontFamily: "var(--font-body)",
               transition: "all 120ms ease",
               whiteSpace: "nowrap",
             }}
           >
-            {t("signIn", uiLang)}
+            {t("btnLabel", uiLang)}
+            <span style={{ fontSize: 8, opacity: 0.8, marginTop: 1 }}>▾</span>
           </button>
 
-          {/* Create account dropdown */}
-          <div ref={dropdownRef} style={{ position: "relative" }}>
-            <button
-              onClick={() => setDropdownOpen((v) => !v)}
+          {dropdownOpen && (
+            <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.3rem",
-                fontSize: 11,
-                fontWeight: 700,
-                padding: "2px 9px",
-                borderRadius: "var(--r-pill)",
-                border: "none",
-                background: "var(--terra)",
-                color: "#fff",
-                cursor: "pointer",
-                fontFamily: "var(--font-body)",
-                transition: "all 120ms ease",
-                whiteSpace: "nowrap",
+                position: "absolute",
+                top: "calc(100% + 6px)",
+                right: 0,
+                background: "var(--paper)",
+                border: "1.5px solid var(--paper-edge)",
+                borderRadius: "var(--r-md)",
+                boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+                minWidth: 210,
+                zIndex: 300,
+                overflow: "hidden",
               }}
             >
-              {t("create", uiLang)}
-              <span style={{ fontSize: 8, opacity: 0.8, marginTop: 1 }}>▼</span>
-            </button>
-
-            {dropdownOpen && (
-              <div
+              {/* Google */}
+              <button
+                onClick={() => { setDropdownOpen(false); signIn("google", { callbackUrl: "/" }); }}
                 style={{
-                  position: "absolute",
-                  top: "calc(100% + 6px)",
-                  right: 0,
-                  background: "var(--paper)",
-                  border: "1.5px solid var(--paper-edge)",
-                  borderRadius: "var(--r-md)",
-                  boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
-                  minWidth: 210,
-                  zIndex: 300,
-                  overflow: "hidden",
+                  display: "flex", alignItems: "center", gap: "0.6rem",
+                  width: "100%", padding: "0.65rem 0.875rem",
+                  background: "transparent", border: "none",
+                  borderBottom: "1px solid var(--paper-edge)",
+                  fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 600,
+                  color: "var(--ink)", cursor: "pointer", textAlign: "left",
                 }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--paper-tint)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
               >
-                <button
-                  onClick={() => {
-                    setDropdownOpen(false);
-                    signIn("google", { callbackUrl: "/" });
-                  }}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.6rem",
-                    width: "100%",
-                    padding: "0.65rem 0.875rem",
-                    background: "transparent",
-                    border: "none",
-                    borderBottom: "1px solid var(--paper-edge)",
-                    fontFamily: "var(--font-body)",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: "var(--ink)",
-                    cursor: "pointer",
-                    textAlign: "left",
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--paper-tint)"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-                >
-                  <GoogleIcon /> {t("withGoogle", uiLang)}
-                </button>
-                <button
-                  onClick={() => {
-                    setDropdownOpen(false);
-                    setShowModal(true);
-                  }}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.6rem",
-                    width: "100%",
-                    padding: "0.65rem 0.875rem",
-                    background: "transparent",
-                    border: "none",
-                    fontFamily: "var(--font-body)",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: "var(--ink)",
-                    cursor: "pointer",
-                    textAlign: "left",
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--paper-tint)"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-                >
-                  ✉ {t("withEmail", uiLang)}
-                </button>
+                <GoogleIcon /> {t("withGoogle", uiLang)}
+              </button>
+
+              {/* Divider label */}
+              <div style={{
+                padding: "0.3rem 0.875rem 0.1rem",
+                fontSize: 10, fontWeight: 600, color: "var(--ink-faint)",
+                letterSpacing: "0.06em", textTransform: "uppercase",
+                fontFamily: "var(--font-body)",
+              }}>
+                ou par e-mail
               </div>
-            )}
-          </div>
+
+              {/* Sign in */}
+              <button
+                onClick={() => openModal("login")}
+                style={{
+                  display: "flex", alignItems: "center", gap: "0.6rem",
+                  width: "100%", padding: "0.55rem 0.875rem",
+                  background: "transparent", border: "none",
+                  fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 500,
+                  color: "var(--ink)", cursor: "pointer", textAlign: "left",
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--paper-tint)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+              >
+                {t("signIn", uiLang)}
+              </button>
+
+              {/* Create account */}
+              <button
+                onClick={() => openModal("register")}
+                style={{
+                  display: "flex", alignItems: "center", gap: "0.6rem",
+                  width: "100%", padding: "0.55rem 0.875rem",
+                  background: "transparent", border: "none",
+                  borderTop: "1px solid var(--paper-edge)",
+                  fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 600,
+                  color: "var(--terra)", cursor: "pointer", textAlign: "left",
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--paper-tint)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+              >
+                {t("create", uiLang)}
+              </button>
+            </div>
+          )}
         </div>
 
         {showModal && (
-          <AuthModal defaultView="register" onClose={() => setShowModal(false)} />
+          <AuthModal defaultView={modalView} onClose={() => setShowModal(false)} />
         )}
       </>
     );
@@ -200,17 +193,10 @@ export default function AuthButton({ uiLang = "en" }: Props) {
       ) : (
         <span
           style={{
-            width: 18,
-            height: 18,
-            borderRadius: "50%",
-            background: "var(--plum-bg)",
-            color: "var(--plum)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 10,
-            fontWeight: 700,
-            fontFamily: "var(--font-body)",
+            width: 18, height: 18, borderRadius: "50%",
+            background: "var(--plum-bg)", color: "var(--plum)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 10, fontWeight: 700, fontFamily: "var(--font-body)",
           }}
         >
           {(session.user?.name?.[0] ?? session.user?.email?.[0] ?? "?").toUpperCase()}
@@ -218,14 +204,9 @@ export default function AuthButton({ uiLang = "en" }: Props) {
       )}
       <span
         style={{
-          fontSize: 11,
-          fontWeight: 700,
-          color: "var(--ink-soft)",
+          fontSize: 11, fontWeight: 700, color: "var(--ink-soft)",
           fontFamily: "var(--font-body)",
-          maxWidth: 80,
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
+          maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         }}
       >
         {session.user?.name?.split(" ")[0] ?? session.user?.email?.split("@")[0] ?? "Me"}
