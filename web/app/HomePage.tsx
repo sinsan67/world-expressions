@@ -302,7 +302,7 @@ export default function HomePage() {
   const { uiLang, setUILang: changeLang } = useUILangContext();
   const [showWelcome, setShowWelcome] = useState<boolean | null>(null);
   const [query, setQuery] = useState("");
-  const [regions, setRegions] = useState<{ code: string; label: string }[]>([]);
+  const [regions, setRegions] = useState<{ code: string; label: string; count?: number }[]>([]);
   const [results, setResults] = useState<Expression[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -529,7 +529,7 @@ export default function HomePage() {
 
   useEffect(() => {
     getCountries().then((data) => {
-      setRegions(data.map((r) => ({ code: r.code, label: `${FLAG[r.code] ?? "🌍"} ${COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}` })));
+      setRegions(data.map((r) => ({ code: r.code, label: `${FLAG[r.code] ?? "🌍"} ${COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}`, count: r.count })));
     });
   }, []);
 
@@ -892,6 +892,7 @@ export default function HomePage() {
                         country={r.code}
                         flag={FLAG[r.code] ?? "🌍"}
                         name={COUNTRY_NAME[r.code] ?? r.code.toUpperCase()}
+                        count={r.count}
                         size="sm"
                         tilt={i % 2 === 0 ? 0.8 : -0.6}
                         onClick={() => {

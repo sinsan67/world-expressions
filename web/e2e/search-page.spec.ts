@@ -193,4 +193,131 @@ test.describe('Page /search (US-006)', () => {
     const count = await page.locator(CARD).count();
     expect(count).toBeGreaterThan(0);
   });
+
+  // ─── Mode concept / domain — pas de split view ───────────────────────────────
+  // Migrés depuis qa-issue-36-split-view.spec.ts (S5/S5b) — Bob 7 chantier 7
+
+  test('#S17 mode concept : pas de badge détecté, pas de toggles split', async ({ page }) => {
+    await page.goto('/search?concept=courage');
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
+    await expect(page.getByText(/détecté/i)).not.toBeVisible({ timeout: 3_000 });
+    await expect(page.getByRole('button', { name: /langue d.abord/i })).not.toBeVisible({ timeout: 3_000 });
+    await expect(page.getByRole('button', { name: /tout mélanger/i })).not.toBeVisible({ timeout: 3_000 });
+  });
+
+  test('#S18 mode domain : pas de badge détecté, pas de toggles split', async ({ page }) => {
+    await page.goto('/search?domain=emotions');
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
+    await expect(page.getByText(/détecté/i)).not.toBeVisible({ timeout: 3_000 });
+    await expect(page.getByRole('button', { name: /langue d.abord/i })).not.toBeVisible({ timeout: 3_000 });
+  });
+
+  test('#S19 tag cliquable dans une carte navigue vers /search ou /concept', async ({ page }) => {
+    // régression issue #36
+    await page.goto('/search?q=argent');
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
+    const tag = page.locator(CARD).first().locator('button, a').filter({ hasText: /\w+/ }).first();
+    test.skip(await tag.isVisible().catch(() => false) === false, 'aucun tag/lien cliquable dans la première carte');
+    await tag.click();
+    await expect(page).toHaveURL(/concept=|q=|search/, { timeout: 10_000 });
+  });
+
+  // ─── Split view — badge "détecté" + toggles ──────────────────────────────────
+  // Migrés depuis qa-issue-36-split-view.spec.ts (S1/S3/S4/S6b) — Bob 7 chantier 7
+  // Root cause du fixme original : cold start Render (25-45s) > timeout badge (25s).
+  // Fix : attendre une carte d'abord (couvre le cold start), puis asserter le badge.
+
+  test('#S20 badge "détecté" + sections split visibles pour "argent"', async ({ page }) => {
+    await page.goto('/search?q=argent');
+    await page.locator(CARD).first().waitFor({ timeout: T });
+    // Le badge langue détectée doit apparaître une fois les résultats chargés
+    await expect(page.getByText(/détecté|detected|algılandı|rilevato|erkannt|detectado/i)).toBeVisible({ timeout: T });
+    // Toggles split view présents
+    await expect(page.getByRole('button', { name: /langue d.abord|language first|dil önce/i })).toBeVisible({ timeout: T });
+    await expect(page.getByRole('button', { name: /tout mélanger|mix|alles mischen/i })).toBeVisible({ timeout: T });
+    // Sections split présentes
+    await expect(page.getByText(/dans le texte|in the text|dans|in text/i).first()).toBeVisible({ timeout: T });
+    await expect(page.getByText(/dans les autres langues|other languages|diğer diller/i).first()).toBeVisible({ timeout: T });
+  });
+
+  test('#S21 toggle "Tout mélanger" désactive le split view', async ({ page }) => {
+    // régression issue #36
+    await page.goto('/search?q=argent');
+    await page.locator(CARD).first().waitFor({ timeout: T });
+    await expect(page.getByText(/détecté|detected|algılandı|rilevato|erkannt|detectado/i)).toBeVisible({ timeout: T });
+    const mixBtn = page.getByRole('button', { name: /tout mélanger|mix all/i });
+    await mixBtn.click();
+    // La section "autres langues" disparaît en mode mix
+    await expect(page.getByText(/dans les autres langues|other languages/i)).not.toBeVisible({ timeout: 5_000 });
+    // "Dans le texte" reste visible (matchTypeGroups actif)
+    await expect(page.getByText(/dans le texte|in the text/i).first()).toBeVisible({ timeout: T });
+    // Retour à "Langue d'abord" — la section réapparaît
+    const langFirstBtn = page.getByRole('button', { name: /langue d.abord|language first/i });
+    await langFirstBtn.click();
+    await expect(page.getByText(/dans les autres langues|other languages/i).first()).toBeVisible({ timeout: 5_000 });
+  });
+
+  test('#S22 tri "Par pays" désactive le split view', async ({ page }) => {
+    // régression issue #36
+    await page.goto('/search?q=argent');
+    await page.locator(CARD).first().waitFor({ timeout: T });
+    await expect(page.getByText(/détecté|detected/i)).toBeVisible({ timeout: T });
+    const sortByCountry = page.locator('button').filter({ hasText: /par pays|by country|per paese|ülkeye göre/i }).first();
+    await expect(sortByCountry).toBeVisible({ timeout: T });
+    await sortByCountry.click();
+    // Mode "Par pays" : la section "autres langues" du split view disparaît
+    await expect(page.getByText(/dans les autres langues|other languages/i)).not.toBeVisible({ timeout: 5_000 });
+    // Des en-têtes par pays apparaissent
+    const flagHeader = page.locator('span').filter({ hasText: /🇫🇷|🇬🇧|🇪🇸|🇮🇹|🇹🇷/ }).first();
+    await expect(flagHeader).toBeVisible({ timeout: T });
+  });
+
+  test('#S23 "para" ambigu : résultats visibles, page ne crashe pas', async ({ page }) => {
+    // "para" existe en TR et ES → langue ambiguë → pas de badge garanti
+    // Le test vérifie seulement que l'app répond sans crash
+    await page.goto('/search?q=para');
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
+    expect(await page.locator(CARD).count()).toBeGreaterThan(0);
+  });
+
+  // ─── Domain banner ────────────────────────────────────────────────────────────
+  // Migrés depuis qa-s64-domain-banner.spec.ts (S1a/S1b/S1c) — Bob 7 chantier 7
+
+  test('#S24 /search?domain=X : bandeau avec nom du domaine visible', async ({ page }) => {
+    await page.goto('/search?domain=emotions');
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
+    const bannerName = page.getByRole('heading', { level: 2 }).filter({ hasText: /émotions|emotions/i });
+    await expect(bannerName).toBeVisible({ timeout: T });
+    // Compteur d'expressions visible
+    await expect(page.getByText(/\d+ expression/i).first()).toBeVisible();
+  });
+
+  test('#S25 /search?concept=X : pas de bandeau domaine', async ({ page }) => {
+    await page.goto('/search?concept=courage');
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
+    // Mode concept n'a pas de bandeau domaine (h2)
+    await expect(page.getByRole('heading', { level: 2 })).not.toBeVisible({ timeout: 3_000 });
+  });
+
+  test('#S26 split view : section principale "Dans le texte" visible pour "argent"', async ({ page }) => {
+    // régression qa-s64 S2b
+    await page.goto('/search?q=argent');
+    await page.locator(CARD).first().waitFor({ timeout: T });
+    await expect(page.getByText(/détecté|detected/i)).toBeVisible({ timeout: T });
+    // La section exacte principale a son label "Dans le texte"
+    const exactSection = page.locator('[data-testid="split-main-exact"]');
+    await expect(exactSection).toBeVisible({ timeout: T });
+  });
+
+  test('#S27 mix view : résultats toujours visibles après toggle', async ({ page }) => {
+    // régression qa-s64 S3
+    await page.goto('/search?q=argent');
+    await page.locator(CARD).first().waitFor({ timeout: T });
+    await expect(page.getByText(/détecté|detected/i)).toBeVisible({ timeout: T });
+    const mixBtn = page.getByRole('button', { name: /tout mélanger|mix all/i });
+    await mixBtn.click();
+    // matchTypeGroups actif en mode mix — des cartes restent visibles
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
+    expect(await page.locator(CARD).count()).toBeGreaterThan(0);
+  });
 });

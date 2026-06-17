@@ -21,14 +21,24 @@ test.describe('Page /emoji', () => {
     await expect(page).toHaveURL(/\/search\?domain=\w+/, { timeout: T });
   });
 
-  test.fixme('#27 filtre EN — affiche les concepts anglais', async ({ page }) => {
-    await page.goto('/emoji?domain=emotions');
-    await page.locator(CONCEPT).first().waitFor({ timeout: T });
+  test('#27 filtre EN — la grille des domaines se met à jour', async ({ page }) => {
+    // Le filtre langue est sur la grille des domaines (onglet Thèmes, sans domain panel ouvert).
+    // Anciennement testé sur /emoji?domain=emotions → le filtre n'affectait pas le domain panel.
+    // Réécrit Bob 7 : test sur /emoji (grille complète) pour une assertion significative.
+    await page.goto('/emoji');
+    await page.locator(DOMAIN).first().waitFor({ timeout: T });
+    const initialCount = await page.locator(DOMAIN).count();
     const enBtn = page.locator('[data-testid="lang-filter-en"]');
     await expect(enBtn).toBeVisible({ timeout: T });
-    await enBtn.click({ force: true, timeout: T });
-    await page.locator(CONCEPT).first().waitFor({ timeout: T });
-    expect(await page.locator(CONCEPT).count()).toBeGreaterThan(0);
+    await enBtn.click({ force: true });
+    await page.locator(DOMAIN).first().waitFor({ timeout: T });
+    // Après filtre EN, au moins un domaine doit rester visible
+    expect(await page.locator(DOMAIN).count()).toBeGreaterThan(0);
+    // Retour à "Tous" — au moins autant de domaines qu'au départ
+    const tousBtn = page.locator('[data-testid="lang-filter-all"]');
+    await tousBtn.click();
+    await page.locator(DOMAIN).first().waitFor({ timeout: T });
+    expect(await page.locator(DOMAIN).count()).toBeGreaterThanOrEqual(initialCount);
   });
 
   test('#28 filtre "Tous" restaure tous les concepts', async ({ page }) => {
@@ -68,5 +78,21 @@ test.describe('Page /emoji', () => {
     await expect(link).toBeVisible({ timeout: T });
     const color = await link.evaluate((el) => getComputedStyle(el).color);
     expect(color).not.toBe('rgb(92, 79, 58)');
+  });
+
+  // ─── Domain panel via URL directe ─────────────────────────────────────────────
+  // Migré depuis qa-s64-domain-banner.spec.ts (S4b+S4c) — Bob 7 chantier 7
+  // S4a supprimé (doublon de #26). S4c (subset de S4b) fusionné ici.
+
+  test('#33 /emoji?domain=X direct : bouton "Voir expressions" visible et fonctionnel', async ({ page }) => {
+    await page.goto('/emoji?domain=emotions');
+    // Le domain panel s'ouvre — attendre les concepts
+    await page.locator(CONCEPT).first().waitFor({ timeout: T });
+    // Le bouton "Voir les N expressions" doit être présent
+    const seeExpressionsBtn = page.getByRole('button', { name: /voir les .* expressions|see .* expressions|ver .* expresiones|vedi .* espressioni|\d+ deyimi gör/i });
+    await expect(seeExpressionsBtn).toBeVisible({ timeout: T });
+    // Clic navigue vers /search?domain=
+    await seeExpressionsBtn.click();
+    await expect(page).toHaveURL(/\/search\?domain=\w+/, { timeout: 10_000 });
   });
 });

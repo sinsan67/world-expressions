@@ -20,6 +20,8 @@ import { recordView, toggleFavorite, isFavorite } from "@/lib/carnet";
 import { useAudio } from "@/lib/useAudio";
 import { Heart, Dice5, Search, Volume2, VolumeX } from "lucide-react";
 import SearchOverlay from "@/components/SearchOverlay";
+import { useUILangContext } from "@/lib/UILangContext";
+import ExpressionFloatingNav from "@/components/ui/ExpressionFloatingNav";
 
 type UILang = "fr" | "en" | "es" | "tr" | "it" | "de" | "ja";
 
@@ -317,7 +319,8 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 function ExpressionPageContent({ id }: { id: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const lang = (searchParams.get("lang") || "fr") as UILang;
+  const { uiLang } = useUILangContext();
+  const lang = uiLang;
 
   const [expr, setExpr] = useState<Expression | null>(null);
   const [related, setRelated] = useState<Expression[]>([]);
@@ -402,20 +405,24 @@ function ExpressionPageContent({ id }: { id: string }) {
   return (
     <div style={{ minHeight: "100vh", background: "var(--paper)" }}>
 
-      {/* Sub-nav: Back + search + random — sits below GlobalHeader */}
-      <nav style={{
+      {/* Sub-nav: Back + search + random */}
+      <nav className="expr-sub-nav" style={{
         padding: "0.6rem 1.25rem",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        position: "sticky",
-        top: 48,
-        zIndex: 40,
         background: "var(--paper)",
         borderBottom: "1px solid var(--paper-edge)",
       }}>
         <div>
-          {prev ? (
+          {fromSearch ? (
+            <Link
+              href={`/#q=${encodeURIComponent(fromSearch)}`}
+              style={{ fontSize: 13, color: "var(--ink-softer)", textDecoration: "none", fontFamily: "var(--font-body)" }}
+            >
+              ← {t.searchBack} «&nbsp;{fromSearch}&nbsp;»
+            </Link>
+          ) : prev ? (
             <Link
               href={`/expression/${prev}?lang=${lang}`}
               style={{ fontSize: 13, color: "var(--ink-softer)", textDecoration: "none", fontFamily: "var(--font-body)" }}
@@ -464,29 +471,6 @@ function ExpressionPageContent({ id }: { id: string }) {
           </Link>
         </div>
       </nav>
-
-      {/* Search breadcrumb — visible only when arriving from a search */}
-      {fromSearch && (
-        <div style={{ padding: "0.4rem 1.25rem", borderBottom: "1px solid var(--paper-edge)", background: "var(--paper)" }}>
-          <Link
-            href={`/#q=${encodeURIComponent(fromSearch)}`}
-            style={{
-              fontSize: 12,
-              color: "var(--ink-faint)",
-              textDecoration: "none",
-              fontFamily: "var(--font-body)",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.3rem",
-              transition: "color 150ms ease",
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--plum)"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-faint)"; }}
-          >
-            ← {t.searchBack} «&nbsp;{fromSearch}&nbsp;»
-          </Link>
-        </div>
-      )}
 
       {/* Hero — country photo backdrop */}
       <CountryPhotoBackdrop photo={photo} fadeBottom>
@@ -812,6 +796,14 @@ function ExpressionPageContent({ id }: { id: string }) {
       {showSearch && (
         <SearchOverlay uiLang={lang} onClose={() => setShowSearch(false)} />
       )}
+
+      <ExpressionFloatingNav
+        expressionId={id}
+        country={expr.country}
+        tags={expr.tags}
+        uiLang={lang}
+        tagNames={tagNames}
+      />
     </div>
   );
 }

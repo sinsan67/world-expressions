@@ -211,6 +211,17 @@ def get_expression(
     return expr
 
 
+@app.get("/expression/{expression_id}/neighbors")
+def get_expression_neighbors(
+    expression_id: str,
+    mode: str = Query("random", description="Navigation mode: random|country|tag"),
+    country: str = Query("", description="Country code for country mode"),
+    tag: str = Query("", description="Tag slug for tag mode"),
+):
+    """Return prev/next neighbor expressions for ‹/› floating navigation."""
+    return database.get_expression_neighbors(expression_id, mode, country.strip(), tag.strip())
+
+
 @app.get("/type-counts")
 def get_type_counts(
     region: str = Query("", description="Comma-separated sub-regions (alsace, bretagne). Empty = all."),

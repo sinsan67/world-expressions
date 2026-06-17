@@ -15,12 +15,13 @@ type Props = {
   country: string;
   flag: string;
   name: string;
+  count?: number;
   size?: "sm" | "md" | "lg";
   tilt?: number;
   onClick?: () => void;
 };
 
-export default function CountryStamp({ country, flag, name, size = "md", tilt = 0, onClick }: Props) {
+export default function CountryStamp({ country, flag, name, count, size = "md", tilt = 0, onClick }: Props) {
   const { w, h, emojiSize, labelSize } = SIZES[size];
   const tint = COUNTRY_TINT[country] ?? "var(--paper-deep)";
 
@@ -48,7 +49,7 @@ export default function CountryStamp({ country, flag, name, size = "md", tilt = 
             {name.split(" ")[0].toUpperCase()}
           </div>
           <div style={{ fontSize: 7, color: "var(--ink-faint)", textAlign: "center", marginTop: 1, fontFamily: "var(--font-body)", letterSpacing: "0.03em" }}>
-            WORLD EXPR.
+            {count != null ? count.toLocaleString() : "WORLD EXPR."}
           </div>
         </div>
       </div>

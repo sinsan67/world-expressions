@@ -186,7 +186,7 @@ const STYLES: Array<{
 // ─── Constantes UI ───────────────────────────────────────────────────────────
 
 const LANG_FLAGS: Record<string, string> = { fr: "🇫🇷", en: "🇬🇧", es: "🇪🇸", it: "🇮🇹", tr: "🇹🇷", de: "🇩🇪", ja: "🇯🇵" };
-const LANG_API: Record<string, string>   = { fr: "fr", en: "uk", es: "es", it: "it", tr: "tr", de: "de", ja: "jp" };
+const LANG_API: Record<string, string>   = { fr: "fr", en: "en", es: "es", it: "it", tr: "tr", de: "de", ja: "jp" };
 
 // ─── Composant ───────────────────────────────────────────────────────────────
 
