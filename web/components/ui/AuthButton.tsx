@@ -179,13 +179,13 @@ export default function AuthButton({ uiLang = "en" }: Props) {
         padding: "2px 6px 2px 3px",
         borderRadius: "var(--r-pill)",
         border: "1.5px solid var(--paper-edge)",
-        background: "transparent",
+        background: "var(--paper)",
         cursor: "pointer",
         transition: "all 120ms ease",
         textDecoration: "none",
       }}
       onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--paper-tint)"; }}
-      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--paper)"; }}
     >
       {session.user?.image && !imgError ? (
         // eslint-disable-next-line @next/next/no-img-element

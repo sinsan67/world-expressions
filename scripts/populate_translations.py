@@ -34,10 +34,10 @@ _early_args, _ = _early.parse_known_args()
 _env_file = ".env.prod" if _early_args.prod else ".env.dev"
 load_dotenv(Path(__file__).parent.parent / _env_file)
 
-from mistralai.client import Mistral
+import anthropic
 from config import engine
 
-MODEL = "mistral-small-latest"
+MODEL = "claude-haiku-4-5"
 
 # Noms des langues pour construire les prompts
 LANG_NAMES = {
@@ -50,7 +50,7 @@ LANG_NAMES = {
     "ja": {"en": "Japanese","fr": "japonais",  "es": "japonés",   "it": "giapponese","tr": "Japonca",   "de": "Japanisch", "ja": "日本語"},
 }
 
-# Langue dans laquelle répondre (nom complet pour Mistral)
+# Langue dans laquelle répondre (nom complet pour le prompt Claude)
 TARGET_LANG_FULL = {
     "fr": "French",
     "en": "English",
@@ -137,18 +137,16 @@ def get_untranslated(source_lang: str, target_lang: str, limit: int | None = Non
     ]
 
 
-def call_mistral(client: Mistral, expr: dict, source_lang: str, target_lang: str) -> dict:
+def call_claude(client: anthropic.Anthropic, expr: dict, source_lang: str, target_lang: str) -> dict:
     system_prompt = build_system_prompt(source_lang, target_lang)
     user_msg = build_user_message(expr, source_lang)
-    response = client.chat.complete(
+    response = client.messages.create(
         model=MODEL,
         max_tokens=600,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_msg},
-        ],
+        system=system_prompt,
+        messages=[{"role": "user", "content": user_msg}],
     )
-    raw = response.choices[0].message.content.strip()
+    raw = response.content[0].text.strip()
     if raw.startswith("```"):
         parts = raw.split("```")
         raw = parts[1].lstrip("json").strip() if len(parts) > 1 else raw
@@ -223,18 +221,18 @@ def main():
             print(f"  [{i:3}/{total}] {e['id']}")
         return
 
-    api_key = os.environ.get("MISTRAL_API_KEY")
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
-        print("Erreur : MISTRAL_API_KEY absent du .env")
+        print("Erreur : ANTHROPIC_API_KEY absent du .env")
         sys.exit(1)
 
-    client = Mistral(api_key=api_key)
+    client = anthropic.Anthropic(api_key=api_key)
     ok = errors = 0
 
     for i, expr in enumerate(expressions, 1):
         print(f"[{i:3}/{total}] {expr['id']} ... ", end="", flush=True)
         try:
-            translation = call_mistral(client, expr, args.source, args.target)
+            translation = call_claude(client, expr, args.source, args.target)
             insert_translation(expr["id"], args.target, translation)
             print("OK")
             ok += 1
@@ -246,7 +244,7 @@ def main():
                 print("RATE LIMIT — pause 60s")
                 time.sleep(60)
                 try:
-                    translation = call_mistral(client, expr, args.source, args.target)
+                    translation = call_claude(client, expr, args.source, args.target)
                     insert_translation(expr["id"], args.target, translation)
                     print(f"[{i:3}/{total}] {expr['id']} ... OK (retry)")
                     ok += 1
