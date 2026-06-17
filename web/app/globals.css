@@ -154,11 +154,13 @@ body {
 .expr-float-right { position: fixed; top: 50%; right: 4px; transform: translateY(-50%); z-index: 45; }
 .expr-float-btn   { width: 40px; height: 40px; font-size: 18px; }
 .expr-mode-switcher { position: fixed; bottom: 76px; left: 50%; transform: translateX(-50%); z-index: 45; }
+.expr-mode-badge  { font-size: 12px; }
 @media (min-width: 1024px) {
   .expr-float-left  { left: 16px; }
   .expr-float-right { right: 16px; }
   .expr-float-btn   { width: 52px; height: 52px; font-size: 24px; }
   .expr-mode-switcher { bottom: 24px; }
+  .expr-mode-badge  { font-size: 18px; padding: 4px 12px; }
 }
 
 /* ─── Keyframes ─── */

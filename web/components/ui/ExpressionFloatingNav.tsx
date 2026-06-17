@@ -31,6 +31,8 @@ export default function ExpressionFloatingNav({ expressionId, country, tags, uiL
   const [mode, setMode] = useState<Mode>("random");
   const [neighbors, setNeighbors] = useState<ExpressionNeighbors | null>(null);
   const neighborsRef = useRef<ExpressionNeighbors | null>(null);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const primaryTag = tags[0] || "";
   const t = T[uiLang];
 
@@ -48,6 +50,18 @@ export default function ExpressionFloatingNav({ expressionId, country, tags, uiL
   useEffect(() => {
     fetchNeighbors(mode);
   }, [fetchNeighbors, mode]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!showMenu) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showMenu]);
 
   // Swipe detection — document-level to cover the whole page
   useEffect(() => {
@@ -76,31 +90,19 @@ export default function ExpressionFloatingNav({ expressionId, country, tags, uiL
     };
   }, [router]);
 
-  function contextLabel() {
-    if (!neighbors) return "";
-    if (neighbors.mode_used === "random") return "🎲";
-    if (neighbors.mode_used === "country") return FLAG[country] || "🗺️";
-    if (neighbors.mode_used === "tag") return `🏷️ ${tagNames[primaryTag] || primaryTag}`;
-    return "";
+  function modeIcon(m: Mode) {
+    if (m === "random") return "🎲";
+    if (m === "country") return FLAG[country] || "🗺️";
+    return "🏷️";
   }
 
-  const badge = (
-    <div style={{
-      fontSize: 10,
-      textAlign: "center",
-      color: "var(--ink-faint)",
-      background: "var(--paper)",
-      border: "1px solid var(--paper-edge)",
-      borderRadius: 10,
-      padding: "2px 7px",
-      whiteSpace: "nowrap",
-      lineHeight: 1.4,
-      maxWidth: 70,
-      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-    }}>
-      {contextLabel()}
-    </div>
-  );
+  function modeLabel(m: Mode) {
+    if (m === "random") return t.random;
+    if (m === "country") return t.country;
+    return t.tag;
+  }
+
+  const effectiveMode = neighbors?.mode_used ?? mode;
 
   function FloatBtn({ id, arrow }: { id: string | null | undefined; arrow: "‹" | "›" }) {
     return (
@@ -132,59 +134,95 @@ export default function ExpressionFloatingNav({ expressionId, country, tags, uiL
   return (
     <>
       {/* Left ‹ */}
-      <div className="expr-float-left" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+      <div className="expr-float-left">
         <FloatBtn id={neighbors?.prev?.id} arrow="‹" />
-        {badge}
       </div>
 
       {/* Right › */}
-      <div className="expr-float-right" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+      <div className="expr-float-right">
         <FloatBtn id={neighbors?.next?.id} arrow="›" />
-        {badge}
       </div>
 
-      {/* Mode switcher */}
-      <div className="expr-mode-switcher" style={{
-        background: "var(--paper)",
-        border: "1px solid var(--paper-edge)",
-        borderRadius: 30,
-        boxShadow: "var(--shadow-card)",
-        display: "flex",
-        alignItems: "center",
-        padding: 4,
-        gap: 2,
-      }}>
-        {(["random", "country", "tag"] as Mode[]).map((m) => {
-          const active = mode === m;
-          const label = m === "random"
-            ? `🎲 ${t.random}`
-            : m === "country"
-            ? `${FLAG[country] || "🗺️"} ${t.country}`
-            : `🏷️ ${t.tag}`;
-          return (
-            <button
-              key={m}
-              onClick={() => setMode(m)}
-              style={{
-                fontSize: 12,
-                padding: "5px 12px",
-                borderRadius: 20,
-                border: "none",
-                cursor: "pointer",
-                background: active ? "var(--plum)" : "transparent",
-                color: active ? "white" : "var(--ink-faint)",
-                fontWeight: active ? 600 : 400,
-                transition: "all 0.15s",
-                fontFamily: "var(--font-body)",
-                whiteSpace: "nowrap",
-              }}
-              onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = "var(--paper-deep)"; }}
-              onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-            >
-              {label}
-            </button>
-          );
-        })}
+      {/* Mode badge — centered at bottom, opens dropdown upward */}
+      <div className="expr-mode-switcher" ref={menuRef} style={{ position: "fixed" }}>
+        {/* Dropdown (opens upward) */}
+        {showMenu && (
+          <div style={{
+            position: "absolute",
+            bottom: "calc(100% + 8px)",
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "var(--paper)",
+            border: "1px solid var(--paper-edge)",
+            borderRadius: 14,
+            boxShadow: "var(--shadow-card)",
+            padding: 4,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            minWidth: 150,
+            zIndex: 50,
+          }}>
+            {(["random", "country", "tag"] as Mode[]).map((m) => {
+              const active = effectiveMode === m;
+              return (
+                <button
+                  key={m}
+                  onClick={() => { setMode(m); setShowMenu(false); }}
+                  style={{
+                    fontSize: 13,
+                    padding: "7px 14px",
+                    borderRadius: 10,
+                    border: "none",
+                    cursor: "pointer",
+                    background: active ? "var(--plum)" : "transparent",
+                    color: active ? "white" : "var(--ink)",
+                    fontWeight: active ? 600 : 400,
+                    textAlign: "left",
+                    fontFamily: "var(--font-body)",
+                    whiteSpace: "nowrap",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    transition: "background 0.1s",
+                  }}
+                  onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = "var(--paper-deep)"; }}
+                  onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                >
+                  <span>{modeIcon(m)}</span>
+                  {modeLabel(m)}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Badge button */}
+        <button
+          className="expr-mode-badge"
+          onClick={() => setShowMenu(v => !v)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 5,
+            color: "var(--ink-faint)",
+            background: "var(--paper)",
+            border: "1px solid var(--paper-edge)",
+            borderRadius: 12,
+            padding: "3px 10px",
+            whiteSpace: "nowrap",
+            lineHeight: 1.4,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            cursor: "pointer",
+            fontFamily: "var(--font-body)",
+            transition: "border-color 0.15s",
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--plum-soft)"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--paper-edge)"; }}
+        >
+          <span>{modeIcon(effectiveMode)}</span>
+          <span style={{ fontSize: "0.75em", opacity: 0.6 }}>▾</span>
+        </button>
       </div>
     </>
   );
