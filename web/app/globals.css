@@ -156,10 +156,10 @@ body {
 .expr-mode-switcher { position: fixed; bottom: 76px; left: 50%; transform: translateX(-50%); z-index: 45; }
 .expr-mode-badge  { font-size: 12px; }
 @media (min-width: 1024px) {
-  .expr-float-left  { left: 16px; }
+  .expr-float-left  { left: 236px; } /* 220px sidebar + 16px gap */
   .expr-float-right { right: 16px; }
   .expr-float-btn   { width: 52px; height: 52px; font-size: 24px; }
-  .expr-mode-switcher { bottom: 24px; }
+  .expr-mode-switcher { bottom: 24px; left: calc(110px + 50%); } /* centered in content area (sidebar=220px → offset by 110px) */
   .expr-mode-badge  { font-size: 18px; padding: 4px 12px; }
 }
 

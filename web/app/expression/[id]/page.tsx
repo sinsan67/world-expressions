@@ -23,6 +23,7 @@ import SearchOverlay from "@/components/SearchOverlay";
 import { useUILangContext } from "@/lib/UILangContext";
 import ExpressionFloatingNav from "@/components/ui/ExpressionFloatingNav";
 import BottomNav from "@/components/home/BottomNav";
+import Sidebar from "@/components/home/Sidebar";
 
 type UILang = "fr" | "en" | "es" | "tr" | "it" | "de" | "ja";
 
@@ -405,6 +406,8 @@ function ExpressionPageContent({ id }: { id: string }) {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--paper)" }}>
+      <Sidebar uiLang={lang} />
+      <div className="wex-main">
 
       {/* Sub-nav: Back + search + random */}
       <nav className="expr-sub-nav" style={{
@@ -798,6 +801,7 @@ function ExpressionPageContent({ id }: { id: string }) {
         <SearchOverlay uiLang={lang} onClose={() => setShowSearch(false)} />
       )}
 
+      </div>{/* end wex-main */}
       <ExpressionFloatingNav
         expressionId={id}
         country={expr.country}
