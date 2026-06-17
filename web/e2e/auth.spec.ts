@@ -75,7 +75,7 @@ test.describe('Auth — register / login / logout', () => {
     // Account tab loads (hash triggers setActiveTab("account") in useEffect)
     await expect(page.getByRole('button', { name: /sign out/i })).toBeVisible({ timeout: T });
     // User's email is visible in the account card
-    await expect(page.getByText(TEST_EMAIL)).toBeVisible({ timeout: T });
+    await expect(page.getByText(TEST_EMAIL, { exact: true })).toBeVisible({ timeout: T });
   });
 
   test('#A5 logout: sign out redirects to / and clears session', async ({ page }) => {
