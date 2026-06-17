@@ -231,6 +231,33 @@ export async function getExpression(id: string, lang = ""): Promise<Expression> 
   return res.json();
 }
 
+export type ExpressionNeighbor = {
+  id: string;
+  expression: string;
+  language: string;
+  country: string;
+};
+
+export type ExpressionNeighbors = {
+  prev: ExpressionNeighbor | null;
+  next: ExpressionNeighbor | null;
+  mode_used: "random" | "country" | "tag";
+};
+
+export async function getExpressionNeighbors(
+  id: string,
+  mode: "random" | "country" | "tag",
+  country = "",
+  tag = ""
+): Promise<ExpressionNeighbors> {
+  const params = new URLSearchParams({ mode });
+  if (country) params.set("country", country);
+  if (tag) params.set("tag", tag);
+  const res = await fetch(`${API}/expression/${id}/neighbors?${params}`);
+  if (!res.ok) throw new Error("Failed to fetch neighbors");
+  return res.json();
+}
+
 export type RegionInfo = { code: string; count: number };
 export type CountryInfo = { code: string; count: number; languages: string[] };
 

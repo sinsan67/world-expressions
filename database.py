@@ -748,6 +748,76 @@ def get_translation(expression_id: str, target_lang: str) -> Optional[dict]:
     }
 
 
+def get_expression_neighbors(
+    expression_id: str,
+    mode: str,
+    country: str = "",
+    tag: str = "",
+) -> dict:
+    """
+    Returns two random neighbor expressions for ‹/› floating navigation.
+    mode: 'random' | 'country' | 'tag'
+    Falls back: tag → country → random when fewer than 1 result is found.
+    """
+
+    def _row_to_neighbor(row) -> dict:
+        return {
+            "id": row.id,
+            "expression": row.expression,
+            "language": row.language,
+            "country": row.country or row.language,
+        }
+
+    with engine.connect() as conn:
+        # Tag mode: expressions sharing the given tag
+        if mode == "tag" and tag:
+            rows = conn.execute(
+                text("""
+                    SELECT e.id, e.text AS expression, e.language, e.country
+                    FROM expressions e
+                    JOIN expression_tags et ON et.expression_id = e.id
+                    JOIN tags t ON t.id = et.tag_id
+                    WHERE t.slug = :tag AND e.id != :id AND e.kind != 'word'
+                    ORDER BY RANDOM() LIMIT 2
+                """),
+                {"tag": tag, "id": expression_id},
+            ).fetchall()
+            if rows:
+                ns = [_row_to_neighbor(r) for r in rows]
+                return {"prev": ns[0], "next": ns[-1], "mode_used": "tag"}
+            mode = "country"  # fallback
+
+        # Country mode: expressions from the same country/language
+        if mode == "country" and country:
+            rows = conn.execute(
+                text("""
+                    SELECT e.id, e.text AS expression, e.language, e.country
+                    FROM expressions e
+                    WHERE COALESCE(e.country, e.language) = :country AND e.id != :id AND e.kind != 'word'
+                    ORDER BY RANDOM() LIMIT 2
+                """),
+                {"country": country, "id": expression_id},
+            ).fetchall()
+            if rows:
+                ns = [_row_to_neighbor(r) for r in rows]
+                return {"prev": ns[0], "next": ns[-1], "mode_used": "country"}
+
+        # Random (default / fallback)
+        rows = conn.execute(
+            text("""
+                SELECT e.id, e.text AS expression, e.language, e.country
+                FROM expressions e
+                WHERE e.id != :id AND e.kind != 'word'
+                ORDER BY RANDOM() LIMIT 2
+            """),
+            {"id": expression_id},
+        ).fetchall()
+        if not rows:
+            return {"prev": None, "next": None, "mode_used": "random"}
+        ns = [_row_to_neighbor(r) for r in rows]
+        return {"prev": ns[0], "next": ns[-1], "mode_used": "random"}
+
+
 def get_expression_by_id(expression_id: str) -> Optional[dict]:
     """Retourne une expression par son id (avec contenu et tags), ou None si elle n'existe pas."""
     # Triple LEFT JOIN :

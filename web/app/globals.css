@@ -145,6 +145,22 @@ body {
   }
 }
 
+/* ─── Expression page: sub-nav sticky (below GlobalHeader on desktop, at top on mobile) ─── */
+.expr-sub-nav { position: sticky; top: 0; z-index: 40; }
+@media (min-width: 1024px) { .expr-sub-nav { top: 48px; } }
+
+/* ─── Expression floating nav ─── */
+.expr-float-left  { position: fixed; top: 50%; left: 4px;  transform: translateY(-50%); z-index: 45; }
+.expr-float-right { position: fixed; top: 50%; right: 4px; transform: translateY(-50%); z-index: 45; }
+.expr-float-btn   { width: 40px; height: 40px; font-size: 18px; }
+.expr-mode-switcher { position: fixed; bottom: 76px; left: 50%; transform: translateX(-50%); z-index: 45; }
+@media (min-width: 1024px) {
+  .expr-float-left  { left: 16px; }
+  .expr-float-right { right: 16px; }
+  .expr-float-btn   { width: 52px; height: 52px; font-size: 24px; }
+  .expr-mode-switcher { bottom: 24px; }
+}
+
 /* ─── Keyframes ─── */
 @keyframes fadeSlideUp {
   from { opacity: 0; transform: translateY(10px); }

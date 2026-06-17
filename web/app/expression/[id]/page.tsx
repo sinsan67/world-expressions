@@ -21,6 +21,7 @@ import { useAudio } from "@/lib/useAudio";
 import { Heart, Dice5, Search, Volume2, VolumeX } from "lucide-react";
 import SearchOverlay from "@/components/SearchOverlay";
 import { useUILangContext } from "@/lib/UILangContext";
+import ExpressionFloatingNav from "@/components/ui/ExpressionFloatingNav";
 
 type UILang = "fr" | "en" | "es" | "tr" | "it" | "de" | "ja";
 
@@ -404,15 +405,12 @@ function ExpressionPageContent({ id }: { id: string }) {
   return (
     <div style={{ minHeight: "100vh", background: "var(--paper)" }}>
 
-      {/* Sub-nav: Back + search + random — sits below GlobalHeader */}
-      <nav style={{
+      {/* Sub-nav: Back + search + random */}
+      <nav className="expr-sub-nav" style={{
         padding: "0.6rem 1.25rem",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        position: "sticky",
-        top: 48,
-        zIndex: 40,
         background: "var(--paper)",
         borderBottom: "1px solid var(--paper-edge)",
       }}>
@@ -798,6 +796,14 @@ function ExpressionPageContent({ id }: { id: string }) {
       {showSearch && (
         <SearchOverlay uiLang={lang} onClose={() => setShowSearch(false)} />
       )}
+
+      <ExpressionFloatingNav
+        expressionId={id}
+        country={expr.country}
+        tags={expr.tags}
+        uiLang={lang}
+        tagNames={tagNames}
+      />
     </div>
   );
 }
