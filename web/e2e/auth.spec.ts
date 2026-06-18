@@ -28,6 +28,8 @@ async function loginTestAccount(page: Page) {
   await modal.getByRole('button', { name: /^Sign in$/i }).click();
   await expect(modal).not.toBeVisible({ timeout: T });
   await expect(page.locator('a[href="/profile#account"]')).toBeVisible({ timeout: T });
+  // Dismiss onboarding modal if shown (AuthGate fires after first login per device)
+  await page.getByRole('button', { name: /skip for now/i }).click({ timeout: 5000 }).catch(() => {});
 }
 
 test.describe('Auth — register / login / logout', () => {
