@@ -16,7 +16,8 @@ import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { cap } from "@/lib/utils";
 import CountryPhotoBackdrop from "@/components/home/CountryPhotoBackdrop";
 import Eyebrow from "@/components/home/Eyebrow";
-import { recordView, toggleFavorite, isFavorite } from "@/lib/carnet";
+import { recordView } from "@/lib/carnet";
+import { useFavorite } from "@/lib/useFavorite";
 import { useAudio } from "@/lib/useAudio";
 import { Heart, Dice5, Search, Volume2, VolumeX } from "lucide-react";
 import SearchOverlay from "@/components/SearchOverlay";
@@ -328,7 +329,7 @@ function ExpressionPageContent({ id }: { id: string }) {
   const [related, setRelated] = useState<Expression[]>([]);
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [error, setError] = useState(false);
-  const [fav, setFav] = useState(false);
+  const [fav, handleFav] = useFavorite(id);
   const [showSearch, setShowSearch] = useState(false);
   const { speaking, voiceAvailable, handleListen: handleSpeak } = useAudio(
     expr?.expression ?? "",
@@ -337,9 +338,6 @@ function ExpressionPageContent({ id }: { id: string }) {
 
   const prev = searchParams.get("prev") || null;
   const fromSearch = searchParams.get("from_search") || null;
-
-  // Sync fav state from localStorage on client
-  useEffect(() => { setFav(isFavorite(id)); }, [id]);
 
   useEffect(() => {
     setExpr(null);
@@ -362,11 +360,6 @@ function ExpressionPageContent({ id }: { id: string }) {
       })
       .catch(() => setError(true));
   }, [id, lang]);
-
-  function handleFav() {
-    toggleFavorite(id);
-    setFav((v) => !v);
-  }
 
   if (error) {
     return (
