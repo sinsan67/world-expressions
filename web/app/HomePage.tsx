@@ -23,7 +23,6 @@ import { useUILangContext } from "@/lib/UILangContext";
 import { UI_LANGS, type UILang } from "@/lib/useUILang";
 
 const LIMIT = 20;
-const MAX_SECTION_PREVIEW = 6;
 
 const T = {
   fr: {
@@ -324,7 +323,6 @@ export default function HomePage() {
   const [sortMode, setSortMode] = useState<"relevance" | "country">("country");
   const [facets, setFacets] = useState<Facets | undefined>(undefined);
   const [expandedRegion, setExpandedRegion] = useState<string | null>(null);
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const exploreRef = useRef<HTMLDivElement>(null);
@@ -804,11 +802,7 @@ export default function HomePage() {
                   </div>
                 ))
               ) : matchTypeGroups ? (
-                matchTypeGroups.map(({ type, exprs }, gi) => {
-                  const isExpanded = expandedSections.has(type);
-                  const visible = isExpanded ? exprs : exprs.slice(0, MAX_SECTION_PREVIEW);
-                  const hidden = exprs.length - MAX_SECTION_PREVIEW;
-                  return (
+                matchTypeGroups.map(({ type, exprs }, gi) => (
                   <div key={type}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: `${gi === 0 ? "0" : "1.25rem"} 0 0.6rem`, color: "var(--ink-faint)", fontSize: "var(--wex-meta-size)", fontFamily: "var(--font-body)", letterSpacing: "0.03em" }}>
                       <span>{{ exact: "🎯", semantic: "💡", concept: "🏷️", translation: "🌍" }[type]}</span>
@@ -816,23 +810,14 @@ export default function HomePage() {
                       <span>· {sectionExprCount(exprs.length, uiLang)}</span>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(var(--wex-results-grid-min), 1fr))", gap: "var(--wex-grid-gap)" }}>
-                      {visible.map((expr, i) => (
+                      {exprs.map((expr, i) => (
                         <div key={expr.id} style={{ height: "100%", animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
                           <ExpressionCard expression={expr} onTagClick={(tag) => runConceptSearch(tag)} uiLang={uiLang} tagNames={tagNames} fromSearch={searched ? query : undefined} />
                         </div>
                       ))}
                     </div>
-                    {!isExpanded && hidden > 0 && (
-                      <button
-                        onClick={() => setExpandedSections(prev => new Set(prev).add(type))}
-                        style={{ marginTop: "0.65rem", background: "none", border: "none", color: "var(--ink-soft)", fontSize: "var(--wex-meta-size)", fontFamily: "var(--font-body)", cursor: "pointer", padding: "0.25rem 0", textDecoration: "underline", textUnderlineOffset: 3 }}
-                      >
-                        {t.showMore(hidden)}
-                      </button>
-                    )}
                   </div>
-                  );
-                })
+                ))
               ) : (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(var(--wex-results-grid-min), 1fr))", gap: "var(--wex-grid-gap)" }}>
                   {results.map((expr, i) => (
