@@ -29,6 +29,8 @@
 
 | ID | Type | Title | Size | Priority | Status |
 |----|------|-------|------|----------|--------|
+| [BUG-029](#bug-029) | Bug | Fix backend schema mismatch on `e.country` in search/facets queries | M | P0 | 📋 Backlog |
+| [OPS-030](#ops-030) | Ops | Unblock Vercel staging preview access / alias visibility | S | P1 | 📋 Backlog |
 | [US-007](#us-007) | Feature | Enrich IT expressions (target 200+) | M | P2 | 📋 Backlog |
 | [US-008](#us-008) | Feature | Enrich TR expressions (target 200+) | M | P2 | 📋 Backlog |
 | [DEBT-001](#debt-001) | Debt | Enable Vercel Analytics in Dashboard [action: Sinan] | S | P1 | 📋 Backlog |
@@ -263,6 +265,7 @@
 
 **Size:** L **Priority:** P3
 **Trigger:** before a major homepage redesign
+**Progress note (S036-S037):** desktop density was partially migrated to reusable CSS variables in `globals.css` and reused by the hero, search bar, filters, and cards. The homepage still contains many inline layout values in `HomePage.tsx`, so the refactor remains relevant.
 
 ---
 
@@ -286,7 +289,33 @@
 - Onglets remplaçant le tri (Pertinence / Par pays / Mix) — filtre par match_type
 - Accordéon : une section ouverte à la fois
 
+### BUG-029
+**Fix backend schema mismatch on `e.country` in search/facets queries**
+> As a user, I want home filters and search results to load reliably so the compact desktop QA can be validated on real data instead of empty/error states.
+
+**Size:** M **Priority:** P0
+**Context:** Session S037 (`2026-06-22`) revealed that local backend requests fail on `/facets` and search queries with SQL errors referencing `e.country`. The current DB schema/environment does not expose that column as expected, which breaks desktop QA of real result grids.
+
+**Acceptance criteria:**
+1. Home page no longer shows fetch errors for `/countries`, `/facets`, or `/tags` in local QA
+2. Searching a term such as `money` returns real result cards instead of `Could not reach the server.`
+3. Queries using `country` / `region` fields are aligned with the actual DB schema in the active environment
+4. A quick local verification is documented in the next session before resuming visual QA
+
+### OPS-030
+**Unblock Vercel staging preview access / alias visibility**
+> As a product owner, I want the staging URL to show the actual preview deployment so visual QA can happen on the real hosted app.
+
+**Size:** S **Priority:** P1
+**Context:** Session S037 confirmed that `origin/staging` was pushed successfully to commit `d9da9de`, but the staging URL `https://world-expressions-git-staging-ssinanusa-gmailcoms-projects.vercel.app/` returned `HTTP 401` from Vercel instead of the app. Repo config already expects a `VERCEL_BYPASS_TOKEN` for protected previews in [web/playwright.config.ts](web/playwright.config.ts).
+
+**Acceptance criteria:**
+1. Vercel dashboard confirms whether preview protection is enabled for the `world-expressions` project
+2. The staging alias points to the latest `staging` deployment commit
+3. Sinan can either open the preview directly in the browser or provide a valid bypass path/token for QA
+4. Once access is restored, desktop compacting is re-checked on hosted staging before any further density tweak
+
 ---
 
-*Last updated: 2026-06-02 (session 43)*
+*Last updated: 2026-06-22 (session 37 clear)*
 *Maintained by Claude — update after each session's commits*
