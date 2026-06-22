@@ -5,6 +5,7 @@ on:
     branches: [staging]
   pull_request:
     branches: [staging, main]
+  workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -60,12 +61,20 @@ jobs:
             https://world-expressions.onrender.com/ > /dev/null
           echo "Render is up."
 
+      - name: Reset test account (auth.spec.ts rejouability)
+        run: |
+          pip install --quiet sqlalchemy psycopg2-binary
+          python3 scripts/reset_test_account.py --email ssin@protonmail.com
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_PROD }}
+
       - name: Run Playwright tests (staging)
         run: npx playwright test
         working-directory: web
         env:
           BASE_URL: https://world-expressions-git-staging-ssinanusa-gmailcoms-projects.vercel.app
           VERCEL_BYPASS_TOKEN: ${{ secrets.VERCEL_BYPASS_TOKEN }}
+          TEST_AUTH_PASSWORD: ${{ secrets.TEST_AUTH_PASSWORD }}
 
       - name: Upload test report
         if: always()

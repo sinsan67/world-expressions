@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Expression } from "@/lib/api";
 import { tagIcon } from "@/lib/tagIcons";
 import { getTypeLabel } from "@/lib/typeLabels";
 import { FLAG } from "@/lib/constants";
 import { cap } from "@/lib/utils";
-import { toggleFavorite, isFavorite } from "@/lib/carnet";
+import { useFavorite } from "@/lib/useFavorite";
 import { useAudio } from "@/lib/useAudio";
 import { Heart, Volume2, VolumeX } from "lucide-react";
 import Link from "next/link";
@@ -52,22 +52,13 @@ type Props = {
 
 export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr", tagNames = {}, fromSearch }: Props) {
   const [showDetails, setShowDetails] = useState(false);
-  const [fav, setFav] = useState(false);
+  const [fav, handleFav] = useFavorite(e.id);
   const { speaking, voiceAvailable, handleListen } = useAudio(e.expression, e.language);
   const router = useRouter();
   const flag = FLAG[e.country] || FLAG[e.region] || "";
   const typeLabel = getTypeLabel(e.type ?? "expression", uiLang);
   const oeLabel = ORIGIN_EXAMPLE_LABEL[uiLang] ?? ORIGIN_EXAMPLE_LABEL.en;
   const noVoiceLabel = NO_VOICE_LABEL[uiLang] ?? NO_VOICE_LABEL.en;
-
-  // Read from localStorage only on the client (avoids SSR/hydration mismatch)
-  useEffect(() => { setFav(isFavorite(e.id)); }, [e.id]);
-
-  function handleFav(ev: React.MouseEvent) {
-    ev.stopPropagation();
-    toggleFavorite(e.id);
-    setFav((v) => !v);
-  }
 
   const audioDisabled = voiceAvailable === false;
   const audioTitle = audioDisabled

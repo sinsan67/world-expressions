@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
-import { toggleFavorite, isFavorite } from "@/lib/carnet";
+import { useFavorite } from "@/lib/useFavorite";
 import { Heart } from "lucide-react";
 import { browseByRegion, Expression } from "@/lib/api";
 import { REGION_DEFS, RegionDef, getSectionStyle } from "@/lib/regionDefs";
@@ -25,16 +25,8 @@ function RegionCard({
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [fav, setFav] = useState(false);
+  const [fav, handleFav] = useFavorite(expr.id);
   const style = getSectionStyle(expr.tags, region);
-
-  useEffect(() => { setFav(isFavorite(expr.id)); }, [expr.id]);
-
-  function handleFav(ev: React.MouseEvent) {
-    ev.stopPropagation();
-    toggleFavorite(expr.id);
-    setFav((v) => !v);
-  }
 
   return (
     <div

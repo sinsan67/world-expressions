@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import CountryPhotoBackdrop from "./CountryPhotoBackdrop";
 import Postcard from "./Postcard";
 import Postmark from "./Postmark";
@@ -11,7 +11,7 @@ import { tagIcon } from "@/lib/tagIcons";
 import { Heart, Volume2, VolumeX } from "lucide-react";
 import { useAudio } from "@/lib/useAudio";
 import { cap } from "@/lib/utils";
-import { isFavorite, toggleFavorite } from "@/lib/carnet";
+import { useFavorite } from "@/lib/useFavorite";
 import { getTypeLabel } from "@/lib/typeLabels";
 
 type Featured = Expression & { meaning_locale: string; literal: string | null };
@@ -35,11 +35,7 @@ type Props = {
 
 export default function HeroSection({ featured, coldStart, uiLang, tagNames, onRefresh, onConceptClick, t }: Props) {
   const router = useRouter();
-  const [fav, setFav] = useState(false);
-
-  useEffect(() => {
-    if (featured?.id) setFav(isFavorite(featured.id));
-  }, [featured?.id]);
+  const [fav, handleFavToggle] = useFavorite(featured?.id ?? "");
 
   const { speaking, voiceAvailable, handleListen } = useAudio(
     featured?.expression ?? "",
@@ -49,8 +45,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
   function handleFav(e: React.MouseEvent) {
     e.stopPropagation();
     if (!featured?.id) return;
-    toggleFavorite(featured.id);
-    setFav((v) => !v);
+    handleFavToggle(e);
   }
 
   function handleShare(e: React.MouseEvent) {
