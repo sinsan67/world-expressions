@@ -8,6 +8,7 @@ import GlobalHeader from "@/components/ui/GlobalHeader";
 import "./globals.css";
 
 const GA_ID = "G-KX96VHY57L";
+const IS_PROD = process.env.NEXT_PUBLIC_VERCEL_ENV === "production";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -63,13 +64,17 @@ export default function RootLayout({
           {children}
         </Providers>
         <Analytics />
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-          strategy="afterInteractive"
-        />
-        <Script id="ga-init" strategy="afterInteractive">
-          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}
-        </Script>
+        {IS_PROD && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga-init" strategy="afterInteractive">
+              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}
+            </Script>
+          </>
+        )}
       </body>
     </html>
   );
