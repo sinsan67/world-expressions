@@ -45,6 +45,28 @@
   --r-md:   10px;
   --r-lg:   18px;
   --r-pill: 999px;
+
+  /* DENSITY */
+  --wex-body-size: 16px;
+  --wex-body-line: 1.5;
+  --wex-display-title-size: 24px;
+  --wex-card-title-size: 16px;
+  --wex-search-input-size: 15px;
+  --wex-button-size: 14px;
+  --wex-meta-size: 12px;
+  --wex-hero-shell-padding: 1.25rem 1.5rem 3rem;
+  --wex-hero-grid-gap: 2rem;
+  --wex-card-padding-lg: 1.75rem;
+  --wex-card-padding-md: 1rem;
+  --wex-content-padding: 1rem 1.5rem 2rem;
+  --wex-search-wrap-padding-default: 2rem 1.5rem 1rem;
+  --wex-search-wrap-padding-searched: 0.75rem 1.5rem;
+  --wex-section-padding: 2rem 1.5rem 2.5rem;
+  --wex-grid-gap: 1rem;
+  --wex-results-grid-min: 300px;
+  --wex-tooltip-size: 12px;
+  --wex-icon-button-size: 30px;
+  --wex-hero-photo-position: center 30%;
 }
 
 @theme inline {
@@ -56,6 +78,8 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-body);
+  font-size: var(--wex-body-size);
+  line-height: var(--wex-body-line);
 }
 
 /* ─── Country photo backdrop ─── */
@@ -70,7 +94,7 @@ body {
   background-image: var(--photo);
   background-size: cover;
   background-repeat: no-repeat;
-  background-position: center 30%;
+  background-position: var(--wex-hero-photo-position);
   pointer-events: none;
   z-index: 0;
 }
@@ -93,7 +117,7 @@ body {
 /* Hero variant: always cover, no sidebar offset needed */
 .country-photo-hero::before {
   background-size: cover;
-  background-position: center 30%;
+  background-position: var(--wex-hero-photo-position);
   background-repeat: no-repeat;
 }
 
@@ -127,6 +151,29 @@ body {
 .wex-desktop-only { display: none; }
 
 @media (min-width: 1024px) {
+  :root {
+    --wex-body-size: 14px;
+    --wex-body-line: 1.42;
+    --wex-display-title-size: 20px;
+    --wex-card-title-size: 15px;
+    --wex-search-input-size: 13px;
+    --wex-button-size: 12px;
+    --wex-meta-size: 11px;
+    --wex-hero-shell-padding: 0.875rem 1.25rem 1.75rem;
+    --wex-hero-grid-gap: 1.25rem;
+    --wex-card-padding-lg: 1.2rem;
+    --wex-card-padding-md: 0.875rem;
+    --wex-content-padding: 0.75rem 1.25rem 1.5rem;
+    --wex-search-wrap-padding-default: 1.25rem 1.25rem 0.75rem;
+    --wex-search-wrap-padding-searched: 0.625rem 1.25rem;
+    --wex-section-padding: 1.5rem 1.25rem 1.75rem;
+    --wex-grid-gap: 0.75rem;
+    --wex-results-grid-min: 264px;
+    --wex-tooltip-size: 11px;
+    --wex-icon-button-size: 26px;
+    --wex-hero-photo-position: center 24%;
+  }
+
   .wex-sidebar { display: flex; flex-direction: column; }
   .wex-bottom-nav { display: none !important; }
   .wex-main { margin-left: 220px; }

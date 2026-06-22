@@ -82,15 +82,15 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
       {/* Top border accent */}
       <div style={{ height: 1, background: "var(--paper-edge)" }} />
 
-      <div className="px-5 py-4 flex flex-col gap-3">
+      <div className="px-5 py-4 flex flex-col gap-3" style={{ padding: "var(--wex-card-padding-lg)", gap: "0.65rem" }}>
         {/* Header */}
         <div className="flex items-start justify-between gap-2">
           <div>
-            <span className="text-base font-semibold leading-snug" style={{ color: "var(--ink)", fontFamily: "var(--font-body)" }}>
+            <span className="text-base font-semibold leading-snug" style={{ color: "var(--ink)", fontFamily: "var(--font-body)", fontSize: "var(--wex-card-title-size)" }}>
               {cap(e.expression)}
             </span>
             {e.literal && e.language !== uiLang && (
-              <p className="text-xs" style={{ color: "var(--ink-faint)", fontStyle: "italic", margin: "2px 0 0" }}>
+              <p className="text-xs" style={{ color: "var(--ink-faint)", fontStyle: "italic", margin: "2px 0 0", fontSize: "var(--wex-meta-size)" }}>
                 {e.literal}
               </p>
             )}
@@ -101,7 +101,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
                   onClick={(ev) => ev.stopPropagation()}
                   className="text-xs px-1.5 py-0.5 rounded inline-block"
                   style={{
-                    fontSize: 10,
+                    fontSize: "calc(var(--wex-meta-size) - 1px)",
                     background: "var(--terra-bg)",
                     color: "var(--terra)",
                     border: "1px solid var(--terra-soft)",
@@ -117,7 +117,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
               {e.register && e.register !== "standard" && (
                 <span
                   className="text-xs px-1.5 py-0.5 rounded inline-block"
-                  style={{ fontSize: 10, background: "rgba(107,122,153,0.1)", color: "#6B7A99" }}
+                  style={{ fontSize: "calc(var(--wex-meta-size) - 1px)", background: "rgba(107,122,153,0.1)", color: "#6B7A99" }}
                 >
                   {(REGISTER_LABEL[uiLang] ?? REGISTER_LABEL.en)[e.register] || e.register}
                 </span>
@@ -128,7 +128,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
             <Link
               href={`/country/${e.country || e.region}`}
               onClick={(ev) => ev.stopPropagation()}
-              style={{ textDecoration: "none", lineHeight: 1, fontSize: "1.25rem" }}
+              style={{ textDecoration: "none", lineHeight: 1, fontSize: "1.1rem" }}
               title={(e.country || e.region).toUpperCase()}
             >
               {flag}
@@ -191,7 +191,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
         </div>
 
         {/* Meaning */}
-        <p className="text-sm" style={{ color: "var(--ink-soft)", lineHeight: 1.6 }}>{e.meaning}</p>
+        <p className="text-sm" style={{ color: "var(--ink-soft)", lineHeight: 1.48, fontSize: "var(--wex-body-size)" }}>{e.meaning}</p>
 
         {/* Toggle Origine & Exemple */}
         {(e.origin || e.example) && (
@@ -199,21 +199,21 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
             <button
               onClick={(ev) => { ev.stopPropagation(); setShowDetails((v) => !v); }}
               className="text-xs font-medium text-left transition-colors"
-              style={{ color: showDetails ? "var(--plum)" : "var(--ink-faint)", fontFamily: "var(--font-body)" }}
+              style={{ color: showDetails ? "var(--plum)" : "var(--ink-faint)", fontFamily: "var(--font-body)", fontSize: "var(--wex-meta-size)" }}
             >
               {showDetails ? "▾" : "▸"} {oeLabel.toggle}
             </button>
             {showDetails && (
               <div className="flex flex-col gap-2">
                 {e.origin && (
-                  <p className="text-xs" style={{ color: "var(--ink-softer)" }}>
+                  <p className="text-xs" style={{ color: "var(--ink-softer)", fontSize: "var(--wex-meta-size)" }}>
                     <strong>{oeLabel.origin} :</strong> {e.origin}
                   </p>
                 )}
                 {e.example && (
                   <p
                     className="text-xs italic border-l-2 pl-2"
-                    style={{ color: "var(--ink-softer)", borderColor: "var(--paper-fold)" }}
+                    style={{ color: "var(--ink-softer)", borderColor: "var(--paper-fold)", fontSize: "var(--wex-meta-size)" }}
                   >
                     {e.example}
                   </p>
@@ -234,7 +234,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
                   data-testid="tag-button"
                   onClick={(ev) => { ev.stopPropagation(); onTagClick(tag); }}
                   className="flex items-center gap-1 text-xs rounded-full px-2.5 py-1 transition-colors"
-                  style={{ background: "var(--paper-deep)", color: "var(--ink-soft)", fontFamily: "var(--font-body)" }}
+                  style={{ background: "var(--paper-deep)", color: "var(--ink-soft)", fontFamily: "var(--font-body)", fontSize: "var(--wex-meta-size)", padding: "0.28rem 0.55rem" }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--paper-fold)"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--paper-deep)"; }}
                 >

@@ -11,7 +11,7 @@ export default function Postcard({ tilt = -0.4, large, children }: Props) {
       borderRadius: "var(--r-lg)",
       border: "1px solid var(--paper-edge)",
       boxShadow: "var(--shadow-postcard)",
-      padding: large ? "1.75rem" : "1.25rem",
+      padding: large ? "var(--wex-card-padding-lg)" : "var(--wex-card-padding-md)",
       transform: `rotate(${tilt}deg)`,
       position: "relative",
       transition: "box-shadow 150ms ease",
