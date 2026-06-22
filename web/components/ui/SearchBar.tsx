@@ -28,8 +28,8 @@ export default function SearchBar({ value, onChange, onSearch, placeholder, sear
             width: "100%",
             paddingLeft: emoji ? "2.5rem" : "1.25rem",
             paddingRight: "1rem",
-            paddingTop: "0.625rem",
-            paddingBottom: "0.625rem",
+            paddingTop: "var(--wex-search-input-padding-y)",
+            paddingBottom: "var(--wex-search-input-padding-y)",
             borderRadius: "var(--r-pill)",
             border: "1.5px solid var(--paper-edge)",
             background: "var(--paper)",
@@ -53,7 +53,7 @@ export default function SearchBar({ value, onChange, onSearch, placeholder, sear
         onClick={onSearch}
         disabled={loading}
         style={{
-          padding: "0.625rem 1.1rem",
+          padding: "var(--wex-search-button-padding-y) 1.1rem",
           borderRadius: "var(--r-pill)",
           border: "none",
           background: "var(--plum)",

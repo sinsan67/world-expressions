@@ -70,7 +70,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
 
   return (
     <CountryPhotoBackdrop photo={photo} fadeBottom>
-      <div style={{ padding: "var(--wex-hero-shell-padding)", maxWidth: 1080, margin: "0 auto" }}>
+      <div style={{ padding: "var(--wex-hero-shell-padding)", maxWidth: "var(--wex-hero-max-width)", margin: "0 auto" }}>
 
         {/* Mobile header — wordmark + title, hidden on desktop */}
         <div className="wex-mobile-header" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
@@ -93,7 +93,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
 
           {/* LEFT: Postcard */}
           {featured ? (
-            <div style={{ flex: "1 1 300px", maxWidth: 470, animation: "fadeSlideUp 0.5s ease-out both" }}>
+            <div style={{ flex: "1 1 300px", maxWidth: "var(--wex-hero-card-max-width)", animation: "fadeSlideUp 0.5s ease-out both" }}>
               <Postcard tilt={-0.4} large>
                 <div style={{ position: "absolute", top: "0.8rem", right: "0.8rem", display: "flex", flexDirection: "row", alignItems: "flex-start", gap: 8 }}>
                   {voiceAvailable && (
@@ -182,7 +182,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                   style={{
                     fontFamily: "var(--font-display)",
                     fontStyle: "italic",
-                    fontSize: "clamp(20px, 3vw, 30px)",
+                    fontSize: "var(--wex-hero-title-size)",
                     fontWeight: 500,
                     color: "var(--ink)",
                     lineHeight: 1.15,
@@ -198,7 +198,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                 {featured.literal && featured.language !== uiLang && (
                   <p style={{
                     fontFamily: "var(--font-hand)",
-                    fontSize: 17,
+                    fontSize: "var(--wex-hero-literal-size)",
                     color: "var(--ink-soft)",
                     marginBottom: "0.55rem",
                     lineHeight: 1.3,
@@ -323,12 +323,12 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
               </Postcard>
             </div>
           ) : coldStart ? (
-            <div style={{ flex: "1 1 300px", maxWidth: 470, animation: "fadeSlideUp 0.5s ease-out both" }}>
+            <div style={{ flex: "1 1 300px", maxWidth: "var(--wex-hero-card-max-width)", animation: "fadeSlideUp 0.5s ease-out both" }}>
               <ColdStartCard uiLang={uiLang} />
             </div>
           ) : (
             /* Loading skeleton */
-            <div className="wex-skeleton" style={{ flex: "1 1 300px", maxWidth: 470, height: 240, background: "rgba(253,248,238,0.5)", borderRadius: "var(--r-lg)", border: "1px solid var(--paper-edge)" }} />
+            <div className="wex-skeleton" style={{ flex: "1 1 300px", maxWidth: "var(--wex-hero-card-max-width)", height: 240, background: "rgba(253,248,238,0.5)", borderRadius: "var(--r-lg)", border: "1px solid var(--paper-edge)" }} />
           )}
 
         </div>

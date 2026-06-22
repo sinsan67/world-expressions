@@ -721,7 +721,7 @@ export default function HomePage() {
           borderBottom: searched ? "1px solid var(--paper-edge)" : "none",
           boxShadow: searched ? "0 1px 8px rgba(0,0,0,0.06)" : "none",
         }}>
-          <div ref={exploreRef} style={{ padding: searched ? "var(--wex-search-wrap-padding-searched)" : "var(--wex-search-wrap-padding-default)", maxWidth: 680, margin: "0 auto" }}>
+          <div ref={exploreRef} style={{ padding: searched ? "var(--wex-search-wrap-padding-searched)" : "var(--wex-search-wrap-padding-default)", maxWidth: "var(--wex-search-max-width)", margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <div style={{ flex: 1 }}>
                 <SearchBar
@@ -754,7 +754,7 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
+          <div style={{ maxWidth: "var(--wex-shell-max-width)", margin: "0 auto", padding: "0 1.1rem" }}>
             <ResultsFilterBar
               countries={regions.length > 0 ? regions : STATIC_REGIONS}
               filterCountries={filterRegions}
@@ -771,7 +771,7 @@ export default function HomePage() {
         </div>
 
         {/* Results area */}
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "var(--wex-content-padding)" }}>
+        <div style={{ maxWidth: "var(--wex-shell-max-width)", margin: "0 auto", padding: "var(--wex-content-padding)" }}>
           {hasError && (
             <p className="text-center text-sm mb-6" style={{ color: "var(--terra)" }}>{t.serverError}</p>
           )}

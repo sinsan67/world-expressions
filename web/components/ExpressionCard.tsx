@@ -82,7 +82,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
       {/* Top border accent */}
       <div style={{ height: 1, background: "var(--paper-edge)" }} />
 
-      <div className="px-5 py-4 flex flex-col gap-3" style={{ padding: "var(--wex-card-padding-lg)", gap: "0.65rem" }}>
+      <div className="px-5 py-4 flex flex-col gap-3" style={{ padding: "var(--wex-card-padding-lg)", gap: "var(--wex-card-stack-gap)" }}>
         {/* Header */}
         <div className="flex items-start justify-between gap-2">
           <div>
@@ -234,7 +234,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
                   data-testid="tag-button"
                   onClick={(ev) => { ev.stopPropagation(); onTagClick(tag); }}
                   className="flex items-center gap-1 text-xs rounded-full px-2.5 py-1 transition-colors"
-                  style={{ background: "var(--paper-deep)", color: "var(--ink-soft)", fontFamily: "var(--font-body)", fontSize: "var(--wex-meta-size)", padding: "0.28rem 0.55rem" }}
+                  style={{ background: "var(--paper-deep)", color: "var(--ink-soft)", fontFamily: "var(--font-body)", fontSize: "var(--wex-meta-size)", padding: "var(--wex-tag-pill-padding)" }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--paper-fold)"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--paper-deep)"; }}
                 >
