@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup — Toggle monologue / bilingue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:       #fdf8ee;
+    --paper-deep:  #f3e8d4;
+    --paper-edge:  #e8dcc4;
+    --paper-fold:  #ddd0b5;
+    --ink:         #1c1410;
+    --ink-soft:    #5c4f47;
+    --ink-softer:  #8b7d72;
+    --ink-faint:   #b8aa9b;
+    --plum:        #6b4d8f;
+    --plum-deep:   #4a3565;
+    --plum-soft:   #c9b8d9;
+    --plum-bg:     #ebe3f1;
+    --terra:       #c1543a;
+    --terra-soft:  #f0c8b8;
+    --terra-bg:    #f7e3d8;
+    --ochre:       #d4a83a;
+    --ochre-bg:    #faf2cf;
+    --r-sm: 6px; --r-md: 10px; --r-lg: 18px; --r-pill: 999px;
+    --shadow-card: 0 1px 2px rgba(28,20,16,0.05), 0 4px 12px rgba(28,20,16,0.06);
+    --shadow-deep: 0 8px 28px rgba(28,20,16,0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--paper-deep);
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── PAGE LAYOUT ── */
+  .page-title {
+    text-align: center;
+    padding: 2rem 1rem 0.5rem;
+    font-family: "Fraunces", serif;
+    font-size: 1.6rem;
+    color: var(--ink);
+  }
+  .page-sub {
+    text-align: center;
+    color: var(--ink-softer);
+    font-size: 13px;
+    margin-bottom: 2rem;
+  }
+  .question {
+    background: var(--ochre-bg);
+    border: 1.5px solid var(--ochre);
+    border-radius: var(--r-md);
+    padding: 0.8rem 1.2rem;
+    font-size: 13px;
+    color: var(--ochre-deep, #8b6b1c);
+    max-width: 780px;
+    margin: 0 auto 2rem;
+    text-align: center;
+  }
+  .columns {
+    display: flex;
+    gap: 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1rem 3rem;
+    align-items: flex-start;
+  }
+  @media (max-width: 700px) { .columns { flex-direction: column; } }
+  .col { flex: 1; }
+  .col-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--ink-softer);
+    margin-bottom: 0.75rem;
+    text-align: center;
+  }
+
+  /* ── FAUX HEADER ── */
+  .header {
+    background: var(--paper);
+    border-bottom: 1px solid var(--paper-edge);
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: var(--r-md) var(--r-md) 0 0;
+    box-shadow: var(--shadow-card);
+  }
+  .wordmark {
+    font-family: "Fraunces", serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .lang-badge {
+    background: var(--plum-bg);
+    color: var(--plum);
+    border-radius: var(--r-pill);
+    padding: 2px 9px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* ── TOGGLE PILL (option A — header) ── */
+  .toggle-pill {
+    display: flex;
+    background: var(--paper-deep);
+    border: 1px solid var(--paper-fold);
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    padding: 2px;
+    gap: 2px;
+  }
+  .toggle-option {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    cursor: pointer;
+    color: var(--ink-softer);
+    white-space: nowrap;
+  }
+  .toggle-option.active {
+    background: var(--paper);
+    color: var(--plum);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(28,20,16,0.1);
+  }
+
+  /* ── CARD ── */
+  .card-wrap {
+    border-radius: 0 0 var(--r-md) var(--r-md);
+    background: var(--paper);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+  .card-inner {
+    padding: 1rem 1.25rem 1.25rem;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .flag { font-size: 15px; }
+  .country { font-size: 11px; color: var(--ink-softer); }
+  .register-badge {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: var(--r-sm);
+    background: var(--terra-bg);
+    color: var(--terra);
+  }
+  .expr-title {
+    font-family: "Fraunces", serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.3;
+    margin-bottom: 0.4rem;
+  }
+
+  /* Mode MONOLOGUE */
+  .mono-meaning {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin-top: 0.6rem;
+  }
+  .mono-example {
+    font-size: 12px;
+    color: var(--ink-softer);
+    font-style: italic;
+    margin-top: 0.5rem;
+    border-left: 2px solid var(--paper-fold);
+    padding-left: 0.6rem;
+  }
+  .mono-divider {
+    height: 1px;
+    background: var(--paper-edge);
+    margin: 0.75rem 0;
+  }
+
+  /* Mode BILINGUE */
+  .bilingue-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+  .bilang-col {
+    background: var(--paper-deep);
+    border-radius: var(--r-sm);
+    padding: 0.6rem 0.75rem;
+  }
+  .bilang-header {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .bilang-expr {
+    font-family: "Fraunces", serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.35rem;
+    line-height: 1.3;
+  }
+  .bilang-meaning {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.4;
+  }
+  .bilang-example {
+    font-size: 11px;
+    color: var(--ink-softer);
+    font-style: italic;
+    margin-top: 0.35rem;
+  }
+  .divider-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.6rem 0;
+    font-size: 11px;
+    color: var(--ink-faint);
+  }
+  .divider-line::before, .divider-line::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--paper-edge);
+  }
+
+  /* Tags */
+  .tags {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-top: 0.75rem;
+  }
+  .tag {
+    background: var(--plum-bg);
+    color: var(--plum);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: var(--r-pill);
+    cursor: pointer;
+  }
+  .tag:hover { background: var(--plum-soft); }
+
+  /* ── OPTION B — ONBOARDING ── */
+  .onboarding-wrap {
+    background: var(--paper);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-deep);
+    overflow: hidden;
+    max-width: 340px;
+    margin: 0 auto;
+  }
+  .ob-header {
+    background: var(--plum);
+    color: white;
+    padding: 1rem 1.25rem;
+    font-family: "Fraunces", serif;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .ob-step {
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.7;
+    font-family: "Inter", sans-serif;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .ob-body {
+    padding: 1.25rem;
+  }
+  .ob-question {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+  }
+  .ob-sub {
+    font-size: 12px;
+    color: var(--ink-softer);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  .ob-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .ob-opt {
+    border: 1.5px solid var(--paper-edge);
+    border-radius: var(--r-md);
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ob-opt.selected {
+    border-color: var(--plum);
+    background: var(--plum-bg);
+  }
+  .ob-opt-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .ob-opt.selected .ob-opt-title { color: var(--plum); }
+  .ob-opt-desc {
+    font-size: 12px;
+    color: var(--ink-softer);
+    line-height: 1.4;
+  }
+  .ob-footer {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--paper-edge);
+    display: flex;
+    justify-content: flex-end;
+  }
+  .btn-primary {
+    background: var(--plum);
+    color: white;
+    border: none;
+    border-radius: var(--r-pill);
+    padding: 0.5rem 1.25rem;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* ── OPTION C — PER CARD TOGGLE ── */
+  .card-header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .per-card-toggle {
+    display: flex;
+    background: var(--paper-deep);
+    border: 1px solid var(--paper-edge);
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    padding: 1px;
+    gap: 1px;
+    flex-shrink: 0;
+  }
+  .pct-opt {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: var(--r-pill);
+    color: var(--ink-softer);
+    white-space: nowrap;
+  }
+  .pct-opt.active {
+    background: var(--paper);
+    color: var(--plum);
+    box-shadow: 0 1px 2px rgba(28,20,16,0.1);
+  }
+
+  /* ── PROS/CONS ── */
+  .verdict {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--r-md);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .verdict.good { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+  .verdict.bad  { background: var(--terra-bg); color: var(--terra-deep, #92341f); border: 1px solid var(--terra-soft); }
+  .verdict strong { display: block; margin-bottom: 0.25rem; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+
+  /* ── QUESTION FINALE ── */
+  .final-q {
+    max-width: 900px;
+    margin: 0 auto 3rem;
+    padding: 0 1rem;
+    background: var(--plum-bg);
+    border: 1.5px solid var(--plum-soft);
+    border-radius: var(--r-md);
+    padding: 1rem 1.5rem;
+    font-size: 13px;
+    color: var(--plum-deep, #4a3565);
+    text-align: center;
+  }
+  .final-q strong { font-family: "Fraunces", serif; font-size: 15px; display: block; margin-bottom: 0.4rem; }
+
+  .section-title {
+    font-family: "Fraunces", serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--ink-softer);
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">Toggle monologue / bilingue</h1>
+<p class="page-sub">Où vivre ce choix ? Comparaison de 3 approches.</p>
+
+<div class="question">
+  <strong>Contexte :</strong> L'utilisateur veut-il voir les expressions <em>seulement dans leur langue d'origine</em> (monologue) ou avec une traduction dans <em>sa langue</em> (bilingue) ?
+  C'est un choix personnel et persistant — pas contextuel.
+</div>
+
+<div class="columns">
+
+  <!-- ═══════════════ OPTION A : HEADER ═══════════════ -->
+  <div class="col">
+    <div class="col-label">Option A · Bouton dans le header</div>
+    <div class="header">
+      <div class="wordmark">World Expressions</div>
+      <div class="header-right">
+        <!-- LE TOGGLE EST ICI -->
+        <div class="toggle-pill">
+          <div class="toggle-option">🔤 Mono</div>
+          <div class="toggle-option active">🌐 Bilingue</div>
+        </div>
+        <div class="lang-badge">🇫🇷 FR</div>
+      </div>
+    </div>
+    <!-- Carte en mode BILINGUE -->
+    <div class="card-wrap">
+      <div class="card-inner">
+        <div class="card-meta">
+          <span class="flag">🇹🇷</span>
+          <span class="country">Turc</span>
+          <span class="register-badge">Courant</span>
+        </div>
+
+        <div class="bilingue-grid">
+          <div class="bilang-col">
+            <div class="bilang-header">🇹🇷 Original</div>
+            <div class="bilang-expr">Ağzından baklayı çıkarmak</div>
+            <div class="bilang-meaning">Finalement dire ce qu'on a gardé secret</div>
+            <div class="bilang-example">« Sonunda ağzından baklayı çıkardı. »</div>
+          </div>
+          <div class="bilang-col">
+            <div class="bilang-header">🇫🇷 Équivalent</div>
+            <div class="bilang-expr">Cracher le morceau</div>
+            <div class="bilang-meaning">Révéler ce qu'on cachait</div>
+            <div class="bilang-example">« Il a fini par cracher le morceau. »</div>
+          </div>
+        </div>
+
+        <div class="tags">
+          <span class="tag">🤫 secret</span>
+          <span class="tag">💬 aveu</span>
+          <span class="tag">🫘 légumes</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict good">
+      <strong>✓ Pour</strong>
+      Toujours visible · Changement immédiat de tous les résultats · Rappel contextuel (l'utilisateur voit ce qu'il a choisi)
+    </div>
+    <div class="verdict bad">
+      <strong>✗ Contre</strong>
+      Encombre le header (déjà chargé) · Confusion possible avec le sélecteur de langue UI
+    </div>
+  </div>
+
+  <!-- ═══════════════ OPTION B : ONBOARDING ═══════════════ -->
+  <div class="col">
+    <div class="col-label">Option B · Préférence à l'onboarding</div>
+
+    <div class="onboarding-wrap">
+      <div class="ob-header">
+        <div class="ob-step">Étape 2 sur 4</div>
+        Comment veux-tu lire les expressions ?
+      </div>
+      <div class="ob-body">
+        <div class="ob-sub">Cette préférence peut être modifiée à tout moment dans ton profil.</div>
+        <div class="ob-options">
+          <div class="ob-opt">
+            <div class="ob-opt-title">🔤 Monologue</div>
+            <div class="ob-opt-desc">L'expression dans sa langue d'origine uniquement — pour ceux qui veulent s'immerger</div>
+          </div>
+          <div class="ob-opt selected">
+            <div class="ob-opt-title">🌐 Bilingue</div>
+            <div class="ob-opt-desc">Expression originale + traduction dans ta langue — pour tout comprendre d'un coup d'œil</div>
+          </div>
+        </div>
+      </div>
+      <div class="ob-footer">
+        <button class="btn-primary">Suivant →</button>
+      </div>
+    </div>
+
+    <div class="verdict good">
+      <strong>✓ Pour</strong>
+      Décision réfléchie une seule fois · Pas d'encombrement UI · S'intègre dans l'onboarding existant (4 étapes)
+    </div>
+    <div class="verdict bad">
+      <strong>✗ Contre</strong>
+      Difficile à changer ensuite (il faut aller dans le profil) · Les nouveaux utilisateurs sans onboarding n'y ont pas accès
+    </div>
+  </div>
+
+  <!-- ═══════════════ OPTION C : PAR CARTE ═══════════════ -->
+  <div class="col">
+    <div class="col-label">Option C · Toggle par carte</div>
+
+    <!-- Carte en mode MONO avec toggle local -->
+    <div class="card-wrap" style="border-radius: var(--r-md);">
+      <div class="card-inner">
+        <div class="card-header-row">
+          <div class="card-meta">
+            <span class="flag">🇹🇷</span>
+            <span class="country">Turc</span>
+            <span class="register-badge">Courant</span>
+          </div>
+          <!-- LE TOGGLE EST ICI -->
+          <div class="per-card-toggle">
+            <div class="pct-opt active">Mono</div>
+            <div class="pct-opt">🌐</div>
+          </div>
+        </div>
+
+        <div class="expr-title">Ağzından baklayı çıkarmak</div>
+        <div class="mono-meaning">Dire enfin ce que l'on gardait secret depuis un moment.</div>
+        <div class="mono-example">« Sonunda ağzından baklayı çıkardı. »</div>
+
+        <div class="tags" style="margin-top: 0.6rem;">
+          <span class="tag">🤫 secret</span>
+          <span class="tag">💬 aveu</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Même carte, mode BILINGUE -->
+    <div style="margin-top: 0.75rem; font-size: 11px; color: var(--ink-softer); text-align: center; margin-bottom: 0.4rem;">▼ après clic sur 🌐</div>
+    <div class="card-wrap" style="border-radius: var(--r-md);">
+      <div class="card-inner">
+        <div class="card-header-row">
+          <div class="card-meta">
+            <span class="flag">🇹🇷</span>
+            <span class="country">Turc</span>
+          </div>
+          <div class="per-card-toggle">
+            <div class="pct-opt">Mono</div>
+            <div class="pct-opt active">🌐</div>
+          </div>
+        </div>
+
+        <div class="bilingue-grid">
+          <div class="bilang-col">
+            <div class="bilang-header">🇹🇷 Original</div>
+            <div class="bilang-expr">Ağzından baklayı çıkarmak</div>
+            <div class="bilang-meaning">Dire enfin ce qu'on cachait</div>
+          </div>
+          <div class="bilang-col">
+            <div class="bilang-header">🇫🇷 Équivalent</div>
+            <div class="bilang-expr">Cracher le morceau</div>
+            <div class="bilang-meaning">Révéler ce qu'on cachait</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict good">
+      <strong>✓ Pour</strong>
+      Flexibilité maximale · Découverte progressive · Pas de config globale à gérer
+    </div>
+    <div class="verdict bad">
+      <strong>✗ Contre</strong>
+      Fatigue de choix si l'utilisateur doit décider pour chaque carte · Pas cohérent entre cartes
+    </div>
+  </div>
+
+</div>
+
+<div class="final-q">
+  <strong>Question pour S166 →</strong>
+  Où met-on le toggle ? A (header, persistant), B (onboarding, une fois), ou C (par carte) ?<br>
+  Ou une combinaison : B pour l'intention globale + A pour la changer vite ?
+</div>
+
+</body>
+</html>

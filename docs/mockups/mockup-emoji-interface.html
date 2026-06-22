@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup — Interface emoji : atomes & molécules</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fdf8ee; --paper-deep: #f3e8d4; --paper-edge: #e8dcc4; --paper-fold: #ddd0b5;
+    --ink: #1c1410; --ink-soft: #5c4f47; --ink-softer: #8b7d72; --ink-faint: #b8aa9b;
+    --plum: #6b4d8f; --plum-deep: #4a3565; --plum-soft: #c9b8d9; --plum-bg: #ebe3f1;
+    --terra: #c1543a; --terra-soft: #f0c8b8; --terra-bg: #f7e3d8;
+    --ochre: #d4a83a; --ochre-deep: #8b6b1c; --ochre-bg: #faf2cf;
+    --r-sm: 6px; --r-md: 10px; --r-lg: 18px; --r-pill: 999px;
+    --shadow-card: 0 1px 2px rgba(28,20,16,0.05), 0 4px 12px rgba(28,20,16,0.06);
+    --shadow-deep: 0 8px 28px rgba(28,20,16,0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--paper-deep); font-family: "Inter", sans-serif; font-size: 14px; color: var(--ink); }
+
+  .page-title { text-align: center; padding: 2rem 1rem 0.4rem; font-family: "Fraunces", serif; font-size: 1.6rem; }
+  .page-sub { text-align: center; color: var(--ink-softer); font-size: 13px; margin-bottom: 0.5rem; }
+  .concept-box {
+    background: var(--ochre-bg); border: 1.5px solid var(--ochre); border-radius: var(--r-md);
+    padding: 0.75rem 1.25rem; font-size: 13px; color: var(--ochre-deep);
+    max-width: 700px; margin: 0 auto 2rem; text-align: center; line-height: 1.5;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1.25rem 3rem;
+  }
+  @media (max-width: 640px) { .layout { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--paper);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 1rem 1.25rem 0.75rem;
+    border-bottom: 1px solid var(--paper-edge);
+    background: var(--paper-deep);
+  }
+  .panel-title {
+    font-family: "Fraunces", serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+  }
+  .panel-desc {
+    font-size: 12px;
+    color: var(--ink-softer);
+    line-height: 1.4;
+  }
+
+  /* ── ATOMS GRID ── */
+  .atoms-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+  .atom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.6rem 0.4rem;
+    border-radius: var(--r-md);
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .atom:hover { background: var(--plum-bg); border-color: var(--plum-soft); }
+  .atom.active { background: var(--plum-bg); border-color: var(--plum); }
+  .atom-emoji { font-size: 26px; line-height: 1; }
+  .atom-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    letter-spacing: .02em;
+    line-height: 1.2;
+  }
+  .atom.active .atom-label { color: var(--plum); }
+  .atom-count {
+    font-size: 9px;
+    color: var(--ink-faint);
+  }
+
+  /* Atom selected → mini preview */
+  .atom-preview {
+    margin: 0 1rem 1rem;
+    background: var(--plum-bg);
+    border: 1px solid var(--plum-soft);
+    border-radius: var(--r-md);
+    padding: 0.75rem 1rem;
+  }
+  .atom-preview-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--plum);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .atom-preview-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .preview-chip {
+    background: white;
+    border: 1px solid var(--plum-soft);
+    color: var(--plum-deep);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: var(--r-pill);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .preview-chip:hover { background: var(--plum-bg); }
+
+  /* ── MOLECULES ── */
+  .molecules-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0.5rem 0;
+  }
+  .molecule {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 1.25rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--paper-edge);
+    transition: background 0.12s;
+    position: relative;
+  }
+  .molecule:last-child { border-bottom: none; }
+  .molecule:hover { background: var(--paper-deep); }
+  .molecule.active { background: var(--plum-bg); }
+  .molecule-cluster {
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: -2px;
+    min-width: 52px;
+    text-align: center;
+  }
+  .molecule-info { flex: 1; min-width: 0; }
+  .molecule-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.15rem;
+  }
+  .molecule.active .molecule-name { color: var(--plum); }
+  .molecule-sub {
+    font-size: 11px;
+    color: var(--ink-softer);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .molecule-count {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-faint);
+    background: var(--paper-deep);
+    padding: 2px 7px;
+    border-radius: var(--r-pill);
+  }
+  .molecule.active .molecule-count { background: var(--plum-soft); color: var(--plum-deep); }
+  .chevron { font-size: 10px; color: var(--ink-faint); }
+
+  /* ── HYBRID (bottom panel) ── */
+  .full-panel {
+    grid-column: 1 / -1;
+    background: var(--paper);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+  .breadcrumb {
+    font-size: 12px;
+    color: var(--ink-softer);
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--paper-edge);
+    background: var(--paper-deep);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .bc-link { color: var(--plum); cursor: pointer; font-weight: 500; }
+  .hybrid-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+  @media (max-width: 640px) { .hybrid-grid { grid-template-columns: repeat(4, 1fr); } }
+  .hybrid-atom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.25rem;
+    border-radius: var(--r-md);
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.12s;
+  }
+  .hybrid-atom:hover { background: var(--plum-bg); border-color: var(--plum-soft); }
+  .hybrid-atom.selected { background: var(--plum-bg); border-color: var(--plum); }
+  .hybrid-emoji { font-size: 22px; }
+  .hybrid-name { font-size: 9px; font-weight: 600; color: var(--ink-soft); letter-spacing: .02em; }
+  .hybrid-atom.selected .hybrid-name { color: var(--plum); }
+  .hybrid-n { font-size: 9px; color: var(--ink-faint); }
+
+  /* ── ANNOTATION ── */
+  .annotation {
+    font-family: "Caveat", cursive;
+    font-size: 16px;
+    color: var(--terra);
+    text-align: center;
+    padding: 0.5rem 0 0;
+    font-weight: 600;
+  }
+  .note {
+    max-width: 900px;
+    margin: 1rem auto 2rem;
+    padding: 0 1.25rem;
+    font-size: 12px;
+    color: var(--ink-softer);
+    text-align: center;
+    font-style: italic;
+  }
+
+  .section-sep {
+    max-width: 900px;
+    margin: 0 auto 1rem;
+    padding: 0 1.25rem;
+    font-family: "Fraunces", serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--ink-softer);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">Interface emoji : atomes & molécules</h1>
+<p class="page-sub">Deux niveaux de granularité pour naviguer par image cliquable.</p>
+
+<div class="concept-box">
+  <strong>Rappel S165 :</strong> <em>Atome</em> = un emoji seul, label = concept (🐱 = Chat).
+  <em>Molécule</em> = cluster d'emojis + label domaine (🐱🐶🐦 = Animaux).
+  La navigation par image unifie concepts + tags + domaines sous une interface visuelle.
+</div>
+
+<div class="section-sep">Mode 1 — Atomes (concepts individuels)</div>
+
+<div class="layout">
+  <!-- Panel gauche : grille d'atomes -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">🔬 Grille d'atomes</div>
+      <div class="panel-desc">Chaque emoji = un concept cliquable. Clic → liste des expressions liées dans toutes les langues.</div>
+    </div>
+    <div class="atoms-grid">
+      <div class="atom active">
+        <div class="atom-emoji">🐱</div>
+        <div class="atom-label">Chat</div>
+        <div class="atom-count">47 expr.</div>
+      </div>
+      <div class="atom">
+        <div class="atom-emoji">🐶</div>
+        <div class="atom-label">Chien</div>
+        <div class="atom-count">38 expr.</div>
+      </div>
+      <div class="atom">
+        <div class="atom-emoji">🐦</div>
+        <div class="atom-label">Oiseau</div>
+        <div class="atom-count">29 expr.</div>
+      </div>
+      <div class="atom">
+        <div class="atom-emoji">🐟</div>
+        <div class="atom-label">Poisson</div>
+        <div class="atom-count">22 expr.</div>
+      </div>
+      <div class="atom">
+        <div class="atom-emoji">🐴</div>
+        <div class="atom-label">Cheval</div>
+        <div class="atom-count">31 expr.</div>
+      </div>
+      <div class="atom">
+        <div class="atom-emoji">🐺</div>
+        <div class="atom-label">Loup</div>
+        <div class="atom-count">18 expr.</div>
+      </div>
+      <div class="atom">
+        <div class="atom-emoji">🦁</div>
+        <div class="atom-label">Lion</div>
+        <div class="atom-count">14 expr.</div>
+      </div>
+      <div class="atom">
+        <div class="atom-emoji">🐷</div>
+        <div class="atom-label">Cochon</div>
+        <div class="atom-count">12 expr.</div>
+      </div>
+      <div class="atom">
+        <div class="atom-emoji">🐸</div>
+        <div class="atom-label">Grenouille</div>
+        <div class="atom-count">8 expr.</div>
+      </div>
+      <div class="atom">
+        <div class="atom-emoji">🐝</div>
+        <div class="atom-label">Abeille</div>
+        <div class="atom-count">11 expr.</div>
+      </div>
+      <div class="atom">
+        <div class="atom-emoji">🦊</div>
+        <div class="atom-label">Renard</div>
+        <div class="atom-count">9 expr.</div>
+      </div>
+      <div class="atom">
+        <div class="atom-emoji">🐻</div>
+        <div class="atom-label">Ours</div>
+        <div class="atom-count">7 expr.</div>
+      </div>
+    </div>
+
+    <!-- Preview du concept sélectionné (🐱) -->
+    <div class="atom-preview">
+      <div class="atom-preview-title">🐱 Chat — 47 expressions dans 8 langues</div>
+      <div class="atom-preview-chips">
+        <span class="preview-chip">🇫🇷 Donner sa langue au chat</span>
+        <span class="preview-chip">🇹🇷 Kedi gibi düşmek</span>
+        <span class="preview-chip">🇮🇹 Gatto che dorme</span>
+        <span class="preview-chip">🇩🇪 Die Katze im Sack kaufen</span>
+        <span class="preview-chip">🇬🇧 Let the cat out</span>
+        <span class="preview-chip">+ 42 autres →</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel droit : molécules -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">⚗️ Grille de molécules</div>
+      <div class="panel-desc">Chaque domaine = cluster d'emojis + label. Clic → zoom sur les atomes du domaine.</div>
+    </div>
+
+    <div class="molecules-list">
+      <div class="molecule active">
+        <div class="molecule-cluster">🐱🐶🐦</div>
+        <div class="molecule-info">
+          <div class="molecule-name">Animaux</div>
+          <div class="molecule-sub">chat · chien · oiseau · cheval · loup…</div>
+        </div>
+        <div class="molecule-count">243</div>
+        <div class="chevron">›</div>
+      </div>
+      <div class="molecule">
+        <div class="molecule-cluster">💰💼🏦</div>
+        <div class="molecule-info">
+          <div class="molecule-name">Argent & Travail</div>
+          <div class="molecule-sub">fortune · dette · commerce · salaire…</div>
+        </div>
+        <div class="molecule-count">198</div>
+        <div class="chevron">›</div>
+      </div>
+      <div class="molecule">
+        <div class="molecule-cluster">❤️💔💞</div>
+        <div class="molecule-info">
+          <div class="molecule-name">Amour & Relations</div>
+          <div class="molecule-sub">séduction · jalousie · rupture · famille…</div>
+        </div>
+        <div class="molecule-count">187</div>
+        <div class="chevron">›</div>
+      </div>
+      <div class="molecule">
+        <div class="molecule-cluster">😂🤣😜</div>
+        <div class="molecule-info">
+          <div class="molecule-name">Humour & Dérision</div>
+          <div class="molecule-sub">moquerie · ironie · plaisanterie…</div>
+        </div>
+        <div class="molecule-count">134</div>
+        <div class="chevron">›</div>
+      </div>
+      <div class="molecule">
+        <div class="molecule-cluster">🍞🍷🍖</div>
+        <div class="molecule-info">
+          <div class="molecule-name">Nourriture & Corps</div>
+          <div class="molecule-sub">faim · cuisine · appétit · santé…</div>
+        </div>
+        <div class="molecule-count">129</div>
+        <div class="chevron">›</div>
+      </div>
+      <div class="molecule">
+        <div class="molecule-cluster">⚔️🏆🎯</div>
+        <div class="molecule-info">
+          <div class="molecule-name">Conflit & Ambition</div>
+          <div class="molecule-sub">guerre · rivalité · victoire · courage…</div>
+        </div>
+        <div class="molecule-count">112</div>
+        <div class="chevron">›</div>
+      </div>
+      <div class="molecule">
+        <div class="molecule-cluster">🌊🏔️🌿</div>
+        <div class="molecule-info">
+          <div class="molecule-name">Nature & Saisons</div>
+          <div class="molecule-sub">eau · vent · froid · lumière…</div>
+        </div>
+        <div class="molecule-count">98</div>
+        <div class="chevron">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Panel bas : mode hybride (molécule → atomes) -->
+<div class="section-sep" style="margin-top: 0.5rem;">Mode 2 — Zoom molécule → atomes (navigation 2 niveaux)</div>
+<p class="note">Clic sur une molécule → on "zoome" à l'intérieur pour voir ses atomes.</p>
+
+<div class="layout" style="grid-template-columns: 1fr;">
+  <div class="full-panel">
+    <div class="breadcrumb">
+      <span class="bc-link">Explorer</span>
+      <span>›</span>
+      <strong>🐱🐶🐦 Animaux</strong>
+      <span style="margin-left: auto; font-size: 11px; color: var(--ink-faint);">243 expressions</span>
+    </div>
+    <div class="hybrid-grid">
+      <div class="hybrid-atom selected">
+        <div class="hybrid-emoji">🐱</div>
+        <div class="hybrid-name">Chat</div>
+        <div class="hybrid-n">47</div>
+      </div>
+      <div class="hybrid-atom">
+        <div class="hybrid-emoji">🐶</div>
+        <div class="hybrid-name">Chien</div>
+        <div class="hybrid-n">38</div>
+      </div>
+      <div class="hybrid-atom">
+        <div class="hybrid-emoji">🐦</div>
+        <div class="hybrid-name">Oiseau</div>
+        <div class="hybrid-n">29</div>
+      </div>
+      <div class="hybrid-atom">
+        <div class="hybrid-emoji">🐴</div>
+        <div class="hybrid-name">Cheval</div>
+        <div class="hybrid-n">31</div>
+      </div>
+      <div class="hybrid-atom">
+        <div class="hybrid-emoji">🐺</div>
+        <div class="hybrid-name">Loup</div>
+        <div class="hybrid-n">18</div>
+      </div>
+      <div class="hybrid-atom">
+        <div class="hybrid-emoji">🦁</div>
+        <div class="hybrid-name">Lion</div>
+        <div class="hybrid-n">14</div>
+      </div>
+      <div class="hybrid-atom">
+        <div class="hybrid-emoji">🐷</div>
+        <div class="hybrid-name">Cochon</div>
+        <div class="hybrid-n">12</div>
+      </div>
+      <div class="hybrid-atom">
+        <div class="hybrid-emoji">🦊</div>
+        <div class="hybrid-name">Renard</div>
+        <div class="hybrid-n">9</div>
+      </div>
+      <div class="hybrid-atom">
+        <div class="hybrid-emoji">🐝</div>
+        <div class="hybrid-name">Abeille</div>
+        <div class="hybrid-n">11</div>
+      </div>
+      <div class="hybrid-atom">
+        <div class="hybrid-emoji">🐸</div>
+        <div class="hybrid-name">Grenouille</div>
+        <div class="hybrid-n">8</div>
+      </div>
+      <div class="hybrid-atom">
+        <div class="hybrid-emoji">🐻</div>
+        <div class="hybrid-name">Ours</div>
+        <div class="hybrid-n">7</div>
+      </div>
+      <div class="hybrid-atom">
+        <div class="hybrid-emoji">🐟</div>
+        <div class="hybrid-name">Poisson</div>
+        <div class="hybrid-n">22</div>
+      </div>
+    </div>
+
+    <!-- Résultats du concept sélectionné -->
+    <div style="border-top: 1px solid var(--paper-edge); padding: 0.75rem 1rem 1rem;">
+      <div style="font-size: 11px; font-weight: 600; color: var(--plum); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 0.6rem;">
+        🐱 Chat — 47 expressions
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+        <span style="background: var(--paper-deep); border: 1px solid var(--paper-edge); font-size: 12px; padding: 4px 10px; border-radius: var(--r-pill); color: var(--ink-soft);">🇫🇷 Donner sa langue au chat</span>
+        <span style="background: var(--paper-deep); border: 1px solid var(--paper-edge); font-size: 12px; padding: 4px 10px; border-radius: var(--r-pill); color: var(--ink-soft);">🇹🇷 Kedi gibi düşmek</span>
+        <span style="background: var(--paper-deep); border: 1px solid var(--paper-edge); font-size: 12px; padding: 4px 10px; border-radius: var(--r-pill); color: var(--ink-soft);">🇩🇪 Die Katze im Sack kaufen</span>
+        <span style="background: var(--paper-deep); border: 1px solid var(--paper-edge); font-size: 12px; padding: 4px 10px; border-radius: var(--r-pill); color: var(--ink-soft);">🇬🇧 It's raining cats and dogs</span>
+        <span style="background: var(--plum-bg); border: 1px solid var(--plum-soft); font-size: 12px; padding: 4px 10px; border-radius: var(--r-pill); color: var(--plum);">+ 43 expressions →</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="note">
+  Atomes = granularité fine (un tag précis) · Molécules = entrée large (un domaine complet) · Mode hybride = navigation 2 niveaux (molécule → atomes du domaine).
+  Ces 3 modes coexistent selon la page : <em>accueil = molécules</em>, <em>explorer = atomes</em>, <em>header chips = atomes</em>.
+</p>
+
+</body>
+</html>

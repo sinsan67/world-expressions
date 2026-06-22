@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — Navigation flottante entre fiches</title>
+<style>
+  :root {
+    --paper: #faf8f4;
+    --ink: #1c1c1e;
+    --ink-faint: #8a8a8e;
+    --plum: #6b4d8f;
+    --terra: #c1543a;
+    --cream: #f5f0e8;
+    --sage: #4a7c6f;
+    --radius: 12px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 200vh; /* scroll possible */
+  }
+
+  /* ─── GLOBAL HEADER ──────────────────────────── */
+  .global-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--paper);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 52px;
+  }
+  .logo { font-size: 18px; font-weight: 700; color: var(--plum); }
+  .header-right { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--ink-faint); }
+
+  /* ─── EXPRESSION NAV BAR (sticky, sous GlobalHeader) ──── */
+  .expr-nav-bar {
+    position: sticky;
+    top: 52px;
+    z-index: 40;
+    background: var(--paper);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    height: 44px;
+  }
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--ink-faint);
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .back-btn:hover { background: rgba(0,0,0,0.05); }
+  .nav-icons { margin-left: auto; display: flex; gap: 8px; }
+  .nav-icon {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.04);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; cursor: pointer;
+  }
+
+  /* ─── PAGE CONTENT ─────────────────────────── */
+  .page-content { max-width: 680px; margin: 0 auto; padding: 0 16px 120px; }
+
+  .hero-section {
+    background: linear-gradient(135deg, #2c5f4a 0%, #1a3d30 100%);
+    border-radius: var(--radius);
+    margin: 16px 0;
+    padding: 32px 24px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-section::before {
+    content: '🌿';
+    position: absolute;
+    font-size: 80px;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.2;
+  }
+  .country-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 3px 10px;
+    margin-bottom: 12px;
+  }
+  .expr-title { font-size: 26px; font-weight: 700; line-height: 1.2; margin-bottom: 8px; }
+  .expr-meaning { font-size: 15px; opacity: 0.85; font-style: italic; }
+
+  .content-card {
+    background: var(--paper);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  }
+  .content-card h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-faint); margin-bottom: 8px; }
+  .content-card p { font-size: 15px; line-height: 1.55; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .tag {
+    font-size: 12px;
+    background: var(--cream);
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 20px;
+    padding: 3px 10px;
+    color: var(--ink-faint);
+  }
+
+  /* ─── FLOATING NAV ──────────────────────────── */
+
+  /* Option A : Boutons flottants classiques */
+  .float-nav-left,
+  .float-nav-right {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 45;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .float-nav-left  { left: 12px; }
+  .float-nav-right { right: 12px; }
+
+  .float-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--ink);
+  }
+  .float-btn:hover {
+    background: var(--plum);
+    color: white;
+    border-color: transparent;
+    transform: scale(1.08);
+  }
+
+  /* Context badge sous la flèche */
+  .context-badge {
+    font-size: 10px;
+    text-align: center;
+    color: var(--ink-faint);
+    background: var(--paper);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 10px;
+    padding: 2px 7px;
+    white-space: nowrap;
+    line-height: 1.4;
+    max-width: 70px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  /* ─── MODE SWITCHER ─────────────────────────── */
+  .mode-switcher {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 45;
+    background: var(--paper);
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 30px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    gap: 2px;
+  }
+  .mode-btn {
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    color: var(--ink-faint);
+    background: transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .mode-btn.active {
+    background: var(--plum);
+    color: white;
+    font-weight: 600;
+  }
+  .mode-btn:hover:not(.active) { background: rgba(0,0,0,0.05); }
+
+  /* ─── ANNOTATIONS ───────────────────────────── */
+  .annotation {
+    position: absolute;
+    background: #fffbcc;
+    border: 1.5px solid #e0c900;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 11px;
+    color: #5a4a00;
+    max-width: 180px;
+    line-height: 1.4;
+    pointer-events: none;
+  }
+  .annotation::before {
+    content: '→';
+    position: absolute;
+    left: -18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: #e0c900;
+  }
+
+  /* ─── SECTION TITRES MOCKUP ─────────────────── */
+  .mockup-title {
+    text-align: center;
+    padding: 24px 16px 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--plum);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .mockup-subtitle {
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+  }
+
+  .divider {
+    height: 1px;
+    background: rgba(0,0,0,0.08);
+    margin: 32px 0;
+  }
+
+  /* ─── SWIPE ZONES (mobile hint) ─────────────── */
+  .swipe-hint {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 44;
+    width: 40px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .swipe-hint-left  { left: 0; background: linear-gradient(to right, rgba(107,77,143,0.12), transparent); border-radius: 0 8px 8px 0; }
+  .swipe-hint-right { right: 0; background: linear-gradient(to left, rgba(107,77,143,0.12), transparent); border-radius: 8px 0 0 8px; }
+  .swipe-hint.visible { opacity: 1; }
+
+  /* ─── MOBILE RESPONSIVE ─────────────────────── */
+  @media (max-width: 600px) {
+    .float-nav-left  { left: 4px; }
+    .float-nav-right { right: 4px; }
+    .float-btn { width: 40px; height: 40px; font-size: 18px; }
+    .context-badge { max-width: 60px; font-size: 9px; }
+    .mode-switcher { bottom: 80px; } /* au-dessus de la BottomNav */
+  }
+
+  /* ─── NOTE DE DESIGN ────────────────────────── */
+  .design-note {
+    background: rgba(107,77,143,0.06);
+    border-left: 3px solid var(--plum);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ink);
+    margin: 16px 0;
+  }
+  .design-note strong { color: var(--plum); }
+
+  /* ─── VARIANT B PREVIEW ─────────────────────── */
+  .variant-b-demo {
+    max-width: 680px;
+    margin: 16px auto;
+    padding: 0 16px;
+  }
+  .variant-b-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--paper);
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 14px;
+    padding: 12px 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    gap: 12px;
+  }
+  .vb-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+  .vb-arrow:hover { background: rgba(0,0,0,0.04); }
+  .vb-chevron { font-size: 22px; color: var(--plum); }
+  .vb-label { font-size: 10px; color: var(--ink-faint); }
+  .vb-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+  }
+  .vb-mode {
+    display: flex;
+    gap: 4px;
+    background: var(--cream);
+    border-radius: 20px;
+    padding: 2px;
+  }
+  .vb-mode-pill {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    cursor: pointer;
+    color: var(--ink-faint);
+    transition: all 0.15s;
+  }
+  .vb-mode-pill.active { background: var(--plum); color: white; font-weight: 600; }
+  .vb-hint { font-size: 10px; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+
+<!-- GLOBAL HEADER -->
+<header class="global-header">
+  <span class="logo">🌍 Expressions</span>
+  <div class="header-right">
+    <span>🇫🇷 fr</span>
+    <span>👤</span>
+  </div>
+</header>
+
+<!-- EXPRESSION NAV BAR -->
+<nav class="expr-nav-bar">
+  <a class="back-btn" href="#">← Résultats pour « argent »</a>
+  <div class="nav-icons">
+    <div class="nav-icon">🔍</div>
+    <div class="nav-icon">🎲</div>
+  </div>
+</nav>
+
+<!-- PAGE CONTENT -->
+<div class="page-content">
+
+  <p class="mockup-title">Option A — Boutons flottants fixes</p>
+  <p class="mockup-subtitle">Flèches gauche/droite ancrées à mi-écran · badge contexte en dessous · mode switcher en bas</p>
+
+  <!-- HERO -->
+  <div class="hero-section">
+    <div class="country-badge">🇫🇷 France · Expression</div>
+    <div class="expr-title">Avoir le cafard</div>
+    <div class="expr-meaning">Se sentir déprimé, mélancolique</div>
+  </div>
+
+  <!-- CONTENT CARDS -->
+  <div class="content-card">
+    <h3>Sens</h3>
+    <p>Éprouver une profonde mélancolie, un sentiment de tristesse sans raison apparente.</p>
+    <div class="tags">
+      <span class="tag">émotions</span>
+      <span class="tag">tristesse</span>
+      <span class="tag">quotidien</span>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <h3>Origine</h3>
+    <p>Née au XIXe siècle dans les milieux militaires français en Afrique du Nord. Le cafard (insecte) symbolisait l'ennui et le mal du pays des soldats.</p>
+  </div>
+
+  <div class="content-card">
+    <h3>Exemple d'emploi</h3>
+    <p><em>« Depuis qu'il a quitté Paris, il a vraiment le cafard. »</em></p>
+  </div>
+
+  <div class="design-note">
+    <strong>Note de design ·</strong> Les flèches flottantes sont toujours visibles pendant le scroll.
+    Le badge sous chaque flèche indique le contexte actif (<em>🇫🇷 Même pays</em> / <em>🏷️ argent</em> / <em>🔍 Résultats</em>).
+    Le switcher de mode en bas de l'écran permet de changer le contexte sans quitter la fiche.
+    Sur mobile : les flèches coexistent avec le swipe (même zone déclenchante).
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ─── VARIANT B : Barre bas de fiche ─── -->
+  <p class="mockup-title">Option B — Barre bas de fiche (alternative)</p>
+  <p class="mockup-subtitle">Après le contenu · mode switcher intégré dans la barre</p>
+
+</div>
+
+<!-- VARIANT B DEMO -->
+<div class="variant-b-demo">
+  <div class="variant-b-bar">
+    <div class="vb-arrow">
+      <span class="vb-chevron">‹</span>
+      <span class="vb-label">Précédent</span>
+    </div>
+    <div class="vb-center">
+      <div class="vb-mode">
+        <span class="vb-mode-pill active">🇫🇷 Pays</span>
+        <span class="vb-mode-pill">🏷️ Tag</span>
+        <span class="vb-mode-pill">🔍 Résultats</span>
+      </div>
+      <span class="vb-hint">Swipe pour naviguer</span>
+    </div>
+    <div class="vb-arrow">
+      <span class="vb-chevron">›</span>
+      <span class="vb-label">Suivant</span>
+    </div>
+  </div>
+</div>
+
+<div class="variant-b-demo" style="padding-bottom: 100px;">
+  <div class="design-note" style="margin-top: 16px;">
+    <strong>Note ·</strong> Option B est plus compacte mais nécessite de scroller jusqu'en bas pour naviguer.
+    Mieux pour "après lecture" — moins pour l'exploration rapide.
+    Mode switcher intégré dans la barre = moins d'éléments dans l'UI.
+  </div>
+
+  <div style="margin-top: 32px; padding: 16px; background: var(--paper); border-radius: 12px; font-size: 13px; line-height: 1.7; color: var(--ink);">
+    <strong style="color: var(--plum);">Récap des questions ouverte :</strong>
+    <ul style="margin-top: 8px; padding-left: 16px; color: var(--ink-faint);">
+      <li>Option A (flottant) vs Option B (bas de fiche) ?</li>
+      <li>Mode par défaut au chargement : Pays / Tag / Résultats de recherche si disponibles ?</li>
+      <li>Si le tag sélectionné a 0 voisin → fallback automatique vers Pays ?</li>
+      <li>Mobile : swipe = même action que la flèche flottante ?</li>
+      <li>Transition page : fade / slide / aucune ?</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- ─── FLOATING NAV (Option A) ─── -->
+
+<!-- Bouton gauche -->
+<div class="float-nav-left">
+  <div class="float-btn">‹</div>
+  <div class="context-badge">🇫🇷 Même<br>pays</div>
+</div>
+
+<!-- Bouton droit -->
+<div class="float-nav-right">
+  <div class="float-btn">›</div>
+  <div class="context-badge">🇫🇷 Même<br>pays</div>
+</div>
+
+<!-- Mode switcher (centré bas) -->
+<div class="mode-switcher" id="modeSwitcher">
+  <button class="mode-btn active" onclick="setMode(this, '🇫🇷 Même pays')">🇫🇷 Pays</button>
+  <button class="mode-btn" onclick="setMode(this, '🏷️ Même tag')">🏷️ Tag</button>
+  <button class="mode-btn" onclick="setMode(this, '🔍 Résultats')">🔍 Résultats</button>
+</div>
+
+<!-- Swipe zones (visibles au touch) -->
+<div class="swipe-hint swipe-hint-left" id="swipeLeft"></div>
+<div class="swipe-hint swipe-hint-right" id="swipeRight"></div>
+
+
+<script>
+  function setMode(btn, label) {
+    // Update active state
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Update context badges
+    const badges = document.querySelectorAll('.context-badge');
+    const short = label.split(' ').slice(0,2).join(' ');
+    badges.forEach(b => b.innerHTML = short.replace(' ', '<br>'));
+  }
+
+  // Swipe detection (mobile demo)
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    const w = window.innerWidth;
+    if (touchStartX < 60) document.getElementById('swipeLeft').classList.add('visible');
+    if (touchStartX > w - 60) document.getElementById('swipeRight').classList.add('visible');
+  });
+  document.addEventListener('touchend', e => {
+    document.getElementById('swipeLeft').classList.remove('visible');
+    document.getElementById('swipeRight').classList.remove('visible');
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 60) {
+      alert(dx < 0 ? '→ Expression suivante (swipe gauche)' : '← Expression précédente (swipe droite)');
+    }
+  });
+</script>
+
+</body>
+</html>
