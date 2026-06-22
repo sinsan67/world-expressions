@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup — Ambiance visuelle : Argot vs Quotidien vs Proverbes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fdf8ee; --paper-deep: #f3e8d4; --paper-edge: #e8dcc4; --paper-fold: #ddd0b5;
+    --ink: #1c1410; --ink-soft: #5c4f47; --ink-softer: #8b7d72; --ink-faint: #b8aa9b;
+    --plum: #6b4d8f; --plum-deep: #4a3565; --plum-soft: #c9b8d9; --plum-bg: #ebe3f1;
+    --terra: #c1543a; --terra-soft: #f0c8b8; --terra-bg: #f7e3d8;
+    --ochre: #d4a83a; --ochre-bg: #faf2cf;
+    --r-sm: 6px; --r-md: 10px; --r-lg: 18px; --r-pill: 999px;
+    --shadow-card: 0 1px 2px rgba(28,20,16,0.05), 0 4px 12px rgba(28,20,16,0.06);
+    --shadow-deep: 0 8px 28px rgba(28,20,16,0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #1a1a2e; font-family: "Inter", sans-serif; font-size: 14px; color: var(--ink); }
+
+  .page-title {
+    text-align: center; padding: 2rem 1rem 0.4rem;
+    font-family: "Fraunces", serif; font-size: 1.6rem;
+    color: white;
+  }
+  .page-sub { text-align: center; color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 2rem; }
+
+  /* ── UNIVERS ROW ── */
+  .univers-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 1.5rem 3rem;
+  }
+  @media (max-width: 680px) { .univers-row { grid-template-columns: 1fr; } }
+
+  .univers-col { display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .univers-label {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+
+  /* ══════════════════════════════════════════════
+     UNIVERS 1 : QUOTIDIEN — paper warm, classique
+  ══════════════════════════════════════════════ */
+  .u-quotidien {
+    --u-bg: #fdf8ee;
+    --u-bg-deep: #f3e8d4;
+    --u-border: #e8dcc4;
+    --u-ink: #1c1410;
+    --u-ink-soft: #5c4f47;
+    --u-ink-muted: #8b7d72;
+    --u-accent: #6b4d8f;
+    --u-accent-bg: #ebe3f1;
+    --u-accent-soft: #c9b8d9;
+    --u-badge-bg: #f7e3d8;
+    --u-badge: #c1543a;
+    --u-r: 12px;
+    --u-tag-bg: #ebe3f1;
+    --u-tag: #6b4d8f;
+  }
+
+  /* ══════════════════════════════════════════════
+     UNIVERS 2 : ARGOT — sombre, urbain, vif
+  ══════════════════════════════════════════════ */
+  .u-argot {
+    --u-bg: #1e1b2e;
+    --u-bg-deep: #2d2840;
+    --u-border: #3d3555;
+    --u-ink: #f0eafe;
+    --u-ink-soft: #c5b8e8;
+    --u-ink-muted: #8a7fb0;
+    --u-accent: #a78bfa;
+    --u-accent-bg: rgba(167,139,250,0.15);
+    --u-accent-soft: rgba(167,139,250,0.4);
+    --u-badge-bg: rgba(239,68,68,0.15);
+    --u-badge: #f87171;
+    --u-r: 8px;
+    --u-tag-bg: rgba(167,139,250,0.12);
+    --u-tag: #a78bfa;
+  }
+
+  /* ══════════════════════════════════════════════
+     UNIVERS 3 : PROVERBES — kraft, parchemin ancien
+  ══════════════════════════════════════════════ */
+  .u-proverbes {
+    --u-bg: #f5ede0;
+    --u-bg-deep: #e8d9c4;
+    --u-border: #cdb896;
+    --u-ink: #2d1f0e;
+    --u-ink-soft: #6b4a28;
+    --u-ink-muted: #9b7a52;
+    --u-accent: #8b5e1f;
+    --u-accent-bg: #f2e4cc;
+    --u-accent-soft: #d4aa72;
+    --u-badge-bg: #e8c97a20;
+    --u-badge: #8b5e1f;
+    --u-r: 4px;
+    --u-tag-bg: rgba(139,94,31,0.1);
+    --u-tag: #8b5e1f;
+  }
+
+  /* ── CARD GÉNÉRIQUE (hérite des vars --u-*) ── */
+  .uni-card {
+    background: var(--u-bg);
+    border: 1px solid var(--u-border);
+    border-radius: var(--u-r);
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .uni-card-header {
+    background: var(--u-bg-deep);
+    border-bottom: 1px solid var(--u-border);
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .uni-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 12px;
+    color: var(--u-ink-muted);
+  }
+  .uni-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--u-badge-bg);
+    color: var(--u-badge);
+  }
+  .uni-card-body { padding: 1rem; }
+  .uni-title {
+    font-family: "Fraunces", serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--u-ink);
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+  }
+  .uni-meaning {
+    font-size: 13px;
+    color: var(--u-ink-soft);
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+  }
+  .uni-example {
+    font-size: 12px;
+    color: var(--u-ink-muted);
+    font-style: italic;
+    border-left: 2px solid var(--u-accent-soft);
+    padding-left: 0.6rem;
+    line-height: 1.4;
+  }
+  .uni-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--u-border);
+  }
+  .uni-tag {
+    background: var(--u-tag-bg);
+    color: var(--u-tag);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 999px;
+  }
+
+  /* ARGOT : overrides typographiques */
+  .u-argot .uni-title {
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    text-transform: uppercase;
+  }
+  .u-argot .uni-meaning {
+    font-size: 12px;
+    letter-spacing: .02em;
+  }
+  .u-argot .uni-badge {
+    border-radius: 3px;
+    text-transform: uppercase;
+    font-size: 9px;
+    letter-spacing: .1em;
+  }
+
+  /* PROVERBES : overrides typographiques */
+  .u-proverbes .uni-title {
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-size: 17px;
+    font-weight: 600;
+  }
+  .u-proverbes .uni-badge {
+    border-radius: 2px;
+    border: 1px solid var(--u-badge);
+    background: transparent;
+    font-weight: 600;
+    letter-spacing: .08em;
+  }
+  .u-proverbes .uni-example {
+    font-style: normal;
+    font-family: "Caveat", cursive;
+    font-size: 14px;
+    border-left: none;
+    padding-left: 0;
+    color: var(--u-ink-muted);
+  }
+  .u-proverbes .uni-example::before { content: "— "; }
+
+  /* ── SECTION HEADER (univers selector) ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0 1rem;
+    font-size: 12px;
+    color: rgba(255,255,255,0.35);
+    font-style: italic;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1.5rem 1.5rem;
+  }
+
+  /* ── SELECTOR MOCKUP (comment l'univers est choisi) ── */
+  .selector-demo {
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+    padding: 0 1.5rem;
+  }
+  .selector-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    text-align: center;
+    margin-bottom: 0.75rem;
+  }
+  .selector-pills {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .sel-pill {
+    padding: 0.5rem 1.25rem;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.15s;
+  }
+  .sel-pill.quotidien {
+    background: #fdf8ee;
+    color: #5c4f47;
+    border-color: #e8dcc4;
+  }
+  .sel-pill.argot {
+    background: #1e1b2e;
+    color: #a78bfa;
+    border-color: #3d3555;
+  }
+  .sel-pill.proverbes {
+    background: #f5ede0;
+    color: #8b5e1f;
+    border-color: #cdb896;
+  }
+  .sel-pill.active { box-shadow: 0 0 0 3px rgba(255,255,255,0.2); }
+
+  /* ── ANNOTATION ── */
+  .annotation {
+    text-align: center;
+    padding: 0 1.5rem 2rem;
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    font-style: italic;
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  .annotation strong { color: rgba(255,255,255,0.5); font-style: normal; }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">Ambiance visuelle des univers</h1>
+<p class="page-sub">Même expression, trois atmosphères — Quotidien · Argot · Proverbes</p>
+
+<!-- Selector pills (comment l'utilisateur choisit son univers) -->
+<div class="selector-demo">
+  <div class="selector-label">Explorer par univers</div>
+  <div class="selector-pills">
+    <div class="sel-pill quotidien active">☀️ Quotidien</div>
+    <div class="sel-pill argot">🔥 Argot & Rue</div>
+    <div class="sel-pill proverbes">📜 Proverbes</div>
+  </div>
+</div>
+
+<div class="section-header">
+  Ces trois univers coexistent dans l'app — l'utilisateur navigue entre eux, ou filtre ses résultats.
+  La carte ci-dessous montre la <em>même expression</em> habillée différemment selon l'univers.
+</div>
+
+<!-- Trois cartes côte à côte -->
+<div class="univers-row">
+
+  <!-- ═══ QUOTIDIEN ═══ -->
+  <div class="univers-col">
+    <div class="univers-label">☀️ Quotidien</div>
+
+    <div class="uni-card u-quotidien">
+      <div class="uni-card-header">
+        <div class="uni-meta">🇫🇷 Français</div>
+        <div class="uni-badge">Standard</div>
+      </div>
+      <div class="uni-card-body">
+        <div class="uni-title">Avoir le cafard</div>
+        <div class="uni-meaning">Se sentir triste, mélancolique, sans raison précise.</div>
+        <div class="uni-example">« Je sais pas pourquoi, j'ai le cafard depuis hier soir. »</div>
+        <div class="uni-tags">
+          <span class="uni-tag">😔 tristesse</span>
+          <span class="uni-tag">🐛 insecte</span>
+          <span class="uni-tag">💭 états d'âme</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="uni-card u-quotidien">
+      <div class="uni-card-header">
+        <div class="uni-meta">🇩🇪 Allemand</div>
+        <div class="uni-badge">Courant</div>
+      </div>
+      <div class="uni-card-body">
+        <div class="uni-title">Trübsal blasen</div>
+        <div class="uni-meaning">Être mélancolique, souffler dans son chagrin.</div>
+        <div class="uni-example">« Er sitzt da und bläst Trübsal. »</div>
+        <div class="uni-tags">
+          <span class="uni-tag">😔 tristesse</span>
+          <span class="uni-tag">🎵 souffle</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ ARGOT ═══ -->
+  <div class="univers-col">
+    <div class="univers-label">🔥 Argot & Rue</div>
+
+    <div class="uni-card u-argot">
+      <div class="uni-card-header">
+        <div class="uni-meta" style="color: var(--u-ink-muted);">🇫🇷 Français</div>
+        <div class="uni-badge">Argot</div>
+      </div>
+      <div class="uni-card-body">
+        <div class="uni-title">Avoir le seum</div>
+        <div class="uni-meaning">Être en rogne, avoir la rage. Du verlan de "le meus" → malheur (arabe).</div>
+        <div class="uni-example">« J'ai le seum, il m'a pas invité. »</div>
+        <div class="uni-tags">
+          <span class="uni-tag">😤 colère</span>
+          <span class="uni-tag">🔤 verlan</span>
+          <span class="uni-tag">🌍 arabe</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="uni-card u-argot">
+      <div class="uni-card-header">
+        <div class="uni-meta" style="color: var(--u-ink-muted);">🇫🇷 Français</div>
+        <div class="uni-badge">Familier</div>
+      </div>
+      <div class="uni-card-body">
+        <div class="uni-title">Péter un câble</div>
+        <div class="uni-meaning">Craquer, perdre son calme brutalement.</div>
+        <div class="uni-example">« Je vais péter un câble si ça continue. »</div>
+        <div class="uni-tags">
+          <span class="uni-tag">💥 colère</span>
+          <span class="uni-tag">⚡ rupture</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PROVERBES ═══ -->
+  <div class="univers-col">
+    <div class="univers-label">📜 Proverbes</div>
+
+    <div class="uni-card u-proverbes">
+      <div class="uni-card-header">
+        <div class="uni-meta" style="color: var(--u-ink-muted);">🇹🇷 Turc</div>
+        <div class="uni-badge">Proverbe</div>
+      </div>
+      <div class="uni-card-body">
+        <div class="uni-title">Damlaya damlaya göl olur</div>
+        <div class="uni-meaning">Goutte après goutte, un lac se forme. La persévérance finit par tout accomplir.</div>
+        <div class="uni-example">Petit à petit, l'oiseau fait son nid.</div>
+        <div class="uni-tags">
+          <span class="uni-tag">💧 patience</span>
+          <span class="uni-tag">⏳ persévérance</span>
+          <span class="uni-tag">🌊 eau</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="uni-card u-proverbes">
+      <div class="uni-card-header">
+        <div class="uni-meta" style="color: var(--u-ink-muted);">🇮🇹 Italien</div>
+        <div class="uni-badge">Proverbe</div>
+      </div>
+      <div class="uni-card-body">
+        <div class="uni-title">Tra il dire e il fare c'è di mezzo il mare</div>
+        <div class="uni-meaning">Entre dire et faire, il y a la mer. Les intentions ne suffisent pas.</div>
+        <div class="uni-example">Ce n'est pas tout de dire, il faut faire.</div>
+        <div class="uni-tags">
+          <span class="uni-tag">🗣️ parole</span>
+          <span class="uni-tag">🔨 action</span>
+          <span class="uni-tag">🌊 mer</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Résumé des différences -->
+<div class="annotation">
+  <strong>Ce qui change entre les univers :</strong> le fond de carte, la couleur des badges, le radius des coins (arrondi chaleureux → carré urbain → angulaire vieux papier), le style typographique (Fraunces sérieux → Inter ultra-bold → Fraunces italique), et la palette dominante.<br><br>
+  <strong>Ce qui reste constant :</strong> la structure de la carte (header / title / meaning / example / tags), les CSS variables du système de design. Chaque univers est un <em>thème</em> CSS qui surcharge les mêmes variables.
+</div>
+
+</body>
+</html>

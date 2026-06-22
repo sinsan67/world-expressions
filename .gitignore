@@ -34,3 +34,7 @@ data/raw/
 web/playwright-report/
 web/test-results/
 test-results/
+nao/.env
+
+# Ressources locales (audios, transcriptions perso — non destinés au repo public)
+ressources/

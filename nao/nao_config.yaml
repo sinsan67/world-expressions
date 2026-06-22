@@ -1,0 +1,27 @@
+# Configuration documentation:
+# https://docs.getnao.io/nao-agent/context-builder/configuration#nao_config-yaml
+
+project_name: nao
+
+# Moteur LLM : on réutilise la clé Anthropic du projet (Claude).
+llm:
+  provider: anthropic
+  api_key: "{{ env('ANTHROPIC_API_KEY') }}"
+
+# Base de données : Neon (Postgres), via le rôle LECTURE SEULE nao_readonly.
+# Le rôle ne peut lire que les 11 tables de contenu (aucune table à données personnelles).
+# Les secrets (user/password) sont lus depuis nao/.env, jamais commité.
+databases:
+  - name: world_expressions
+    type: postgres
+    host: ep-dawn-smoke-aly41brd-pooler.c-3.eu-central-1.aws.neon.tech
+    port: 5432
+    database: neondb
+    user: "{{ env('PGUSER') }}"
+    password: "{{ env('PGPASSWORD') }}"
+    schema_name: public
+    sslmode: require
+    templates:
+      - columns
+      - how_to_use
+      - preview
