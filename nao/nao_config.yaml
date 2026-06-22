@@ -25,3 +25,16 @@ databases:
       - columns
       - how_to_use
       - preview
+
+# Google Analytics 4 via BigQuery export (GCP projet wolr-497808).
+# Le dataset GA4 est créé automatiquement par l'export quotidien — format : analytics_XXXXXXXXXX
+# (disponible dès le lendemain du premier export).
+# Credentials : nao/ga4-credentials.json (jamais commité — voir nao/.gitignore)
+  - name: ga4_analytics
+    type: bigquery
+    project_id: "wolr-497808"
+    credentials_path: "{{ env('GA4_CREDENTIALS_PATH') }}"
+    templates:
+      - columns
+      - how_to_use
+      - preview
