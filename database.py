@@ -639,6 +639,7 @@ def get_facets(
     type_filter: Optional[str] = None,
     domain: Optional[str] = None,
     locale: Optional[str] = None,
+    concept: Optional[str] = None,
 ) -> dict:
     """
     Retourne les comptages par pays et par type pour les filtres facettés.
@@ -655,6 +656,12 @@ def get_facets(
             JOIN concept_domains cd ON cd.tag_id = et_d.tag_id
             WHERE et_d.expression_id = e.id AND cd.domain_slug = :domain_f
         )""" if domain else ""
+
+    concept_sql = """AND EXISTS (
+            SELECT 1 FROM expression_tags et_c
+            JOIN tags t_c ON t_c.id = et_c.tag_id
+            WHERE et_c.expression_id = e.id AND t_c.slug = :concept_f
+        )""" if concept else ""
 
     fts_join = ""
     fts_cond = ""
@@ -680,14 +687,14 @@ def get_facets(
     sql_country = f"""
         SELECT e.country, COUNT(DISTINCT e.id) AS n
         FROM expressions e {fts_join}
-        WHERE 1=1 {_EXCLUDE_PHRASEBOOK} {type_sql} {domain_sql} {fts_cond}
+        WHERE 1=1 {_EXCLUDE_PHRASEBOOK} {type_sql} {domain_sql} {concept_sql} {fts_cond}
         GROUP BY e.country
     """
 
     sql_kind = f"""
         SELECT e.kind, COUNT(DISTINCT e.id) AS n
         FROM expressions e {fts_join}
-        WHERE 1=1 {_EXCLUDE_PHRASEBOOK} {country_sql} {domain_sql} {fts_cond}
+        WHERE 1=1 {_EXCLUDE_PHRASEBOOK} {country_sql} {domain_sql} {concept_sql} {fts_cond}
         GROUP BY e.kind
     """
 
@@ -698,20 +705,23 @@ def get_facets(
     sql_subregion = f"""
         SELECT e.region, COUNT(DISTINCT e.id) AS n
         FROM expressions e {fts_join}
-        WHERE 1=1 {_EXCLUDE_PHRASEBOOK} {type_sql} {domain_sql} {fts_cond}
+        WHERE 1=1 {_EXCLUDE_PHRASEBOOK} {type_sql} {domain_sql} {concept_sql} {fts_cond}
           AND e.region IS NOT NULL
         GROUP BY e.region
     """
 
     domain_params = {"domain_f": domain} if domain else {}
+    concept_params = {"concept_f": concept} if concept else {}
 
     params_country = ({**{"type_filter_f": type_filter}} if type_filter else {})
     params_country.update(fts_params)
     params_country.update(domain_params)
+    params_country.update(concept_params)
 
     params_kind = ({**{"countries_f": list(countries)}} if countries else {})
     params_kind.update(fts_params)
     params_kind.update(domain_params)
+    params_kind.update(concept_params)
 
     # même filtrage que la facette pays (type + domaine + requête)
     params_subregion = dict(params_country)

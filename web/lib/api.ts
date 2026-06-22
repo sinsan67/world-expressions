@@ -312,6 +312,7 @@ export async function getFacets(
   typeFilter: string | null = null,
   domain = "",
   locale = "",
+  concept = "",
 ): Promise<Facets> {
   const params = new URLSearchParams();
   if (query) params.set("q", query);
@@ -319,6 +320,7 @@ export async function getFacets(
   if (typeFilter) params.set("type_filter", typeFilter);
   if (domain) params.set("domain", domain);
   if (locale) params.set("locale", locale);
+  if (concept) params.set("concept", concept);
   const res = await fetch(`${API}/facets?${params}`);
   if (!res.ok) return { region: {}, kind: {}, subregion: {} };
   return res.json();
