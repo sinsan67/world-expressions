@@ -247,6 +247,7 @@ def get_facets(
     country: str = Query("", description="Comma-separated country codes for kind facets"),
     type_filter: str = Query("", description="Type filter (idiom|proverb|locution|word) for country facets"),
     domain: str = Query("", description="Domain slug to scope facets to a thematic domain"),
+    concept: str = Query("", description="Concept tag slug to scope facets to a concept"),
     locale: str = Query("", description="UI locale for stemmed FTS (fr, en, es, it, de, tr)"),
     _: None = Depends(_cache_public_1h),
 ):
@@ -255,8 +256,9 @@ def get_facets(
     type_f = type_filter.strip() or None
     query = q.strip() or None
     domain_f = domain.strip() or None
+    concept_f = concept.strip() or None
     loc = locale.strip() or None
-    return database.get_facets(countries, query, type_f, domain_f, loc)
+    return database.get_facets(countries, query, type_f, domain_f, loc, concept_f)
 
 
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")

@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import Link from "next/link";
 import CountryPhotoBackdrop from "./CountryPhotoBackdrop";
 import Postcard from "./Postcard";
 import Postmark from "./Postmark";
@@ -70,22 +70,22 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
 
   return (
     <CountryPhotoBackdrop photo={photo} fadeBottom>
-      <div style={{ padding: "1.25rem 1.5rem 3rem", maxWidth: 1200, margin: "0 auto" }}>
+      <div style={{ padding: "var(--wex-hero-shell-padding)", maxWidth: "var(--wex-hero-max-width)", margin: "0 auto" }}>
 
         {/* Mobile header — wordmark + title, hidden on desktop */}
-        <div className="wex-mobile-header" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
-          <a href="/" style={{ textDecoration: "none", fontFamily: "var(--font-display)" }}>
+        <div className="wex-mobile-header" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+          <Link href="/" style={{ textDecoration: "none", fontFamily: "var(--font-display)" }}>
             <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 18, fontWeight: 500 }}>World </span>
             <em style={{ color: "var(--terra-soft)", fontSize: 18, fontStyle: "italic" }}>Expressions</em>
-          </a>
+          </Link>
         </div>
 
 
         {/* Two-column grid */}
         <div style={{
           display: "flex",
-          gap: "2rem",
-          marginTop: "1.25rem",
+          gap: "var(--wex-hero-grid-gap)",
+          marginTop: "0.75rem",
           alignItems: "flex-start",
           justifyContent: "center",
           flexWrap: "wrap",
@@ -93,15 +93,15 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
 
           {/* LEFT: Postcard */}
           {featured ? (
-            <div style={{ flex: "1 1 320px", maxWidth: 520, animation: "fadeSlideUp 0.5s ease-out both" }}>
+            <div style={{ flex: "1 1 300px", maxWidth: "var(--wex-hero-card-max-width)", animation: "fadeSlideUp 0.5s ease-out both" }}>
               <Postcard tilt={-0.4} large>
-                <div style={{ position: "absolute", top: "1rem", right: "1rem", display: "flex", flexDirection: "row", alignItems: "flex-start", gap: 10 }}>
+                <div style={{ position: "absolute", top: "0.8rem", right: "0.8rem", display: "flex", flexDirection: "row", alignItems: "flex-start", gap: 8 }}>
                   {voiceAvailable && (
                     <button
                       onClick={handleListen}
                       title={speaking ? "Stop" : "Écouter"}
                       style={{
-                        padding: "5px 8px",
+                        padding: "4px 7px",
                         borderRadius: "var(--r-pill)",
                         border: `1.5px solid ${speaking ? "var(--plum-soft)" : "var(--paper-edge)"}`,
                         background: speaking ? "var(--plum-bg)" : "transparent",
@@ -115,14 +115,14 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                       onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.1)"; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
                     >
-                      {speaking ? <VolumeX size={14} strokeWidth={1.5} /> : <Volume2 size={14} strokeWidth={1.5} />}
+                      {speaking ? <VolumeX size={13} strokeWidth={1.5} /> : <Volume2 size={13} strokeWidth={1.5} />}
                     </button>
                   )}
                   <button
                     onClick={handleFav}
                     title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
                     style={{
-                      padding: "5px 8px",
+                      padding: "4px 7px",
                       borderRadius: "var(--r-pill)",
                       border: `1.5px solid ${fav ? "var(--terra)" : "var(--paper-edge)"}`,
                       background: fav ? "rgba(180,80,40,0.08)" : "transparent",
@@ -135,22 +135,22 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                     }}
                     onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.1)"; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
-                  >
-                    <Heart size={14} strokeWidth={1.5} fill={fav ? "var(--terra)" : "none"} />
+                    >
+                    <Heart size={13} strokeWidth={1.5} fill={fav ? "var(--terra)" : "none"} />
                   </button>
                   <Postmark date={day} month={month} year={year} region={effectiveRegion} inline />
                 </div>
 
                 {/* Expression du jour label */}
-                <div style={{ marginTop: "-0.6rem", marginBottom: "0.4rem", marginRight: 130 }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--terra)", fontFamily: "var(--font-body)" }}>
+                <div style={{ marginTop: "-0.35rem", marginBottom: "0.35rem", marginRight: 110 }}>
+                  <span style={{ fontSize: "calc(var(--wex-meta-size) - 1px)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--terra)", fontFamily: "var(--font-body)" }}>
                     ✦ {t.expressionOfDay}
                   </span>
                 </div>
 
                 {/* Country — flag + name, clickable → /country/[code] */}
                 {effectiveRegion && (
-                  <div style={{ marginBottom: "0.6rem", marginRight: 130 }}>
+                  <div style={{ marginBottom: "0.45rem", marginRight: 110 }}>
                     <a
                       href={`/country/${effectiveRegion}`}
                       onClick={(e) => { e.preventDefault(); router.push(`/country/${effectiveRegion}`); }}
@@ -158,7 +158,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                         display: "inline-flex",
                         alignItems: "center",
                         gap: "0.4rem",
-                        fontSize: 15,
+                        fontSize: "var(--wex-body-size)",
                         fontWeight: 600,
                         color: "var(--ink)",
                         textDecoration: "none",
@@ -168,7 +168,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                       onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--plum)"; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--ink)"; }}
                     >
-                      <span style={{ fontSize: 20, lineHeight: 1 }}>{FLAG[effectiveRegion] ?? "🌍"}</span>
+                      <span style={{ fontSize: 17, lineHeight: 1 }}>{FLAG[effectiveRegion] ?? "🌍"}</span>
                       {countryName}
                     </a>
                   </div>
@@ -182,13 +182,13 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                   style={{
                     fontFamily: "var(--font-display)",
                     fontStyle: "italic",
-                    fontSize: "clamp(22px, 4vw, 36px)",
+                    fontSize: "var(--wex-hero-title-size)",
                     fontWeight: 500,
                     color: "var(--ink)",
-                    lineHeight: 1.2,
-                    marginBottom: "0.5rem",
+                    lineHeight: 1.15,
+                    marginBottom: "0.4rem",
                     cursor: "pointer",
-                    marginRight: 130,
+                    marginRight: 110,
                   }}
                 >
                   {cap(featured.expression)}
@@ -198,19 +198,19 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                 {featured.literal && featured.language !== uiLang && (
                   <p style={{
                     fontFamily: "var(--font-hand)",
-                    fontSize: 20,
+                    fontSize: "var(--wex-hero-literal-size)",
                     color: "var(--ink-soft)",
-                    marginBottom: "0.75rem",
+                    marginBottom: "0.55rem",
                     lineHeight: 1.3,
                   }}>
                     « {featured.literal} »
                   </p>
                 )}
 
-                <hr style={{ border: "none", borderTop: "1px dashed var(--paper-edge)", margin: "0.75rem 0" }} />
+                <hr style={{ border: "none", borderTop: "1px dashed var(--paper-edge)", margin: "0.6rem 0" }} />
 
                 {/* Meaning */}
-                <p style={{ fontSize: 14, color: "var(--ink-soft)", lineHeight: 1.65, marginBottom: "1.25rem", fontFamily: "var(--font-body)" }}>
+                <p style={{ fontSize: "var(--wex-body-size)", color: "var(--ink-soft)", lineHeight: 1.5, marginBottom: "0.85rem", fontFamily: "var(--font-body)" }}>
                   {featured.meaning}
                 </p>
 
@@ -220,9 +220,9 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                     <button
                       onClick={() => router.push(`/type/${featured.type}`)}
                       style={{
-                        fontSize: 11,
+                        fontSize: "calc(var(--wex-meta-size) - 1px)",
                         fontWeight: 700,
-                        padding: "2px 8px",
+                        padding: "2px 7px",
                         borderRadius: "var(--r-pill)",
                         border: "1.5px solid var(--terra-soft)",
                         background: "var(--terra-bg)",
@@ -247,8 +247,8 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                         key={tag}
                         onClick={() => onConceptClick(tag)}
                         style={{
-                          fontSize: 12,
-                          padding: "3px 10px",
+                          fontSize: "var(--wex-meta-size)",
+                          padding: "2px 8px",
                           borderRadius: "var(--r-pill)",
                           border: "1.5px solid var(--plum-soft)",
                           background: "var(--plum-bg)",
@@ -269,8 +269,8 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
 
                 {/* Footer V1 — ultra-discret, transparent */}
                 <div style={{
-                  marginLeft: "-1.75rem", marginRight: "-1.75rem", marginBottom: "-1.75rem",
-                  marginTop: "1.25rem",
+                  marginLeft: "calc(var(--wex-card-padding-lg) * -1)", marginRight: "calc(var(--wex-card-padding-lg) * -1)", marginBottom: "calc(var(--wex-card-padding-lg) * -1)",
+                  marginTop: "0.95rem",
                   borderTop: "1px solid var(--paper-edge)",
                   background: "transparent",
                   display: "flex",
@@ -278,10 +278,10 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                   <button
                     onClick={onRefresh}
                     style={{
-                      flex: 1, padding: "0.7rem 0.75rem",
+                      flex: 1, padding: "0.58rem 0.65rem",
                       background: "transparent", border: "none",
                       borderRight: "1px solid var(--paper-edge)",
-                      color: "var(--ink-faint)", fontSize: 12, fontWeight: 500,
+                      color: "var(--ink-faint)", fontSize: "var(--wex-meta-size)", fontWeight: 500,
                       cursor: "pointer", fontFamily: "var(--font-body)",
                       borderRadius: "0 0 0 var(--r-lg)", transition: "background 150ms ease",
                     }}
@@ -293,10 +293,10 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                   <button
                     onClick={handleShare}
                     style={{
-                      flex: 1, padding: "0.7rem 0.75rem",
+                      flex: 1, padding: "0.58rem 0.65rem",
                       background: "transparent", border: "none",
                       borderRight: "1px solid var(--paper-edge)",
-                      color: "var(--ink-faint)", fontSize: 12, fontWeight: 500,
+                      color: "var(--ink-faint)", fontSize: "var(--wex-meta-size)", fontWeight: 500,
                       cursor: "pointer", fontFamily: "var(--font-body)",
                       transition: "background 150ms ease",
                     }}
@@ -308,9 +308,9 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                   <button
                     onClick={() => router.push(`/expression/${featured.id}?lang=${uiLang}`)}
                     style={{
-                      flex: 1, padding: "0.7rem 0.75rem",
+                      flex: 1, padding: "0.58rem 0.65rem",
                       background: "transparent", border: "none",
-                      color: "var(--ink-faint)", fontSize: 12, fontWeight: 500,
+                      color: "var(--ink-faint)", fontSize: "var(--wex-meta-size)", fontWeight: 500,
                       cursor: "pointer", fontFamily: "var(--font-body)",
                       borderRadius: "0 0 var(--r-lg) 0", transition: "background 150ms ease",
                     }}
@@ -323,12 +323,12 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
               </Postcard>
             </div>
           ) : coldStart ? (
-            <div style={{ flex: "1 1 320px", maxWidth: 520, animation: "fadeSlideUp 0.5s ease-out both" }}>
+            <div style={{ flex: "1 1 300px", maxWidth: "var(--wex-hero-card-max-width)", animation: "fadeSlideUp 0.5s ease-out both" }}>
               <ColdStartCard uiLang={uiLang} />
             </div>
           ) : (
             /* Loading skeleton */
-            <div className="wex-skeleton" style={{ flex: "1 1 320px", maxWidth: 520, height: 280, background: "rgba(253,248,238,0.5)", borderRadius: "var(--r-lg)", border: "1px solid var(--paper-edge)" }} />
+            <div className="wex-skeleton" style={{ flex: "1 1 300px", maxWidth: "var(--wex-hero-card-max-width)", height: 240, background: "rgba(253,248,238,0.5)", borderRadius: "var(--r-lg)", border: "1px solid var(--paper-edge)" }} />
           )}
 
         </div>

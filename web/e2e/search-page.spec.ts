@@ -135,36 +135,21 @@ test.describe('Page /search (US-006)', () => {
     await expect(exactSection).toBeVisible({ timeout: T });
   });
 
-  // ─── Cap 6 cartes + bouton "Voir les N autres" ─────────────────────────────
+  // ─── Scroll infini : sections sans cap ni bouton "Voir plus" (S167) ──────────
 
-  test('#S12 bouton "Voir les N autres →" apparaît pour une section > 6 cartes', async ({ page }) => {
-    // "avoir" → de nombreuses correspondances exactes en français (>6) → bouton show-more obligatoire
-    await page.goto('/search?q=avoir');
-    await page.locator(CARD).first().waitFor({ timeout: T });
-    // Le bouton show-more doit être présent dans la section exact principale
-    const exactSection = page.locator('[data-testid="split-main-exact"]');
-    await expect(exactSection).toBeVisible({ timeout: T });
-    const showMoreBtn = exactSection.locator('[data-testid="show-more-btn"]');
-    await expect(showMoreBtn).toBeVisible({ timeout: T });
-    const countBefore = await page.locator(CARD).count();
-    await showMoreBtn.click();
-    const countAfter = await page.locator(CARD).count();
-    expect(countAfter).toBeGreaterThan(countBefore);
-  });
-
-  test('#S13 le bouton "Voir les N autres" disparaît après expansion', async ({ page }) => {
-    // "avoir" → section exact > 6 résultats → bouton show-more présent
+  test('#S12 une section > 6 cartes affiche toutes ses cartes, sans bouton "Voir plus"', async ({ page }) => {
+    // "avoir" → de nombreuses correspondances exactes en français (>6).
+    // Depuis S167, les sections ne sont plus plafonnées à 6 : le scroll infini
+    // global (sentinel) prend le relais. Plus aucun bouton show-more par section.
     await page.goto('/search?q=avoir');
     await page.locator(CARD).first().waitFor({ timeout: T });
     const exactSection = page.locator('[data-testid="split-main-exact"]');
     await expect(exactSection).toBeVisible({ timeout: T });
-    const showMoreBtn = exactSection.locator('[data-testid="show-more-btn"]');
-    await expect(showMoreBtn).toBeVisible({ timeout: T });
-    await showMoreBtn.click();
-    // Après expansion, le bouton de CETTE section ne doit plus être visible
-    await expect(showMoreBtn).not.toBeVisible({ timeout: T });
-    // Et plus de cartes sont visibles
-    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
+    // La section affiche directement plus de 6 cartes (pas de cap)
+    await expect.poll(async () => exactSection.locator(CARD).count(), { timeout: T })
+      .toBeGreaterThan(6);
+    // Aucun bouton show-more ne doit exister
+    await expect(page.locator('[data-testid="show-more-btn"]')).toHaveCount(0);
   });
 
   // ─── Tri par pays ─────────────────────────────────────────────────────────────

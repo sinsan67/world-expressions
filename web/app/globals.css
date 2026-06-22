@@ -45,6 +45,42 @@
   --r-md:   10px;
   --r-lg:   18px;
   --r-pill: 999px;
+
+  /* DENSITY */
+  --wex-body-size: 16px;
+  --wex-body-line: 1.5;
+  --wex-display-title-size: 24px;
+  --wex-card-title-size: 16px;
+  --wex-search-input-size: 15px;
+  --wex-button-size: 14px;
+  --wex-meta-size: 12px;
+  --wex-hero-shell-padding: 1.25rem 1.5rem 3rem;
+  --wex-hero-grid-gap: 2rem;
+  --wex-card-padding-lg: 1.75rem;
+  --wex-card-padding-md: 1rem;
+  --wex-card-stack-gap: 0.65rem;
+  --wex-content-padding: 1rem 1.5rem 2rem;
+  --wex-search-wrap-padding-default: 2rem 1.5rem 1rem;
+  --wex-search-wrap-padding-searched: 0.75rem 1.5rem;
+  --wex-section-padding: 2rem 1.5rem 2.5rem;
+  --wex-shell-max-width: 1100px;
+  --wex-hero-max-width: 1080px;
+  --wex-hero-card-max-width: 470px;
+  --wex-search-max-width: 680px;
+  --wex-grid-gap: 1rem;
+  --wex-results-grid-min: 300px;
+  --wex-tooltip-size: 12px;
+  --wex-icon-button-size: 30px;
+  --wex-hero-photo-position: center 30%;
+  --wex-hero-title-size: clamp(20px, 3vw, 30px);
+  --wex-hero-literal-size: 17px;
+  --wex-search-input-padding-y: 0.625rem;
+  --wex-search-button-padding-y: 0.625rem;
+  --wex-filter-pill-padding-y: 6px;
+  --wex-filter-pill-padding-x: 14px;
+  --wex-filterbar-margin-bottom: 1rem;
+  --wex-photo-overlay-opacity: 0.3;
+  --wex-tag-pill-padding: 0.28rem 0.55rem;
 }
 
 @theme inline {
@@ -56,6 +92,8 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-body);
+  font-size: var(--wex-body-size);
+  line-height: var(--wex-body-line);
 }
 
 /* ─── Country photo backdrop ─── */
@@ -70,14 +108,14 @@ body {
   background-image: var(--photo);
   background-size: cover;
   background-repeat: no-repeat;
-  background-position: center 30%;
+  background-position: var(--wex-hero-photo-position);
   pointer-events: none;
   z-index: 0;
 }
 .country-photo::after {
   content: "";
   position: absolute; inset: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, var(--wex-photo-overlay-opacity));
   mix-blend-mode: normal;
   pointer-events: none;
   z-index: 1;
@@ -93,7 +131,7 @@ body {
 /* Hero variant: always cover, no sidebar offset needed */
 .country-photo-hero::before {
   background-size: cover;
-  background-position: center 30%;
+  background-position: var(--wex-hero-photo-position);
   background-repeat: no-repeat;
 }
 
@@ -127,6 +165,43 @@ body {
 .wex-desktop-only { display: none; }
 
 @media (min-width: 1024px) {
+  :root {
+    --wex-body-size: 14px;
+    --wex-body-line: 1.42;
+    --wex-display-title-size: 20px;
+    --wex-card-title-size: 15px;
+    --wex-search-input-size: 13px;
+    --wex-button-size: 12px;
+    --wex-meta-size: 11px;
+    --wex-hero-shell-padding: 0.875rem 1.25rem 1.75rem;
+    --wex-hero-grid-gap: 1.25rem;
+    --wex-card-padding-lg: 1.2rem;
+    --wex-card-padding-md: 0.875rem;
+    --wex-card-stack-gap: 0.5rem;
+    --wex-content-padding: 0.65rem 1.1rem 1.35rem;
+    --wex-search-wrap-padding-default: 0.95rem 1.1rem 0.6rem;
+    --wex-search-wrap-padding-searched: 0.5rem 1.1rem;
+    --wex-section-padding: 1.25rem 1.1rem 1.5rem;
+    --wex-shell-max-width: 1020px;
+    --wex-hero-max-width: 940px;
+    --wex-hero-card-max-width: 410px;
+    --wex-search-max-width: 620px;
+    --wex-grid-gap: 0.75rem;
+    --wex-results-grid-min: 248px;
+    --wex-tooltip-size: 11px;
+    --wex-icon-button-size: 26px;
+    --wex-hero-photo-position: center 24%;
+    --wex-hero-title-size: clamp(18px, 2vw, 24px);
+    --wex-hero-literal-size: 15px;
+    --wex-search-input-padding-y: 0.5rem;
+    --wex-search-button-padding-y: 0.5rem;
+    --wex-filter-pill-padding-y: 5px;
+    --wex-filter-pill-padding-x: 12px;
+    --wex-filterbar-margin-bottom: 0.75rem;
+    --wex-photo-overlay-opacity: 0.38;
+    --wex-tag-pill-padding: 0.24rem 0.5rem;
+  }
+
   .wex-sidebar { display: flex; flex-direction: column; }
   .wex-bottom-nav { display: none !important; }
   .wex-main { margin-left: 220px; }

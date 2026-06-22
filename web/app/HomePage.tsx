@@ -23,7 +23,6 @@ import { useUILangContext } from "@/lib/UILangContext";
 import { UI_LANGS, type UILang } from "@/lib/useUILang";
 
 const LIMIT = 20;
-const MAX_SECTION_PREVIEW = 6;
 
 const T = {
   fr: {
@@ -324,7 +323,6 @@ export default function HomePage() {
   const [sortMode, setSortMode] = useState<"relevance" | "country">("country");
   const [facets, setFacets] = useState<Facets | undefined>(undefined);
   const [expandedRegion, setExpandedRegion] = useState<string | null>(null);
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const exploreRef = useRef<HTMLDivElement>(null);
@@ -382,7 +380,7 @@ export default function HomePage() {
       setResults(data.results);
       setTotal(data.total);
       setHasMore(data.results.length < data.total);
-      getFacets(rf.length ? rf : [], "", null, "", uiLang).then(setFacets);
+      getFacets(rf.length ? rf : [], "", null, "", uiLang, tag).then(setFacets);
     } catch {
       setHasError(true);
       setResults([]);
@@ -721,7 +719,7 @@ export default function HomePage() {
           borderBottom: searched ? "1px solid var(--paper-edge)" : "none",
           boxShadow: searched ? "0 1px 8px rgba(0,0,0,0.06)" : "none",
         }}>
-          <div ref={exploreRef} style={{ padding: searched ? "0.75rem 1.5rem" : "2rem 1.5rem 1rem", maxWidth: 720, margin: "0 auto" }}>
+          <div ref={exploreRef} style={{ padding: searched ? "var(--wex-search-wrap-padding-searched)" : "var(--wex-search-wrap-padding-default)", maxWidth: "var(--wex-search-max-width)", margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <div style={{ flex: 1 }}>
                 <SearchBar
@@ -742,19 +740,19 @@ export default function HomePage() {
                 <button
                   onClick={() => setTooltipOpen((o) => !o)}
                   aria-label="Comment fonctionne la recherche ?"
-                  style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid var(--paper-edge)", background: "var(--paper-deep)", color: "var(--ink-soft)", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-body)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+                  style={{ width: "var(--wex-icon-button-size)", height: "var(--wex-icon-button-size)", borderRadius: "50%", border: "1.5px solid var(--paper-edge)", background: "var(--paper-deep)", color: "var(--ink-soft)", fontSize: "var(--wex-meta-size)", fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-body)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
                 >
                   ?
                 </button>
                 {tooltipOpen && (
-                  <div style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", zIndex: 100, background: "var(--paper)", border: "1px solid var(--paper-edge)", borderRadius: 10, padding: "0.75rem 1rem", width: 280, maxWidth: "calc(100vw - 2rem)", boxShadow: "0 4px 16px rgba(0,0,0,0.12)", fontSize: 12, color: "var(--ink-soft)", lineHeight: 1.6, fontFamily: "var(--font-body)" }}>
+                  <div style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", zIndex: 100, background: "var(--paper)", border: "1px solid var(--paper-edge)", borderRadius: 10, padding: "0.65rem 0.85rem", width: 260, maxWidth: "calc(100vw - 2rem)", boxShadow: "0 4px 16px rgba(0,0,0,0.12)", fontSize: "var(--wex-tooltip-size)", color: "var(--ink-soft)", lineHeight: 1.5, fontFamily: "var(--font-body)" }}>
                     {SEARCH_HELP[uiLang]}
                   </div>
                 )}
               </div>
             </div>
           </div>
-          <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
+          <div style={{ maxWidth: "var(--wex-shell-max-width)", margin: "0 auto", padding: "0 1.1rem" }}>
             <ResultsFilterBar
               countries={regions.length > 0 ? regions : STATIC_REGIONS}
               filterCountries={filterRegions}
@@ -771,7 +769,7 @@ export default function HomePage() {
         </div>
 
         {/* Results area */}
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "1rem 1.5rem 2rem" }}>
+        <div style={{ maxWidth: "var(--wex-shell-max-width)", margin: "0 auto", padding: "var(--wex-content-padding)" }}>
           {hasError && (
             <p className="text-center text-sm mb-6" style={{ color: "var(--terra)" }}>{t.serverError}</p>
           )}
@@ -789,12 +787,12 @@ export default function HomePage() {
               {groupedResults ? (
                 groupedResults.map(({ code, exprs }, gi) => (
                   <div key={code}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: `${gi === 0 ? "0" : "1.5rem"} 0 0.75rem`, color: "var(--ink-soft)", fontSize: 13, fontFamily: "var(--font-body)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: `${gi === 0 ? "0" : "1.25rem"} 0 0.6rem`, color: "var(--ink-soft)", fontSize: "var(--wex-body-size)", fontFamily: "var(--font-body)" }}>
                       <span>{FLAG[code] ?? "🌍"}</span>
                       <span style={{ fontWeight: 600 }}>{COUNTRY_NAME[code] ?? code.toUpperCase()}</span>
                       <span style={{ color: "var(--ink-faint)" }}>· {sectionExprCount(exprs.length, uiLang)}</span>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(var(--wex-results-grid-min), 1fr))", gap: "var(--wex-grid-gap)" }}>
                       {exprs.map((expr, i) => (
                         <div key={expr.id} style={{ height: "100%", animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
                           <ExpressionCard expression={expr} onTagClick={(tag) => runConceptSearch(tag)} uiLang={uiLang} tagNames={tagNames} fromSearch={searched ? query : undefined} />
@@ -804,37 +802,24 @@ export default function HomePage() {
                   </div>
                 ))
               ) : matchTypeGroups ? (
-                matchTypeGroups.map(({ type, exprs }, gi) => {
-                  const isExpanded = expandedSections.has(type);
-                  const visible = isExpanded ? exprs : exprs.slice(0, MAX_SECTION_PREVIEW);
-                  const hidden = exprs.length - MAX_SECTION_PREVIEW;
-                  return (
+                matchTypeGroups.map(({ type, exprs }, gi) => (
                   <div key={type}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: `${gi === 0 ? "0" : "1.5rem"} 0 0.75rem`, color: "var(--ink-faint)", fontSize: 12, fontFamily: "var(--font-body)", letterSpacing: "0.03em" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: `${gi === 0 ? "0" : "1.25rem"} 0 0.6rem`, color: "var(--ink-faint)", fontSize: "var(--wex-meta-size)", fontFamily: "var(--font-body)", letterSpacing: "0.03em" }}>
                       <span>{{ exact: "🎯", semantic: "💡", concept: "🏷️", translation: "🌍" }[type]}</span>
                       <span style={{ fontWeight: 600, color: "var(--ink-softer)" }}>{t.matchSections[type] ?? type}</span>
                       <span>· {sectionExprCount(exprs.length, uiLang)}</span>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
-                      {visible.map((expr, i) => (
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(var(--wex-results-grid-min), 1fr))", gap: "var(--wex-grid-gap)" }}>
+                      {exprs.map((expr, i) => (
                         <div key={expr.id} style={{ height: "100%", animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
                           <ExpressionCard expression={expr} onTagClick={(tag) => runConceptSearch(tag)} uiLang={uiLang} tagNames={tagNames} fromSearch={searched ? query : undefined} />
                         </div>
                       ))}
                     </div>
-                    {!isExpanded && hidden > 0 && (
-                      <button
-                        onClick={() => setExpandedSections(prev => new Set(prev).add(type))}
-                        style={{ marginTop: "0.75rem", background: "none", border: "none", color: "var(--ink-soft)", fontSize: 12, fontFamily: "var(--font-body)", cursor: "pointer", padding: "0.25rem 0", textDecoration: "underline", textUnderlineOffset: 3 }}
-                      >
-                        {t.showMore(hidden)}
-                      </button>
-                    )}
                   </div>
-                  );
-                })
+                ))
               ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(var(--wex-results-grid-min), 1fr))", gap: "var(--wex-grid-gap)" }}>
                   {results.map((expr, i) => (
                     <div
                       key={expr.id}
@@ -875,10 +860,10 @@ export default function HomePage() {
 
         {/* Atlas section */}
         {!searched && (
-          <section style={{ padding: "2rem 1.5rem 2.5rem", borderTop: "1px solid var(--paper-edge)" }}>
+          <section style={{ padding: "var(--wex-section-padding)", borderTop: "1px solid var(--paper-edge)" }}>
             <div style={{ maxWidth: 900, margin: "0 auto" }}>
               <Eyebrow tone="softer">{t.atlasEyebrow}</Eyebrow>
-              <h2 style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--ink)", margin: "0.4rem 0 1.25rem", fontWeight: 500 }}>
+              <h2 style={{ fontFamily: "var(--font-display)", fontSize: "var(--wex-display-title-size)", color: "var(--ink)", margin: "0.35rem 0 1rem", fontWeight: 500 }}>
                 {t.atlasTitle(regions.filter((r) => !ALL_SUB_REGION_CODES.has(r.code)).length)}
               </h2>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "flex-start" }}>

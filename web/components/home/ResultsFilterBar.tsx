@@ -69,7 +69,7 @@ export default function ResultsFilterBar({
     : filterCountries.map((c) => FLAG[c] ?? c.toUpperCase()).join(" ");
 
   const pillBase: React.CSSProperties = {
-    padding: "6px 14px",
+    padding: "var(--wex-filter-pill-padding-y) var(--wex-filter-pill-padding-x)",
     borderRadius: "var(--r-pill)",
     border: "1.5px solid var(--paper-edge)",
     background: "var(--paper)",
@@ -93,7 +93,7 @@ export default function ResultsFilterBar({
   );
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap", marginBottom: "1rem" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap", marginBottom: "var(--wex-filterbar-margin-bottom)" }}>
 
       {/* Country dropdown */}
       <div ref={dropdownRef} style={{ position: "relative", flexShrink: 0 }}>

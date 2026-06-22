@@ -21,8 +21,6 @@ import type { UILang } from "@/lib/useUILang";
 
 const LIMIT = 20;
 
-const MAX_SECTION_PREVIEW = 6;
-
 const T: Record<UILang, {
   placeholder: string;
   search: string;
@@ -239,7 +237,6 @@ function SearchPageContent() {
     filterParam ? filterParam.split(",").filter(Boolean) : []
   );
   const [sortMode, setSortMode] = useState<"relevance" | "country">("relevance");
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [displayMode, setDisplayMode] = useState<"split" | "mix">("split");
   const [conceptBridgeResults, setConceptBridgeResults] = useState<Expression[]>([]);
   const [detectedConceptSlugs, setDetectedConceptSlugs] = useState<string[]>([]);
@@ -317,7 +314,6 @@ function SearchPageContent() {
     setHasError(false);
     setResults([]);
     setHasMore(false);
-    setExpandedSections(new Set());
     setDisplayMode("split");
     setConceptBridgeResults([]);
     setDetectedConceptSlugs([]);
@@ -487,9 +483,6 @@ function SearchPageContent() {
     opts?: { icon?: string; label?: string }
   ) => {
     if (exprs.length === 0) return null;
-    const isExpanded = expandedSections.has(sectionKey);
-    const visible = isExpanded ? exprs : exprs.slice(0, MAX_SECTION_PREVIEW);
-    const hidden = exprs.length - MAX_SECTION_PREVIEW;
     const icon = opts?.icon ?? ({ exact: "🎯", semantic: "✨" } as Record<string, string>)[type];
     const label = opts?.label ?? (t.matchSections[type] ?? type);
     return (
@@ -500,21 +493,12 @@ function SearchPageContent() {
           <span>· {sectionExprCount(exprs.length, uiLang)}</span>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
-          {visible.map((expr, i) => (
+          {exprs.map((expr, i) => (
             <div key={expr.id} style={{ height: "100%", animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
               <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} />
             </div>
           ))}
         </div>
-        {!isExpanded && hidden > 0 && (
-          <button
-            data-testid="show-more-btn"
-            onClick={() => setExpandedSections(prev => new Set(prev).add(sectionKey))}
-            style={{ marginTop: "0.75rem", background: "none", border: "none", color: "var(--ink-soft)", fontSize: 12, fontFamily: "var(--font-body)", cursor: "pointer", padding: "0.25rem 0", textDecoration: "underline", textUnderlineOffset: 3 }}
-          >
-            {t.showMore(hidden)}
-          </button>
-        )}
       </div>
     );
   };
@@ -696,9 +680,6 @@ function SearchPageContent() {
                       r => r.language !== langSplitSections!.main.lang && !existingIds.has(r.id)
                     );
                     if (bridgeExprs.length === 0) return null;
-                    const isExpanded = expandedSections.has("bridge");
-                    const visible = isExpanded ? bridgeExprs : bridgeExprs.slice(0, MAX_SECTION_PREVIEW);
-                    const hidden = bridgeExprs.length - MAX_SECTION_PREVIEW;
                     return (
                       <div data-testid="same-idea-section" style={{ marginTop: "2rem", borderTop: "1px solid var(--paper-edge)", paddingTop: "1.5rem" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: "0 0 0.75rem", color: "var(--ink-soft)", fontSize: 13, fontFamily: "var(--font-body)" }}>
@@ -707,20 +688,12 @@ function SearchPageContent() {
                           <span style={{ color: "var(--ink-faint)" }}>· {sectionExprCount(bridgeExprs.length, uiLang)}</span>
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
-                          {visible.map((expr, i) => (
+                          {bridgeExprs.map((expr, i) => (
                             <div key={expr.id} style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
                               <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} />
                             </div>
                           ))}
                         </div>
-                        {!isExpanded && hidden > 0 && (
-                          <button
-                            onClick={() => setExpandedSections(prev => new Set(prev).add("bridge"))}
-                            style={{ marginTop: "0.75rem", background: "none", border: "none", color: "var(--ink-soft)", fontSize: 12, fontFamily: "var(--font-body)", cursor: "pointer", padding: "0.25rem 0", textDecoration: "underline", textUnderlineOffset: 3 }}
-                          >
-                            {t.showMore(hidden)}
-                          </button>
-                        )}
                       </div>
                     );
                   })()}
@@ -755,11 +728,7 @@ function SearchPageContent() {
                   </div>
                 ))
               ) : matchTypeGroups ? (
-                matchTypeGroups.map(({ type, exprs }, gi) => {
-                  const isExpanded = expandedSections.has(type);
-                  const visible = isExpanded ? exprs : exprs.slice(0, MAX_SECTION_PREVIEW);
-                  const hidden = exprs.length - MAX_SECTION_PREVIEW;
-                  return (
+                matchTypeGroups.map(({ type, exprs }, gi) => (
                   <div key={type}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: `${gi === 0 ? "0" : "1.5rem"} 0 0.75rem`, color: "var(--ink-faint)", fontSize: 12, fontFamily: "var(--font-body)", letterSpacing: "0.03em" }}>
                       <span>{{ exact: "🎯", semantic: "✨", concept: "🏷️", translation: "🌍" }[type]}</span>
@@ -767,23 +736,14 @@ function SearchPageContent() {
                       {searchMode !== "concept" && <span>· {sectionExprCount(exprs.length, uiLang)}</span>}
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
-                      {visible.map((expr, i) => (
+                      {exprs.map((expr, i) => (
                         <div key={expr.id} style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
                           <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} />
                         </div>
                       ))}
                     </div>
-                    {!isExpanded && hidden > 0 && (
-                      <button
-                        onClick={() => setExpandedSections(prev => new Set(prev).add(type))}
-                        style={{ marginTop: "0.75rem", background: "none", border: "none", color: "var(--ink-soft)", fontSize: 12, fontFamily: "var(--font-body)", cursor: "pointer", padding: "0.25rem 0", textDecoration: "underline", textUnderlineOffset: 3 }}
-                      >
-                        {t.showMore(hidden)}
-                      </button>
-                    )}
                   </div>
-                  );
-                })
+                ))
               ) : (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
                   {results.map((expr, i) => (

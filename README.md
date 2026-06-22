@@ -31,6 +31,7 @@ Whether you're curious about other cultures, learning a new language, or just lo
 
 ```bash
 # Backend
+alembic upgrade head
 python3 -m uvicorn main:app --reload
 
 # Frontend

@@ -12,8 +12,9 @@ echo "Frontend → http://localhost:3000"
 echo "Ctrl+C pour tout arrêter"
 echo ""
 
-# Lance le backend Python dans un sous-shell (garde le bon répertoire)
-(cd "$PROJECT" && python3 -m uvicorn main:app --reload) &
+# Garde le schéma local aligné avec le code avant de lancer l'API.
+# Sans ça, une DB dev un peu en retard peut casser /search ou /facets.
+(cd "$PROJECT" && alembic upgrade head && python3 -m uvicorn main:app --reload) &
 BACKEND_PID=$!
 
 # Lance le frontend Next.js dans un sous-shell
