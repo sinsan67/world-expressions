@@ -9,6 +9,8 @@ type TypeCard = { label: string; title: string; body: string; example: string };
 type Pass = { title: string; body: string };
 type DiffCard = { title: string; body: string };
 
+type VisionItem = { emoji: string; title: string; body: string };
+
 type Content = {
   eyebrow: string;
   title: string;
@@ -35,6 +37,9 @@ type Content = {
   sectionOpenSource: string;
   openSource: string;
   githubLink: string;
+  sectionVision: string;
+  visionIntro: string;
+  visionItems: [VisionItem, VisionItem, VisionItem, VisionItem, VisionItem];
   sectionContact: string;
   contact: string;
   footer: string;
@@ -47,7 +52,7 @@ const CONTENT: Record<string, Content> = {
     subtitle: "Every language has expressions that refuse to translate. They carry too much — history, humour, the texture of daily life. This is where World Expressions starts.",
     intro: [
       "World Expressions is a free, open-source database of idiomatic expressions from around the world. You type a word, a feeling, or an idea — and discover how different languages name the same thing. The results are not just translations: they are windows into how different cultures think, argue, love, and joke.",
-      "The database currently holds over 1 500 expressions across French, English, Spanish, Italian, and Turkish. Each entry includes a meaning, an origin story, a usage example, and cross-language equivalents wherever they exist. The project is open source, continuously expanding, and entirely free.",
+      "The database currently holds over 14,000 expressions across 10 languages — French, Turkish, Italian, English, Spanish, German, Japanese, and several Latin American Spanish variants (Mexico, Argentina, Colombia, Peru). Each entry includes a meaning, an origin story, a usage example, and cross-language equivalents wherever they exist. The project is open source, continuously expanding, and entirely free.",
     ],
     sectionTypes: "What kind of expressions?",
     typesIntro: "Not every fixed phrase is the same thing. World Expressions distinguishes four main types — each with its own character and its own relationship to literal meaning.",
@@ -128,6 +133,35 @@ const CONTENT: Record<string, Content> = {
     sectionOpenSource: "Open source",
     openSource: "The entire codebase — FastAPI backend, Next.js frontend, database scripts, enrichment pipelines — is open source on GitHub. Contributions are welcome: new expressions, corrections, translations, design improvements, or ideas.",
     githubLink: "github.com/sinsan67/world-expressions →",
+    sectionVision: "What's next",
+    visionIntro: "World Expressions is a living project. Here is where it is going.",
+    visionItems: [
+      {
+        emoji: "🖼️",
+        title: "Navigate by image",
+        body: "Instead of typing, click an emoji to explore. Atoms (🐱 = a specific concept) and molecules (🐱🐶🐦 = a whole domain) form two levels of visual navigation — no text required. Click a domain emoji and you get all expressions that contain at least one concept from it, across every language. Click a concept emoji and you narrow to expressions sharing exactly that idea. The ambiguity of the image is the point: one emoji, dozens of expressions, ten languages.",
+      },
+      {
+        emoji: "🌐",
+        title: "Monologue and bilingual modes",
+        body: "Choose how you read expressions: immersed in the original language only (monologue — ideal for language learners who want to be challenged) or always with a translation in your own language displayed alongside (bilingual — for those who want to understand everything at a glance). A single personal setting, applied consistently across the entire app.",
+      },
+      {
+        emoji: "🎨",
+        title: "Visual universes",
+        body: "Three distinct atmospheres for three different registers: Everyday language (warm, familiar), Street & Slang (urban, bold), Proverbs (classical, timeless). Each universe will have its own visual identity — palette, typography, card style. The same expression might carry a different weight depending on which universe you are browsing.",
+      },
+      {
+        emoji: "🗺️",
+        title: "An interactive world map",
+        body: "The Atlas page already exists. The long-term vision: click any country on a world SVG map and dive into its expressions. Regional data is already in the database for parts of France (Alsace, Bretagne). The map will grow as the data grows — eventually linking every expression to the place where it was born.",
+      },
+      {
+        emoji: "🎮",
+        title: "A game",
+        body: "Long-term: emojis as riddles. Choose a language, click an emoji, guess which expressions it could represent — then reveal the answers. The very ambiguity of the image is the game mechanic. Built on the same concept system that already powers the search engine — no separate database needed.",
+      },
+    ],
     sectionContact: "Get in touch",
     contact: "Questions, a correction to report, a favourite expression to suggest — all welcome. You can reach out by email or find the project on Instagram.",
     footer: "Made with curiosity. Built in public.",
@@ -139,7 +173,7 @@ const CONTENT: Record<string, Content> = {
     subtitle: "Chaque langue possède des expressions qui résistent à la traduction. Elles portent trop de choses — de l'histoire, de l'humour, la texture du quotidien. C'est là que World Expressions commence.",
     intro: [
       "World Expressions est une base de données libre et open source d'expressions idiomatiques du monde entier. Vous tapez un mot, un sentiment ou une idée — et vous découvrez comment différentes langues nomment la même chose. Les résultats ne sont pas de simples traductions : ce sont des fenêtres sur la façon dont différentes cultures pensent, se disputent, aiment et plaisantent.",
-      "La base de données contient actuellement plus de 1 500 expressions en français, anglais, espagnol, italien et turc. Chaque entrée comprend une définition, une histoire d'origine, un exemple d'utilisation et des équivalents dans d'autres langues. Le projet est open source, en constante expansion et entièrement gratuit.",
+      "La base de données contient plus de 14 000 expressions réparties sur 10 langues — français, turc, italien, anglais, espagnol, allemand, japonais, et plusieurs variantes hispanophones (Mexique, Argentine, Colombie, Pérou). Chaque entrée comprend une définition, une histoire d'origine, un exemple d'utilisation et des équivalents dans d'autres langues. Le projet est open source, en constante expansion et entièrement gratuit.",
     ],
     sectionTypes: "Quels types d'expressions ?",
     typesIntro: "Toutes les formules figées ne sont pas identiques. World Expressions distingue quatre grands types — chacun avec son propre caractère et sa propre relation au sens littéral.",
@@ -220,6 +254,35 @@ const CONTENT: Record<string, Content> = {
     sectionOpenSource: "Open source",
     openSource: "L'intégralité du code — backend FastAPI, frontend Next.js, scripts de base de données, pipelines d'enrichissement — est open source sur GitHub. Les contributions sont les bienvenues : nouvelles expressions, corrections, traductions, améliorations de design ou idées.",
     githubLink: "github.com/sinsan67/world-expressions →",
+    sectionVision: "Et la suite ?",
+    visionIntro: "World Expressions est un projet vivant. Voici où il va.",
+    visionItems: [
+      {
+        emoji: "🖼️",
+        title: "Naviguer par image",
+        body: "Plutôt que de taper un mot, cliquer sur un emoji pour explorer. Les atomes (🐱 = un concept précis) et les molécules (🐱🐶🐦 = un domaine entier) forment deux niveaux de navigation visuelle — sans saisie de texte. Cliquer sur un domaine remonte toutes les expressions qui contiennent au moins un de ses concepts, dans toutes les langues. Cliquer sur un concept cible les expressions qui partagent exactement cette idée. L'ambiguïté de l'image est le principe : un seul emoji, des dizaines d'expressions, dix langues.",
+      },
+      {
+        emoji: "🌐",
+        title: "Modes monologue et bilingue",
+        body: "Choisir comment on lit les expressions : en immersion dans la langue d'origine uniquement (monologue — idéal pour les apprenants qui veulent être mis au défi) ou toujours avec une traduction dans sa propre langue affichée à côté (bilingue — pour ceux qui veulent tout comprendre d'un coup d'œil). Un réglage personnel unique, appliqué partout dans l'application.",
+      },
+      {
+        emoji: "🎨",
+        title: "Des univers visuels",
+        body: "Trois atmosphères distinctes pour trois registres différents : Langage du quotidien (chaleureux, familier), Argot & Rue (urbain, affirmé), Proverbes (classique, intemporel). Chaque univers aura sa propre identité visuelle — palette, typographie, style des cartes. La même expression peut avoir un poids différent selon l'univers dans lequel on l'explore.",
+      },
+      {
+        emoji: "🗺️",
+        title: "Une carte du monde interactive",
+        body: "La page Atlas existe déjà. La vision long terme : cliquer sur n'importe quel pays d'une carte SVG mondiale et plonger dans ses expressions. Des données régionales sont déjà en base pour une partie de la France (Alsace, Bretagne). La carte s'enrichira au fil des données — pour finalement relier chaque expression au lieu où elle est née.",
+      },
+      {
+        emoji: "🎮",
+        title: "Un jeu",
+        body: "Vision long terme : les emojis comme énigmes. Choisir une langue, cliquer sur un emoji, deviner quelles expressions il pourrait représenter — puis révéler les réponses. L'ambiguïté même de l'image est le mécanisme de jeu. Construit sur le même système de concepts qui alimente déjà le moteur de recherche — aucune base de données séparée n'est nécessaire.",
+      },
+    ],
     sectionContact: "Nous contacter",
     contact: "Questions, correction à signaler, expression favorite à proposer — tout est bienvenu. Vous pouvez nous contacter par e-mail ou trouver le projet sur Instagram.",
     footer: "Fait avec curiosité. Construit en public.",
@@ -231,7 +294,7 @@ const CONTENT: Record<string, Content> = {
     subtitle: "Cada lengua tiene expresiones que se resisten a la traducción. Llevan demasiado — historia, humor, la textura de la vida cotidiana. Aquí es donde comienza World Expressions.",
     intro: [
       "World Expressions es una base de datos gratuita y de código abierto de expresiones idiomáticas de todo el mundo. Escribe una palabra, un sentimiento o una idea — y descubre cómo diferentes idiomas nombran lo mismo. Los resultados no son simples traducciones: son ventanas a cómo diferentes culturas piensan, discuten, aman y bromean.",
-      "La base de datos contiene actualmente más de 1 500 expresiones en francés, inglés, español, italiano y turco. Cada entrada incluye un significado, una historia de origen, un ejemplo de uso y equivalentes en otros idiomas. El proyecto es de código abierto, se expande continuamente y es completamente gratuito.",
+      "La base de datos contiene más de 14,000 expresiones en 10 idiomas — francés, turco, italiano, inglés, español, alemán, japonés y varias variantes del español hispanohablante (México, Argentina, Colombia, Perú). Cada entrada incluye un significado, una historia de origen, un ejemplo de uso y equivalentes en otros idiomas. El proyecto es de código abierto, se expande continuamente y es completamente gratuito.",
     ],
     sectionTypes: "¿Qué tipo de expresiones?",
     typesIntro: "No todas las frases fijas son iguales. World Expressions distingue cuatro tipos principales — cada uno con su propio carácter y su propia relación con el significado literal.",
@@ -312,6 +375,35 @@ const CONTENT: Record<string, Content> = {
     sectionOpenSource: "Código abierto",
     openSource: "Todo el código — backend FastAPI, frontend Next.js, scripts de base de datos, pipelines de enriquecimiento — es de código abierto en GitHub. Las contribuciones son bienvenidas: nuevas expresiones, correcciones, traducciones, mejoras de diseño o ideas.",
     githubLink: "github.com/sinsan67/world-expressions →",
+    sectionVision: "¿Qué sigue?",
+    visionIntro: "World Expressions es un proyecto vivo. Hacia aquí va.",
+    visionItems: [
+      {
+        emoji: "🖼️",
+        title: "Navegar por imagen",
+        body: "En lugar de escribir, hacer clic en un emoji para explorar. Los átomos (🐱 = un concepto específico) y las moléculas (🐱🐶🐦 = un dominio completo) forman dos niveles de navegación visual — sin necesidad de texto. Hacer clic en un dominio recupera todas las expresiones que contienen al menos uno de sus conceptos, en todos los idiomas. Hacer clic en un concepto filtra las expresiones que comparten exactamente esa idea.",
+      },
+      {
+        emoji: "🌐",
+        title: "Modos monolingüe y bilingüe",
+        body: "Elegir cómo se leen las expresiones: sumergido en la lengua original únicamente (monolingüe — ideal para quienes aprenden un idioma) o siempre con una traducción en su propio idioma al lado (bilingüe — para quienes quieren entenderlo todo de un vistazo). Un ajuste personal único, aplicado en toda la aplicación.",
+      },
+      {
+        emoji: "🎨",
+        title: "Universos visuales",
+        body: "Tres atmósferas distintas para tres registros diferentes: Lenguaje cotidiano (cálido, familiar), Argot y calle (urbano, atrevido), Proverbios (clásico, atemporal). Cada universo tendrá su propia identidad visual — paleta, tipografía, estilo de tarjetas.",
+      },
+      {
+        emoji: "🗺️",
+        title: "Un mapa del mundo interactivo",
+        body: "La página Atlas ya existe. La visión a largo plazo: hacer clic en cualquier país de un mapa SVG mundial y sumergirse en sus expresiones. Hay datos regionales en la base de datos para partes de Francia (Alsacia, Bretaña). El mapa crecerá a medida que crezcan los datos.",
+      },
+      {
+        emoji: "🎮",
+        title: "Un juego",
+        body: "Visión a largo plazo: emojis como acertijos. Elegir un idioma, hacer clic en un emoji, adivinar qué expresiones podría representar — luego revelar las respuestas. La ambigüedad de la imagen es el mecanismo del juego. Construido sobre el mismo sistema de conceptos que ya impulsa el motor de búsqueda.",
+      },
+    ],
     sectionContact: "Contacto",
     contact: "Preguntas, una corrección que reportar, una expresión favorita que sugerir — todo es bienvenido. Puedes contactarnos por correo electrónico o encontrar el proyecto en Instagram.",
     footer: "Hecho con curiosidad. Construido en público.",
@@ -426,6 +518,19 @@ export default function AboutPage() {
         <a href="https://github.com/sinsan67/world-expressions" target="_blank" rel="noopener noreferrer" style={s.link}>
           {t.githubLink}
         </a>
+
+        {/* Vision */}
+        <div style={{ ...s.sectionTitle, marginTop: "3rem" }}>{t.sectionVision}</div>
+        <p style={s.body}>{t.visionIntro}</p>
+        {t.visionItems.map((item) => (
+          <div key={item.title} style={{ display: "flex", gap: "1rem", marginBottom: "0.85rem", background: "var(--paper)", border: "1px solid var(--paper-edge)", borderRadius: 10, padding: "1rem 1.1rem" }}>
+            <span style={{ fontSize: "1.4rem", flexShrink: 0, lineHeight: 1.4, marginTop: 1 }}>{item.emoji}</span>
+            <div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "0.95rem", color: "var(--ink)", fontWeight: 600, marginBottom: "0.3rem" }}>{item.title}</div>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "var(--ink-soft)", lineHeight: 1.65, margin: 0 }}>{item.body}</p>
+            </div>
+          </div>
+        ))}
 
         {/* Contact */}
         <div style={{ ...s.sectionTitle, marginTop: "2.5rem" }}>{t.sectionContact}</div>
