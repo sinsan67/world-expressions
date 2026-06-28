@@ -49,7 +49,7 @@ test.describe('Page /emoji', () => {
     await expect(frBtn).toBeVisible({ timeout: T });
     await frBtn.click();
     await expect(page.locator(CONCEPT).first()).toBeVisible({ timeout: T });
-    const tousBtn = page.locator('button').filter({ hasText: /^Tous$|^All$|^Tümü$|^Todos$|^Tutti$/ }).first();
+    const tousBtn = page.locator('[data-testid="lang-filter-all"]');
     await tousBtn.click();
     await expect(page.locator(CONCEPT).first()).toBeVisible({ timeout: T });
     const afterCount = await page.locator(CONCEPT).count();

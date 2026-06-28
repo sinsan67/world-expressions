@@ -1413,7 +1413,15 @@ def send_transactional_email(to: str, subject: str, html_body: str) -> None:
     Envoie un email via l'API Resend (urllib — pas de dépendance externe).
     Nécessite RESEND_API_KEY et APP_URL dans les variables d'environnement.
     En l'absence de clé API, log vers stdout (mode dev).
+    RESEND_SUPPRESS_EMAILS : liste d'adresses email (virgule) pour lesquelles
+    l'envoi est silencieusement ignoré — utile pour les comptes de test CI.
     """
+    suppress = os.getenv("RESEND_SUPPRESS_EMAILS", "")
+    suppressed = {e.strip().lower() for e in suppress.split(",") if e.strip()}
+    if to.lower() in suppressed:
+        print(f"[email suppressed] To: {to} | Subject: {subject}")
+        return
+
     api_key = os.getenv("RESEND_API_KEY", "")
     if not api_key:
         print(f"[email dev] To: {to} | Subject: {subject}\n{html_body}")

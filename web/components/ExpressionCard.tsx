@@ -42,6 +42,14 @@ const NO_VOICE_LABEL: Record<string, string> = {
   ja: "このデバイスでは音声を利用できません",
 };
 
+const MATCH_BADGE: Record<string, { emoji: string; label: Record<string, string> }> = {
+  exact:       { emoji: "🎯", label: { fr: "exact",      en: "exact",       es: "exacto",      tr: "tam",       it: "esatto",    de: "genau",     ja: "完全一致" } },
+  semantic:    { emoji: "💡", label: { fr: "sens",       en: "meaning",     es: "sentido",     tr: "anlam",     it: "senso",     de: "Sinn",      ja: "意味" } },
+  concept:     { emoji: "🏷️", label: { fr: "concept",   en: "concept",     es: "concepto",    tr: "kavram",    it: "concetto",  de: "Konzept",   ja: "概念" } },
+  tag:         { emoji: "🏷️", label: { fr: "concept",   en: "concept",     es: "concepto",    tr: "kavram",    it: "concetto",  de: "Konzept",   ja: "概念" } },
+  translation: { emoji: "🌍", label: { fr: "traduction", en: "translation", es: "traducción",  tr: "çeviri",    it: "traduzione", de: "Übersetzung", ja: "翻訳" } },
+};
+
 type Props = {
   expression: Expression;
   onTagClick: (tag: string) => void;
@@ -120,6 +128,14 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
                   style={{ fontSize: "calc(var(--wex-meta-size) - 1px)", background: "rgba(107,122,153,0.1)", color: "#6B7A99" }}
                 >
                   {(REGISTER_LABEL[uiLang] ?? REGISTER_LABEL.en)[e.register] || e.register}
+                </span>
+              )}
+              {e.match_type && e.match_type !== "direct" && MATCH_BADGE[e.match_type] && (
+                <span
+                  className="text-xs px-1.5 py-0.5 rounded inline-block"
+                  style={{ fontSize: "calc(var(--wex-meta-size) - 1px)", background: "rgba(107,122,153,0.07)", color: "var(--ink-faint)", letterSpacing: "0.02em" }}
+                >
+                  {MATCH_BADGE[e.match_type].emoji} {MATCH_BADGE[e.match_type].label[uiLang] ?? MATCH_BADGE[e.match_type].label.en}
                 </span>
               )}
             </div>
