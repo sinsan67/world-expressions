@@ -10,11 +10,12 @@ on:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-# One run at a time per commit SHA — cancels the duplicate run when both
-# the push trigger and the pull_request trigger fire for the same commit.
+# One run at a time per commit SHA — serialises the push and pull_request
+# triggers instead of cancelling (cancelled runs count as failures in
+# branch-protection checks, blocking auto-merge).
 concurrency:
   group: playwright-${{ github.event.pull_request.head.sha || github.sha }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   test:
