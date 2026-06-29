@@ -6,7 +6,7 @@
 
 | Property | Value |
 |----------|-------|
-| **Row Count** | 84,622 |
+| **Row Count** | 85,206 |
 | **Column Count** | 7 |
 
 ## Description
