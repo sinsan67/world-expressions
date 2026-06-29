@@ -1,26 +1,24 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import AuthButton from "./AuthButton";
 import LangDropdown from "./LangDropdown";
 import { useUILangContext } from "@/lib/UILangContext";
 
 export default function GlobalHeader() {
   const { uiLang, setUILang } = useUILangContext();
+  const isHome = usePathname() === "/";
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: "0.75rem",
-        right: "1rem",
-        zIndex: 50,
-        display: "flex",
-        alignItems: "center",
-        gap: "0.5rem",
-      }}
-    >
-      {/* Language switcher — visible on all viewports, including mobile */}
-      <LangDropdown uiLang={uiLang} onLangChange={setUILang} />
+    <div className="wex-global-header">
+      {/* Language switcher. On the home page the mobile switcher lives inline in
+          the hero header (flex-aligned with the wordmark), so hide this fixed one
+          on mobile there — but keep it on desktop, which has no hero header. */}
+      <span
+        className={isHome ? "wex-desktop-only" : undefined}
+      >
+        <LangDropdown uiLang={uiLang} onLangChange={setUILang} />
+      </span>
       {/* Auth stays desktop-only; on mobile it lives in the Carnet/profile tab */}
       <span
         className="wex-desktop-only"

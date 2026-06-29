@@ -55,6 +55,11 @@ export default function BottomNav({ uiLang = "fr" }: Props) {
             key={item.id}
             href={item.href}
             aria-current={isActive ? "page" : undefined}
+            onClick={() => {
+              if (item.id === "home" && pathname === "/") {
+                window.dispatchEvent(new Event("wex-go-home"));
+              }
+            }}
             style={{
               flex: 1,
               display: "flex",

@@ -164,6 +164,19 @@ body {
 .wex-mobile-header { display: flex; }
 .wex-desktop-only { display: none; }
 
+/* Fixed top-right language switcher (+ auth on desktop). Used on all pages
+   except the home page on mobile, where the switcher is inline in the hero
+   header (flex-aligned with the wordmark). */
+.wex-global-header {
+  position: fixed;
+  top: 0.75rem;
+  right: 1rem;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 @media (min-width: 1024px) {
   :root {
     --wex-body-size: 14px;
