@@ -164,12 +164,12 @@ body {
 .wex-mobile-header { display: flex; }
 .wex-desktop-only { display: none; }
 
-/* Fixed top-right language switcher (+ auth on desktop).
-   Mobile top is tuned so the pill's vertical center lines up with the
-   "World Expressions" wordmark in the page header. */
+/* Fixed top-right language switcher (+ auth on desktop). Used on all pages
+   except the home page on mobile, where the switcher is inline in the hero
+   header (flex-aligned with the wordmark). */
 .wex-global-header {
   position: fixed;
-  top: 1.15rem;
+  top: 0.75rem;
   right: 1rem;
   z-index: 50;
   display: flex;
@@ -221,7 +221,6 @@ body {
   .wex-atlas-card { display: block; }
   .wex-mobile-header { display: none; }
   .wex-desktop-only { display: flex; }
-  .wex-global-header { top: 0.75rem; }
 
   /* Hero photo bleeds full viewport width — extends 220px behind the fixed sidebar */
   .wex-main .country-photo::before {

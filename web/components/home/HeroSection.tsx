@@ -13,6 +13,8 @@ import { useAudio } from "@/lib/useAudio";
 import { cap } from "@/lib/utils";
 import { useFavorite } from "@/lib/useFavorite";
 import { getTypeLabel } from "@/lib/typeLabels";
+import LangDropdown from "@/components/ui/LangDropdown";
+import { useUILangContext } from "@/lib/UILangContext";
 
 type Featured = Expression & { meaning_locale: string; literal: string | null };
 
@@ -35,6 +37,7 @@ type Props = {
 
 export default function HeroSection({ featured, coldStart, uiLang, tagNames, onRefresh, onConceptClick, t }: Props) {
   const router = useRouter();
+  const { uiLang: ctxLang, setUILang } = useUILangContext();
   const [fav, handleFavToggle] = useFavorite(featured?.id ?? "");
 
   const { speaking, voiceAvailable, handleListen } = useAudio(
@@ -72,12 +75,15 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
     <CountryPhotoBackdrop photo={photo} fadeBottom>
       <div style={{ padding: "var(--wex-hero-shell-padding)", maxWidth: "var(--wex-hero-max-width)", margin: "0 auto" }}>
 
-        {/* Mobile header — wordmark + title, hidden on desktop */}
+        {/* Mobile header — wordmark + language switcher, hidden on desktop.
+            The switcher sits in the same flex row so it stays vertically
+            centered on the wordmark (no fixed-position pixel guessing). */}
         <div className="wex-mobile-header" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
           <Link href="/" style={{ textDecoration: "none", fontFamily: "var(--font-display)" }}>
             <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 18, fontWeight: 500 }}>World </span>
             <em style={{ color: "var(--terra-soft)", fontSize: 18, fontStyle: "italic" }}>Expressions</em>
           </Link>
+          <LangDropdown uiLang={ctxLang} onLangChange={setUILang} />
         </div>
 
 
