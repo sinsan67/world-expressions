@@ -224,9 +224,12 @@ export async function getRandomExpression(locale = ""): Promise<Expression & { m
   return res.json();
 }
 
-export async function getExpression(id: string, lang = ""): Promise<Expression> {
-  const params = lang ? `?lang=${encodeURIComponent(lang)}` : "";
-  const res = await fetch(`${API}/expression/${id}${params}`);
+export async function getExpression(id: string, lang = "", locale = ""): Promise<Expression> {
+  const params = new URLSearchParams();
+  if (lang) params.set("lang", lang);
+  if (locale) params.set("locale", locale);
+  const qs = params.toString();
+  const res = await fetch(`${API}/expression/${id}${qs ? `?${qs}` : ""}`);
   if (!res.ok) throw new Error("Expression not found");
   return res.json();
 }

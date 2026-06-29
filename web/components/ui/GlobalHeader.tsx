@@ -9,19 +9,26 @@ export default function GlobalHeader() {
 
   return (
     <div
-      className="wex-desktop-only"
       style={{
         position: "fixed",
         top: "0.75rem",
         right: "1rem",
         zIndex: 50,
+        display: "flex",
         alignItems: "center",
         gap: "0.5rem",
       }}
     >
+      {/* Language switcher — visible on all viewports, including mobile */}
       <LangDropdown uiLang={uiLang} onLangChange={setUILang} />
-      <span style={{ width: 1, height: 14, background: "var(--paper-edge)", flexShrink: 0 }} />
-      <AuthButton uiLang={uiLang} />
+      {/* Auth stays desktop-only; on mobile it lives in the Carnet/profile tab */}
+      <span
+        className="wex-desktop-only"
+        style={{ width: 1, height: 14, background: "var(--paper-edge)", flexShrink: 0 }}
+      />
+      <span className="wex-desktop-only" style={{ alignItems: "center" }}>
+        <AuthButton uiLang={uiLang} />
+      </span>
     </div>
   );
 }

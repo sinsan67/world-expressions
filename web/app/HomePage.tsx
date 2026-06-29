@@ -608,27 +608,35 @@ export default function HomePage() {
     return () => { cancelled = true; clearTimeout(coldTimer); };
   }, [uiLang]);
 
-  // When UI language changes on an already-loaded expression, re-fetch translation
-  // (the expression stays the same, only the meaning/literal update)
+  // When the UI language changes, keep the SAME expression of the day but re-translate
+  // its explanation. We re-fetch via /expression?locale= which serves meaning/literal
+  // already localized (same COALESCE logic as /random), so the card stays consistent.
   useEffect(() => {
     if (!featuredLoadedRef.current || !featured) return;
     const fetchId = featured.id;
     let cancelled = false;
-    getExpression(fetchId, uiLang).then((data) => {
+    getExpression(fetchId, "", uiLang).then((data) => {
       if (cancelled) return;
-      const displayMeaning =
-        uiLang !== data.language && data.translation?.meaning
-          ? data.translation.meaning
-          : data.meaning;
-      const displayLiteral =
-        uiLang !== data.language && data.translation?.literal
-          ? data.translation.literal
-          : null;
+      const displayLiteral = data.language !== uiLang ? data.literal : null;
       setFeatured((prev) =>
         prev && prev.id === fetchId
-          ? { ...prev, meaning: displayMeaning, literal: displayLiteral }
+          ? { ...prev, meaning: data.meaning, literal: displayLiteral }
           : prev
       );
+      // Keep the cached copy in sync so a remount restores the translated explanation.
+      const stored = sessionStorage.getItem("featured_expression");
+      if (stored) {
+        try {
+          const obj = JSON.parse(stored);
+          if (obj?.id === fetchId) {
+            sessionStorage.setItem(
+              "featured_expression",
+              JSON.stringify({ ...obj, meaning: data.meaning, literal: displayLiteral })
+            );
+            sessionStorage.setItem("featured_lang", uiLang);
+          }
+        } catch { /* ignore malformed cache */ }
+      }
     }).catch(() => {});
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -197,9 +197,16 @@ def get_random(
 def get_expression(
     expression_id: str,
     lang: str = Query("", description="Target language for translation (en/fr/es/it/tr). Empty = no translation."),
+    locale: str = Query("", description="Serve meaning/origin/example/literal localized to this locale (same COALESCE logic as /random). Empty = origin language."),
 ):
-    """Return the full detail of an expression by its id. Pass lang= to include a translation."""
-    expr = database.get_expression_by_id(expression_id)
+    """Return the full detail of an expression by its id.
+    Pass lang= to include a separate translation block.
+    Pass locale= to get the main fields already localized (used by the home 'expression of the day')."""
+    target_locale = locale.strip()
+    if target_locale:
+        expr = database.get_expression_by_id_localized(expression_id, target_locale)
+    else:
+        expr = database.get_expression_by_id(expression_id)
     if expr is None:
         raise HTTPException(status_code=404, detail=f"Expression '{expression_id}' not found")
     target = lang.strip()
