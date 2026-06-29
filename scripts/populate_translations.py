@@ -36,10 +36,13 @@ load_dotenv(Path(__file__).parent.parent / _env_file)
 
 import anthropic
 from mistralai.client import Mistral
+from google import genai as google_genai
+from google.genai import types as genai_types
 from config import engine
 
 MODEL_ANTHROPIC = "claude-haiku-4-5"
-MODEL_MISTRAL = "mistral-small-latest"
+MODEL_MISTRAL   = "mistral-small-latest"
+MODEL_GEMINI    = "gemini-2.0-flash"
 
 # Noms des langues pour construire les prompts
 LANG_NAMES = {
@@ -173,6 +176,24 @@ def call_mistral(client: Mistral, expr: dict, source_lang: str, target_lang: str
     return json.loads(raw)
 
 
+def call_gemini(client: google_genai.Client, expr: dict, source_lang: str, target_lang: str) -> dict:
+    system_prompt = build_system_prompt(source_lang, target_lang)
+    user_msg = build_user_message(expr, source_lang)
+    response = client.models.generate_content(
+        model=MODEL_GEMINI,
+        contents=user_msg,
+        config=genai_types.GenerateContentConfig(
+            system_instruction=system_prompt,
+            max_output_tokens=600,
+        ),
+    )
+    raw = response.text.strip()
+    if raw.startswith("```"):
+        parts = raw.split("```")
+        raw = parts[1].lstrip("json").strip() if len(parts) > 1 else raw
+    return json.loads(raw)
+
+
 def insert_translation(expression_id: str, target_lang: str, t: dict) -> None:
     sql = """
         INSERT INTO content_translations
@@ -218,6 +239,8 @@ def main():
                         help="Utilise la base production (.env.prod)")
     parser.add_argument("--mistral", action="store_true",
                         help="Utilise Mistral (mistral-small-latest) au lieu d'Anthropic Haiku")
+    parser.add_argument("--gemini", action="store_true",
+                        help="Utilise Google Gemini (gemini-2.0-flash) au lieu d'Anthropic Haiku")
     args = parser.parse_args()
 
     if args.source == args.target:
@@ -251,6 +274,14 @@ def main():
         client = Mistral(api_key=api_key)
         call_fn = call_mistral
         print(f"Moteur : Mistral ({MODEL_MISTRAL})")
+    elif args.gemini:
+        api_key = os.environ.get("GEMINI_API_KEY")
+        if not api_key:
+            print("Erreur : GEMINI_API_KEY absent du .env")
+            sys.exit(1)
+        client = google_genai.Client(api_key=api_key)
+        call_fn = call_gemini
+        print(f"Moteur : Gemini ({MODEL_GEMINI})")
     else:
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
