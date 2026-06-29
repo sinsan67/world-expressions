@@ -164,6 +164,19 @@ body {
 .wex-mobile-header { display: flex; }
 .wex-desktop-only { display: none; }
 
+/* Fixed top-right language switcher (+ auth on desktop).
+   Mobile top is tuned so the pill's vertical center lines up with the
+   "World Expressions" wordmark in the page header. */
+.wex-global-header {
+  position: fixed;
+  top: 1.15rem;
+  right: 1rem;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 @media (min-width: 1024px) {
   :root {
     --wex-body-size: 14px;
@@ -208,6 +221,7 @@ body {
   .wex-atlas-card { display: block; }
   .wex-mobile-header { display: none; }
   .wex-desktop-only { display: flex; }
+  .wex-global-header { top: 0.75rem; }
 
   /* Hero photo bleeds full viewport width — extends 220px behind the fixed sidebar */
   .wex-main .country-photo::before {

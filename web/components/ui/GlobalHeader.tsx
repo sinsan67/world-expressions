@@ -8,17 +8,7 @@ export default function GlobalHeader() {
   const { uiLang, setUILang } = useUILangContext();
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: "0.75rem",
-        right: "1rem",
-        zIndex: 50,
-        display: "flex",
-        alignItems: "center",
-        gap: "0.5rem",
-      }}
-    >
+    <div className="wex-global-header">
       {/* Language switcher — visible on all viewports, including mobile */}
       <LangDropdown uiLang={uiLang} onLangChange={setUILang} />
       {/* Auth stays desktop-only; on mobile it lives in the Carnet/profile tab */}
