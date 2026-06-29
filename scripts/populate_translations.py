@@ -35,9 +35,11 @@ _env_file = ".env.prod" if _early_args.prod else ".env.dev"
 load_dotenv(Path(__file__).parent.parent / _env_file)
 
 import anthropic
+from mistralai.client import Mistral
 from config import engine
 
-MODEL = "claude-haiku-4-5"
+MODEL_ANTHROPIC = "claude-haiku-4-5"
+MODEL_MISTRAL = "mistral-small-latest"
 
 # Noms des langues pour construire les prompts
 LANG_NAMES = {
@@ -141,12 +143,30 @@ def call_claude(client: anthropic.Anthropic, expr: dict, source_lang: str, targe
     system_prompt = build_system_prompt(source_lang, target_lang)
     user_msg = build_user_message(expr, source_lang)
     response = client.messages.create(
-        model=MODEL,
+        model=MODEL_ANTHROPIC,
         max_tokens=600,
         system=system_prompt,
         messages=[{"role": "user", "content": user_msg}],
     )
     raw = response.content[0].text.strip()
+    if raw.startswith("```"):
+        parts = raw.split("```")
+        raw = parts[1].lstrip("json").strip() if len(parts) > 1 else raw
+    return json.loads(raw)
+
+
+def call_mistral(client: Mistral, expr: dict, source_lang: str, target_lang: str) -> dict:
+    system_prompt = build_system_prompt(source_lang, target_lang)
+    user_msg = build_user_message(expr, source_lang)
+    response = client.chat.complete(
+        model=MODEL_MISTRAL,
+        max_tokens=600,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_msg},
+        ],
+    )
+    raw = response.choices[0].message.content.strip()
     if raw.startswith("```"):
         parts = raw.split("```")
         raw = parts[1].lstrip("json").strip() if len(parts) > 1 else raw
@@ -196,6 +216,8 @@ def main():
                         help="Délai entre appels API en secondes (défaut: 0.3)")
     parser.add_argument("--prod", action="store_true",
                         help="Utilise la base production (.env.prod)")
+    parser.add_argument("--mistral", action="store_true",
+                        help="Utilise Mistral (mistral-small-latest) au lieu d'Anthropic Haiku")
     args = parser.parse_args()
 
     if args.source == args.target:
@@ -221,18 +243,29 @@ def main():
             print(f"  [{i:3}/{total}] {e['id']}")
         return
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        print("Erreur : ANTHROPIC_API_KEY absent du .env")
-        sys.exit(1)
+    if args.mistral:
+        api_key = os.environ.get("MISTRAL_API_KEY")
+        if not api_key:
+            print("Erreur : MISTRAL_API_KEY absent du .env")
+            sys.exit(1)
+        client = Mistral(api_key=api_key)
+        call_fn = call_mistral
+        print(f"Moteur : Mistral ({MODEL_MISTRAL})")
+    else:
+        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        if not api_key:
+            print("Erreur : ANTHROPIC_API_KEY absent du .env")
+            sys.exit(1)
+        client = anthropic.Anthropic(api_key=api_key)
+        call_fn = call_claude
+        print(f"Moteur : Anthropic ({MODEL_ANTHROPIC})")
 
-    client = anthropic.Anthropic(api_key=api_key)
     ok = errors = 0
 
     for i, expr in enumerate(expressions, 1):
         print(f"[{i:3}/{total}] {expr['id']} ... ", end="", flush=True)
         try:
-            translation = call_claude(client, expr, args.source, args.target)
+            translation = call_fn(client, expr, args.source, args.target)
             insert_translation(expr["id"], args.target, translation)
             print("OK")
             ok += 1
@@ -244,7 +277,7 @@ def main():
                 print("RATE LIMIT — pause 60s")
                 time.sleep(60)
                 try:
-                    translation = call_claude(client, expr, args.source, args.target)
+                    translation = call_fn(client, expr, args.source, args.target)
                     insert_translation(expr["id"], args.target, translation)
                     print(f"[{i:3}/{total}] {expr['id']} ... OK (retry)")
                     ok += 1
