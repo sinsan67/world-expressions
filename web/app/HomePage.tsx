@@ -572,6 +572,27 @@ export default function HomePage() {
     return () => window.removeEventListener("wex-search", handler);
   }, [handleSearch]);
 
+  // Reset to initial home view when clicking the Home button while already on "/"
+  // (Next.js soft-navigation on same URL doesn't remount the component)
+  useEffect(() => {
+    const handler = () => {
+      setSearched(false);
+      setQuery("");
+      setResults([]);
+      setTotal(0);
+      setHasError(false);
+      setSearchMode("text");
+      setSearchLabel("");
+      setFilterRegions([]);
+      setTypeFilter(null);
+      setSortMode("country");
+      window.history.replaceState(null, "", "/");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    window.addEventListener("wex-go-home", handler);
+    return () => window.removeEventListener("wex-go-home", handler);
+  }, []);
+
   useEffect(() => {
     // Don't reload the expression when the UI language changes — only labels translate.
     // The expression is fetched once on mount and when the user explicitly clicks "another one".

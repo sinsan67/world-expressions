@@ -159,6 +159,11 @@ export default function Sidebar({ uiLang }: Props) {
               key={item.id}
               href={item.href}
               aria-current={isActive ? "page" : undefined}
+              onClick={() => {
+                if (item.id === "home" && pathname === "/") {
+                  window.dispatchEvent(new Event("wex-go-home"));
+                }
+              }}
               style={{ ...sharedStyle, textDecoration: "none" }}
               onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "var(--paper-deep)"; }}
               onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "transparent"; }}

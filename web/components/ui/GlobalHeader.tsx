@@ -16,7 +16,6 @@ export default function GlobalHeader() {
           on mobile there — but keep it on desktop, which has no hero header. */}
       <span
         className={isHome ? "wex-desktop-only" : undefined}
-        style={{ display: "flex", alignItems: "center" }}
       >
         <LangDropdown uiLang={uiLang} onLangChange={setUILang} />
       </span>
