@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup — Sélecteur de langue (mobile)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:#fdf8ee; --paper-deep:#f3e8d4; --paper-edge:#e8dcc4; --paper-fold:#ddd0b5;
+    --ink:#1c1410; --ink-soft:#5c4f47; --ink-softer:#8b7d72; --ink-faint:#b8aa9b;
+    --plum:#6b4d8f; --plum-deep:#4a3565; --plum-soft:#c9b8d9; --plum-bg:#ebe3f1;
+    --terra:#c1543a; --terra-deep:#92341f; --terra-soft:#f0c8b8; --terra-bg:#f7e3d8;
+    --ochre:#d4a83a; --ochre-deep:#8b6b1c; --ochre-bg:#faf2cf;
+    --r-sm:6px; --r-md:10px; --r-lg:18px; --r-pill:999px;
+    --shadow-card:0 1px 2px rgba(28,20,16,0.05),0 4px 12px rgba(28,20,16,0.06);
+    --shadow-deep:0 8px 28px rgba(28,20,16,0.18);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--paper-deep); font-family:"Inter",sans-serif; font-size:14px; color:var(--ink); padding-bottom:3rem; }
+
+  .page-title { text-align:center; padding:2rem 1rem .4rem; font-family:"Fraunces",serif; font-size:1.6rem; }
+  .page-sub { text-align:center; color:var(--ink-softer); font-size:13px; margin-bottom:1.5rem; }
+  .note { background:var(--ochre-bg); border:1.5px solid var(--ochre); border-radius:var(--r-md); padding:.8rem 1.2rem; font-size:13px; color:var(--ochre-deep); max-width:820px; margin:0 auto 2.5rem; line-height:1.5; }
+  .note strong { color:var(--ink); }
+
+  .columns { display:flex; gap:1.5rem; max-width:1100px; margin:0 auto; padding:0 1rem; align-items:flex-start; flex-wrap:wrap; }
+  .col { flex:1; min-width:300px; }
+  .col-label { font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--plum); margin-bottom:.2rem; text-align:center; }
+  .col-tag { font-size:11px; color:var(--ink-softer); text-align:center; margin-bottom:1rem; min-height:2.4em; }
+
+  /* ── Phone frame ── */
+  .phone { width:300px; margin:0 auto; background:var(--paper); border:8px solid #2a2018; border-radius:32px; overflow:hidden; box-shadow:var(--shadow-deep); position:relative; height:560px; }
+  .phone-screen { height:100%; display:flex; flex-direction:column; position:relative; overflow:hidden; }
+
+  /* ── Mobile header (current = wordmark only) ── */
+  .m-header { display:flex; align-items:center; justify-content:space-between; padding:.85rem 1rem; border-bottom:1px solid var(--paper-edge); background:var(--paper); flex-shrink:0; }
+  .wordmark { font-family:"Fraunces",serif; font-size:16px; }
+  .wordmark .w { color:var(--ink); font-weight:500; }
+  .wordmark .e { color:var(--terra); font-style:italic; }
+
+  /* lang trigger variants */
+  .lang-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 9px 4px 7px; border-radius:var(--r-pill); border:1.5px solid var(--paper-edge); background:var(--paper); color:var(--ink-soft); font-size:11px; cursor:pointer; }
+  .lang-pill .flag { font-size:15px; line-height:1; }
+  .lang-pill .code { font-weight:700; letter-spacing:.03em; text-transform:uppercase; }
+  .lang-pill .caret { font-size:8px; opacity:.5; }
+
+  /* ── Faux content ── */
+  .m-body { flex:1; padding:1rem; overflow:hidden; }
+  .hero-card { background:var(--paper-deep); border-radius:var(--r-md); padding:.9rem; box-shadow:var(--shadow-card); margin-bottom:.8rem; }
+  .hero-eyebrow { font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--terra); margin-bottom:.4rem; }
+  .hero-expr { font-family:"Fraunces",serif; font-size:15px; font-weight:700; line-height:1.3; margin-bottom:.3rem; }
+  .hero-meaning { font-size:12px; color:var(--ink-soft); line-height:1.45; }
+  .skeleton { height:9px; background:var(--paper-edge); border-radius:4px; margin-top:.5rem; }
+  .skeleton.s2 { width:80%; }
+
+  /* ── Bottom nav ── */
+  .m-bottomnav { display:flex; border-top:1px solid var(--paper-edge); background:var(--paper); flex-shrink:0; }
+  .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:.5rem 0 .65rem; color:var(--ink-softer); font-size:9px; font-weight:600; }
+  .nav-item.active { color:var(--plum); }
+  .nav-item .ic { font-size:17px; line-height:1; }
+
+  /* ── Floating button (option A) ── */
+  .fab-lang { position:absolute; top:.7rem; right:.7rem; z-index:20; display:inline-flex; align-items:center; gap:4px; padding:5px 10px; border-radius:var(--r-pill); background:rgba(253,248,238,.92); backdrop-filter:blur(4px); border:1.5px solid var(--paper-edge); box-shadow:var(--shadow-card); font-size:11px; font-weight:700; color:var(--plum); }
+  .fab-lang .flag { font-size:14px; }
+
+  /* ── Bottom sheet (shared picker) ── */
+  .sheet-wrap { position:absolute; inset:0; background:rgba(28,20,16,.35); display:flex; align-items:flex-end; z-index:30; }
+  .sheet { width:100%; background:var(--paper); border-radius:var(--r-lg) var(--r-lg) 0 0; padding:1rem 0 .5rem; box-shadow:var(--shadow-deep); animation:slideUp .25s ease; }
+  @keyframes slideUp { from { transform:translateY(100%);} to { transform:translateY(0);} }
+  .sheet-grip { width:36px; height:4px; background:var(--paper-fold); border-radius:2px; margin:0 auto .8rem; }
+  .sheet-title { font-family:"Fraunces",serif; font-size:14px; font-weight:600; padding:0 1.1rem .6rem; }
+  .sheet-opt { display:flex; align-items:center; gap:10px; padding:9px 1.1rem; font-size:13px; color:var(--ink-soft); }
+  .sheet-opt.sel { background:var(--plum-bg); color:var(--plum); font-weight:600; }
+  .sheet-opt .flag { font-size:18px; }
+  .sheet-opt .chk { margin-left:auto; color:var(--plum); font-size:11px; }
+
+  .verdict { margin:.9rem auto 0; max-width:300px; }
+  .v { padding:.6rem .8rem; border-radius:var(--r-md); font-size:11.5px; line-height:1.45; margin-top:.5rem; }
+  .v.good { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
+  .v.bad { background:var(--terra-bg); color:var(--terra-deep); border:1px solid var(--terra-soft); }
+  .v strong { display:block; font-size:10px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.2rem; }
+
+  .behaviour { max-width:820px; margin:2.5rem auto 0; padding:0 1rem; }
+  .behaviour h2 { font-family:"Fraunces",serif; font-size:1.1rem; margin-bottom:.6rem; text-align:center; }
+  .behaviour .card { background:var(--paper); border:1px solid var(--paper-edge); border-radius:var(--r-md); padding:1rem 1.2rem; font-size:13px; line-height:1.6; color:var(--ink-soft); box-shadow:var(--shadow-card); }
+  .behaviour .card strong { color:var(--ink); }
+  .seq { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-top:.6rem; font-size:12px; }
+  .seq .step { background:var(--plum-bg); color:var(--plum); border-radius:var(--r-pill); padding:3px 10px; font-weight:600; }
+  .seq .arrow { color:var(--ink-faint); }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">Sélecteur de langue — accessible partout</h1>
+<p class="page-sub">Problème : aujourd'hui le sélecteur n'existe que sur desktop. Sur mobile, il faut passer par le profil.</p>
+
+<div class="note">
+  <strong>Objectif :</strong> sur mobile comme desktop, l'utilisateur change la langue de l'interface depuis n'importe quelle page, sans passer par le profil.
+  Au changement → tout le contenu se met à jour dans la nouvelle langue. <strong>L'expression du jour reste la même</strong>, seule son explication est re-traduite.
+  Comparaison de 3 emplacements pour le déclencheur sur mobile. Le sélecteur lui-même = une <em>bottom sheet</em> (panneau qui remonte) listant les 7 langues.
+</div>
+
+<div class="columns">
+
+  <!-- ════ OPTION A : bouton flottant ════ -->
+  <div class="col">
+    <div class="col-label">Option A · Pastille flottante</div>
+    <div class="col-tag">En haut à droite, fixe, par-dessus le contenu. Mêmes coordonnées que le desktop.</div>
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="fab-lang"><span class="flag">🇫🇷</span> FR ▾</div>
+        <div class="m-header">
+          <div class="wordmark"><span class="w">World </span><span class="e">Expressions</span></div>
+        </div>
+        <div class="m-body">
+          <div class="hero-card">
+            <div class="hero-eyebrow">★ Expression du jour</div>
+            <div class="hero-expr">El rico es siempre rico</div>
+            <div class="hero-meaning">Le riche reste toujours riche…</div>
+            <div class="skeleton"></div><div class="skeleton s2"></div>
+          </div>
+          <div class="hero-card" style="padding:.7rem;"><div class="skeleton" style="margin:0;width:60%;"></div><div class="skeleton"></div></div>
+        </div>
+        <div class="m-bottomnav">
+          <div class="nav-item active"><span class="ic">🏠</span>Accueil</div>
+          <div class="nav-item"><span class="ic">🌍</span>Atlas</div>
+          <div class="nav-item"><span class="ic">💡</span>Concepts</div>
+          <div class="nav-item"><span class="ic">♥</span>Carnet</div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict">
+      <div class="v good"><strong>✓ Pour</strong>Toujours visible, sur toutes les pages · Monté globalement = 1 seul endroit dans le code · Cohérent avec le desktop</div>
+      <div class="v bad"><strong>✗ Contre</strong>Peut chevaucher le contenu en haut à droite (photos hero) · Élément flottant de plus à l'écran</div>
+    </div>
+  </div>
+
+  <!-- ════ OPTION B : dans le header ════ -->
+  <div class="col">
+    <div class="col-label">Option B · Dans le header mobile</div>
+    <div class="col-tag">À côté du wordmark, intégré au bandeau du haut existant.</div>
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="m-header">
+          <div class="wordmark"><span class="w">World </span><span class="e">Expressions</span></div>
+          <div class="lang-pill"><span class="flag">🇫🇷</span><span class="code">FR</span><span class="caret">▾</span></div>
+        </div>
+        <div class="m-body">
+          <div class="hero-card">
+            <div class="hero-eyebrow">★ Expression du jour</div>
+            <div class="hero-expr">El rico es siempre rico</div>
+            <div class="hero-meaning">Le riche reste toujours riche…</div>
+            <div class="skeleton"></div><div class="skeleton s2"></div>
+          </div>
+          <div class="hero-card" style="padding:.7rem;"><div class="skeleton" style="margin:0;width:60%;"></div><div class="skeleton"></div></div>
+        </div>
+        <div class="m-bottomnav">
+          <div class="nav-item active"><span class="ic">🏠</span>Accueil</div>
+          <div class="nav-item"><span class="ic">🌍</span>Atlas</div>
+          <div class="nav-item"><span class="ic">💡</span>Concepts</div>
+          <div class="nav-item"><span class="ic">♥</span>Carnet</div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict">
+      <div class="v good"><strong>✓ Pour</strong>Emplacement attendu (header = identité + réglages) · Ne chevauche jamais le contenu · Lisible, libellé clair</div>
+      <div class="v bad"><strong>✗ Contre</strong>Le header mobile est rendu page par page → il faut l'ajouter partout (ou le rendre global)</div>
+    </div>
+  </div>
+
+  <!-- ════ OPTION C : onglet bottom nav ════ -->
+  <div class="col">
+    <div class="col-label">Option C · 5ᵉ onglet en bas</div>
+    <div class="col-tag">Un onglet « Langue » dans la barre du bas, toujours sous le pouce.</div>
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="m-header">
+          <div class="wordmark"><span class="w">World </span><span class="e">Expressions</span></div>
+        </div>
+        <div class="m-body">
+          <div class="hero-card">
+            <div class="hero-eyebrow">★ Expression du jour</div>
+            <div class="hero-expr">El rico es siempre rico</div>
+            <div class="hero-meaning">Le riche reste toujours riche…</div>
+            <div class="skeleton"></div><div class="skeleton s2"></div>
+          </div>
+          <div class="hero-card" style="padding:.7rem;"><div class="skeleton" style="margin:0;width:60%;"></div><div class="skeleton"></div></div>
+        </div>
+        <div class="m-bottomnav">
+          <div class="nav-item active"><span class="ic">🏠</span>Accueil</div>
+          <div class="nav-item"><span class="ic">🌍</span>Atlas</div>
+          <div class="nav-item"><span class="ic">💡</span>Concepts</div>
+          <div class="nav-item"><span class="ic">♥</span>Carnet</div>
+          <div class="nav-item" style="color:var(--plum);"><span class="ic">🇫🇷</span>Langue</div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict">
+      <div class="v good"><strong>✓ Pour</strong>Toujours sous le pouce · Découvrable · Cohérent avec la nav mobile existante</div>
+      <div class="v bad"><strong>✗ Contre</strong>5 onglets = barre chargée · La langue n'est pas une « page » → mélange les genres · Rien sur desktop (pas de bottom nav)</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════ La bottom sheet (commune A/B/C) ════ -->
+<div class="behaviour">
+  <h2>Le sélecteur lui-même — une bottom sheet (commune aux 3 options)</h2>
+  <div style="display:flex; gap:1.5rem; flex-wrap:wrap; align-items:flex-start; justify-content:center; margin-top:1rem;">
+    <div class="phone" style="height:430px;">
+      <div class="phone-screen">
+        <div class="m-header">
+          <div class="wordmark"><span class="w">World </span><span class="e">Expressions</span></div>
+          <div class="lang-pill"><span class="flag">🇫🇷</span><span class="code">FR</span><span class="caret">▾</span></div>
+        </div>
+        <div class="m-body" style="opacity:.4;">
+          <div class="hero-card"><div class="hero-eyebrow">★ Expression du jour</div><div class="hero-expr">El rico es siempre rico</div></div>
+        </div>
+        <div class="sheet-wrap">
+          <div class="sheet">
+            <div class="sheet-grip"></div>
+            <div class="sheet-title">Langue de l'interface</div>
+            <div class="sheet-opt sel"><span class="flag">🇫🇷</span> Français <span class="chk">✓</span></div>
+            <div class="sheet-opt"><span class="flag">🇬🇧</span> English</div>
+            <div class="sheet-opt"><span class="flag">🇪🇸</span> Español</div>
+            <div class="sheet-opt"><span class="flag">🇮🇹</span> Italiano</div>
+            <div class="sheet-opt"><span class="flag">🇹🇷</span> Türkçe</div>
+            <div class="sheet-opt"><span class="flag">🇩🇪</span> Deutsch</div>
+            <div class="sheet-opt"><span class="flag">🇯🇵</span> 日本語</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="background:var(--paper); border:1px solid var(--paper-edge); border-radius:var(--r-md); padding:1rem 1.2rem; font-size:13px; line-height:1.6; color:var(--ink-soft); box-shadow:var(--shadow-card); max-width:380px;">
+      <strong>Pourquoi une bottom sheet ?</strong> C'est le pattern mobile natif pour un choix dans une liste : grande zone tactile, 7 langues lisibles d'un coup, fermeture en glissant. Sur desktop on garde le dropdown actuel.
+      <div style="margin-top:.8rem;"><strong>Au tap sur une langue :</strong></div>
+      <div class="seq">
+        <span class="step">localStorage = nouvelle langue</span><span class="arrow">→</span>
+        <span class="step">le contenu se met à jour</span><span class="arrow">→</span>
+        <span class="step">l'expression du jour reste, son explication se re-traduit</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="behaviour">
+  <h2>Ma recommandation</h2>
+  <div class="card">
+    <strong>Option B (header mobile) comme socle</strong>, rendue <strong>globale</strong> pour garantir sa présence sur toutes les pages sans dupliquer le code.
+    C'est l'emplacement le plus attendu (réglages d'app vivent dans le header), il ne chevauche jamais le contenu, et le libellé « FR ▾» est explicite.
+    L'option A est le plan B si l'intégration page-par-page du header s'avère lourde. L'option C est à éviter : la langue n'est pas une destination de navigation.
+  </div>
+</div>
+
+</body>
+</html>

@@ -13,13 +13,35 @@ const LANGS: { code: UILang; flag: string; name: string }[] = [
   { code: "ja", flag: "🇯🇵", name: "日本語" },
 ];
 
+// "Interface language" sheet title, localized.
+const SHEET_TITLE: Record<UILang, string> = {
+  fr: "Langue de l'interface",
+  en: "Interface language",
+  es: "Idioma de la interfaz",
+  it: "Lingua dell'interfaccia",
+  tr: "Arayüz dili",
+  de: "Sprache der Oberfläche",
+  ja: "表示言語",
+};
+
 type Props = { uiLang: UILang; onLangChange: (lang: UILang) => void };
 
 export default function LangDropdown({ uiLang, onLangChange }: Props) {
   const [open, setOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const current = LANGS.find((l) => l.code === uiLang) ?? LANGS[1];
 
+  // Mirror the app's 1024px breakpoint: below it, use a bottom sheet (native mobile pattern).
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  // Desktop: close on outside click. (Mobile sheet closes via its own backdrop.)
   useEffect(() => {
     function onOutside(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
@@ -27,6 +49,20 @@ export default function LangDropdown({ uiLang, onLangChange }: Props) {
     document.addEventListener("mousedown", onOutside);
     return () => document.removeEventListener("mousedown", onOutside);
   }, []);
+
+  // Lock background scroll while the mobile sheet is open.
+  useEffect(() => {
+    if (open && isMobile) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => { document.body.style.overflow = prev; };
+    }
+  }, [open, isMobile]);
+
+  const handlePick = (code: UILang) => {
+    onLangChange(code);
+    setOpen(false);
+  };
 
   return (
     <div ref={ref} style={{ position: "relative" }}>
@@ -48,6 +84,7 @@ export default function LangDropdown({ uiLang, onLangChange }: Props) {
           transition: "all 120ms ease",
           fontFamily: "var(--font-body)",
           fontSize: 12,
+          boxShadow: "var(--shadow-card)",
         }}
       >
         <span aria-hidden="true" style={{ fontSize: 14, lineHeight: 1 }}>{current.flag}</span>
@@ -68,7 +105,8 @@ export default function LangDropdown({ uiLang, onLangChange }: Props) {
         </span>
       </button>
 
-      {open && (
+      {/* ── Desktop dropdown ── */}
+      {open && !isMobile && (
         <div
           style={{
             position: "absolute",
@@ -87,10 +125,7 @@ export default function LangDropdown({ uiLang, onLangChange }: Props) {
             <button
               key={lang.code}
               data-testid={`lang-option-${lang.code}`}
-              onClick={() => {
-                onLangChange(lang.code);
-                setOpen(false);
-              }}
+              onClick={() => handlePick(lang.code)}
               aria-current={lang.code === uiLang ? "true" : undefined}
               style={{
                 display: "flex",
@@ -117,6 +152,80 @@ export default function LangDropdown({ uiLang, onLangChange }: Props) {
               )}
             </button>
           ))}
+        </div>
+      )}
+
+      {/* ── Mobile bottom sheet ── */}
+      {open && isMobile && (
+        <div
+          onClick={() => setOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(28,20,16,0.35)",
+            display: "flex",
+            alignItems: "flex-end",
+            zIndex: 200,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-label={SHEET_TITLE[uiLang] ?? SHEET_TITLE.en}
+            style={{
+              width: "100%",
+              background: "var(--paper)",
+              borderRadius: "var(--r-lg) var(--r-lg) 0 0",
+              padding: "0.75rem 0 max(0.5rem, env(safe-area-inset-bottom))",
+              boxShadow: "var(--shadow-deep)",
+              animation: "wexSheetUp 0.25s ease",
+            }}
+          >
+            <div
+              style={{
+                width: 36, height: 4, background: "var(--paper-fold)",
+                borderRadius: 2, margin: "0 auto 0.7rem",
+              }}
+            />
+            <div
+              style={{
+                fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 600,
+                color: "var(--ink)", padding: "0 1.1rem 0.6rem",
+              }}
+            >
+              {SHEET_TITLE[uiLang] ?? SHEET_TITLE.en}
+            </div>
+            {LANGS.map((lang) => (
+              <button
+                key={lang.code}
+                data-testid={`lang-option-${lang.code}`}
+                onClick={() => handlePick(lang.code)}
+                aria-current={lang.code === uiLang ? "true" : undefined}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  width: "100%",
+                  padding: "11px 1.1rem",
+                  fontSize: 15,
+                  background: lang.code === uiLang ? "var(--plum-bg)" : "transparent",
+                  color: lang.code === uiLang ? "var(--plum)" : "var(--ink-soft)",
+                  fontWeight: lang.code === uiLang ? 600 : 400,
+                  border: "none",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                <span aria-hidden="true" style={{ fontSize: 20 }}>{lang.flag}</span>
+                <span style={{ flex: 1 }}>{lang.name}</span>
+                {lang.code === uiLang && (
+                  <span aria-hidden="true" style={{ fontSize: 12, color: "var(--plum)" }}>✓</span>
+                )}
+              </button>
+            ))}
+          </div>
+          <style>{`@keyframes wexSheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
         </div>
       )}
     </div>
