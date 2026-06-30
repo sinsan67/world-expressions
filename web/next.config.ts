@@ -1,4 +1,12 @@
 import type { NextConfig } from "next";
+import withSerwistInit from "@serwist/next";
+
+const withSerwist = withSerwistInit({
+  swSrc: "app/sw.ts",
+  swDest: "public/sw.js",
+  // Disable SW in dev: Serwist requires webpack, not Turbopack
+  disable: process.env.NODE_ENV === "development",
+});
 
 const nextConfig: NextConfig = {
   async redirects() {
@@ -9,4 +17,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSerwist(nextConfig);
