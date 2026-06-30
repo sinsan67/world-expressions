@@ -34,6 +34,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://worldexpressions.app"),
   title: "World Expressions",
   description: "Every language has its own madness.",
+  manifest: "/manifest.json",
   icons: {
     icon: "/logo.svg",
     apple: "/logo.svg",
