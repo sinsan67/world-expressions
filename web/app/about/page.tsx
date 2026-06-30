@@ -16,6 +16,10 @@ type Content = {
   title: string;
   subtitle: string;
   intro: [string, string];
+  sectionPWA: string;
+  pwaIntro: string;
+  pwaAndroid: DiffCard;
+  pwaIos: DiffCard;
   sectionTypes: string;
   typesIntro: string;
   types: [TypeCard, TypeCard, TypeCard, TypeCard];
@@ -54,6 +58,16 @@ const CONTENT: Record<string, Content> = {
       "World Expressions is a free, open-source database of idiomatic expressions from around the world. You type a word, a feeling, or an idea — and discover how different languages name the same thing. The results are not just translations: they are windows into how different cultures think, argue, love, and joke.",
       "The database currently holds over 14,000 expressions across 10 languages — French, Turkish, Italian, English, Spanish, German, Japanese, and several Latin American Spanish variants (Mexico, Argentina, Colombia, Peru). Each entry includes a meaning, an origin story, a usage example, and cross-language equivalents wherever they exist. The project is open source, continuously expanding, and entirely free.",
     ],
+    sectionPWA: "An app without an App Store",
+    pwaIntro: "World Expressions can be installed on your phone or computer like an app — without going through the App Store or Play Store. This is called a PWA (Progressive Web App): the website becomes an icon on your home screen, works offline for expressions you've already viewed, and updates automatically, with nothing to download or approve. For a free, open-source side project, it's the simplest choice: no developer fees, no App Store review, one codebase for every platform.",
+    pwaAndroid: {
+      title: "Android, Chrome, Brave, desktop",
+      body: "Installation works directly: a banner or an \"Add to Home Screen\" option appears in the browser menu.",
+    },
+    pwaIos: {
+      title: "iPhone",
+      body: "Only Safari can install it — not Chrome or Brave on iOS, since Apple restricts every iOS browser to the same engine as Safari. Open the site in Safari, tap Share, then \"Add to Home Screen\".",
+    },
     sectionTypes: "What kind of expressions?",
     typesIntro: "Not every fixed phrase is the same thing. World Expressions distinguishes four main types — each with its own character and its own relationship to literal meaning.",
     types: [
@@ -175,6 +189,16 @@ const CONTENT: Record<string, Content> = {
       "World Expressions est une base de données libre et open source d'expressions idiomatiques du monde entier. Vous tapez un mot, un sentiment ou une idée — et vous découvrez comment différentes langues nomment la même chose. Les résultats ne sont pas de simples traductions : ce sont des fenêtres sur la façon dont différentes cultures pensent, se disputent, aiment et plaisantent.",
       "La base de données contient plus de 14 000 expressions réparties sur 10 langues — français, turc, italien, anglais, espagnol, allemand, japonais, et plusieurs variantes hispanophones (Mexique, Argentine, Colombie, Pérou). Chaque entrée comprend une définition, une histoire d'origine, un exemple d'utilisation et des équivalents dans d'autres langues. Le projet est open source, en constante expansion et entièrement gratuit.",
     ],
+    sectionPWA: "Une appli sans App Store",
+    pwaIntro: "World Expressions s'installe sur votre téléphone ou ordinateur comme une application — sans passer par l'App Store ou le Play Store. C'est ce qu'on appelle une PWA (Progressive Web App) : le site devient une icône sur votre écran d'accueil, fonctionne hors ligne pour les expressions déjà consultées, et se met à jour automatiquement, sans rien à télécharger ni à approuver. Pour un projet personnel et gratuit, c'est le choix le plus simple : pas de frais de développeur, pas de revue d'App Store, un seul code pour toutes les plateformes.",
+    pwaAndroid: {
+      title: "Android, Chrome, Brave, ordinateur",
+      body: "L'installation fonctionne directement : un bandeau ou une option « Ajouter à l'écran d'accueil » apparaît dans le menu du navigateur.",
+    },
+    pwaIos: {
+      title: "iPhone",
+      body: "Seul Safari permet l'installation — pas Chrome ni Brave sur iOS, Apple limitant tous les navigateurs iOS au même moteur que Safari. Ouvrez le site dans Safari, appuyez sur Partager, puis « Sur l'écran d'accueil ».",
+    },
     sectionTypes: "Quels types d'expressions ?",
     typesIntro: "Toutes les formules figées ne sont pas identiques. World Expressions distingue quatre grands types — chacun avec son propre caractère et sa propre relation au sens littéral.",
     types: [
@@ -296,6 +320,16 @@ const CONTENT: Record<string, Content> = {
       "World Expressions es una base de datos gratuita y de código abierto de expresiones idiomáticas de todo el mundo. Escribe una palabra, un sentimiento o una idea — y descubre cómo diferentes idiomas nombran lo mismo. Los resultados no son simples traducciones: son ventanas a cómo diferentes culturas piensan, discuten, aman y bromean.",
       "La base de datos contiene más de 14,000 expresiones en 10 idiomas — francés, turco, italiano, inglés, español, alemán, japonés y varias variantes del español hispanohablante (México, Argentina, Colombia, Perú). Cada entrada incluye un significado, una historia de origen, un ejemplo de uso y equivalentes en otros idiomas. El proyecto es de código abierto, se expande continuamente y es completamente gratuito.",
     ],
+    sectionPWA: "Una app sin App Store",
+    pwaIntro: "World Expressions se instala en tu teléfono u ordenador como una aplicación — sin pasar por la App Store o Play Store. Esto se llama PWA (Progressive Web App): el sitio se convierte en un icono en tu pantalla de inicio, funciona sin conexión para las expresiones ya consultadas, y se actualiza automáticamente, sin nada que descargar ni aprobar. Para un proyecto personal y gratuito, es la opción más simple: sin cuotas de desarrollador, sin revisión de App Store, un solo código para todas las plataformas.",
+    pwaAndroid: {
+      title: "Android, Chrome, Brave, ordenador",
+      body: "La instalación funciona directamente: aparece un banner o una opción «Añadir a la pantalla de inicio» en el menú del navegador.",
+    },
+    pwaIos: {
+      title: "iPhone",
+      body: "Solo Safari permite instalarla — no Chrome ni Brave en iOS, ya que Apple limita todos los navegadores de iOS al mismo motor que Safari. Abre el sitio en Safari, toca Compartir y luego «Añadir a pantalla de inicio».",
+    },
     sectionTypes: "¿Qué tipo de expresiones?",
     typesIntro: "No todas las frases fijas son iguales. World Expressions distingue cuatro tipos principales — cada uno con su propio carácter y su propia relación con el significado literal.",
     types: [
@@ -457,6 +491,20 @@ export default function AboutPage() {
 
         <p style={s.body}>{t.intro[0]}</p>
         <p style={s.body}>{t.intro[1]}</p>
+
+        {/* PWA */}
+        <div style={s.sectionTitle}>{t.sectionPWA}</div>
+        <p style={s.body}>{t.pwaIntro}</p>
+        <div style={s.diffRow}>
+          <div style={diffCard("var(--terra)")}>
+            <div style={diffTitle("var(--terra)")}>{t.pwaAndroid.title}</div>
+            <p style={diffBody}>{t.pwaAndroid.body}</p>
+          </div>
+          <div style={diffCard("var(--plum)")}>
+            <div style={diffTitle("var(--plum)")}>{t.pwaIos.title}</div>
+            <p style={diffBody}>{t.pwaIos.body}</p>
+          </div>
+        </div>
 
         {/* Expression types */}
         <div style={s.sectionTitle}>{t.sectionTypes}</div>
