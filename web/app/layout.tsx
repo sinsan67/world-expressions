@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: "/logo.svg",
-    apple: "/logo.svg",
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     title: "World Expressions",
