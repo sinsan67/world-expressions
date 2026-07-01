@@ -3,10 +3,10 @@
 
 project_name: nao
 
-# Moteur LLM : on réutilise la clé Anthropic du projet (Claude).
+# Moteur LLM : Mistral free tier (Anthropic solde épuisé, clé régénérée 2026-06-30).
 llm:
-  provider: anthropic
-  api_key: "{{ env('ANTHROPIC_API_KEY') }}"
+  provider: mistral
+  api_key: "{{ env('MISTRAL_API_KEY') }}"
 
 # Base de données : Neon (Postgres), via le rôle LECTURE SEULE nao_readonly.
 # Le rôle ne peut lire que les 11 tables de contenu (aucune table à données personnelles).

@@ -52,6 +52,14 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
+def include_object(object, name, type_, reflected, compare_to):
+    # Les index de perf (FTS, trgm, B-tree custom) sont gérés via migrations
+    # explicites et ne doivent pas être comparés par autogenerate.
+    if type_ == "index":
+        return False
+    return True
+
+
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode.
 
@@ -67,7 +75,9 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            include_object=include_object,
         )
 
         with context.begin_transaction():
