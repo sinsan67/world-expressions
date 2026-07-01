@@ -1,13 +1,43 @@
 # Captions — file d'attente Instagram (@world.expressions)
 
-5 cartes prêtes à programmer. Pour chacune : image PNG dans ce dossier + caption ci-dessous.
-Workflow : Business Suite (navigateur Mac) → Créer une publication → upload PNG → coller caption
-→ cocher "aussi sur Facebook" → Programmer.
-Une fois postée : déplacer le `.html` + `.png` vers `social/archives/` avec préfixe `YYMMDD-`.
+19 cartes prêtes à programmer, numérotées **01→19 dans l'ordre de publication**
+(langues alternées : jamais deux fois la même langue de suite).
+Fichiers : `NN-slug.html` + `NN-slug.png` dans ce dossier.
+
+Workflow par post : Business Suite (navigateur Mac) → Créer une publication →
+**upload le PNG** (obligatoire, sinon Instagram écarte le post) → coller la caption →
+cocher **Facebook + Instagram** → Programmer.
+Une fois postée : déplacer le `.html` + `.png` vers `social/archives/` avec préfixe date `YYMMDD-`.
 
 ---
 
-## 1. avoir-un-poil-dans-la-main.png
+## 01. 01-ser-pan-comido.png  🇪🇸
+
+🇪🇸 "Ser pan comido" — literally, to be eaten bread. 🍞
+
+Meaning: a piece of cake — so easy it takes no effort at all.
+
+Spanish grabs the humblest thing on the table to say: don't sweat it.
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #spanish #languagelearning #linguistics #worldexpressions
+
+---
+
+## 02. 02-let-the-cat-out-of-the-bag.png  🇬🇧
+
+🇬🇧 "To let the cat out of the bag" — the secret you didn't mean to spill. 🐱
+
+Meaning: to give the game away, usually by accident.
+
+Old market trick: a worthless cat swapped for the piglet you paid for. Open the bag too soon… surprise.
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #english #languagelearning #linguistics #worldexpressions
+
+---
+
+## 03. 03-avoir-un-poil-dans-la-main.png  🇫🇷
 
 🇫🇷 "Avoir un poil dans la main" — literally, to have a hair growing in your hand. ✋
 
@@ -20,7 +50,46 @@ We all know someone. (Tagging them is effort too, though.) 😏
 
 ---
 
-## 2. donner-sa-langue-au-chat.png
+## 04. 04-pabucu-dama-atilmak.png  🇹🇷
+
+🇹🇷 "Pabucu dama atılmak" — literally, to have your shoe thrown onto the roof. 👞
+
+Meaning: to fall out of favor — pushed aside now that someone better showed up.
+
+Ottoman guilds shamed sloppy shoemakers by tossing their work on the roof. Disgrace, rooftop-high.
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #turkish #languagelearning #linguistics #worldexpressions
+
+---
+
+## 05. 05-estar-al-horno.png  🇦🇷
+
+🇦🇷 "Estar al horno" — literally, to be in the oven. 🔥
+
+Meaning: to be in deep trouble. Argentines add "con papas" (with potatoes) when it's really bad.
+
+Once you're the roast in the oven, there's no climbing back out.
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #spanish #languagelearning #linguistics #worldexpressions
+
+---
+
+## 06. 06-ride-shotgun.png  🇺🇸
+
+🇺🇸 "To ride shotgun" — calling the front passenger seat. 🚗
+
+Meaning: to sit up front, next to the driver.
+
+Old West stagecoaches: the guard beside the driver held a shotgun against bandits. The seat kept the name.
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #english #languagelearning #linguistics #worldexpressions
+
+---
+
+## 07. 07-donner-sa-langue-au-chat.png  🇫🇷
 
 🇫🇷 "Donner sa langue au chat" — literally, to give your tongue to the cat. 🐱
 
@@ -33,7 +102,33 @@ Fun fact: the older version gave your tongue "to the dogs." The cat stole the ph
 
 ---
 
-## 3. quand-les-poules-auront-des-dents.png
+## 08. 08-estar-en-la-luna-de-paita.png  🇵🇪
+
+🇵🇪 "Estar en la luna de Paita" — literally, to be on the moon of Paita. 🌙
+
+Meaning: lost in the clouds — daydreaming, miles from the conversation.
+
+Paita is a Peruvian port famed for its moon: "the moon of Paita, the sun of Colán." A dreamier place to be.
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #spanish #languagelearning #linguistics #worldexpressions
+
+---
+
+## 09. 09-flat-out-like-a-lizard-drinking.png  🇦🇺
+
+🇦🇺 "Flat out like a lizard drinking" — literally, flat out like a drinking lizard. 🦎
+
+Meaning: flat out busy — going at full tilt, no time to spare.
+
+Double joke: "flat out" = top speed, and a lizard lies flat to drink. Peak Aussie.
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #english #languagelearning #linguistics #worldexpressions
+
+---
+
+## 10. 10-quand-les-poules-auront-des-dents.png  🇫🇷
 
 🇫🇷 "Quand les poules auront des dents" — literally, when hens have teeth. 🐔
 
@@ -46,7 +141,46 @@ English says "when pigs fly." French bet on toothless chickens. Which is weirder
 
 ---
 
-## 4. les-carottes-sont-cuites.png
+## 11. 11-tirar-la-casa-por-la-ventana.png  🇪🇸
+
+🇪🇸 "Tirar la casa por la ventana" — literally, to throw the house out the window. 🪟
+
+Meaning: to spare no expense — to splurge lavishly for the occasion.
+
+The tale: lottery winners flinging their old furniture out the window, ready to replace it all.
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #spanish #languagelearning #linguistics #worldexpressions
+
+---
+
+## 12. 12-bite-the-bullet.png  🇬🇧
+
+🇬🇧 "To bite the bullet" — the moment you stop dreading and just do it. 🦷
+
+Meaning: to grit your teeth and face something painful head-on.
+
+Before anaesthetics, wounded soldiers bit down on a bullet to bear the surgeon's knife.
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #english #languagelearning #linguistics #worldexpressions
+
+---
+
+## 13. 13-etekleri-zil-calmak.png  🇹🇷
+
+🇹🇷 "Etekleri zil çalmak" — literally, one's skirts ring like bells. 🔔
+
+Meaning: over the moon — bursting with joy and excitement.
+
+So thrilled you can't stand still — moving so much your clothes practically jingle.
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #turkish #languagelearning #linguistics #worldexpressions
+
+---
+
+## 14. 14-les-carottes-sont-cuites.png  🇫🇷
 
 🇫🇷 "Les carottes sont cuites" — literally, the carrots are cooked. 🥕
 
@@ -59,7 +193,33 @@ Because a cooked carrot never goes back to raw. What's done is done.
 
 ---
 
-## 5. avoir-la-tete-dans-le-guidon.png
+## 15. 15-tener-la-vaca-atada.png  🇦🇷
+
+🇦🇷 "Tener la vaca atada" — literally, to have the cow tied up. 🐄
+
+Meaning: to have it made — a secure, comfortable, guaranteed situation.
+
+In a land built on cattle, a cow that won't wander means steady income. Nothing to worry about.
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #spanish #languagelearning #linguistics #worldexpressions
+
+---
+
+## 16. 16-pass-the-buck.png  🇺🇸
+
+🇺🇸 "To pass the buck" — the fine art of "not my problem." 🃏
+
+Meaning: to shift the responsibility onto someone else.
+
+Frontier poker: a marker (the "buck") showed whose turn to deal. Pass it, pass the duty — hence "the buck stops here."
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #english #languagelearning #linguistics #worldexpressions
+
+---
+
+## 17. 17-avoir-la-tete-dans-le-guidon.png  🇫🇷
 
 🇫🇷 "Avoir la tête dans le guidon" — literally, to have your head in the handlebars. 🚴
 
@@ -70,3 +230,29 @@ Guilty this week? 🙋
 → worldexpressions.app
 
 #wordlovers #languages #idioms #languagelearning #amourdesmots #french #worldexpressions #wordoftheday
+
+---
+
+## 18. 18-hacer-chancha.png  🇵🇪
+
+🇵🇪 "Hacer chancha" — literally, to make a pig. 🐷
+
+Meaning: to chip in together — to pool money as a group for something shared.
+
+The pig is the piggy bank: everyone drops in their share until there's enough. Peruvian friends "make a pig" before a barbecue.
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #spanish #languagelearning #linguistics #worldexpressions
+
+---
+
+## 19. 19-a-few-kangaroos-loose.png  🇦🇺
+
+🇦🇺 "A few kangaroos loose in the top paddock" — literally, roos loose in the top field. 🦘
+
+Meaning: a bit crazy — not quite all there, a little short on sense.
+
+The top paddock is the head; the roos should be fenced in. A few loose up there… and the thinking goes wild.
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #english #languagelearning #linguistics #worldexpressions
