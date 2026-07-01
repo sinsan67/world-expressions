@@ -45,6 +45,7 @@ export const metadata: Metadata = {
     url: "https://worldexpressions.app",
     siteName: "World Expressions",
     type: "website",
+    images: [{ url: "https://worldexpressions.app/icons/icon-512.png", width: 512, height: 512 }],
   },
 };
 
