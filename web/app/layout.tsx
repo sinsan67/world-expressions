@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   description: "Every language has its own madness.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.png",
+    icon: "/logo.svg",
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
