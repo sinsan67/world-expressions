@@ -3,6 +3,7 @@
 19 posts prêts, numérotés **01→19 dans l'ordre de publication** (langues alternées).
 **Chaque bloc ci-dessous = la caption finale, un seul copier-coller.** Format acté S188 :
 **français en haut, anglais dessous**, un seul jeu de hashtags. Le titre donne le PNG à joindre + la date.
+Origines explicitées (S188) : chaque post raconte concrètement d'où vient l'expression.
 
 Workflow par post (Business Suite, navigateur Mac) : Créer une publication →
 **upload le PNG** (obligatoire) → coller le bloc → cocher **Facebook + Instagram** → Programmer à **18h00 Paris**.
@@ -19,7 +20,7 @@ Sources éditables : `NN-slug.html` (→ ré-export PNG via `social/export-image
 
 Sens : c'est du gâteau — si simple que ça ne demande aucun effort.
 
-L'espagnol attrape la chose la plus banale de la table pour dire : tranquille, c'est dans la poche.
+Le pain est l'aliment le plus simple qui soit : le manger ne demande ni savoir-faire ni préparation. Une chose « déjà mangée comme du pain » est donc pliée d'avance.
 
 👉 C'est quoi TON "pan comido" ? Le truc que tout le monde galère à faire et que toi tu réussis les doigts dans le nez ? 👇
 
@@ -29,7 +30,7 @@ L'espagnol attrape la chose la plus banale de la table pour dire : tranquille, c
 
 Meaning: a piece of cake — so easy it takes zero effort.
 
-Spanish reaches for the humblest thing on the table to say: relax, you've got this.
+Bread is the simplest food there is — eating it needs no skill and no preparation. Something that's "already eaten bread" is as good as done.
 
 👉 What's YOUR "pan comido"? The thing everyone finds hard but you nail every single time? Tell us below 👇
 
@@ -47,7 +48,7 @@ Spanish reaches for the humblest thing on the table to say: relax, you've got th
 
 Sens : vendre la mèche, le plus souvent sans le vouloir.
 
-Vieille arnaque de marché : un chat sans valeur glissé à la place du cochon de lait qu'on a payé. On ouvre le sac trop tôt… surprise.
+Sur les marchés médiévaux, les cochons de lait se vendaient attachés dans un sac. Un marchand malhonnête y glissait parfois un chat de gouttière à la place. Ouvrir le sac trop tôt libérait le chat — et dévoilait l'arnaque.
 
 👉 Déjà vendu la mèche sans faire exprès ? Avoue en commentaire, on ne juge pas 🙈👇
 
@@ -57,7 +58,7 @@ Vieille arnaque de marché : un chat sans valeur glissé à la place du cochon d
 
 Meaning: to give the game away, usually by accident.
 
-Old market trick: a worthless cat swapped for the piglet you paid for. Open the bag too soon… surprise.
+In medieval markets, piglets were sold tied inside a sack. A dishonest trader might slip in a stray cat instead. Open the sack too soon and out sprang the cat — exposing the con.
 
 👉 Ever let the cat out of the bag and instantly regretted it? Confess in the comments, we won't judge 🙈👇
 
@@ -71,11 +72,11 @@ Old market trick: a worthless cat swapped for the piglet you paid for. Open the 
 ## 03. 03-avoir-un-poil-dans-la-main.png · 🇫🇷 · lun 06/07
 
 ```text
-🇫🇷 "Avoir un poil dans la main" — oui, celle-là on la connaît. ✋
+🇫🇷 "Avoir un poil dans la main" — littéralement, avoir un poil qui pousse dans la main. ✋
 
-Sens : être royalement fainéant — allergique au travail au point qu'un poil pourrait pousser dans la paume.
+Sens : être royalement fainéant — allergique à l'idée même de travailler.
 
-On a tous quelqu'un en tête. (Le taguer, ce serait déjà un effort.) 😏
+L'image naît au XIXᵉ siècle : une main si peu utilisée, qui ne soulève jamais rien, qu'un poil aurait le temps d'y pousser. Le comble de la flemme.
 
 👉 Tague l'ami(e) avec le plus long poil dans la main 👇
 
@@ -83,9 +84,9 @@ On a tous quelqu'un en tête. (Le taguer, ce serait déjà un effort.) 😏
 
 🇫🇷 "Avoir un poil dans la main" — literally, to have a hair growing in your hand. ✋
 
-Meaning: to be gloriously lazy — so allergic to work that hair could sprout on your palm.
+Meaning: to be gloriously lazy — allergic to the very idea of work.
 
-We all know someone. (Tagging them would be effort too, though.) 😏
+The image was born in the 19th century: a hand so idle, so rarely lifted to any task, that a hair could grow right on the palm. Laziness taken to its limit.
 
 👉 Tag the friend with the longest palm-hair in your group 👇
 
@@ -103,7 +104,7 @@ We all know someone. (Tagging them would be effort too, though.) 😏
 
 Sens : tomber en disgrâce — mis de côté dès que quelqu'un de mieux débarque.
 
-Les guildes ottomanes humiliaient les cordonniers bâcleurs en balançant leur travail sur le toit. La honte, version toiture.
+Chez les artisans ottomans, un cordonnier qui bâclait son ouvrage était puni : on jetait ses chaussures ratées sur le toit, à la vue de tous. La honte, version toiture.
 
 👉 Déjà remplacé(e) par la nouveauté qui brille ? Chaussure, meet toit. Raconte 👇
 
@@ -113,7 +114,7 @@ Les guildes ottomanes humiliaient les cordonniers bâcleurs en balançant leur t
 
 Meaning: to fall out of favor — shoved aside now that someone better showed up.
 
-Ottoman guilds shamed sloppy shoemakers by tossing their work on the roof. Disgrace, rooftop-high.
+In the Ottoman craft guilds, a shoemaker who botched his work was punished: his failed shoes were flung onto the roof for all to see. Disgrace, rooftop-high.
 
 👉 Ever been replaced by the shiny new thing? Shoe, meet roof. Tell us your story 👇
 
@@ -129,9 +130,9 @@ Ottoman guilds shamed sloppy shoemakers by tossing their work on the roof. Disgr
 ```text
 🇦🇷 "Estar al horno" — littéralement, être au four. 🔥
 
-Sens : être dans de sales draps. Les Argentins ajoutent "con papas" (avec les patates) quand c'est vraiment la cata.
+Sens : être dans de sales draps, vraiment mal barré.
 
-Une fois que t'es le rôti dans le four, pas moyen de remonter.
+L'image vient de la cuisine : une fois enfourné, le plat ne décide plus rien — il n'a qu'à cuire et attendre. Et quand les Argentins ajoutent « con papas » (avec les patates autour), c'est que la situation est vraiment fichue.
 
 👉 Sur une échelle de "four vide" à "con papas", elle donne quoi ta semaine ? 🔥👇
 
@@ -139,9 +140,9 @@ Une fois que t'es le rôti dans le four, pas moyen de remonter.
 
 🇦🇷 "Estar al horno" — literally, to be in the oven. 🔥
 
-Meaning: to be in deep trouble. Argentines add "con papas" (with potatoes) when it's really, really bad.
+Meaning: to be in deep trouble — really, badly stuck.
 
-Once you're the roast in the oven, there's no climbing back out.
+The image is culinary: once it's in the oven, the dish has no say — it just cooks and waits. And when Argentines add "con papas" (with the potatoes around it), it means the situation is truly done for.
 
 👉 On a scale from "plain oven" to "con papas", how's your week going? 🔥👇
 
@@ -159,7 +160,7 @@ Once you're the roast in the oven, there's no climbing back out.
 
 Sens : s'installer devant, à côté du conducteur.
 
-Diligences du Far West : le garde assis près du cocher tenait un fusil contre les bandits. La place a gardé le nom.
+Sur les diligences du Far West, un garde armé d'un fusil à canon scié (« shotgun ») s'asseyait à côté du cocher pour repousser les bandits. La place avant a gardé son nom.
 
 👉 Qui réclame TOUJOURS la place avant dans votre bande ? Balance (gentiment) 👇
 
@@ -169,7 +170,7 @@ Diligences du Far West : le garde assis près du cocher tenait un fusil contre l
 
 Meaning: to sit up front, next to the driver.
 
-Old West stagecoaches: the guard beside the driver held a shotgun against bandits. The seat kept the name.
+On Old West stagecoaches, a guard cradling a shotgun sat beside the driver to fend off bandits. The front seat has kept the name ever since.
 
 👉 Who ALWAYS calls shotgun in your crew? Name and (gently) shame them 👇
 
@@ -183,11 +184,11 @@ Old West stagecoaches: the guard beside the driver held a shotgun against bandit
 ## 07. 07-donner-sa-langue-au-chat.png · 🇫🇷 · ven 10/07
 
 ```text
-🇫🇷 "Donner sa langue au chat" — abandonner et demander la réponse. 🐱
+🇫🇷 "Donner sa langue au chat" — littéralement, donner sa langue au chat. 🐱
 
 Sens : renoncer à deviner — je sèche, dis-moi la réponse.
 
-Anecdote : la version d'avant donnait sa langue "aux chiens". Le chat a piqué l'expression au XVIIIᵉ.
+Autrefois on « jetait sa langue aux chiens », une façon crue de dire qu'on l'abandonnait comme un déchet. Au fil du temps, le chat — à qui l'on prêtait la garde des secrets — a pris la place des chiens, en plus doux.
 
 👉 Alors tranchez : chat ou chien — qui mérite vraiment votre langue ? 🐱🐶👇
 
@@ -197,7 +198,7 @@ Anecdote : la version d'avant donnait sa langue "aux chiens". Le chat a piqué l
 
 Meaning: to give up guessing — you surrender, just tell me the answer already.
 
-Fun fact: the older version gave your tongue "to the dogs." The cat stole the phrase in the 1700s.
+People once "threw their tongue to the dogs" — a blunt way to say they gave it up for lost. Over time the cat, long seen as a keeper of secrets, took the dogs' place — gentler.
 
 👉 So settle it for us: cat or dog — who really deserves your tongue? 🐱🐶👇
 
@@ -215,7 +216,7 @@ Fun fact: the older version gave your tongue "to the dogs." The cat stole the ph
 
 Sens : dans les nuages — rêvasser, à des kilomètres de la conversation.
 
-Paita est un port péruvien célèbre pour sa lune : "la lune de Paita, le soleil de Colán". Un endroit plus poétique où planer.
+Paita, port du nord du Pérou, est réputé pour ses nuits : un vieux dicton vante « la lune de Paita et le soleil de Colán ». Avoir la tête là-bas, c'est être ailleurs — dans un endroit de rêve.
 
 👉 Où part ton esprit quand tu devrais écouter ? Emmène-nous 🌙👇
 
@@ -225,7 +226,7 @@ Paita est un port péruvien célèbre pour sa lune : "la lune de Paita, le solei
 
 Meaning: lost in the clouds — daydreaming, miles from the conversation.
 
-Paita is a Peruvian port famed for its moon: "the moon of Paita, the sun of Colán." A dreamier place to be.
+Paita, a port in northern Peru, is famed for its nights — an old saying praises "the moon of Paita, the sun of Colán." To have your head there is to be somewhere dreamier than the room you're in.
 
 👉 Where does your mind wander when you should be listening? Take us there 🌙👇
 
@@ -243,7 +244,7 @@ Paita is a Peruvian port famed for its moon: "the moon of Paita, the sun of Col�
 
 Sens : débordé à fond — à pleine vitesse, pas une minute à soi.
 
-Double jeu de mots : "flat out" = vitesse max, et le lézard s'aplatit pour boire. Très australien.
+Double sens : « flat out » veut dire à pleine vitesse, et un lézard s'aplatit littéralement contre le sol pour laper l'eau. L'Australie adore ces images animalières.
 
 👉 Cette semaine : lézard qui boit, ou plutôt poil dans la main ? 🦎👇
 
@@ -253,7 +254,7 @@ Double jeu de mots : "flat out" = vitesse max, et le lézard s'aplatit pour boir
 
 Meaning: flat out busy — going at full tilt, no time to spare.
 
-Double joke: "flat out" = top speed, and a lizard lies flat to drink. Peak Aussie.
+Two meanings at once: "flat out" means full speed, and a lizard lies flat to the ground to lap up water. Australia loves an animal image like this.
 
 👉 This week: drinking lizard, or living the "poil dans la main" life? 🦎👇
 
@@ -267,11 +268,11 @@ Double joke: "flat out" = top speed, and a lizard lies flat to drink. Peak Aussi
 ## 10. 10-quand-les-poules-auront-des-dents.png · 🇫🇷 · mer 15/07
 
 ```text
-🇫🇷 "Quand les poules auront des dents" — jamais, autrement dit. 🐔
+🇫🇷 "Quand les poules auront des dents" — littéralement, quand les poules auront des dents. 🐔
 
-Sens : à un jour qui ne viendra tout simplement jamais.
+Sens : jamais — à un jour qui ne viendra tout simplement pas.
 
-Les Anglais disent "quand les cochons voleront". Les Français ont parié sur des poules édentées.
+La logique est imparable : les poules n'ont pas de dents et n'en auront jamais. L'expression désigne donc l'impossible. Les Anglais, eux, attendent que les cochons volent.
 
 👉 Poules à dents ou cochons volants — quel "jamais" est le plus bizarre ? Votez 🐔🐷👇
 
@@ -281,7 +282,7 @@ Les Anglais disent "quand les cochons voleront". Les Français ont parié sur de
 
 Meaning: never. On a day that will simply never come.
 
-English says "when pigs fly." French bet on toothless chickens.
+The logic is airtight: hens have no teeth and never will. So the phrase points to the impossible. The English, meanwhile, wait for pigs to fly.
 
 👉 Toothless hens vs flying pigs — which "never" is weirder? Cast your vote 🐔🐷👇
 
@@ -299,7 +300,7 @@ English says "when pigs fly." French bet on toothless chickens.
 
 Sens : ne regarder à aucune dépense — se lâcher complètement pour l'occasion.
 
-La légende : des gagnants du loto balançant leurs vieux meubles par la fenêtre, prêts à tout remplacer.
+L'expression remonterait au XVIIIᵉ siècle : les gagnants de la loterie nationale espagnole jetaient réellement leurs vieux meubles par la fenêtre, prêts à tout racheter à neuf.
 
 👉 La dernière fois que tu as "jeté la maison par la fenêtre", c'était pour quoi ? 🪟👇
 
@@ -309,7 +310,7 @@ La légende : des gagnants du loto balançant leurs vieux meubles par la fenêtr
 
 Meaning: to spare no expense — to splurge lavishly for the occasion.
 
-The tale: lottery winners flinging their old furniture out the window, ready to replace it all.
+The phrase may date to 18th-century Spain: winners of the national lottery would literally hurl their old furniture out the window, ready to buy everything anew.
 
 👉 Last time you threw the house out the window — what was the occasion? 🪟👇
 
@@ -327,7 +328,7 @@ The tale: lottery winners flinging their old furniture out the window, ready to 
 
 Sens : serrer les dents et affronter quelque chose de pénible, de face.
 
-Avant l'anesthésie, les soldats blessés mordaient une balle pour endurer le bistouri.
+Avant l'invention de l'anesthésie, les chirurgiens de guerre faisaient mordre une balle de plomb aux blessés — pour tenir le coup, et pour ne pas se mordre la langue, pendant l'opération.
 
 👉 C'est quoi la balle que tu refuses de mordre depuis un moment ? Dis-le — c'est peut-être le jour 🦷👇
 
@@ -337,7 +338,7 @@ Avant l'anesthésie, les soldats blessés mordaient une balle pour endurer le bi
 
 Meaning: to grit your teeth and face something painful head-on.
 
-Before anaesthetics, wounded soldiers bit down on a bullet to bear the surgeon's knife.
+Before anaesthetics, battlefield surgeons had the wounded bite down on a lead bullet — to bear the pain, and to keep from biting their own tongue, during surgery.
 
 👉 What's the bullet you keep NOT biting? Name it below — maybe today's the day 🦷👇
 
@@ -351,11 +352,11 @@ Before anaesthetics, wounded soldiers bit down on a bullet to bear the surgeon's
 ## 13. 13-etekleri-zil-calmak.png · 🇹🇷 · lun 20/07
 
 ```text
-🇹🇷 "Etekleri zil çalmak" — littéralement, les jupes sonnent comme des clochettes. 🔔
+🇹🇷 "Etekleri zil çalmak" — littéralement, les jupes qui sonnent comme des clochettes. 🔔
 
 Sens : aux anges — débordant de joie et d'excitation.
 
-Tellement heureux que tu ne tiens plus en place — tu bouges tant que tes habits tintent presque.
+L'image est visuelle : on est si heureux qu'on ne tient plus en place, on gigote tellement que le bas de la robe ou de la jupe semble tinter comme des grelots.
 
 👉 Qu'est-ce qui a fait tinter tes clochettes récemment ? Partage la bonne nouvelle 🔔👇
 
@@ -365,7 +366,7 @@ Tellement heureux que tu ne tiens plus en place — tu bouges tant que tes habit
 
 Meaning: over the moon — bursting with joy and excitement.
 
-So thrilled you can't stand still — moving so much your clothes practically jingle.
+It's a vivid picture: you're so happy you can't keep still, fidgeting so much that the hem of your skirt seems to jingle like little bells.
 
 👉 What made your skirts jingle recently? Share the good news 🔔👇
 
@@ -379,11 +380,11 @@ So thrilled you can't stand still — moving so much your clothes practically ji
 ## 14. 14-les-carottes-sont-cuites.png · 🇫🇷 · mar 21/07
 
 ```text
-🇫🇷 "Les carottes sont cuites" — c'est fichu. 🥕
+🇫🇷 "Les carottes sont cuites" — littéralement, les carottes sont cuites. 🥕
 
-Sens : fin de partie — la situation est perdue, plus rien à faire.
+Sens : c'est fichu — fin de partie, la situation est perdue.
 
-Parce qu'une carotte cuite ne redevient jamais crue. Ce qui est fait est fait.
+Une carotte cuite ne redevient jamais crue : c'est irréversible. Clin d'œil historique : « les carottes sont cuites » aurait servi de message codé sur Radio Londres pendant la Seconde Guerre mondiale.
 
 👉 Comment on dit "c'est fini" dans TA langue ? Lâche l'expression — on collectionne 🥕👇
 
@@ -393,7 +394,7 @@ Parce qu'une carotte cuite ne redevient jamais crue. Ce qui est fait est fait.
 
 Meaning: it's game over — the situation is lost, nothing left to do.
 
-Because a cooked carrot never goes back to raw. What's done is done.
+A cooked carrot never turns raw again — it's irreversible. A historical wink: "les carottes sont cuites" was reportedly a coded message on Radio Londres during WWII.
 
 👉 How does YOUR language say "it's over"? Drop the phrase below — we collect these 🥕👇
 
@@ -411,7 +412,7 @@ Because a cooked carrot never goes back to raw. What's done is done.
 
 Sens : avoir la situation en or — sûre, confortable, garantie.
 
-Dans un pays bâti sur le bétail, une vache qui ne s'échappe pas = revenu stable. Aucun souci à se faire.
+Dans l'Argentine de l'élevage, une vache bien attachée qui ne s'égare pas, c'est un capital assuré et un revenu qui tombe sans surprise. Plus rien à craindre.
 
 👉 Si ta vie est la vache attachée, c'est quoi ta vache ? 🐄👇
 
@@ -421,7 +422,7 @@ Dans un pays bâti sur le bétail, une vache qui ne s'échappe pas = revenu stab
 
 Meaning: to have it made — a secure, comfortable, guaranteed situation.
 
-In a land built on cattle, a cow that won't wander means steady income. Nothing to worry about.
+In cattle-built Argentina, a cow tied up and unable to wander is capital secured — income that comes in without surprises. Nothing left to fear.
 
 👉 If your life is the tied-up cow, what's your cow? 🐄👇
 
@@ -439,7 +440,7 @@ In a land built on cattle, a cow that won't wander means steady income. Nothing 
 
 Sens : refiler la responsabilité à quelqu'un d'autre.
 
-Poker des pionniers : un jeton (le "buck") indiquait qui devait distribuer. Le refiler, c'est refiler la corvée — d'où "the buck stops here".
+Au poker des pionniers américains, un marqueur — souvent un couteau à manche en corne de cerf, le « buck » — désignait le donneur. Le refiler, c'était refiler la corvée. Le président Truman en tira son fameux « the buck stops here » : la responsabilité s'arrête ici.
 
 👉 Qui est le champion du "c'est pas moi" que tu connais ? Pas besoin de nom… ou alors 🃏👇
 
@@ -449,7 +450,7 @@ Poker des pionniers : un jeton (le "buck") indiquait qui devait distribuer. Le r
 
 Meaning: to shift the responsibility onto someone else.
 
-Frontier poker: a marker (the "buck") showed whose turn to deal. Pass it, pass the duty — hence "the buck stops here."
+In frontier American poker, a marker — often a buckhorn-handled knife, the "buck" — showed whose turn it was to deal. Passing it passed the chore. President Truman turned it into his famous "the buck stops here."
 
 👉 Who's the champion buck-passer you know? No names needed… or maybe 🃏👇
 
@@ -463,11 +464,11 @@ Frontier poker: a marker (the "buck") showed whose turn to deal. Pass it, pass t
 ## 17. 17-avoir-la-tete-dans-le-guidon.png · 🇫🇷 · ven 24/07
 
 ```text
-🇫🇷 "Avoir la tête dans le guidon" — le nez dans le travail, vue d'ensemble perdue. 🚴
+🇫🇷 "Avoir la tête dans le guidon" — littéralement, avoir la tête dans le guidon. 🚴
 
 Sens : tellement enseveli sous le boulot qu'on ne voit plus rien autour.
 
-Comme un cycliste plié sur son guidon — les yeux sur l'effort, aveugle au reste.
+L'image est cycliste : penché sur son guidon dans l'effort, le coureur ne voit plus que la route juste devant sa roue — aveugle au paysage et à la course autour de lui.
 
 👉 La tête dans le guidon cette semaine ? Lève la main 🙋👇
 
@@ -477,7 +478,7 @@ Comme un cycliste plié sur son guidon — les yeux sur l'effort, aveugle au res
 
 Meaning: so buried in work you lose the big picture.
 
-Like a cyclist hunched over the bars — eyes on the effort, blind to everything around.
+It's a cyclist's image: hunched over the handlebars mid-effort, the rider sees only the road right under the wheel — blind to the scenery and the race around them.
 
 👉 Head in the handlebars this week? Raise your hand 🙋👇
 
@@ -495,7 +496,7 @@ Like a cyclist hunched over the bars — eyes on the effort, blind to everything
 
 Sens : se cotiser — mettre l'argent en commun, à plusieurs, pour quelque chose de partagé.
 
-Le cochon, c'est la tirelire : chacun met sa part jusqu'à ce qu'il y en ait assez. Au Pérou, on "fait un cochon" avant un barbecue.
+« Chancha », c'est la truie — mais aussi, en Amérique latine, la tirelire en forme de cochon. « Faire un cochon », c'est le remplir à plusieurs : chacun met sa part jusqu'à ce qu'il y en ait assez, souvent avant un barbecue entre amis.
 
 👉 La dernière fois que ta bande a "fait un cochon", c'était pour quoi ? 🐷👇
 
@@ -505,7 +506,7 @@ Le cochon, c'est la tirelire : chacun met sa part jusqu'à ce qu'il y en ait ass
 
 Meaning: to chip in together — to pool money as a group for something shared.
 
-The pig is the piggy bank: everyone drops in their share until there's enough. Peruvian friends "make a pig" before a barbecue.
+"Chancha" is a sow — but across Latin America it's also the pig-shaped piggy bank. To "make a pig" is to fill it together: everyone drops in their share until there's enough, often before a barbecue with friends.
 
 👉 What's the last thing your crew "made a pig" for? 🐷👇
 
@@ -523,7 +524,7 @@ The pig is the piggy bank: everyone drops in their share until there's enough. P
 
 Sens : un peu perché — pas tout à fait là, une case en moins.
 
-Le pré du haut, c'est la tête ; les kangourous devraient y être enfermés. Quelques-uns en liberté… et les pensées partent en vrille.
+Tout est métaphore de ferme : le « pré du haut » (top paddock), c'est la tête ; les kangourous, ce sont les idées, censées y rester bien clôturées. Quelques-uns en liberté là-haut… et le raisonnement part en vrille.
 
 👉 Le pré du haut de qui manque de quelques kangourous ? C'est pour un ami 🦘👇
 
@@ -533,7 +534,7 @@ Le pré du haut, c'est la tête ; les kangourous devraient y être enfermés. Qu
 
 Meaning: a bit crazy — not quite all there, a little short on sense.
 
-The top paddock is the head; the roos should be fenced in. A few loose up there… and the thinking goes wild.
+It's all farm metaphor: the "top paddock" is the head; the kangaroos are the thoughts, meant to stay safely fenced in. Let a few loose up there… and the thinking goes wild.
 
 👉 Whose top paddock is missing a few roos? Asking for a friend 🦘👇
 
