@@ -11,11 +11,11 @@ Une fois postée : déplacer le `.html` + `.png` vers `social/archives/` avec pr
 
 Ton : léger, complice, une **question finale qui donne envie de commenter** (esprit "poser un lapin").
 
-## Langue de la caption — à décider par Sinan
-Chaque post a **deux versions** : **EN** (par défaut) et **FR** (native, pas une traduction).
-- **Reco : bilingue EN puis FR** au lancement (engagement du réseau francophone + portée internationale préservée).
-- Si tu postes **FR seul**, prends le bloc FR et ses hashtags français.
-- **Ne pas doubler les hashtags** : en bilingue, garde un seul bloc (les anglais portent la découverte).
+## Langue de la caption — DÉCIDÉ S188 : BILINGUE EN puis FR
+Pour chaque post : coller le bloc **EN**, puis le bloc **FR** en dessous.
+- **Un seul bloc de hashtags** : garder les anglais (ils portent la découverte). Ne pas doubler → lu comme du spam.
+- Longueur OK : montage bilingue ≤ 826 caractères, limite Instagram = 2 200.
+- Repli éventuel « FR seul » (si l'audience devient surtout anglophone) : prendre le bloc FR + ses hashtags français.
 
 ---
 
