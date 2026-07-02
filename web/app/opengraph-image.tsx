@@ -1,9 +1,16 @@
 import { ImageResponse } from 'next/og'
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-export default function Image() {
+export default async function Image() {
+  // Icône officielle de l'app (globe + main), embarquée en base64 :
+  // next/og ne sait pas résoudre un chemin local, il faut inliner l'image.
+  const iconData = await readFile(join(process.cwd(), 'public/icons/icon-512.png'))
+  const iconSrc = `data:image/png;base64,${iconData.toString('base64')}`
+
   return new ImageResponse(
     (
       <div
@@ -24,7 +31,8 @@ export default function Image() {
 
         {/* Content */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ fontSize: 100, lineHeight: 1, display: 'flex' }}>🌍</div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={iconSrc} width={160} height={160} style={{ borderRadius: 32, display: 'flex' }} alt="" />
 
           <div style={{ fontSize: 92, color: '#1c1410', lineHeight: 1.1, marginTop: 24, display: 'flex', gap: 20 }}>
             <span>World</span>
