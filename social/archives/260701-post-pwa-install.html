@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Post PWA — @world.expressions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;1,400;1,600&family=Inter:wght@400;500;700&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --paper:     #fdf8ee;
+      --ink:       #1c1410;
+      --ink-soft:  #5c4f47;
+      --plum:      #6b4d8f;
+      --plum-deep: #4a3565;
+      --plum-bg:   #ebe3f1;
+      --terra:     #c1543a;
+      --terra-bg:  #f7e3d8;
+      --gold:      #d4a83a;
+    }
+
+    body {
+      background: #18151f;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 24px 60px;
+      font-family: 'Inter', system-ui, sans-serif;
+      gap: 16px;
+    }
+
+    .meta-label {
+      color: #666;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-family: 'Inter', sans-serif;
+      margin-bottom: 4px;
+    }
+
+    /* ──── CAROUSEL SHELL ──── */
+    .carousel-shell {
+      position: relative;
+      width: 540px;
+    }
+
+    .carousel-track-outer {
+      width: 540px;
+      overflow: hidden;
+      border-radius: 16px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.55);
+    }
+
+    .carousel-track {
+      display: flex;
+      transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ──── INDIVIDUAL SLIDE ──── */
+    .slide {
+      flex-shrink: 0;
+      width: 540px;
+      height: 540px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ──── INSTAGRAM TOPBAR ──── */
+    .ig-bar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 16px 8px;
+      z-index: 10;
+    }
+    .ig-bar.light { background: linear-gradient(to bottom, rgba(253,248,238,.9), transparent); }
+    .ig-bar.dark  { background: linear-gradient(to bottom, rgba(75,53,101,.9), transparent); }
+
+    .ig-avatar {
+      width: 30px; height: 30px; border-radius: 7px;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .ig-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .ig-name {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.01em;
+    }
+    .ig-bar.light .ig-name { color: var(--ink); }
+    .ig-bar.dark  .ig-name { color: #fff; }
+
+    /* slide counter pill */
+    .slide-counter {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-family: 'Inter', sans-serif;
+    }
+    .slide-counter.light { background: rgba(253,248,238,.85); color: var(--ink-soft); }
+    .slide-counter.dark  { background: rgba(255,255,255,.2); color: rgba(255,255,255,.85); }
+
+    /* ──── SLIDE 1 — HOOK ──── */
+    .s1 {
+      background: var(--plum);
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0 48px;
+    }
+    .s1-globe {
+      font-size: 64px;
+      line-height: 1;
+      margin-bottom: 28px;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+    }
+    .s1-headline {
+      font-family: 'Fraunces', Georgia, serif;
+      font-style: italic;
+      font-size: 42px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .s1-sub {
+      font-family: 'Caveat', cursive;
+      font-size: 20px;
+      color: rgba(255,255,255,.78);
+      line-height: 1.4;
+    }
+    .s1-footer {
+      position: absolute;
+      bottom: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.5);
+    }
+    .s1-strip {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(to right, var(--gold), var(--terra));
+    }
+
+    /* ──── SLIDE 2 — PWA EXPLICATION ──── */
+    .s2 {
+      background: var(--paper);
+      padding: 68px 44px 32px;
+      justify-content: center;
+    }
+    .eyebrow {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--terra);
+      margin-bottom: 12px;
+    }
+    .s2-title {
+      font-family: 'Fraunces', Georgia, serif;
+      font-style: italic;
+      font-size: 34px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.15;
+      margin-bottom: 32px;
+    }
+    .pwa-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .pwa-icon {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .pwa-icon.plum-bg { background: var(--plum-bg); }
+    .pwa-icon.terra-bg { background: var(--terra-bg); }
+    .pwa-icon.gold-bg { background: #f7ebd4; }
+    .pwa-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 3px;
+    }
+    .pwa-desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      color: var(--ink-soft);
+      line-height: 1.5;
+    }
+    .s2-footnote {
+      position: absolute;
+      bottom: 22px;
+      left: 44px; right: 44px;
+      font-family: 'Caveat', cursive;
+      font-size: 15px;
+      font-style: italic;
+      color: var(--plum);
+      border-top: 1px solid #e8dcc4;
+      padding-top: 12px;
+    }
+
+    /* ──── SLIDE 3 — ANDROID ──── */
+    .s3 {
+      background: var(--terra-bg);
+      padding: 68px 44px 32px;
+      justify-content: center;
+    }
+    .s3-title {
+      font-family: 'Fraunces', Georgia, serif;
+      font-style: italic;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+    .s3-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      color: var(--ink-soft);
+      letter-spacing: 0.04em;
+      margin-bottom: 28px;
+    }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .step-num.terra { background: var(--terra); color: #fff; }
+    .step-num.plum  { background: var(--plum);  color: #fff; }
+    .step-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--ink);
+      line-height: 1.4;
+    }
+    .step-text strong { font-weight: 700; }
+    .step-text em {
+      font-style: normal;
+      font-family: 'Caveat', cursive;
+      font-size: 16px;
+      color: var(--terra);
+    }
+    .also-note {
+      position: absolute;
+      bottom: 24px;
+      left: 44px;
+      font-family: 'Caveat', cursive;
+      font-size: 15px;
+      color: var(--ink-soft);
+    }
+    .also-note span {
+      background: rgba(193,84,58,.12);
+      padding: 2px 8px;
+      border-radius: 20px;
+      color: var(--terra);
+      font-weight: 600;
+    }
+
+    /* ──── SLIDE 4 — IPHONE ──── */
+    .s4 {
+      background: var(--plum-bg);
+      padding: 68px 44px 32px;
+      justify-content: center;
+    }
+    .s4-title {
+      font-family: 'Fraunces', Georgia, serif;
+      font-style: italic;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .s4-note {
+      font-family: 'Caveat', cursive;
+      font-size: 15px;
+      font-style: italic;
+      color: var(--plum-deep);
+      margin-bottom: 28px;
+      line-height: 1.4;
+    }
+
+    /* ──── SLIDE 5 — CTA ──── */
+    .s5 {
+      background: var(--paper);
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0 44px;
+    }
+    .s5-pre {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--terra);
+      margin-bottom: 16px;
+    }
+    .s5-headline {
+      font-family: 'Fraunces', Georgia, serif;
+      font-style: italic;
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.15;
+      margin-bottom: 14px;
+    }
+    .s5-sub {
+      font-family: 'Caveat', cursive;
+      font-size: 20px;
+      color: var(--ink-soft);
+      margin-bottom: 32px;
+    }
+    .s5-pill {
+      display: inline-block;
+      background: var(--plum);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 10px 22px;
+      border-radius: 32px;
+      margin-bottom: 8px;
+    }
+    .s5-link-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      color: var(--ink-soft);
+      letter-spacing: 0.06em;
+    }
+    .s5-handle {
+      position: absolute;
+      bottom: 22px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--plum);
+      opacity: 0.7;
+    }
+
+    /* ──── NAV ARROWS ──── */
+    .carousel-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .nav-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.18);
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,.22); }
+    .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+    /* ──── DOTS ──── */
+    .dots {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.3);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .dot.active {
+      background: #fff;
+      width: 20px;
+      border-radius: 4px;
+    }
+
+    /* ──── CAPTION PREVIEW ──── */
+    .caption-box {
+      width: 540px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 32px;
+    }
+    .caption-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 14px;
+    }
+    .caption-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: rgba(255,255,255,.75);
+      line-height: 1.7;
+      white-space: pre-line;
+    }
+    .caption-text .hashtag { color: #8b9fd4; }
+  </style>
+</head>
+<body>
+
+<p class="meta-label">Post Instagram — @world.expressions · PWA install · Carrousel 5 slides</p>
+
+<div class="carousel-shell">
+  <div class="carousel-track-outer">
+    <div class="carousel-track" id="track">
+
+      <!-- ───── SLIDE 1 — HOOK ───── -->
+      <div class="slide s1">
+        <div class="ig-bar dark">
+          <div class="ig-avatar"><img src="../web/public/icons/icon-192.png" alt=""></div>
+          <span class="ig-name">world.expressions</span>
+          <span class="slide-counter dark">1 / 5</span>
+        </div>
+        <div class="s1-globe">📲</div>
+        <div class="s1-headline">Pas besoin<br>d'App Store.</div>
+        <div class="s1-sub">World Expressions s'installe<br>directement sur ton téléphone.</div>
+        <div class="s1-footer">@world.expressions</div>
+        <div class="s1-strip"></div>
+      </div>
+
+      <!-- ───── SLIDE 2 — C'EST QUOI UNE PWA ? ───── -->
+      <div class="slide s2">
+        <div class="ig-bar light">
+          <div class="ig-avatar"><img src="../web/public/icons/icon-192.png" alt=""></div>
+          <span class="ig-name">world.expressions</span>
+          <span class="slide-counter light">2 / 5</span>
+        </div>
+        <div class="eyebrow">Nouvelle fonctionnalité</div>
+        <div class="s2-title">C'est quoi<br>une PWA ?</div>
+        <div class="pwa-item">
+          <div class="pwa-icon plum-bg">📲</div>
+          <div>
+            <div class="pwa-label">Une icône sur ton écran d'accueil</div>
+            <div class="pwa-desc">Le site web devient une vraie appli — sans passer par l'App Store ni le Play Store.</div>
+          </div>
+        </div>
+        <div class="pwa-item">
+          <div class="pwa-icon terra-bg">✈️</div>
+          <div>
+            <div class="pwa-label">Fonctionne hors ligne</div>
+            <div class="pwa-desc">Les expressions déjà consultées restent accessibles sans connexion, partout.</div>
+          </div>
+        </div>
+        <div class="pwa-item">
+          <div class="pwa-icon gold-bg">✨</div>
+          <div>
+            <div class="pwa-label">Se met à jour toute seule</div>
+            <div class="pwa-desc">Rien à télécharger, rien à approuver. Toujours la dernière version.</div>
+          </div>
+        </div>
+        <div class="s2-footnote">Swipe pour voir comment l'installer →</div>
+      </div>
+
+      <!-- ───── SLIDE 3 — ANDROID / CHROME / BRAVE ───── -->
+      <div class="slide s3">
+        <div class="ig-bar light">
+          <div class="ig-avatar"><img src="../web/public/icons/icon-192.png" alt=""></div>
+          <span class="ig-name">world.expressions</span>
+          <span class="slide-counter light">3 / 5</span>
+        </div>
+        <div class="eyebrow" style="color: var(--terra);">Android · Chrome · Brave</div>
+        <div class="s3-title">Installation directe</div>
+        <div class="s3-sub">Aussi sur ordinateur (Chrome, Edge, Firefox)</div>
+        <div class="step">
+          <div class="step-num terra">1</div>
+          <div class="step-text">Ouvre <strong>worldexpressions.app</strong></div>
+        </div>
+        <div class="step">
+          <div class="step-num terra">2</div>
+          <div class="step-text">Menu du navigateur <em>⋮</em></div>
+        </div>
+        <div class="step">
+          <div class="step-num terra">3</div>
+          <div class="step-text"><em>"Ajouter à l'écran d'accueil"</em></div>
+        </div>
+        <div class="also-note">Parfois : un bandeau s'affiche automatiquement <span>direct</span></div>
+      </div>
+
+      <!-- ───── SLIDE 4 — IPHONE ───── -->
+      <div class="slide s4">
+        <div class="ig-bar light">
+          <div class="ig-avatar"><img src="../web/public/icons/icon-192.png" alt=""></div>
+          <span class="ig-name">world.expressions</span>
+          <span class="slide-counter light">4 / 5</span>
+        </div>
+        <div class="eyebrow" style="color: var(--plum);">iPhone</div>
+        <div class="s4-title">Uniquement via Safari</div>
+        <div class="s4-note">Apple impose son moteur à tous les navigateurs iOS —<br>Chrome et Brave ne peuvent pas installer de PWA.</div>
+        <div class="step">
+          <div class="step-num plum">1</div>
+          <div class="step-text">Ouvre <strong>worldexpressions.app</strong> dans <strong>Safari</strong></div>
+        </div>
+        <div class="step">
+          <div class="step-num plum">2</div>
+          <div class="step-text">Appuie sur <strong>Partager</strong> <span style="font-size:16px">⎙</span></div>
+        </div>
+        <div class="step">
+          <div class="step-num plum">3</div>
+          <div class="step-text" style="font-family:'Caveat',cursive;font-size:17px;color:var(--plum-deep);">"Sur l'écran d'accueil"</div>
+        </div>
+      </div>
+
+      <!-- ───── SLIDE 5 — CTA ───── -->
+      <div class="slide s5">
+        <div class="ig-bar light">
+          <div class="ig-avatar"><img src="../web/public/icons/icon-192.png" alt=""></div>
+          <span class="ig-name">world.expressions</span>
+          <span class="slide-counter light">5 / 5</span>
+        </div>
+        <div class="s5-pre">Disponible maintenant</div>
+        <div class="s5-headline">Retrouve tes<br>expressions partout.</div>
+        <div class="s5-sub">Hors ligne ✈️ · Toujours à jour ✨ · Gratuit</div>
+        <div class="s5-pill">🔗 worldexpressions.app</div>
+        <div class="s5-link-sub">Lien en bio</div>
+        <div class="s5-handle">@world.expressions</div>
+        <div class="s1-strip"></div>
+      </div>
+
+    </div><!-- end track -->
+  </div><!-- end track-outer -->
+
+  <!-- NAV -->
+  <div class="carousel-nav">
+    <button class="nav-btn" id="prev" onclick="move(-1)">‹</button>
+    <div class="dots" id="dots"></div>
+    <button class="nav-btn" id="next" onclick="move(1)">›</button>
+  </div>
+
+</div><!-- end shell -->
+
+<!-- CAPTION PREVIEW -->
+<div class="caption-box">
+  <div class="caption-label">Caption Instagram</div>
+  <div class="caption-text">🌍 World Expressions est maintenant installable comme une appli — sans App Store ni Play Store.
+
+C'est une PWA (Progressive Web App) : le site devient une icône sur ton écran d'accueil, fonctionne hors ligne ✈️ et se met à jour seul.
+
+Android, Chrome, Brave, ordinateur → menu du navigateur → "Ajouter à l'écran d'accueil"
+iPhone → uniquement via Safari : Partager → "Sur l'écran d'accueil"
+
+🔗 Lien en bio.
+
+<span class="hashtag">#PWA #OpenSource #ExpressionsIdiomatiques #worldexpressions</span></div>
+</div>
+
+<script>
+  const TOTAL = 5;
+  let cur = 0;
+
+  const track = document.getElementById('track');
+  const dotsEl = document.getElementById('dots');
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+
+  // Build dots
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  }
+
+  function goTo(n) {
+    cur = Math.max(0, Math.min(TOTAL - 1, n));
+    track.style.transform = `translateX(-${cur * 540}px)`;
+    document.querySelectorAll('.dot').forEach((d, i) => {
+      d.classList.toggle('active', i === cur);
+    });
+    prevBtn.disabled = cur === 0;
+    nextBtn.disabled = cur === TOTAL - 1;
+  }
+
+  function move(dir) { goTo(cur + dir); }
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  move(-1);
+    if (e.key === 'ArrowRight') move(1);
+  });
+
+  goTo(0);
+</script>
+</body>
+</html>

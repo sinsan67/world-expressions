@@ -26,7 +26,7 @@ const LIMIT = 20;
 
 const T = {
   fr: {
-    expressionOfDay: "Expression du jour",
+    expressionOfDay: "Expressions du jour",
     anotherOne: "Une autre",
     readFile: "La fiche",
     share: "Partager",
@@ -57,7 +57,7 @@ const T = {
     showMore: (n: number) => `Voir les ${n} autres →`,
   },
   en: {
-    expressionOfDay: "Expression of the day",
+    expressionOfDay: "Expressions of the day",
     anotherOne: "Another one",
     readFile: "The card",
     share: "Share",
@@ -88,7 +88,7 @@ const T = {
     showMore: (n: number) => `See ${n} more →`,
   },
   es: {
-    expressionOfDay: "Expresión del día",
+    expressionOfDay: "Expresiones del día",
     anotherOne: "Otra",
     readFile: "La ficha",
     share: "Compartir",
@@ -119,7 +119,7 @@ const T = {
     showMore: (n: number) => `Ver ${n} más →`,
   },
   tr: {
-    expressionOfDay: "Günün deyimi",
+    expressionOfDay: "Günün deyimleri",
     anotherOne: "Başka biri",
     readFile: "Kart",
     share: "Paylaş",
@@ -150,7 +150,7 @@ const T = {
     showMore: (n: number) => `${n} tanesini daha gör →`,
   },
   it: {
-    expressionOfDay: "Espressione del giorno",
+    expressionOfDay: "Espressioni del giorno",
     anotherOne: "Un'altra",
     readFile: "La scheda",
     share: "Condividi",
@@ -181,7 +181,7 @@ const T = {
     showMore: (n: number) => `Vedi altri ${n} →`,
   },
   de: {
-    expressionOfDay: "Ausdruck des Tages",
+    expressionOfDay: "Ausdrücke des Tages",
     anotherOne: "Noch einer",
     readFile: "Die Karte",
     share: "Teilen",

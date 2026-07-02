@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cover Facebook — World Expressions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;1,400;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --paper:     #fdf8ee;
+      --ink:       #1c1410;
+      --ink-soft:  #5c4f47;
+      --ink-softer:#8b7d72;
+      --plum:      #6b4d8f;
+      --plum-soft: #c9b8d9;
+      --terra:     #c1543a;
+      --gold:      #d4a83a;
+    }
+
+    body {
+      background: #18151f;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+      font-family: 'Inter', system-ui, sans-serif;
+      gap: 8px;
+    }
+    .meta-label {
+      color: #666; font-size: 12px; letter-spacing: 0.12em;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+
+    /* ──── FACEBOOK COVER 1640 × 624 ──── */
+    .cover {
+      width: 1640px;
+      height: 624px;
+      background:
+        radial-gradient(circle at 82% 18%, rgba(201,184,217,0.28), transparent 42%),
+        radial-gradient(circle at 12% 88%, rgba(212,168,58,0.16), transparent 40%),
+        var(--paper);
+      position: relative;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .top-strip, .bottom-strip {
+      position: absolute; left: 0; width: 100%; height: 6px;
+    }
+    .top-strip {
+      top: 0;
+      background: linear-gradient(to right, var(--gold), var(--terra), var(--plum));
+    }
+    .bottom-strip {
+      bottom: 0;
+      background: linear-gradient(to right, var(--plum), var(--terra), var(--gold));
+    }
+
+    /* Centered content group — sits inside FB's mobile-safe zone */
+    .group {
+      display: flex;
+      align-items: center;
+      gap: 56px;
+      margin: 0 auto;
+      max-width: 1040px;
+      padding: 0 40px;
+    }
+
+    /* App-icon tile — rounded corners, soft shadow that follows the radius */
+    .icon-tile {
+      flex-shrink: 0;
+      width: 236px; height: 236px;
+      border-radius: 48px;
+      overflow: hidden;
+      box-shadow: 0 18px 44px rgba(107,77,143,0.22);
+      border: 1px solid rgba(107,77,143,0.10);
+    }
+    .icon-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .text { display: flex; flex-direction: column; }
+
+    .wordmark {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 600;
+      font-size: 64px;
+      line-height: 1.02;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .wordmark .amp { color: var(--plum); }
+
+    .tagline {
+      font-family: 'Fraunces', Georgia, serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 27px;
+      color: var(--ink-soft);
+      margin-top: 14px;
+      line-height: 1.3;
+    }
+
+    .divider {
+      width: 64px; height: 3px; border-radius: 3px;
+      background: linear-gradient(to right, var(--terra), var(--plum));
+      margin: 22px 0 18px;
+    }
+
+    .app-url {
+      font-family: 'Inter', sans-serif;
+      font-size: 17px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--plum);
+    }
+    .flags {
+      font-size: 26px; letter-spacing: 3px; margin-top: 14px;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .flags .more {
+      font-family: 'Fraunces', Georgia, serif;
+      font-style: italic; font-weight: 400;
+      font-size: 19px; letter-spacing: 0;
+      color: var(--ink-softer); margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<p class="meta-label">Facebook Cover — World Expressions · 1640 × 624</p>
+
+<div class="cover">
+  <div class="top-strip"></div>
+
+  <div class="group">
+    <div class="icon-tile">
+      <img src="../web/public/icons/icon-512.png" alt="World Expressions icon">
+    </div>
+    <div class="text">
+      <div class="wordmark">World<br>Expressions</div>
+      <div class="tagline">Every language has its own madness.</div>
+      <div class="divider"></div>
+      <span class="app-url">worldexpressions.app</span>
+      <span class="flags">🇫🇷&nbsp;🇬🇧&nbsp;🇺🇸&nbsp;🇩🇪&nbsp;🇪🇸&nbsp;🇮🇹&nbsp;🇹🇷&nbsp;🇯🇵<span class="more">&amp; more</span></span>
+    </div>
+  </div>
+
+  <div class="bottom-strip"></div>
+</div>
+
+</body>
+</html>
