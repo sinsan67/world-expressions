@@ -300,7 +300,7 @@ The logic is airtight: hens have no teeth and never will. So the phrase points t
 
 Sens : ne regarder à aucune dépense — se lâcher complètement pour l'occasion.
 
-L'expression remonterait au XVIIIᵉ siècle : les gagnants de la loterie nationale espagnole jetaient réellement leurs vieux meubles par la fenêtre, prêts à tout racheter à neuf.
+L'histoire souvent racontée remonte au XIXᵉ siècle : les gagnants de la loterie en Espagne jetaient leurs vieux meubles par la fenêtre, prêts à tout remplacer pour fêter leur fortune en grand.
 
 👉 La dernière fois que tu as "jeté la maison par la fenêtre", c'était pour quoi ? 🪟👇
 
@@ -310,7 +310,7 @@ L'expression remonterait au XVIIIᵉ siècle : les gagnants de la loterie nation
 
 Meaning: to spare no expense — to splurge lavishly for the occasion.
 
-The phrase may date to 18th-century Spain: winners of the national lottery would literally hurl their old furniture out the window, ready to buy everything anew.
+The story often told dates to 19th-century Spain: lottery winners would fling their old furniture out the window, ready to replace it all and celebrate their windfall in style.
 
 👉 Last time you threw the house out the window — what was the occasion? 🪟👇
 
@@ -384,7 +384,7 @@ It's a vivid picture: you're so happy you can't keep still, fidgeting so much th
 
 Sens : c'est fichu — fin de partie, la situation est perdue.
 
-Une carotte cuite ne redevient jamais crue : c'est irréversible. Clin d'œil historique : « les carottes sont cuites » aurait servi de message codé sur Radio Londres pendant la Seconde Guerre mondiale.
+Une carotte cuite ne redevient jamais crue : ce qui est fait est fait, le sort est scellé. L'expression est attestée dès le XIXᵉ siècle.
 
 👉 Comment on dit "c'est fini" dans TA langue ? Lâche l'expression — on collectionne 🥕👇
 
@@ -394,7 +394,7 @@ Une carotte cuite ne redevient jamais crue : c'est irréversible. Clin d'œil hi
 
 Meaning: it's game over — the situation is lost, nothing left to do.
 
-A cooked carrot never turns raw again — it's irreversible. A historical wink: "les carottes sont cuites" was reportedly a coded message on Radio Londres during WWII.
+A cooked carrot never turns raw again — what's done is done, the outcome sealed. The phrase is attested from the 19th century.
 
 👉 How does YOUR language say "it's over"? Drop the phrase below — we collect these 🥕👇
 
