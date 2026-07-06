@@ -186,6 +186,7 @@ def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
             e.country,
             e.register,
             e.illustration,
+            e.kind,
             e.source,
             COALESCE(ec_pref.meaning, ct_pref.meaning, ec_orig.meaning)   AS meaning,
             COALESCE(ec_pref.origin,  ct_pref.origin,  ec_orig.origin)    AS origin,
@@ -205,7 +206,7 @@ def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
         LEFT JOIN tags t ON t.id = et.tag_id
         WHERE e.id = :expr_id
         GROUP BY e.id, e.text, e.language, e.region, e.country, e.register,
-                 e.illustration, e.source,
+                 e.illustration, e.kind, e.source,
                  ec_orig.meaning, ec_orig.origin, ec_orig.example,
                  ec_pref.meaning, ec_pref.origin, ec_pref.example,
                  ct_pref.meaning, ct_pref.origin, ct_pref.example, ct_pref.literal

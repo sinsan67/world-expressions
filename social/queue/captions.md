@@ -1,94 +1,125 @@
-# Captions — file d'attente Instagram (@world.expressions)
+# Captions — file d'attente Instagram (@world.expressions) — LOT 2 (posts 20→39)
 
-19 posts prêts, numérotés **01→19 dans l'ordre de publication** (langues alternées).
-**Chaque bloc ci-dessous = la caption finale, un seul copier-coller.** Format acté S188 :
-**français en haut, anglais dessous**, un seul jeu de hashtags. Le titre donne le PNG à joindre + la date.
-Origines explicitées (S188) : chaque post raconte concrètement d'où vient l'expression.
+20 posts prêts, numérotés **20→39 dans l'ordre de publication** (langues alternées ; ce lot
+met en avant l'italien, l'allemand et le japonais, absents du lot 1).
+**Chaque bloc ci-dessous = la caption finale, un seul copier-coller.** Format : **français en
+haut, anglais dessous**, un seul jeu de hashtags. Le titre donne le PNG à joindre + la date.
+Origines cohérentes avec la carte (même histoire au recto et dans le texte).
 
+Calendrier proposé (continuité du lot 1) : 5/sem lun-ven, **18h Paris**, du **29/07 au 25/08**.
 Workflow par post (Business Suite, navigateur Mac) : Créer une publication →
-**upload le PNG** (obligatoire) → coller le bloc → cocher **Facebook + Instagram** → Programmer à **18h00 Paris**.
+**upload le PNG** (obligatoire) → coller le bloc → cocher **Facebook + Instagram** → Programmer.
 Posté → déplacer `.html` + `.png` vers `social/archives/` avec préfixe `YYMMDD-`.
 
 Sources éditables : `NN-slug.html` (→ ré-export PNG via `social/export-image.cjs`).
+Lot 1 (posts 01→19) archivé dans `social/archives/` (captions : `captions-260702-lot1.md`).
 
 ---
 
-## 01. 01-ser-pan-comido.png · 🇪🇸 · jeu 02/07
+## 20. 20-non-tutte-le-ciambelle.png · 🇮🇹 · mer 29/07
 
 ```text
-🇪🇸 "Ser pan comido" — littéralement, être du pain déjà mangé. 🍞
+🇮🇹 "Non tutte le ciambelle riescono col buco" — littéralement, tous les beignets ne sortent pas avec leur trou. 🍩
 
-Sens : c'est du gâteau — si simple que ça ne demande aucun effort.
+Sens : on ne réussit pas toujours tout — les choses ne tournent pas toujours comme prévu.
 
-Le pain est l'aliment le plus simple qui soit : le manger ne demande ni savoir-faire ni préparation. Une chose « déjà mangée comme du pain » est donc pliée d'avance.
+La ciambella, c'est le gâteau italien en forme d'anneau, avec un trou au milieu. Faite maison, certaines sortent pleines, sans trou : un petit ratage. Une façon indulgente de dire que tout ne réussit pas.
 
-👉 C'est quoi TON "pan comido" ? Le truc que tout le monde galère à faire et que toi tu réussis les doigts dans le nez ? 👇
+👉 Ta dernière ciambelle sans trou, c'était quoi ? Le projet qui a foiré juste un peu 😅👇
 
 — — —
 
-🇪🇸 "Ser pan comido" — literally, to be bread already eaten. 🍞
+🇮🇹 "Non tutte le ciambelle riescono col buco" — literally, not all doughnuts come out with a hole. 🍩
 
-Meaning: a piece of cake — so easy it takes zero effort.
+Meaning: things don't always go to plan — you can't get it right every time.
 
-Bread is the simplest food there is — eating it needs no skill and no preparation. Something that's "already eaten bread" is as good as done.
+The ciambella is Italy's ring-shaped cake, meant to have a neat hole. Bake it at home and some come out solid — a small flop. A gentle shrug at life's misfires.
 
-👉 What's YOUR "pan comido"? The thing everyone finds hard but you nail every single time? Tell us below 👇
+👉 What was your last "doughnut without a hole" — the plan that flopped just a little? 😅👇
 
 → worldexpressions.app
 
-#wordlovers #languages #idioms #spanish #languagelearning #linguistics #worldexpressions
+#wordlovers #languages #idioms #italian #languagelearning #linguistics #worldexpressions
 ```
 
 ---
 
-## 02. 02-let-the-cat-out-of-the-bag.png · 🇬🇧 · ven 03/07
+## 21. 21-tomaten-auf-den-augen.png · 🇩🇪 · jeu 30/07
 
 ```text
-🇬🇧 "To let the cat out of the bag" — laisser le chat sortir du sac. 🐱
+🇩🇪 "Tomaten auf den Augen haben" — littéralement, avoir des tomates sur les yeux. 🍅
 
-Sens : vendre la mèche, le plus souvent sans le vouloir.
+Sens : ne pas voir une évidence pourtant sous ton nez.
 
-Sur les marchés médiévaux, les cochons de lait se vendaient attachés dans un sac. Un marchand malhonnête y glissait parfois un chat de gouttière à la place. Ouvrir le sac trop tôt libérait le chat — et dévoilait l'arnaque.
+Deux tomates bien mûres posées sur les yeux te boucheraient complètement la vue. Les Allemands s'en servent pour celui qui ne remarque pas ce qui est pourtant là, souvent par pure distraction.
 
-👉 Déjà vendu la mèche sans faire exprès ? Avoue en commentaire, on ne juge pas 🙈👇
+👉 Déjà cherché tes lunettes… posées sur ton nez ? Raconte ton moment tomates-sur-les-yeux 🍅👇
 
 — — —
 
-🇬🇧 "To let the cat out of the bag" — the secret you didn't mean to spill. 🐱
+🇩🇪 "Tomaten auf den Augen haben" — literally, to have tomatoes on your eyes. 🍅
 
-Meaning: to give the game away, usually by accident.
+Meaning: to be oblivious to the obvious — blind to what's right in front of you.
 
-In medieval markets, piglets were sold tied inside a sack. A dishonest trader might slip in a stray cat instead. Open the sack too soon and out sprang the cat — exposing the con.
+Two ripe tomatoes over your eyes would block your view entirely. Germans use it for someone who fails to notice what's plainly there — often through sheer inattention.
 
-👉 Ever let the cat out of the bag and instantly regretted it? Confess in the comments, we won't judge 🙈👇
+👉 Ever hunted for your glasses… sitting on your face? Tell us your tomato-eyes moment 🍅👇
 
 → worldexpressions.app
 
-#wordlovers #languages #idioms #english #languagelearning #linguistics #worldexpressions
+#wordlovers #languages #idioms #german #languagelearning #linguistics #worldexpressions
 ```
 
 ---
 
-## 03. 03-avoir-un-poil-dans-la-main.png · 🇫🇷 · lun 06/07
+## 22. 22-saru-mo-ki-kara-ochiru.png · 🇯🇵 · ven 31/07
 
 ```text
-🇫🇷 "Avoir un poil dans la main" — littéralement, avoir un poil qui pousse dans la main. ✋
+🇯🇵 "Saru mo ki kara ochiru" (猿も木から落ちる) — littéralement, même les singes tombent des arbres. 🐒
 
-Sens : être royalement fainéant — allergique à l'idée même de travailler.
+Sens : même les experts se trompent — personne n'est à l'abri d'un faux pas.
 
-L'image naît au XIXᵉ siècle : une main si peu utilisée, qui ne soulève jamais rien, qu'un poil aurait le temps d'y pousser. Le comble de la flemme.
+Les singes sont nés pour grimper, et pourtant même eux lâchent prise et tombent. Un rappel modeste : la maîtrise ne met jamais totalement à l'abri de l'erreur.
 
-👉 Tague l'ami(e) avec le plus long poil dans la main 👇
+👉 Quel expert t'a surpris en se plantant récemment ? (nous, on avoue les nôtres 🙈)👇
 
 — — —
 
-🇫🇷 "Avoir un poil dans la main" — literally, to have a hair growing in your hand. ✋
+🇯🇵 "Saru mo ki kara ochiru" (猿も木から落ちる) — literally, even monkeys fall from trees. 🐒
 
-Meaning: to be gloriously lazy — allergic to the very idea of work.
+Meaning: even experts make mistakes — no one is beyond a slip.
 
-The image was born in the 19th century: a hand so idle, so rarely lifted to any task, that a hair could grow right on the palm. Laziness taken to its limit.
+Monkeys are born climbers, yet even they lose their grip and fall. A humble reminder that mastery never means immunity from error.
 
-👉 Tag the friend with the longest palm-hair in your group 👇
+👉 Which expert surprised you by slipping up lately? (we'll own ours 🙈)👇
+
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #japanese #languagelearning #proverbs #worldexpressions
+```
+
+---
+
+## 23. 23-tomber-dans-les-pommes.png · 🇫🇷 · lun 03/08
+
+```text
+🇫🇷 "Tomber dans les pommes" — littéralement, tomber dans les pommes. 🍏
+
+Sens : s'évanouir, tomber dans les vapes.
+
+Sans doute une déformation de la vieille « tomber en pâmoison » (défaillir) : « pâmes » a glissé vers « pommes ». On attribue souvent une première trace écrite à George Sand.
+
+👉 Déjà tombé dans les pommes ? Où, quand, pourquoi — on veut l'histoire 🍏👇
+
+— — —
+
+🇫🇷 "Tomber dans les pommes" — literally, to fall into the apples. 🍏
+
+Meaning: to faint — to pass out cold.
+
+Likely a playful drift from the old "tomber en pâmoison" (to swoon): "pâmes" slid into "pommes." George Sand is often credited with an early written trace.
+
+👉 Ever fainted clean away? Where, when, why — we want the story 🍏👇
 
 → worldexpressions.app
 
@@ -97,26 +128,110 @@ The image was born in the 19th century: a hand so idle, so rarely lifted to any 
 
 ---
 
-## 04. 04-pabucu-dama-atilmak.png · 🇹🇷 · mar 07/07
+## 24. 24-in-bocca-al-lupo.png · 🇮🇹 · mar 04/08
 
 ```text
-🇹🇷 "Pabucu dama atılmak" — littéralement, se faire jeter la chaussure sur le toit. 👞
+🇮🇹 "In bocca al lupo" — littéralement, dans la gueule du loup. 🐺
 
-Sens : tomber en disgrâce — mis de côté dès que quelqu'un de mieux débarque.
+Sens : bonne chance ! — se dit avant une épreuve ou un spectacle.
 
-Chez les artisans ottomans, un cordonnier qui bâclait son ouvrage était puni : on jetait ses chaussures ratées sur le toit, à la vue de tous. La honte, version toiture.
+Le « break a leg » italien : on souhaite bonne chance en nommant le danger — la gueule du loup. La réponse rituelle, « Crepi il lupo ! » (que le loup crève), scelle le vœu.
 
-👉 Déjà remplacé(e) par la nouveauté qui brille ? Chaussure, meet toit. Raconte 👇
+👉 À qui tu dis "in bocca al lupo" cette semaine ? Tague-le, on lui souhaite bonne chance 🐺👇
 
 — — —
 
-🇹🇷 "Pabucu dama atılmak" — literally, to have your shoe thrown onto the roof. 👞
+🇮🇹 "In bocca al lupo" — literally, into the wolf's mouth. 🐺
 
-Meaning: to fall out of favor — shoved aside now that someone better showed up.
+Meaning: good luck! — said before a challenge or performance.
 
-In the Ottoman craft guilds, a shoemaker who botched his work was punished: his failed shoes were flung onto the roof for all to see. Disgrace, rooftop-high.
+Italy's "break a leg": you wish luck by naming the danger — the wolf's jaws. The traditional reply, "Crepi il lupo!" (may the wolf die), seals the charm.
 
-👉 Ever been replaced by the shiny new thing? Shoe, meet roof. Tell us your story 👇
+👉 Who are you sending "in bocca al lupo" this week? Tag them — good luck to them 🐺👇
+
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #italian #languagelearning #linguistics #worldexpressions
+```
+
+---
+
+## 25. 25-echarle-crema-a-tus-tacos.png · 🇲🇽 · mer 05/08
+
+```text
+🇲🇽 "Echarle crema a tus tacos" — littéralement, mettre de la crème sur tes tacos. 🌮
+
+Sens : frimer, se vanter, en rajouter.
+
+Un taco nature est modeste ; avec de la crème, il devient tout de suite plus chic. Enjoliver son propre récit de la même façon, c'est en faire des tonnes.
+
+👉 Qui, dans ta bande, met TOUJOURS de la crème sur ses tacos ? 🌮👇
+
+— — —
+
+🇲🇽 "Echarle crema a tus tacos" — literally, to put cream on your tacos. 🌮
+
+Meaning: to brag — to exaggerate your own importance.
+
+A plain taco is humble; add crema and it's suddenly fancier. Dressing up your own story the same way means laying it on thick — showing off.
+
+👉 Who in your crew ALWAYS puts cream on their tacos? 🌮👇
+
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #spanish #mexico #languagelearning #worldexpressions
+```
+
+---
+
+## 26. 26-ich-verstehe-nur-bahnhof.png · 🇩🇪 · jeu 06/08
+
+```text
+🇩🇪 "Ich verstehe nur Bahnhof" — littéralement, je ne comprends que « gare ». 🚉
+
+Sens : ne rien comprendre du tout — c'est du chinois pour moi.
+
+L'origine remonte à la Première Guerre mondiale : les soldats épuisés ne pensaient plus qu'à la gare — leur retour à la maison. Quoi qu'on leur dise, ils n'enregistraient que « Bahnhof ».
+
+👉 C'est quoi le sujet où toi, tu "ne comprends que gare" ? 🚉👇
+
+— — —
+
+🇩🇪 "Ich verstehe nur Bahnhof" — literally, I understand only "train station". 🚉
+
+Meaning: I don't get a word of this — it's all Greek to me.
+
+Traced to WWI: worn-out soldiers longed only for the train station — their way home. Whatever they were told, all that registered was "Bahnhof."
+
+👉 What's the topic where you only understand "train station"? 🚉👇
+
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #german #languagelearning #linguistics #worldexpressions
+```
+
+---
+
+## 27. 27-armut-pis-agzima-dus.png · 🇹🇷 · ven 07/08
+
+```text
+🇹🇷 "Armut piş, ağzıma düş" — littéralement, poire, mûris et tombe dans ma bouche. 🍐
+
+Sens : vouloir la récompense sans le moindre effort.
+
+Imagine-toi allongé sous un poirier, à attendre que le fruit mûrisse et te tombe pile dans la bouche. L'expression se moque de qui est trop paresseux pour lever le petit doigt.
+
+👉 Avoue : sur quoi tu attends que la poire te tombe dans la bouche ? 🍐👇
+
+— — —
+
+🇹🇷 "Armut piş, ağzıma düş" — literally, pear, ripen and drop into my mouth. 🍐
+
+Meaning: to want the reward without the effort — everything handed to you.
+
+Picture lying under a pear tree, waiting for the fruit to ripen and fall straight into your open mouth. It mocks anyone too idle to lift a finger.
+
+👉 Be honest: what are you waiting to just drop into your mouth? 🍐👇
 
 → worldexpressions.app
 
@@ -125,138 +240,54 @@ In the Ottoman craft guilds, a shoemaker who botched his work was punished: his 
 
 ---
 
-## 05. 05-estar-al-horno.png · 🇦🇷 · mer 08/07
+## 28. 28-neko-no-hitai.png · 🇯🇵 · lun 10/08
 
 ```text
-🇦🇷 "Estar al horno" — littéralement, être au four. 🔥
+🇯🇵 "Neko no hitai" (猫の額) — littéralement, un front de chat. 🐱
 
-Sens : être dans de sales draps, vraiment mal barré.
+Sens : un espace minuscule — un coin exigu.
 
-L'image vient de la cuisine : une fois enfourné, le plat ne décide plus rien — il n'a qu'à cuire et attendre. Et quand les Argentins ajoutent « con papas » (avec les patates autour), c'est que la situation est vraiment fichue.
+Le front d'un chat, c'est une toute petite bande étroite. Les Japonais s'en servent pour tout espace riquiqui : « un jardin grand comme un front de chat ».
 
-👉 Sur une échelle de "four vide" à "con papas", elle donne quoi ta semaine ? 🔥👇
+👉 Ton coin minuscule à toi — balcon, bureau, jardin "grand comme un front de chat" ? 🐱👇
 
 — — —
 
-🇦🇷 "Estar al horno" — literally, to be in the oven. 🔥
+🇯🇵 "Neko no hitai" (猫の額) — literally, a cat's forehead. 🐱
 
-Meaning: to be in deep trouble — really, badly stuck.
+Meaning: a tiny space — a cramped little patch of land.
 
-The image is culinary: once it's in the oven, the dish has no say — it just cooks and waits. And when Argentines add "con papas" (with the potatoes around it), it means the situation is truly done for.
+A cat's forehead is a narrow, minuscule strip. The Japanese use it for any cramped plot — "a garden the size of a cat's forehead."
 
-👉 On a scale from "plain oven" to "con papas", how's your week going? 🔥👇
+👉 Your tiny spot — the balcony, desk or garden "the size of a cat's forehead"? 🐱👇
 
 → worldexpressions.app
 
-#wordlovers #languages #idioms #spanish #languagelearning #linguistics #worldexpressions
+#wordlovers #languages #idioms #japanese #languagelearning #linguistics #worldexpressions
 ```
 
 ---
 
-## 06. 06-ride-shotgun.png · 🇺🇸 · jeu 09/07
+## 29. 29-bobs-your-uncle.png · 🇬🇧 · mar 11/08
 
 ```text
-🇺🇸 "To ride shotgun" — réclamer la place du passager avant. 🚗
+🇬🇧 "Bob's your uncle" — littéralement, Bob est ton oncle. ✅
 
-Sens : s'installer devant, à côté du conducteur.
+Sens : et voilà, c'est aussi simple que ça.
 
-Sur les diligences du Far West, un garde armé d'un fusil à canon scié (« shotgun ») s'asseyait à côté du cocher pour repousser les bandits. La place avant a gardé son nom.
+L'histoire populaire : en 1887, le Premier ministre Robert « Bob » Cecil offrit à son neveu un poste convoité. Avec un oncle comme Bob, le succès venait tout seul — d'où « et Bob est ton oncle » = et c'est réglé, facile.
 
-👉 Qui réclame TOUJOURS la place avant dans votre bande ? Balance (gentiment) 👇
+👉 Ta recette "et Bob est ton oncle" — le truc simplissime que tu maîtrises ? ✅👇
 
 — — —
 
-🇺🇸 "To ride shotgun" — calling the front passenger seat. 🚗
+🇬🇧 "Bob's your uncle" — literally, Bob is your uncle. ✅
 
-Meaning: to sit up front, next to the driver.
+Meaning: and there you have it — simple as that.
 
-On Old West stagecoaches, a guard cradling a shotgun sat beside the driver to fend off bandits. The front seat has kept the name ever since.
+The popular tale: in 1887, PM Robert "Bob" Cecil handed his nephew a coveted post. With an uncle like Bob, success came easy — and the phrase came to mean: done, effortlessly.
 
-👉 Who ALWAYS calls shotgun in your crew? Name and (gently) shame them 👇
-
-→ worldexpressions.app
-
-#wordlovers #languages #idioms #english #languagelearning #linguistics #worldexpressions
-```
-
----
-
-## 07. 07-donner-sa-langue-au-chat.png · 🇫🇷 · ven 10/07
-
-```text
-🇫🇷 "Donner sa langue au chat" — littéralement, donner sa langue au chat. 🐱
-
-Sens : renoncer à deviner — je sèche, dis-moi la réponse.
-
-Autrefois on « jetait sa langue aux chiens », une façon crue de dire qu'on l'abandonnait comme un déchet. Au fil du temps, le chat — à qui l'on prêtait la garde des secrets — a pris la place des chiens, en plus doux.
-
-👉 Alors tranchez : chat ou chien — qui mérite vraiment votre langue ? 🐱🐶👇
-
-— — —
-
-🇫🇷 "Donner sa langue au chat" — literally, to give your tongue to the cat. 🐱
-
-Meaning: to give up guessing — you surrender, just tell me the answer already.
-
-People once "threw their tongue to the dogs" — a blunt way to say they gave it up for lost. Over time the cat, long seen as a keeper of secrets, took the dogs' place — gentler.
-
-👉 So settle it for us: cat or dog — who really deserves your tongue? 🐱🐶👇
-
-→ worldexpressions.app
-
-#wordlovers #languages #idioms #french #polyglot #amourdesmots #linguistics #worldexpressions
-```
-
----
-
-## 08. 08-estar-en-la-luna-de-paita.png · 🇵🇪 · lun 13/07
-
-```text
-🇵🇪 "Estar en la luna de Paita" — littéralement, être sur la lune de Paita. 🌙
-
-Sens : dans les nuages — rêvasser, à des kilomètres de la conversation.
-
-Paita, port du nord du Pérou, est réputé pour ses nuits : un vieux dicton vante « la lune de Paita et le soleil de Colán ». Avoir la tête là-bas, c'est être ailleurs — dans un endroit de rêve.
-
-👉 Où part ton esprit quand tu devrais écouter ? Emmène-nous 🌙👇
-
-— — —
-
-🇵🇪 "Estar en la luna de Paita" — literally, to be on the moon of Paita. 🌙
-
-Meaning: lost in the clouds — daydreaming, miles from the conversation.
-
-Paita, a port in northern Peru, is famed for its nights — an old saying praises "the moon of Paita, the sun of Colán." To have your head there is to be somewhere dreamier than the room you're in.
-
-👉 Where does your mind wander when you should be listening? Take us there 🌙👇
-
-→ worldexpressions.app
-
-#wordlovers #languages #idioms #spanish #languagelearning #linguistics #worldexpressions
-```
-
----
-
-## 09. 09-flat-out-like-a-lizard-drinking.png · 🇦🇺 · mar 14/07
-
-```text
-🇦🇺 "Flat out like a lizard drinking" — à fond comme un lézard qui boit. 🦎
-
-Sens : débordé à fond — à pleine vitesse, pas une minute à soi.
-
-Double sens : « flat out » veut dire à pleine vitesse, et un lézard s'aplatit littéralement contre le sol pour laper l'eau. L'Australie adore ces images animalières.
-
-👉 Cette semaine : lézard qui boit, ou plutôt poil dans la main ? 🦎👇
-
-— — —
-
-🇦🇺 "Flat out like a lizard drinking" — literally, flat out like a drinking lizard. 🦎
-
-Meaning: flat out busy — going at full tilt, no time to spare.
-
-Two meanings at once: "flat out" means full speed, and a lizard lies flat to the ground to lap up water. Australia loves an animal image like this.
-
-👉 This week: drinking lizard, or living the "poil dans la main" life? 🦎👇
+👉 Your "and Bob's your uncle" trick — the dead-simple thing you've nailed? ✅👇
 
 → worldexpressions.app
 
@@ -265,54 +296,54 @@ Two meanings at once: "flat out" means full speed, and a lizard lies flat to the
 
 ---
 
-## 10. 10-quand-les-poules-auront-des-dents.png · 🇫🇷 · mer 15/07
+## 30. 30-avere-le-mani-in-pasta.png · 🇮🇹 · mer 12/08
 
 ```text
-🇫🇷 "Quand les poules auront des dents" — littéralement, quand les poules auront des dents. 🐔
+🇮🇹 "Avere le mani in pasta" — littéralement, avoir les mains dans la pâte. 🤲
 
-Sens : jamais — à un jour qui ne viendra tout simplement pas.
+Sens : être impliqué à fond — avoir un doigt dans tous les plats.
 
-La logique est imparable : les poules n'ont pas de dents et n'en auront jamais. L'expression désigne donc l'impossible. Les Anglais, eux, attendent que les cochons volent.
+Tout droit venu de la cuisine : pétrir la pâte, c'est y plonger les mains. Les avoir « dans la pâte », c'est être aux manettes, mêlé à tout — souvent avec de l'influence.
 
-👉 Poules à dents ou cochons volants — quel "jamais" est le plus bizarre ? Votez 🐔🐷👇
+👉 Les mains dans la pâte de quel projet en ce moment ? 🤲👇
 
 — — —
 
-🇫🇷 "Quand les poules auront des dents" — literally, when hens grow teeth. 🐔
+🇮🇹 "Avere le mani in pasta" — literally, to have your hands in the dough. 🤲
 
-Meaning: never. On a day that will simply never come.
+Meaning: to be deeply involved — a finger in every pie.
 
-The logic is airtight: hens have no teeth and never will. So the phrase points to the impossible. The English, meanwhile, wait for pigs to fly.
+Straight from the kitchen: kneading dough means plunging your hands right in. To have them "in the dough" is to be hands-on and mixed up in things — often with influence.
 
-👉 Toothless hens vs flying pigs — which "never" is weirder? Cast your vote 🐔🐷👇
+👉 Whose dough have you got your hands in right now? 🤲👇
 
 → worldexpressions.app
 
-#wordlovers #languages #idioms #french #languagelearning #amourdesmots #proverbs #worldexpressions
+#wordlovers #languages #idioms #italian #languagelearning #linguistics #worldexpressions
 ```
 
 ---
 
-## 11. 11-tirar-la-casa-por-la-ventana.png · 🇪🇸 · jeu 16/07
+## 31. 31-ponerse-las-botas.png · 🇪🇸 · jeu 13/08
 
 ```text
-🇪🇸 "Tirar la casa por la ventana" — littéralement, jeter la maison par la fenêtre. 🪟
+🇪🇸 "Ponerse las botas" — littéralement, mettre ses bottes. 👢
 
-Sens : ne regarder à aucune dépense — se lâcher complètement pour l'occasion.
+Sens : se régaler — ou se remplir les poches.
 
-L'expression remonterait au XVIIIᵉ siècle : les gagnants de la loterie nationale espagnole jetaient réellement leurs vieux meubles par la fenêtre, prêts à tout racheter à neuf.
+Autrefois, seuls les gens aisés pouvaient s'offrir des bottes ; les pauvres allaient en sandales. « Mettre ses bottes », c'était vivre comme les nantis : se régaler, profiter, avoir en abondance.
 
-👉 La dernière fois que tu as "jeté la maison par la fenêtre", c'était pour quoi ? 🪟👇
+👉 Dernier repas où tu t'es vraiment "mis les bottes" ? 🥘👇
 
 — — —
 
-🇪🇸 "Tirar la casa por la ventana" — literally, to throw the house out the window. 🪟
+🇪🇸 "Ponerse las botas" — literally, to put on one's boots. 👢
 
-Meaning: to spare no expense — to splurge lavishly for the occasion.
+Meaning: to feast — or to strike it rich.
 
-The phrase may date to 18th-century Spain: winners of the national lottery would literally hurl their old furniture out the window, ready to buy everything anew.
+Once, only the well-off could afford boots; the poor wore sandals. To "put on your boots" was to live it up like the gentry — to gorge, to profit, to have plenty.
 
-👉 Last time you threw the house out the window — what was the occasion? 🪟👇
+👉 Last meal where you truly "put your boots on"? 🥘👇
 
 → worldexpressions.app
 
@@ -321,54 +352,166 @@ The phrase may date to 18th-century Spain: winners of the national lottery would
 
 ---
 
-## 12. 12-bite-the-bullet.png · 🇬🇧 · ven 17/07
+## 32. 32-eulen-nach-athen-tragen.png · 🇩🇪 · ven 14/08
 
 ```text
-🇬🇧 "To bite the bullet" — le moment où tu arrêtes d'appréhender et tu y vas. 🦷
+🇩🇪 "Eulen nach Athen tragen" — littéralement, porter des hiboux à Athènes. 🦉
 
-Sens : serrer les dents et affronter quelque chose de pénible, de face.
+Sens : faire une chose totalement inutile — un effort redondant.
 
-Avant l'invention de l'anesthésie, les chirurgiens de guerre faisaient mordre une balle de plomb aux blessés — pour tenir le coup, et pour ne pas se mordre la langue, pendant l'opération.
+La chouette était l'oiseau d'Athéna, frappé sur les propres pièces d'Athènes — la ville en regorgeait déjà. En apporter d'autres, comme le blaguait Aristophane, est parfaitement vain.
 
-👉 C'est quoi la balle que tu refuses de mordre depuis un moment ? Dis-le — c'est peut-être le jour 🦷👇
+👉 C'est quoi ton dernier "hibou porté à Athènes" — le truc totalement inutile que t'as fait ? 🦉👇
 
 — — —
 
-🇬🇧 "To bite the bullet" — the moment you stop dreading and just do it. 🦷
+🇩🇪 "Eulen nach Athen tragen" — literally, to carry owls to Athens. 🦉
 
-Meaning: to grit your teeth and face something painful head-on.
+Meaning: to do something utterly pointless — redundant effort.
 
-Before anaesthetics, battlefield surgeons had the wounded bite down on a lead bullet — to bear the pain, and to keep from biting their own tongue, during surgery.
+The owl was Athena's bird, stamped on Athens's own coins — the city was already full of them. Bringing more, as Aristophanes joked, is gloriously useless.
 
-👉 What's the bullet you keep NOT biting? Name it below — maybe today's the day 🦷👇
+👉 What's your latest "owl carried to Athens" — the utterly pointless thing you did? 🦉👇
 
 → worldexpressions.app
 
-#wordlovers #languages #idioms #english #languagelearning #linguistics #worldexpressions
+#wordlovers #languages #idioms #german #languagelearning #linguistics #worldexpressions
 ```
 
 ---
 
-## 13. 13-etekleri-zil-calmak.png · 🇹🇷 · lun 20/07
+## 33. 33-chercher-midi-a-quatorze-heures.png · 🇫🇷 · lun 17/08
 
 ```text
-🇹🇷 "Etekleri zil çalmak" — littéralement, les jupes qui sonnent comme des clochettes. 🔔
+🇫🇷 "Chercher midi à quatorze heures" — littéralement, chercher midi à quatorze heures. 🕑
 
-Sens : aux anges — débordant de joie et d'excitation.
+Sens : compliquer inutilement une chose pourtant simple.
 
-L'image est visuelle : on est si heureux qu'on ne tient plus en place, on gigote tellement que le bas de la robe ou de la jupe semble tinter comme des grelots.
+Midi, c'est midi — le chercher à quatorze heures, c'est le traquer là où il n'est manifestement pas. Depuis le XVIIᵉ siècle, l'expression moque qui rend compliqué ce qui est simple.
 
-👉 Qu'est-ce qui a fait tinter tes clochettes récemment ? Partage la bonne nouvelle 🔔👇
+👉 Qui, autour de toi, cherche midi à quatorze heures pour un rien ? 🕑👇
 
 — — —
 
-🇹🇷 "Etekleri zil çalmak" — literally, one's skirts ring like bells. 🔔
+🇫🇷 "Chercher midi à quatorze heures" — literally, to look for noon at 2 p.m. 🕑
 
-Meaning: over the moon — bursting with joy and excitement.
+Meaning: to overcomplicate something perfectly simple.
 
-It's a vivid picture: you're so happy you can't keep still, fidgeting so much that the hem of your skirt seems to jingle like little bells.
+Noon is noon — hunting for it at two o'clock is seeking it where it plainly isn't. Since the 1600s the phrase has mocked anyone who makes easy things needlessly hard.
 
-👉 What made your skirts jingle recently? Share the good news 🔔👇
+👉 Who around you overthinks the simplest things? 🕑👇
+
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #french #languagelearning #amourdesmots #linguistics #worldexpressions
+```
+
+---
+
+## 34. 34-hana-yori-dango.png · 🇯🇵 · mar 18/08
+
+```text
+🇯🇵 "Hana yori dango" (花より団子) — littéralement, des boulettes plutôt que des fleurs. 🍡
+
+Sens : le concret avant l'apparence — l'utile plutôt que le joli.
+
+Aux pique-niques sous les cerisiers en fleurs, certains viennent pour les fleurs — d'autres surtout pour les dango, les boulettes sucrées. Choisir la collation plutôt que le paysage : le pratique l'emporte.
+
+👉 Team fleurs ou team dango ? L'apparence ou le concret ? 🍡👇
+
+— — —
+
+🇯🇵 "Hana yori dango" (花より団子) — literally, dumplings rather than flowers. 🍡
+
+Meaning: substance over style — the useful before the pretty.
+
+At cherry-blossom picnics, some come for the blossoms — others really come for the dango, the sweet dumplings. Choosing the snack over the scenery: practicality wins.
+
+👉 Team flowers or team dango — looks or substance? 🍡👇
+
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #japanese #languagelearning #proverbs #worldexpressions
+```
+
+---
+
+## 35. 35-estar-hasta-las-manos.png · 🇦🇷 · mer 19/08
+
+```text
+🇦🇷 "Estar hasta las manos" — littéralement, être jusqu'aux mains. 🤲
+
+Sens : être fou amoureux — ou complètement débordé.
+
+Être « jusqu'aux mains », c'est être totalement plongé dedans, sans issue. En Argentine, ça veut surtout dire amoureux fou — enfoncé jusqu'aux poignets.
+
+👉 Déjà été "jusqu'aux mains" — amoureux ou débordé ? Raconte 💘👇
+
+— — —
+
+🇦🇷 "Estar hasta las manos" — literally, to be up to the hands. 🤲
+
+Meaning: to be head over heels in love — or utterly swamped.
+
+To be "in up to your hands" is to be completely immersed, no way out. In Argentina it most often means madly in love — sunk right up to the wrists.
+
+👉 Ever been "up to your hands" — in love or in work? Tell us 💘👇
+
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #spanish #argentina #languagelearning #worldexpressions
+```
+
+---
+
+## 36. 36-prendere-due-piccioni-con-una-fava.png · 🇮🇹 · jeu 20/08
+
+```text
+🇮🇹 "Prendere due piccioni con una fava" — littéralement, prendre deux pigeons avec une fève. 🐦
+
+Sens : faire d'une pierre deux coups.
+
+Vient de la chasse aux oiseaux d'autrefois : une seule fève, en guise d'appât, pouvait attraper deux pigeons d'un coup. Là où l'anglais lance une pierre, l'italien se contente d'une fève.
+
+👉 Ton meilleur "deux pigeons, une fève" — la fois où t'as tout réglé d'un coup ? 🐦👇
+
+— — —
+
+🇮🇹 "Prendere due piccioni con una fava" — literally, to catch two pigeons with one bean. 🐦
+
+Meaning: to kill two birds with one stone.
+
+From old bird-catching: a single fava bean, used as bait, could snare two pigeons at once. Where English throws a stone, Italy just needs a bean.
+
+👉 Your best "two pigeons, one bean" — the time you sorted it all at once? 🐦👇
+
+→ worldexpressions.app
+
+#wordlovers #languages #idioms #italian #languagelearning #linguistics #worldexpressions
+```
+
+---
+
+## 37. 37-ipe-un-sermek.png · 🇹🇷 · ven 21/08
+
+```text
+🇹🇷 "İpe un sermek" — littéralement, étaler de la farine sur une corde. 🧵
+
+Sens : trouver de piètres excuses — traîner pour esquiver une tâche.
+
+On ne peut pas étaler de la farine sur une corde à linge : elle passe à travers. L'expression peint exactement ça : inventer une corvée absurde et impossible pour éviter la vraie.
+
+👉 L'excuse la plus créative que t'as sortie pour esquiver une corvée ? 😏👇
+
+— — —
+
+🇹🇷 "İpe un sermek" — literally, to spread flour on a line. 🧵
+
+Meaning: to make feeble excuses — to stall and dodge a task.
+
+You can't lay flour out on a washing line — it just slips through. The phrase paints exactly that: inventing an absurd, impossible pretext to avoid the real job.
+
+👉 The most creative excuse you've spun to dodge a chore? 😏👇
 
 → worldexpressions.app
 
@@ -377,168 +520,56 @@ It's a vivid picture: you're so happy you can't keep still, fidgeting so much th
 
 ---
 
-## 14. 14-les-carottes-sont-cuites.png · 🇫🇷 · mar 21/07
+## 38. 38-das-ist-mir-wurst.png · 🇩🇪 · lun 24/08
 
 ```text
-🇫🇷 "Les carottes sont cuites" — littéralement, les carottes sont cuites. 🥕
+🇩🇪 "Das ist mir Wurst" — littéralement, ça m'est saucisse. 🌭
 
-Sens : c'est fichu — fin de partie, la situation est perdue.
+Sens : s'en ficher complètement — ça m'est égal.
 
-Une carotte cuite ne redevient jamais crue : c'est irréversible. Clin d'œil historique : « les carottes sont cuites » aurait servi de message codé sur Radio Londres pendant la Seconde Guerre mondiale.
+Une histoire raconte qu'une saucisse a deux bouts identiques : peu importe lequel tu choisis. Dans tous les cas, « c'est saucisse pour moi » balaie la question d'un revers.
 
-👉 Comment on dit "c'est fini" dans TA langue ? Lâche l'expression — on collectionne 🥕👇
+👉 Le truc dont tout le monde parle mais qui, pour toi, "c'est saucisse" ? 🌭👇
 
 — — —
 
-🇫🇷 "Les carottes sont cuites" — literally, the carrots are cooked. 🥕
+🇩🇪 "Das ist mir Wurst" — literally, that is sausage to me. 🌭
 
-Meaning: it's game over — the situation is lost, nothing left to do.
+Meaning: I couldn't care less — it's all the same to me.
 
-A cooked carrot never turns raw again — it's irreversible. A historical wink: "les carottes sont cuites" was reportedly a coded message on Radio Londres during WWII.
+One tale: a sausage looks identical at both ends, so it makes no difference which you pick. Either way, "it's sausage to me" shrugs the whole thing off.
 
-👉 How does YOUR language say "it's over"? Drop the phrase below — we collect these 🥕👇
+👉 The thing everyone's on about that's just "sausage to you"? 🌭👇
 
 → worldexpressions.app
 
-#wordlovers #languages #idioms #french #amourdesmots #linguistics #languagelearning #worldexpressions
+#wordlovers #languages #idioms #german #languagelearning #linguistics #worldexpressions
 ```
 
 ---
 
-## 15. 15-tener-la-vaca-atada.png · 🇦🇷 · mer 22/07
+## 39. 39-comerse-un-cable.png · 🇨🇺 · mar 25/08
 
 ```text
-🇦🇷 "Tener la vaca atada" — littéralement, avoir la vache attachée. 🐄
+🇨🇺 "Comerse un cable" — littéralement, manger un câble. 🔌
 
-Sens : avoir la situation en or — sûre, confortable, garantie.
+Sens : être complètement fauché — traverser une période très dure.
 
-Dans l'Argentine de l'élevage, une vache bien attachée qui ne s'égare pas, c'est un capital assuré et un revenu qui tombe sans surprise. Plus rien à craindre.
+Formule cubaine pour les temps maigres : c'est si serré qu'on « mange du câble ». Elle dit la pénurie — se débrouiller avec presque rien.
 
-👉 Si ta vie est la vache attachée, c'est quoi ta vache ? 🐄👇
+👉 Comment tu dis "être fauché" dans ta langue ? On collectionne 🪙👇
 
 — — —
 
-🇦🇷 "Tener la vaca atada" — literally, to have the cow tied up. 🐄
+🇨🇺 "Comerse un cable" — literally, to eat a cable. 🔌
 
-Meaning: to have it made — a secure, comfortable, guaranteed situation.
+Meaning: to be flat broke — going through very hard times.
 
-In cattle-built Argentina, a cow tied up and unable to wander is capital secured — income that comes in without surprises. Nothing left to fear.
+Cuban shorthand for lean days: things so tight you're "eating cable." It speaks of scarcity — scraping by with next to nothing.
 
-👉 If your life is the tied-up cow, what's your cow? 🐄👇
-
-→ worldexpressions.app
-
-#wordlovers #languages #idioms #spanish #languagelearning #linguistics #worldexpressions
-```
-
----
-
-## 16. 16-pass-the-buck.png · 🇺🇸 · jeu 23/07
-
-```text
-🇺🇸 "To pass the buck" — l'art délicat du "c'est pas mon problème". 🃏
-
-Sens : refiler la responsabilité à quelqu'un d'autre.
-
-Au poker des pionniers américains, un marqueur — souvent un couteau à manche en corne de cerf, le « buck » — désignait le donneur. Le refiler, c'était refiler la corvée. Le président Truman en tira son fameux « the buck stops here » : la responsabilité s'arrête ici.
-
-👉 Qui est le champion du "c'est pas moi" que tu connais ? Pas besoin de nom… ou alors 🃏👇
-
-— — —
-
-🇺🇸 "To pass the buck" — the fine art of "not my problem." 🃏
-
-Meaning: to shift the responsibility onto someone else.
-
-In frontier American poker, a marker — often a buckhorn-handled knife, the "buck" — showed whose turn it was to deal. Passing it passed the chore. President Truman turned it into his famous "the buck stops here."
-
-👉 Who's the champion buck-passer you know? No names needed… or maybe 🃏👇
+👉 How does your language say "flat broke"? We collect these 🪙👇
 
 → worldexpressions.app
 
-#wordlovers #languages #idioms #english #languagelearning #linguistics #worldexpressions
-```
-
----
-
-## 17. 17-avoir-la-tete-dans-le-guidon.png · 🇫🇷 · ven 24/07
-
-```text
-🇫🇷 "Avoir la tête dans le guidon" — littéralement, avoir la tête dans le guidon. 🚴
-
-Sens : tellement enseveli sous le boulot qu'on ne voit plus rien autour.
-
-L'image est cycliste : penché sur son guidon dans l'effort, le coureur ne voit plus que la route juste devant sa roue — aveugle au paysage et à la course autour de lui.
-
-👉 La tête dans le guidon cette semaine ? Lève la main 🙋👇
-
-— — —
-
-🇫🇷 "Avoir la tête dans le guidon" — literally, to have your head in the handlebars. 🚴
-
-Meaning: so buried in work you lose the big picture.
-
-It's a cyclist's image: hunched over the handlebars mid-effort, the rider sees only the road right under the wheel — blind to the scenery and the race around them.
-
-👉 Head in the handlebars this week? Raise your hand 🙋👇
-
-→ worldexpressions.app
-
-#wordlovers #languages #idioms #french #languagelearning #amourdesmots #worldexpressions #wordoftheday
-```
-
----
-
-## 18. 18-hacer-chancha.png · 🇵🇪 · lun 27/07
-
-```text
-🇵🇪 "Hacer chancha" — littéralement, faire un cochon. 🐷
-
-Sens : se cotiser — mettre l'argent en commun, à plusieurs, pour quelque chose de partagé.
-
-« Chancha », c'est la truie — mais aussi, en Amérique latine, la tirelire en forme de cochon. « Faire un cochon », c'est le remplir à plusieurs : chacun met sa part jusqu'à ce qu'il y en ait assez, souvent avant un barbecue entre amis.
-
-👉 La dernière fois que ta bande a "fait un cochon", c'était pour quoi ? 🐷👇
-
-— — —
-
-🇵🇪 "Hacer chancha" — literally, to make a pig. 🐷
-
-Meaning: to chip in together — to pool money as a group for something shared.
-
-"Chancha" is a sow — but across Latin America it's also the pig-shaped piggy bank. To "make a pig" is to fill it together: everyone drops in their share until there's enough, often before a barbecue with friends.
-
-👉 What's the last thing your crew "made a pig" for? 🐷👇
-
-→ worldexpressions.app
-
-#wordlovers #languages #idioms #spanish #languagelearning #linguistics #worldexpressions
-```
-
----
-
-## 19. 19-a-few-kangaroos-loose.png · 🇦🇺 · mar 28/07
-
-```text
-🇦🇺 "A few kangaroos loose in the top paddock" — des kangourous en liberté dans le pré du haut. 🦘
-
-Sens : un peu perché — pas tout à fait là, une case en moins.
-
-Tout est métaphore de ferme : le « pré du haut » (top paddock), c'est la tête ; les kangourous, ce sont les idées, censées y rester bien clôturées. Quelques-uns en liberté là-haut… et le raisonnement part en vrille.
-
-👉 Le pré du haut de qui manque de quelques kangourous ? C'est pour un ami 🦘👇
-
-— — —
-
-🇦🇺 "A few kangaroos loose in the top paddock" — literally, roos loose in the top field. 🦘
-
-Meaning: a bit crazy — not quite all there, a little short on sense.
-
-It's all farm metaphor: the "top paddock" is the head; the kangaroos are the thoughts, meant to stay safely fenced in. Let a few loose up there… and the thinking goes wild.
-
-👉 Whose top paddock is missing a few roos? Asking for a friend 🦘👇
-
-→ worldexpressions.app
-
-#wordlovers #languages #idioms #english #languagelearning #linguistics #worldexpressions
+#wordlovers #languages #idioms #spanish #cuba #languagelearning #worldexpressions
 ```
