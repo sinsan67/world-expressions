@@ -14,6 +14,7 @@ import { cap } from "@/lib/utils";
 import { useFavorite } from "@/lib/useFavorite";
 import { getTypeLabel } from "@/lib/typeLabels";
 import LangDropdown from "@/components/ui/LangDropdown";
+import CarnetHeartLink from "@/components/ui/CarnetHeartLink";
 import { useUILangContext } from "@/lib/UILangContext";
 
 type Featured = Expression & { meaning_locale: string; literal: string | null };
@@ -83,7 +84,10 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
             <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 18, fontWeight: 500 }}>World </span>
             <em style={{ color: "var(--terra-soft)", fontSize: 18, fontStyle: "italic" }}>Expressions</em>
           </Link>
-          <LangDropdown uiLang={ctxLang} onLangChange={setUILang} />
+          <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
+            <CarnetHeartLink uiLang={ctxLang} color="rgba(255,255,255,0.9)" />
+            <LangDropdown uiLang={ctxLang} onLangChange={setUILang} />
+          </div>
         </div>
 
 

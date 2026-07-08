@@ -185,9 +185,11 @@ def get_concepts_endpoint(
 @app.get("/random")
 def get_random(
     locale: str = Query("", description="Preferred locale for meaning (fr/en/es). Falls back to expression's language."),
+    country: str = Query("", description="Restrict the draw to one country code (Random mode filter). Empty = all countries."),
+    kind: str = Query("", description="Restrict the draw to one expression kind: idiom, proverb, locution. Empty = all kinds."),
 ):
     """Return a random expression. Pass locale=en to get the meaning in English if available."""
-    expr = database.get_random_expression(locale.strip() or None)
+    expr = database.get_random_expression(locale.strip() or None, country.strip(), kind.strip())
     if expr is None:
         raise HTTPException(status_code=404, detail="No expressions found")
     return expr

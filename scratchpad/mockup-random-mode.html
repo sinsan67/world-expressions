@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — Random mode 🎲</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:      #fdf8ee;
+    --paper-deep: #f3e8d4;
+    --paper-edge: #e8dcc4;
+    --ink:        #1c1410;
+    --ink-soft:   #5c4f47;
+    --ink-softer: #8b7d72;
+    --ink-faint:  #b8aa9b;
+    --plum:       #6b4d8f;
+    --plum-deep:  #4a3565;
+    --plum-soft:  #c9b8d9;
+    --plum-bg:    #ebe3f1;
+    --shadow-card: 0 1px 2px rgba(28,20,16,0.05), 0 4px 12px rgba(28,20,16,0.06);
+    --shadow-deep: 0 8px 28px rgba(28,20,16,0.18);
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body: "Inter", system-ui, sans-serif;
+    --font-hand: "Caveat", cursive;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--paper-deep);
+    color: var(--ink);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 60px;
+  }
+  .mock-note {
+    font-family: var(--font-hand);
+    font-size: 20px;
+    color: var(--ink-softer);
+    margin-bottom: 18px;
+    text-align: center;
+  }
+  .phone {
+    width: 390px;
+    max-width: 100%;
+    background: var(--paper);
+    border: 1px solid var(--paper-edge);
+    border-radius: 28px;
+    box-shadow: var(--shadow-deep);
+    overflow: hidden;
+    position: relative;
+    min-height: 720px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ═══ Écran 1 — entrée du mode ═══ */
+  #screen-entry {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 28px;
+    text-align: center;
+    gap: 0;
+  }
+  .dice {
+    font-size: 84px;
+    line-height: 1;
+    cursor: pointer;
+    user-select: none;
+    transition: transform .15s;
+    display: inline-block;
+  }
+  .dice:hover { transform: rotate(-12deg) scale(1.08); }
+  @keyframes shake {
+    0%,100% { transform: rotate(0); }
+    20% { transform: rotate(-20deg) translateX(-6px); }
+    40% { transform: rotate(16deg) translateX(6px); }
+    60% { transform: rotate(-10deg); }
+    80% { transform: rotate(8deg); }
+  }
+  .dice.rolling { animation: shake .5s ease; }
+  h1 {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 700;
+    margin: 18px 0 6px;
+  }
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: 14.5px;
+    line-height: 1.5;
+    margin-bottom: 34px;
+  }
+  .filters {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 34px;
+  }
+  .filter-row { text-align: left; }
+  .filter-row label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--ink-softer);
+    margin-bottom: 6px;
+  }
+  .filter-row select {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 15.5px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--paper-edge);
+    border-radius: 14px;
+    background: white;
+    color: var(--ink);
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%235c4f47' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    cursor: pointer;
+  }
+  .btn-roll {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 700;
+    color: white;
+    background: var(--plum);
+    border: none;
+    border-radius: 999px;
+    padding: 16px 38px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--plum-deep), var(--shadow-card);
+    transition: transform .1s, box-shadow .1s;
+  }
+  .btn-roll:hover { transform: translateY(1px); box-shadow: 0 3px 0 var(--plum-deep), var(--shadow-card); }
+  .btn-roll:active { transform: translateY(4px); box-shadow: 0 0 0 var(--plum-deep); }
+  .pool-hint {
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--ink-faint);
+  }
+
+  /* ═══ Écran 2 — fiche + navigation ═══ */
+  #screen-card { flex: 1; display: none; flex-direction: column; }
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--paper-edge);
+    background: var(--paper);
+    font-size: 13.5px;
+    color: var(--ink-soft);
+  }
+  .topbar .chip {
+    background: var(--plum-bg);
+    color: var(--plum-deep);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-weight: 600;
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+  .topbar .counter { margin-left: auto; color: var(--ink-faint); font-size: 12.5px; }
+  .card-zone {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 26px 54px;
+    position: relative;
+  }
+  .card {
+    background: white;
+    border: 1px solid var(--paper-edge);
+    border-radius: 20px;
+    box-shadow: var(--shadow-card);
+    padding: 28px 24px;
+    width: 100%;
+    transition: opacity .18s, transform .18s;
+  }
+  .card.swap { opacity: 0; transform: translateX(14px); }
+  .card .flag { font-size: 30px; }
+  .badges { display: flex; gap: 8px; margin: 10px 0 16px; }
+  .badge {
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    border-radius: 999px;
+    padding: 4px 11px;
+  }
+  .badge.kind    { background: var(--plum-bg); color: var(--plum-deep); }
+  .badge.country { background: var(--paper-deep); color: var(--ink-soft); }
+  .card .expr {
+    font-family: var(--font-display);
+    font-size: 25px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+  .card .literal {
+    font-family: var(--font-hand);
+    font-size: 19px;
+    color: var(--ink-softer);
+    margin-bottom: 18px;
+  }
+  .card .label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--ink-faint);
+    margin-bottom: 3px;
+  }
+  .card .meaning { font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin-bottom: 16px; }
+  .card .example { font-size: 14px; line-height: 1.55; color: var(--ink-softer); font-style: italic; }
+  .float-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 1px solid var(--paper-edge);
+    background: var(--paper);
+    box-shadow: var(--shadow-card);
+    font-size: 24px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all .15s;
+    line-height: 1;
+  }
+  .float-btn:hover { background: var(--plum); color: white; border-color: transparent; }
+  .float-btn:disabled { opacity: .3; cursor: default; }
+  .float-btn:disabled:hover { background: var(--paper); color: var(--ink); border-color: var(--paper-edge); }
+  .float-btn.left  { left: 8px; }
+  .float-btn.right { right: 8px; }
+  .hint-nav {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    padding: 0 24px 22px;
+  }
+
+  /* légende sous le téléphone */
+  .legend {
+    width: 390px; max-width: 100%;
+    margin-top: 22px;
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+  }
+  .legend b { color: var(--ink); }
+  .legend ul { padding-left: 18px; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<div class="mock-note">Mockup statique — cliquer « Lancer le dé » puis naviguer avec ‹ › (données factices)</div>
+
+<div class="phone">
+
+  <!-- ═══ Écran 1 : entrée du Random mode ═══ -->
+  <div id="screen-entry">
+    <span class="dice" id="dice">🎲</span>
+    <h1>Random mode</h1>
+    <p class="subtitle">Laisse le hasard te faire voyager.<br>Filtre si tu veux — ou lance le dé tel quel.</p>
+    <div class="filters">
+      <div class="filter-row">
+        <label for="f-country">Pays</label>
+        <select id="f-country">
+          <option>🌍 Tous les pays</option>
+          <option>🇫🇷 France</option>
+          <option>🇹🇷 Turquie</option>
+          <option>🇮🇹 Italie</option>
+          <option>🇪🇸 Espagne</option>
+          <option>🇩🇪 Allemagne</option>
+          <option>🇯🇵 Japon</option>
+          <option>🇬🇧 Royaume-Uni</option>
+        </select>
+      </div>
+      <div class="filter-row">
+        <label for="f-kind">Type d'expression</label>
+        <select id="f-kind">
+          <option>✨ Tous les types</option>
+          <option>💬 Idiomes</option>
+          <option>📜 Proverbes</option>
+          <option>🔗 Locutions</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-roll" onclick="roll()">🎲 Lancer le dé !</button>
+    <div class="pool-hint">14 458 expressions dans le chapeau</div>
+  </div>
+
+  <!-- ═══ Écran 2 : fiche + navigation ═══ -->
+  <div id="screen-card">
+    <div class="topbar">
+      🎲
+      <span class="chip" onclick="backToEntry()" title="Modifier les filtres">🌍 Tous les pays · ✨ Tous types</span>
+      <span class="counter" id="counter">carte 1</span>
+    </div>
+    <div class="card-zone">
+      <button class="float-btn left" id="btn-prev" onclick="prev()">‹</button>
+      <div class="card" id="card"></div>
+      <button class="float-btn right" onclick="next()">›</button>
+    </div>
+    <div class="hint-nav">‹ revient à la carte précédente · › tire une nouvelle carte</div>
+  </div>
+
+</div>
+
+<div class="legend">
+  <b>Choix UX incarnés dans ce mockup :</b>
+  <ul>
+    <li><b>Écran d'entrée dédié</b> : filtres préréglés sur « tous », un seul gros bouton.</li>
+    <li><b>‹ = rembobiner</b> (retrouver une carte passée), <b>› = nouveau tirage</b> — comme des stories.</li>
+    <li><b>Filtres rappelés en haut de la fiche</b> (chip cliquable pour les modifier) + compteur de cartes vues.</li>
+    <li>Fiche = version condensée de la fiche expression, avec le badge de type bien visible.</li>
+  </ul>
+</div>
+
+<script>
+// Données factices — 5 cartes représentatives (types et pays variés)
+const CARDS = [
+  { flag:"🇫🇷", country:"France",  kind:"Idiome",   expr:"Avoir un poil dans la main",
+    literal:"“To have a hair in the hand”",
+    meaning:"Être très paresseux, éviter le moindre effort.",
+    example:"« Il n'a pas rangé sa chambre depuis un mois — il a un sacré poil dans la main. »" },
+  { flag:"🇹🇷", country:"Turquie", kind:"Proverbe", expr:"Damlaya damlaya göl olur",
+    literal:"“Goutte à goutte, un lac se forme”",
+    meaning:"Les petits efforts répétés finissent par produire de grands résultats.",
+    example:"« Économise un peu chaque mois : damlaya damlaya göl olur. »" },
+  { flag:"🇮🇹", country:"Italie",  kind:"Locution", expr:"In bocca al lupo",
+    literal:"“Dans la gueule du loup”",
+    meaning:"Formule pour souhaiter bonne chance (on répond « crepi il lupo ! »).",
+    example:"« Ton examen est demain ? In bocca al lupo ! »" },
+  { flag:"🇯🇵", country:"Japon",   kind:"Proverbe", expr:"猿も木から落ちる",
+    literal:"“Même les singes tombent des arbres”",
+    meaning:"Même les experts peuvent se tromper.",
+    example:"« Le champion a perdu au premier tour — même les singes tombent des arbres. »" },
+  { flag:"🇬🇧", country:"Royaume-Uni", kind:"Idiome", expr:"To let the cat out of the bag",
+    literal:"“Laisser sortir le chat du sac”",
+    meaning:"Révéler un secret par mégarde.",
+    example:"« He let the cat out of the bag about the surprise party. »" },
+];
+
+let history = [];   // indices des cartes vues, dans l'ordre
+let pos = -1;       // position courante dans l'historique
+
+function randomIndex() {
+  let i;
+  do { i = Math.floor(Math.random() * CARDS.length); }
+  while (history.length && i === history[pos]); // pas deux fois la même d'affilée
+  return i;
+}
+
+function render() {
+  const c = CARDS[history[pos]];
+  const el = document.getElementById("card");
+  el.classList.add("swap");
+  setTimeout(() => {
+    el.innerHTML = `
+      <span class="flag">${c.flag}</span>
+      <div class="badges">
+        <span class="badge kind">${c.kind}</span>
+        <span class="badge country">${c.country}</span>
+      </div>
+      <div class="expr">${c.expr}</div>
+      <div class="literal">${c.literal}</div>
+      <div class="label">Signification</div>
+      <div class="meaning">${c.meaning}</div>
+      <div class="label">Exemple</div>
+      <div class="example">${c.example}</div>`;
+    el.classList.remove("swap");
+  }, 160);
+  document.getElementById("counter").textContent = "carte " + (pos + 1);
+  document.getElementById("btn-prev").disabled = (pos === 0);
+}
+
+function roll() {
+  const dice = document.getElementById("dice");
+  dice.classList.add("rolling");
+  setTimeout(() => {
+    dice.classList.remove("rolling");
+    document.getElementById("screen-entry").style.display = "none";
+    document.getElementById("screen-card").style.display = "flex";
+    history = [Math.floor(Math.random() * CARDS.length)];
+    pos = 0;
+    render();
+  }, 450);
+}
+
+function next() {
+  // On avance : soit on ré-avance dans l'historique, soit nouveau tirage
+  if (pos < history.length - 1) { pos++; }
+  else { history.push(randomIndex()); pos++; }
+  render();
+}
+
+function prev() {
+  if (pos > 0) { pos--; render(); }
+}
+
+function backToEntry() {
+  document.getElementById("screen-card").style.display = "none";
+  document.getElementById("screen-entry").style.display = "flex";
+}
+</script>
+</body>
+</html>
