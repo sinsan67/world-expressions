@@ -217,9 +217,17 @@ export async function getConcepts(
   return res.json();
 }
 
-export async function getRandomExpression(locale = ""): Promise<Expression & { meaning_locale: string; literal: string | null }> {
-  const params = locale ? `?locale=${locale}` : "";
-  const res = await fetch(`${API}/random${params}`);
+export async function getRandomExpression(
+  locale = "",
+  country = "",
+  kind = "",
+): Promise<Expression & { meaning_locale: string; literal: string | null }> {
+  const params = new URLSearchParams();
+  if (locale) params.set("locale", locale);
+  if (country) params.set("country", country);
+  if (kind) params.set("kind", kind);
+  const qs = params.toString();
+  const res = await fetch(`${API}/random${qs ? `?${qs}` : ""}`);
   if (!res.ok) throw new Error("API error");
   return res.json();
 }

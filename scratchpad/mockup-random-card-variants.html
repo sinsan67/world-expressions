@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — Random mode : 3 variantes de fiche</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:      #fdf8ee;
+    --paper-deep: #f3e8d4;
+    --paper-edge: #e8dcc4;
+    --ink:        #1c1410;
+    --ink-soft:   #5c4f47;
+    --ink-softer: #8b7d72;
+    --ink-faint:  #b8aa9b;
+    --plum:       #6b4d8f;
+    --plum-deep:  #4a3565;
+    --plum-bg:    #ebe3f1;
+    --shadow-card: 0 1px 2px rgba(28,20,16,0.05), 0 4px 12px rgba(28,20,16,0.06);
+    --shadow-deep: 0 8px 28px rgba(28,20,16,0.18);
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body: "Inter", system-ui, sans-serif;
+    --font-hand: "Caveat", cursive;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--paper-deep);
+    color: var(--ink);
+    font-family: var(--font-body);
+    padding: 26px 20px 60px;
+  }
+  .mock-note {
+    font-family: var(--font-hand);
+    font-size: 21px;
+    color: var(--ink-softer);
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .row {
+    display: flex;
+    gap: 26px;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .variant { width: 350px; }
+  .variant h2 {
+    font-family: var(--font-display);
+    font-size: 19px;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .variant .pitch {
+    font-size: 12.5px;
+    color: var(--ink-softer);
+    text-align: center;
+    line-height: 1.5;
+    margin-bottom: 12px;
+    min-height: 56px;
+    padding: 0 10px;
+  }
+  .phone {
+    background: var(--paper);
+    border: 1px solid var(--paper-edge);
+    border-radius: 26px;
+    box-shadow: var(--shadow-deep);
+    overflow: hidden;
+    height: 660px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--paper-edge);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    background: var(--paper);
+    z-index: 3;
+  }
+  .topbar .chip {
+    background: var(--plum-bg);
+    color: var(--plum-deep);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-weight: 600;
+    font-size: 11.5px;
+  }
+  .topbar .counter { margin-left: auto; color: var(--ink-faint); font-size: 11.5px; }
+  .zone {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .float-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--paper-edge);
+    background: var(--paper);
+    box-shadow: var(--shadow-card);
+    font-size: 21px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all .15s;
+    z-index: 5;
+    line-height: 1;
+  }
+  .float-btn:hover { background: var(--plum); color: white; border-color: transparent; }
+  .float-btn.left  { left: 7px; }
+  .float-btn.right { right: 7px; }
+
+  .badge {
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    border-radius: 999px;
+    padding: 3px 10px;
+    display: inline-block;
+  }
+  .badge.kind    { background: var(--plum-bg); color: var(--plum-deep); }
+  .badge.country { background: var(--paper-deep); color: var(--ink-soft); }
+  .label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--ink-faint);
+    margin-bottom: 2px;
+  }
+
+  /* ═══ V1 : fiche complète ═══ */
+  .full-card {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    padding: 20px 50px 20px 50px;
+    transition: opacity .18s;
+  }
+  .full-card.swap { opacity: 0; }
+  .full-card .flag { font-size: 26px; }
+  .full-card .badges { display: flex; gap: 6px; margin: 8px 0 12px; }
+  .full-card .expr { font-family: var(--font-display); font-size: 21px; font-weight: 700; line-height: 1.25; margin-bottom: 5px; }
+  .full-card .literal { font-family: var(--font-hand); font-size: 17px; color: var(--ink-softer); margin-bottom: 14px; }
+  .full-card .section { margin-bottom: 13px; }
+  .full-card .txt { font-size: 13px; line-height: 1.55; color: var(--ink-soft); }
+  .full-card .tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
+  .full-card .tag { font-size: 11px; background: var(--paper-deep); color: var(--ink-soft); border-radius: 999px; padding: 3px 9px; }
+  .full-card .related { border-top: 1px dashed var(--paper-edge); padding-top: 10px; margin-top: 4px; }
+  .full-card .rel-item { font-size: 12.5px; color: var(--plum); margin-bottom: 4px; }
+
+  /* ═══ V2 : carte devinette (flip) ═══ */
+  .flip-wrap { width: 240px; height: 340px; perspective: 1000px; cursor: pointer; }
+  .flip-inner {
+    width: 100%; height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform .55s cubic-bezier(.4,.1,.2,1.1);
+  }
+  .flip-wrap.flipped .flip-inner { transform: rotateY(180deg); }
+  .face {
+    position: absolute; inset: 0;
+    backface-visibility: hidden;
+    border-radius: 18px;
+    border: 1px solid var(--paper-edge);
+    box-shadow: var(--shadow-card);
+    padding: 22px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .face.front { background: white; }
+  .face.back  { background: var(--plum-bg); transform: rotateY(180deg); }
+  .face .flag { font-size: 40px; margin-bottom: 10px; }
+  .face .expr { font-family: var(--font-display); font-size: 20px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; }
+  .face .literal { font-family: var(--font-hand); font-size: 17px; color: var(--ink-softer); }
+  .face .tap-hint { position: absolute; bottom: 14px; font-size: 11px; color: var(--ink-faint); }
+  .face .meaning { font-size: 13.5px; line-height: 1.55; color: var(--ink-soft); margin: 10px 0 12px; }
+  .face .example { font-size: 12px; line-height: 1.5; color: var(--ink-softer); font-style: italic; }
+  .face .link-full { margin-top: 14px; font-size: 12px; color: var(--plum); font-weight: 600; text-decoration: underline; }
+
+  /* ═══ V3 : carte postale immersive ═══ */
+  .postcard {
+    position: absolute; inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 30px 56px;
+    transition: opacity .25s;
+  }
+  .postcard.swap { opacity: 0; }
+  .postcard .flag-big { font-size: 58px; margin-bottom: 14px; filter: drop-shadow(2px 3px 0 rgba(28,20,16,.12)); }
+  .postcard .expr {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .postcard .literal { font-family: var(--font-hand); font-size: 21px; color: var(--ink-soft); margin-bottom: 22px; }
+  .postcard .badges { display: flex; gap: 7px; justify-content: center; margin-bottom: 22px; }
+  .postcard .reveal-btn {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    background: rgba(255,255,255,.75);
+    border: 1px solid var(--paper-edge);
+    border-radius: 999px;
+    padding: 9px 18px;
+    cursor: pointer;
+    color: var(--ink-soft);
+  }
+  .postcard .meaning-reveal {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    background: rgba(255,255,255,.8);
+    border-radius: 14px;
+    padding: 12px 16px;
+    display: none;
+  }
+  .postcard .link-full { margin-top: 16px; font-size: 12.5px; color: var(--plum-deep); font-weight: 600; text-decoration: underline; cursor: pointer; }
+
+  .verdict {
+    max-width: 1100px;
+    margin: 30px auto 0;
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+  }
+  .verdict b { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="mock-note">3 variantes de la fiche en Random mode — toutes interactives (‹ › pour naviguer, cliquer les cartes)</div>
+
+<div class="row">
+
+  <!-- ═══════════ VARIANTE A ═══════════ -->
+  <div class="variant">
+    <h2>A · La vraie fiche complète</h2>
+    <p class="pitch">On réutilise la fiche expression existante telle quelle (origine, tags, expressions liées…), juste coiffée de la barre Random mode. Zéro nouvelle UI, toute la richesse.</p>
+    <div class="phone">
+      <div class="topbar">🎲 <span class="chip">🌍 Tous · ✨ Tous</span><span class="counter" id="counter-a">carte 1</span></div>
+      <div class="zone">
+        <button class="float-btn left" onclick="navA(-1)">‹</button>
+        <div class="full-card" id="card-a"></div>
+        <button class="float-btn right" onclick="navA(1)">›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ VARIANTE B ═══════════ -->
+  <div class="variant">
+    <h2>B · La carte devinette</h2>
+    <p class="pitch">Recto : l'expression seule — on devine le sens. Tap : la carte se retourne et révèle la signification. Le Random mode devient un mini-jeu. Lien vers la fiche complète au dos.</p>
+    <div class="phone">
+      <div class="topbar">🎲 <span class="chip">🌍 Tous · ✨ Tous</span><span class="counter" id="counter-b">carte 1</span></div>
+      <div class="zone">
+        <button class="float-btn left" onclick="navB(-1)">‹</button>
+        <div class="flip-wrap" id="flip" onclick="this.classList.toggle('flipped')">
+          <div class="flip-inner" id="card-b"></div>
+        </div>
+        <button class="float-btn right" onclick="navB(1)">›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ VARIANTE C ═══════════ -->
+  <div class="variant">
+    <h2>C · La carte postale immersive</h2>
+    <p class="pitch">Plein écran, fond teinté aux couleurs du pays, typographie géante. Le sens se dévoile d'un tap, la fiche complète reste à un clic. Sensation « voyage », très partageable.</p>
+    <div class="phone">
+      <div class="topbar">🎲 <span class="chip">🌍 Tous · ✨ Tous</span><span class="counter" id="counter-c">carte 1</span></div>
+      <div class="zone" id="zone-c">
+        <button class="float-btn left" onclick="navC(-1)">‹</button>
+        <div class="postcard" id="card-c"></div>
+        <button class="float-btn right" onclick="navC(1)">›</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="verdict">
+  <b>Comment choisir :</b> la variante <b>A</b> maximise la richesse et minimise le code (on navigue entre vraies fiches — c'est déjà presque ce qui existe) ; la <b>B</b> transforme le Random mode en jeu de devinette — la plus « delight », et elle prépare le futur Mode Jeu ; la <b>C</b> maximise l'émotion visuelle et donne envie de partager, mais demande le plus de design neuf. Les trois gardent le badge de type bien visible et les flèches ‹ › avec historique. <b>B et C peuvent pointer vers la fiche complète</b>, donc elles n'enferment pas l'utilisateur.
+</div>
+
+<script>
+const CARDS = [
+  { flag:"🇫🇷", country:"France", kind:"Idiome", expr:"Avoir un poil dans la main",
+    literal:"“To have a hair in the hand”",
+    meaning:"Être très paresseux, éviter le moindre effort.",
+    origin:"Attestée au XIXᵉ siècle : le poil pousserait dans la paume de celui qui ne travaille jamais des mains.",
+    example:"« Il n'a pas rangé sa chambre depuis un mois — il a un sacré poil dans la main. »",
+    tags:["paresse","corps","humour"], tint:"linear-gradient(160deg,#eef3ff 0%,#fdf8ee 70%)",
+    related:["Ne pas en ficher une rame","Tirer au flanc"] },
+  { flag:"🇹🇷", country:"Turquie", kind:"Proverbe", expr:"Damlaya damlaya göl olur",
+    literal:"“Goutte à goutte, un lac se forme”",
+    meaning:"Les petits efforts répétés finissent par produire de grands résultats.",
+    origin:"Proverbe anatolien ancien, transmis oralement — l'image de l'eau patiente est centrale dans la sagesse turque.",
+    example:"« Économise un peu chaque mois : damlaya damlaya göl olur. »",
+    tags:["patience","persévérance","eau"], tint:"linear-gradient(160deg,#ffeef0 0%,#fdf8ee 70%)",
+    related:["Petit à petit, l'oiseau fait son nid","Rome ne s'est pas faite en un jour"] },
+  { flag:"🇮🇹", country:"Italie", kind:"Locution", expr:"In bocca al lupo",
+    literal:"“Dans la gueule du loup”",
+    meaning:"Formule pour souhaiter bonne chance (on répond « crepi il lupo ! »).",
+    origin:"Issue du monde du théâtre et de la chasse : affronter le danger de face porterait chance.",
+    example:"« Ton examen est demain ? In bocca al lupo ! »",
+    tags:["chance","animaux","rituel"], tint:"linear-gradient(160deg,#eaf7ec 0%,#fdf8ee 70%)",
+    related:["Merde ! (théâtre)","Break a leg"] },
+  { flag:"🇯🇵", country:"Japon", kind:"Proverbe", expr:"猿も木から落ちる",
+    literal:"“Même les singes tombent des arbres”",
+    meaning:"Même les experts peuvent se tromper.",
+    origin:"Proverbe classique japonais (kotowaza), attesté dans les recueils d'époque Edo.",
+    example:"« Le champion a perdu au premier tour — même les singes tombent des arbres. »",
+    tags:["humilité","erreur","animaux"], tint:"linear-gradient(160deg,#fff3e6 0%,#fdf8ee 70%)",
+    related:["L'erreur est humaine","Même Homère sommeille"] },
+];
+
+// ─── Variante A : fiche complète ───
+let hA=[0], pA=0;
+function renderA(){
+  const c=CARDS[hA[pA]], el=document.getElementById("card-a");
+  el.classList.add("swap");
+  setTimeout(()=>{
+    el.innerHTML=`
+      <span class="flag">${c.flag}</span>
+      <div class="badges"><span class="badge kind">${c.kind}</span><span class="badge country">${c.country}</span></div>
+      <div class="expr">${c.expr}</div>
+      <div class="literal">${c.literal}</div>
+      <div class="section"><div class="label">Signification</div><div class="txt">${c.meaning}</div></div>
+      <div class="section"><div class="label">Origine</div><div class="txt">${c.origin}</div></div>
+      <div class="section"><div class="label">Exemple</div><div class="txt" style="font-style:italic">${c.example}</div></div>
+      <div class="section"><div class="label">Tags</div><div class="tags">${c.tags.map(t=>`<span class="tag">${t}</span>`).join("")}</div></div>
+      <div class="related"><div class="label">Expressions liées</div>${c.related.map(r=>`<div class="rel-item">→ ${r}</div>`).join("")}</div>`;
+    el.classList.remove("swap");
+  },160);
+  document.getElementById("counter-a").textContent="carte "+(pA+1);
+}
+function navA(d){ step(hA,()=>pA,v=>pA=v,d); renderA(); }
+
+// ─── Variante B : flip ───
+let hB=[1], pB=0;
+function renderB(){
+  const c=CARDS[hB[pB]], el=document.getElementById("card-b");
+  document.getElementById("flip").classList.remove("flipped");
+  setTimeout(()=>{
+    el.innerHTML=`
+      <div class="face front">
+        <span class="flag">${c.flag}</span>
+        <div style="margin-bottom:8px"><span class="badge kind">${c.kind}</span></div>
+        <div class="expr">${c.expr}</div>
+        <div class="literal">${c.literal}</div>
+        <div class="tap-hint">👆 tape pour révéler le sens</div>
+      </div>
+      <div class="face back">
+        <div class="label">Signification</div>
+        <div class="meaning">${c.meaning}</div>
+        <div class="label">Exemple</div>
+        <div class="example">${c.example}</div>
+        <div class="link-full">Voir la fiche complète →</div>
+      </div>`;
+  },200);
+  document.getElementById("counter-b").textContent="carte "+(pB+1);
+}
+function navB(d){ step(hB,()=>pB,v=>pB=v,d); renderB(); }
+
+// ─── Variante C : carte postale ───
+let hC=[2], pC=0;
+function renderC(){
+  const c=CARDS[hC[pC]], el=document.getElementById("card-c");
+  el.classList.add("swap");
+  setTimeout(()=>{
+    document.getElementById("zone-c").style.background=c.tint;
+    el.innerHTML=`
+      <div class="flag-big">${c.flag}</div>
+      <div class="expr">${c.expr}</div>
+      <div class="literal">${c.literal}</div>
+      <div class="badges"><span class="badge kind">${c.kind}</span><span class="badge country">${c.country}</span></div>
+      <button class="reveal-btn" onclick="this.style.display='none';this.nextElementSibling.style.display='block'">✨ Révéler le sens</button>
+      <div class="meaning-reveal">${c.meaning}</div>
+      <div class="link-full">Voir la fiche complète →</div>`;
+    el.classList.remove("swap");
+  },220);
+  document.getElementById("counter-c").textContent="carte "+(pC+1);
+}
+function navC(d){ step(hC,()=>pC,v=>pC=v,d); renderC(); }
+
+// Historique commun : ‹ rembobine, › avance (re-tire si en bout d'historique)
+function step(hist,getPos,setPos,d){
+  let p=getPos();
+  if(d<0){ if(p>0) setPos(p-1); return; }
+  if(p<hist.length-1){ setPos(p+1); return; }
+  let i; do{ i=Math.floor(Math.random()*CARDS.length); }while(i===hist[p]);
+  hist.push(i); setPos(p+1);
+}
+
+renderA(); renderB(); renderC();
+</script>
+</body>
+</html>

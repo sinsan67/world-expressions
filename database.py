@@ -147,10 +147,16 @@ def get_top_tags(limit: int = 30, language: Optional[str] = None, locale: Option
     return [{"slug": r.slug, "count": r.n, "name": r.display_name} for r in rows]
 
 
-def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
+def get_random_expression(
+    locale: Optional[str] = None,
+    country: str = "",
+    kind: str = "",
+) -> Optional[dict]:
     """
     Retourne une expression au hasard (toutes langues).
     Si `locale` est fourni, essaie de servir le sens dans cette locale.
+    `country` restreint le tirage à un pays (même convention COALESCE que /neighbors),
+    `kind` à un type d'expression (idiom/proverb/locution). Vides = pas de filtre.
     Retourne aussi `meaning_locale` pour que le frontend sache dans quelle langue est le sens.
 
     Optimisation perf : ORDER BY RANDOM() en deux étapes.
@@ -164,6 +170,8 @@ def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
     id_sql = """
         SELECT e.id FROM expressions e
         WHERE e.kind != 'word'
+          AND (:country = '' OR COALESCE(e.country, e.language) = :country)
+          AND (:kind = '' OR e.kind = :kind)
           AND NOT EXISTS (
               SELECT 1 FROM expression_tags et_pb
               JOIN tags t_pb ON t_pb.id = et_pb.tag_id
@@ -212,7 +220,7 @@ def get_random_expression(locale: Optional[str] = None) -> Optional[dict]:
                  ct_pref.meaning, ct_pref.origin, ct_pref.example, ct_pref.literal
     """
     with engine.connect() as conn:
-        id_row = conn.execute(text(id_sql)).fetchone()
+        id_row = conn.execute(text(id_sql), {"country": country, "kind": kind}).fetchone()
         if not id_row:
             return None
         row = conn.execute(text(full_sql), {"locale": effective_locale, "expr_id": id_row.id}).fetchone()

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — Mix B+C & menus avec dé</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:      #fdf8ee;
+    --paper-deep: #f3e8d4;
+    --paper-edge: #e8dcc4;
+    --ink:        #1c1410;
+    --ink-soft:   #5c4f47;
+    --ink-softer: #8b7d72;
+    --ink-faint:  #b8aa9b;
+    --plum:       #6b4d8f;
+    --plum-deep:  #4a3565;
+    --plum-bg:    #ebe3f1;
+    --shadow-card: 0 1px 2px rgba(28,20,16,0.05), 0 4px 12px rgba(28,20,16,0.06);
+    --shadow-deep: 0 8px 28px rgba(28,20,16,0.18);
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body: "Inter", system-ui, sans-serif;
+    --font-hand: "Caveat", cursive;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: var(--paper-deep); color: var(--ink); font-family: var(--font-body); padding: 26px 20px 70px; }
+  .mock-note { font-family: var(--font-hand); font-size: 21px; color: var(--ink-softer); text-align: center; margin-bottom: 8px; }
+  h2.sec {
+    font-family: var(--font-display);
+    font-size: 22px;
+    text-align: center;
+    margin: 46px 0 4px;
+  }
+  .sec-pitch { text-align:center; font-size: 13px; color: var(--ink-softer); margin-bottom: 20px; line-height:1.5; }
+  .row { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; align-items: flex-start; }
+  .col { display:flex; flex-direction:column; align-items:center; }
+  .col h3 { font-family: var(--font-display); font-size: 16px; margin-bottom: 10px; }
+  .col .sub { font-size: 12px; color: var(--ink-softer); margin: -6px 0 10px; text-align:center; max-width: 320px; line-height:1.5; }
+
+  .phone {
+    width: 360px;
+    background: var(--paper);
+    border: 1px solid var(--paper-edge);
+    border-radius: 26px;
+    box-shadow: var(--shadow-deep);
+    overflow: hidden;
+    height: 680px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .topbar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--paper-edge);
+    font-size: 12.5px; color: var(--ink-soft);
+    background: var(--paper); z-index: 3;
+  }
+  .topbar .chip { background: var(--plum-bg); color: var(--plum-deep); border-radius: 999px; padding: 3px 10px; font-weight: 600; font-size: 11.5px; }
+  .topbar .counter { margin-left: auto; color: var(--ink-faint); font-size: 11.5px; }
+
+  /* ═══ Mix B+C ═══ */
+  .zone {
+    flex: 1; position: relative;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    overflow: hidden;
+    transition: background .4s;
+    gap: 18px;
+    padding-bottom: 8px;
+  }
+  .float-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 42px; height: 42px; border-radius: 50%;
+    border: 1px solid var(--paper-edge);
+    background: var(--paper);
+    box-shadow: var(--shadow-card);
+    font-size: 22px; color: var(--ink);
+    cursor: pointer; transition: all .15s; z-index: 5; line-height: 1;
+  }
+  .float-btn:hover { background: var(--plum); color: white; border-color: transparent; }
+  .float-btn.left { left: 8px; }
+  .float-btn.right { right: 8px; }
+  .badge {
+    font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em;
+    border-radius: 999px; padding: 3px 10px; display: inline-block;
+  }
+  .badge.kind { background: var(--plum-bg); color: var(--plum-deep); }
+  .badge.country { background: rgba(255,255,255,.72); color: var(--ink-soft); }
+  .label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-faint); margin-bottom: 2px; }
+
+  .flip-wrap { width: 252px; height: 356px; perspective: 1000px; cursor: pointer; }
+  .flip-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform .55s cubic-bezier(.4,.1,.2,1.1); }
+  .flip-wrap.flipped .flip-inner { transform: rotateY(180deg); }
+  .face {
+    position: absolute; inset: 0; backface-visibility: hidden;
+    border-radius: 18px; border: 1px solid var(--paper-edge);
+    box-shadow: var(--shadow-deep);
+    padding: 24px 20px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  }
+  .face.front { background: rgba(255,255,255,.94); }
+  .face.back  { background: rgba(255,255,255,.96); transform: rotateY(180deg); }
+  .face .flag { font-size: 44px; margin-bottom: 10px; filter: drop-shadow(2px 3px 0 rgba(28,20,16,.10)); }
+  .face .expr { font-family: var(--font-display); font-size: 21px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; }
+  .face .literal { font-family: var(--font-hand); font-size: 18px; color: var(--ink-softer); }
+  .face .tap-hint { position: absolute; bottom: 13px; font-size: 11px; color: var(--ink-faint); }
+  .face .meaning { font-size: 13.5px; line-height: 1.55; color: var(--ink-soft); margin: 8px 0 12px; }
+  .face .example { font-size: 12px; line-height: 1.5; color: var(--ink-softer); font-style: italic; }
+  .face .link-full { margin-top: 14px; font-size: 12.5px; color: var(--plum); font-weight: 600; text-decoration: underline; }
+  .hint-nav { font-size: 11.5px; color: var(--ink-soft); opacity:.75; text-align: center; z-index: 2; }
+
+  /* ═══ Bottom navs ═══ */
+  .fakepage { flex: 1; background: linear-gradient(180deg, var(--paper) 40%, var(--paper-deep)); position: relative; }
+  .fakepage .ghost { position:absolute; border-radius: 14px; background: var(--paper-deep); opacity:.55; }
+  .bottomnav {
+    display: flex; align-items: flex-end;
+    background: var(--paper);
+    border-top: 1px solid var(--paper-edge);
+    box-shadow: 0 -2px 12px rgba(28,20,16,0.06);
+    padding: 6px 4px 10px;
+    position: relative;
+  }
+  .tab {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    color: var(--ink-softer); font-size: 9.5px; font-weight: 600;
+    padding-top: 6px; cursor: pointer;
+  }
+  .tab.active { color: var(--plum); }
+  .tab svg { width: 21px; height: 21px; stroke-width: 1.5; }
+  .tab.dice-tab { position: relative; }
+  .dice-btn {
+    width: 54px; height: 54px; border-radius: 50%;
+    background: var(--plum);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    margin-top: -26px;
+    box-shadow: 0 4px 0 var(--plum-deep), 0 6px 14px rgba(74,53,101,.35);
+    border: 3px solid var(--paper);
+    transition: transform .15s;
+  }
+  .tab.dice-tab:hover .dice-btn { transform: rotate(-14deg) scale(1.06); }
+  .tab.dice-tab span { color: var(--plum); }
+  .mobile-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 12px 16px; border-bottom: 1px solid var(--paper-edge);
+  }
+  .mobile-header .wordmark { font-family: var(--font-display); font-weight:700; font-size:15px; }
+  .mobile-header .right { display:flex; gap:12px; align-items:center; color: var(--ink-soft); }
+  .heart-badge { position: relative; font-size: 17px; }
+  .heart-badge .n {
+    position:absolute; top:-6px; right:-9px;
+    background: var(--plum); color:white;
+    font-size: 9px; font-weight:700;
+    border-radius: 999px; padding: 1px 5px;
+  }
+
+  /* ═══ Desktop ═══ */
+  .desktop {
+    width: 900px; max-width: 100%;
+    height: 520px;
+    background: var(--paper);
+    border: 1px solid var(--paper-edge);
+    border-radius: 18px;
+    box-shadow: var(--shadow-deep);
+    display: flex;
+    overflow: hidden;
+  }
+  .side {
+    width: 200px;
+    border-right: 1px solid var(--paper-edge);
+    padding: 20px 12px;
+    display: flex; flex-direction: column; gap: 4px;
+    background: var(--paper);
+  }
+  .side .wordmark { font-family: var(--font-display); font-weight: 700; font-size: 16px; padding: 0 10px 16px; }
+  .side .item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px;
+    border-radius: 12px;
+    font-size: 13.5px; font-weight: 500;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .side .item:hover { background: var(--paper-deep); }
+  .side .item.active { background: var(--plum-bg); color: var(--plum-deep); font-weight: 600; }
+  .side .item svg { width: 18px; height: 18px; stroke-width: 1.6; }
+  .side .item.dice-item {
+    background: var(--plum);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 2px 0 var(--plum-deep);
+    margin: 6px 0;
+  }
+  .side .item.dice-item:hover { transform: translateY(1px); box-shadow: 0 1px 0 var(--plum-deep); }
+  .side .item .emoji { font-size: 17px; }
+  .side .spacer { flex:1; }
+  .side .count { margin-left:auto; font-size: 10.5px; background: var(--paper-deep); border-radius: 999px; padding: 1px 7px; color: var(--ink-softer); }
+  .main-ghost { flex: 1; background: linear-gradient(160deg, var(--paper) 30%, var(--paper-deep)); position: relative; }
+
+  .verdict { max-width: 1000px; margin: 34px auto 0; font-size: 13.5px; line-height: 1.65; color: var(--ink-soft); }
+  .verdict b { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="mock-note">Mix B + C validé en haut · propositions de menu en bas (mobile ×2 + desktop)</div>
+
+<!-- ════════════════ SECTION 1 : MIX B+C ════════════════ -->
+<h2 class="sec">1 · La carte Random mode — mix B + C</h2>
+<p class="sec-pitch">Flip « tape pour révéler » + allers-retours ‹ › + lien fiche complète + fond teinté aux couleurs du pays.<br>Le fond change avec chaque carte — la carte, elle, reste blanche pour la lisibilité.</p>
+<div class="row">
+  <div class="phone">
+    <div class="topbar">🎲 <span class="chip">🌍 Tous les pays · ✨ Tous types</span><span class="counter" id="counter-d">carte 1</span></div>
+    <div class="zone" id="zone-d">
+      <button class="float-btn left" onclick="navD(-1)">‹</button>
+      <div class="flip-wrap" id="flip-d" onclick="this.classList.toggle('flipped')">
+        <div class="flip-inner" id="card-d"></div>
+      </div>
+      <div class="hint-nav">👆 tape la carte pour révéler · ‹ rembobine · › nouvelle carte</div>
+      <button class="float-btn right" onclick="navD(1)">›</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ SECTION 2 : NAV MOBILE ════════════════ -->
+<h2 class="sec">2 · Menu mobile — le dé au centre</h2>
+<p class="sec-pitch">Dans les deux variantes le dé est un bouton central surélevé (pattern classique du « bouton d'action »).<br>La question est : que fait-on de Rechercher et de Carnet ?</p>
+<div class="row">
+
+  <!-- Variante M1 -->
+  <div class="col">
+    <h3>M1 · Conservatrice — on ajoute juste le dé</h3>
+    <p class="sub">Les 4 onglets actuels restent, le dé s'insère au centre. Rechercher reste absent du menu mobile (accessible via l'accueil).</p>
+    <div class="phone" style="height:520px">
+      <div class="mobile-header"><span class="wordmark">🌍 World Expressions</span><span class="right">🇫🇷 ▾</span></div>
+      <div class="fakepage">
+        <div class="ghost" style="top:22px;left:20px;right:20px;height:80px"></div>
+        <div class="ghost" style="top:118px;left:20px;right:120px;height:16px"></div>
+        <div class="ghost" style="top:150px;left:20px;right:20px;height:110px"></div>
+        <div class="ghost" style="top:276px;left:20px;right:20px;height:110px"></div>
+      </div>
+      <div class="bottomnav">
+        <div class="tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>Accueil</div>
+        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14 0 18M12 3c-3 3.5-3 14 0 18"/></svg>Atlas</div>
+        <div class="tab dice-tab"><div class="dice-btn">🎲</div><span>Random</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 1 3.6 10.8c-.7.6-.6 1.2-.6 2.2h-6c0-1-.1-1.6-.6-2.2A6 6 0 0 1 12 3z"/></svg>Concepts</div>
+        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21s-7.5-4.7-9.5-9A5.5 5.5 0 0 1 12 6.5 5.5 5.5 0 0 1 21.5 12c-2 4.3-9.5 9-9.5 9z"/></svg>Carnet</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variante M2 -->
+  <div class="col">
+    <h3>M2 · Recommandée — Rechercher entre, Carnet monte</h3>
+    <p class="sub">Rechercher gagne sa place (parité avec le desktop). Carnet devient un cœur en haut à droite, avec badge du nombre de favoris.</p>
+    <div class="phone" style="height:520px">
+      <div class="mobile-header"><span class="wordmark">🌍 World Expressions</span><span class="right"><span class="heart-badge">🤍<span class="n">7</span></span> 🇫🇷 ▾</span></div>
+      <div class="fakepage">
+        <div class="ghost" style="top:22px;left:20px;right:20px;height:80px"></div>
+        <div class="ghost" style="top:118px;left:20px;right:120px;height:16px"></div>
+        <div class="ghost" style="top:150px;left:20px;right:20px;height:110px"></div>
+        <div class="ghost" style="top:276px;left:20px;right:20px;height:110px"></div>
+      </div>
+      <div class="bottomnav">
+        <div class="tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>Accueil</div>
+        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Rechercher</div>
+        <div class="tab dice-tab"><div class="dice-btn">🎲</div><span>Random</span></div>
+        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14 0 18M12 3c-3 3.5-3 14 0 18"/></svg>Atlas</div>
+        <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 1 3.6 10.8c-.7.6-.6 1.2-.6 2.2h-6c0-1-.1-1.6-.6-2.2A6 6 0 0 1 12 3z"/></svg>Concepts</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════ SECTION 3 : DESKTOP ════════════════ -->
+<h2 class="sec">3 · Menu desktop — entrée « Random mode » dans la sidebar</h2>
+<p class="sec-pitch">Le dé s'insère au milieu de la sidebar, avec un style « bouton » prune qui le distingue des liens de navigation :<br>c'est une action ludique, pas une page comme les autres.</p>
+<div class="row">
+  <div class="desktop">
+    <div class="side">
+      <div class="wordmark">🌍 World Expressions</div>
+      <div class="item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>Accueil</div>
+      <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14 0 18M12 3c-3 3.5-3 14 0 18"/></svg>Atlas</div>
+      <div class="item dice-item"><span class="emoji">🎲</span>Random mode</div>
+      <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 1 3.6 10.8c-.7.6-.6 1.2-.6 2.2h-6c0-1-.1-1.6-.6-2.2A6 6 0 0 1 12 3z"/></svg>Concepts</div>
+      <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Rechercher</div>
+      <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21s-7.5-4.7-9.5-9A5.5 5.5 0 0 1 12 6.5 5.5 5.5 0 0 1 21.5 12c-2 4.3-9.5 9-9.5 9z"/></svg>Carnet<span class="count">7</span></div>
+      <div class="spacer"></div>
+      <div class="item" style="font-size:12px">🇫🇷 Français ▾</div>
+    </div>
+    <div class="main-ghost">
+      <div class="ghost" style="position:absolute;top:40px;left:40px;right:40px;height:110px;border-radius:16px;background:var(--paper-deep);opacity:.55"></div>
+      <div class="ghost" style="position:absolute;top:180px;left:40px;width:300px;height:18px;border-radius:8px;background:var(--paper-deep);opacity:.55"></div>
+      <div class="ghost" style="position:absolute;top:220px;left:40px;right:40px;height:130px;border-radius:16px;background:var(--paper-deep);opacity:.55"></div>
+    </div>
+  </div>
+</div>
+
+<div class="verdict">
+  <b>Mon avis sur le menu mobile :</b> la variante <b>M2</b> est la plus cohérente — tu as raison, Rechercher est une action essentielle et son absence sur mobile est une anomalie (le desktop l'a déjà). Déplacer Carnet en haut à droite est un pattern éprouvé (le cœur + badge reste visible en permanence, sur toutes les pages). Le risque : Carnet perd un peu de visibilité — acceptable si l'audience mobile utilise surtout la découverte. <b>M1</b> est le repli sans risque : on n'enlève rien, on ajoute le dé — mais l'anomalie Rechercher demeure. On peut aussi faire M1 maintenant (avec la feature Random) et M2 dans un second temps, pour ne pas mélanger deux changements de navigation dans la même livraison.
+</div>
+
+<script>
+const CARDS = [
+  { flag:"🇫🇷", country:"France", kind:"Idiome", expr:"Avoir un poil dans la main",
+    literal:"“To have a hair in the hand”",
+    meaning:"Être très paresseux, éviter le moindre effort.",
+    example:"« Il n'a pas rangé sa chambre depuis un mois — il a un sacré poil dans la main. »",
+    tint:"linear-gradient(160deg,#dfe9fb 0%,#fdf8ee 78%)" },
+  { flag:"🇹🇷", country:"Turquie", kind:"Proverbe", expr:"Damlaya damlaya göl olur",
+    literal:"“Goutte à goutte, un lac se forme”",
+    meaning:"Les petits efforts répétés finissent par produire de grands résultats.",
+    example:"« Économise un peu chaque mois : damlaya damlaya göl olur. »",
+    tint:"linear-gradient(160deg,#fbdfe2 0%,#fdf8ee 78%)" },
+  { flag:"🇮🇹", country:"Italie", kind:"Locution", expr:"In bocca al lupo",
+    literal:"“Dans la gueule du loup”",
+    meaning:"Formule pour souhaiter bonne chance (on répond « crepi il lupo ! »).",
+    example:"« Ton examen est demain ? In bocca al lupo ! »",
+    tint:"linear-gradient(160deg,#dcf2e0 0%,#fdf8ee 78%)" },
+  { flag:"🇯🇵", country:"Japon", kind:"Proverbe", expr:"猿も木から落ちる",
+    literal:"“Même les singes tombent des arbres”",
+    meaning:"Même les experts peuvent se tromper.",
+    example:"« Le champion a perdu au premier tour — même les singes tombent des arbres. »",
+    tint:"linear-gradient(160deg,#fdeedd 0%,#fdf8ee 78%)" },
+];
+
+let hD=[0], pD=0;
+function renderD(){
+  const c=CARDS[hD[pD]];
+  document.getElementById("flip-d").classList.remove("flipped");
+  document.getElementById("zone-d").style.background=c.tint;
+  setTimeout(()=>{
+    document.getElementById("card-d").innerHTML=`
+      <div class="face front">
+        <span class="flag">${c.flag}</span>
+        <div style="display:flex;gap:6px;margin-bottom:10px">
+          <span class="badge kind">${c.kind}</span><span class="badge country">${c.country}</span>
+        </div>
+        <div class="expr">${c.expr}</div>
+        <div class="literal">${c.literal}</div>
+        <div class="tap-hint">👆 tape pour révéler le sens</div>
+      </div>
+      <div class="face back">
+        <div class="label">Signification</div>
+        <div class="meaning">${c.meaning}</div>
+        <div class="label">Exemple</div>
+        <div class="example">${c.example}</div>
+        <div class="link-full">Voir la fiche complète →</div>
+      </div>`;
+  },200);
+  document.getElementById("counter-d").textContent="carte "+(pD+1);
+}
+function navD(d){
+  if(d<0){ if(pD>0) pD--; }
+  else if(pD<hD.length-1){ pD++; }
+  else { let i; do{ i=Math.floor(Math.random()*CARDS.length); }while(i===hD[pD]); hD.push(i); pD++; }
+  renderD();
+}
+renderD();
+</script>
+</body>
+</html>

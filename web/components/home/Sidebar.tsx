@@ -8,16 +8,18 @@ import { getCountries } from "@/lib/api";
 import SearchOverlay from "@/components/SearchOverlay";
 
 const BASE_NAV_ITEMS = [
-  { id: "home",      icon: Home,       href: "/",         count: undefined as number | undefined },
-  { id: "atlas",     icon: Globe,      href: "/atlas",    count: undefined as number | undefined },
-  { id: "concepts",  icon: Lightbulb,  href: "/emoji", count: undefined as number | undefined },
-  { id: "search",    icon: Search,     href: null,        count: undefined as number | undefined },
-  { id: "carnet",    icon: Heart,      href: "/profile",  count: undefined as number | undefined },
+  { id: "home",      icon: Home,       href: "/",            count: undefined as number | undefined },
+  { id: "atlas",     icon: Globe,      href: "/atlas",       count: undefined as number | undefined },
+  { id: "random",    icon: null,       href: "/random-mode", count: undefined as number | undefined },
+  { id: "concepts",  icon: Lightbulb,  href: "/emoji",       count: undefined as number | undefined },
+  { id: "search",    icon: Search,     href: null,           count: undefined as number | undefined },
+  { id: "carnet",    icon: Heart,      href: "/profile",     count: undefined as number | undefined },
 ];
 
 const NAV_LABELS: Record<string, Record<string, string>> = {
   home:      { fr: "Accueil",      en: "Home",       es: "Inicio",      it: "Home",               tr: "Ana sayfa", de: "Startseite",     ja: "ホーム" },
   atlas:     { fr: "Atlas",        en: "Atlas",       es: "Atlas",       it: "Atlante",            tr: "Atlas",     de: "Atlas",           ja: "地図" },
+  random:    { fr: "Au hasard !",  en: "Random mode", es: "Modo aleatorio", it: "Modalità casuale", tr: "Rastgele mod", de: "Zufallsmodus", ja: "ランダムモード" },
   concepts:  { fr: "Concepts",     en: "Concepts",    es: "Conceptos",   it: "Concetti",           tr: "Kavramlar", de: "Konzepte",        ja: "概念" },
   search:    { fr: "Rechercher",   en: "Search",      es: "Buscar",      it: "Cerca",              tr: "Ara",       de: "Suchen",          ja: "検索" },
   carnet:    { fr: "Mon carnet",   en: "My notebook", es: "Mi cuaderno", it: "Il mio taccuino",    tr: "Defterim",  de: "Mein Notizbuch",  ja: "ノート" },
@@ -107,6 +109,47 @@ export default function Sidebar({ uiLang }: Props) {
       >
         {navItems.map((item) => {
           const isActive = item.href !== null && pathname === item.href;
+
+          // Random mode: plum action button — it launches an experience,
+          // it's not a navigation link like the others
+          if (item.id === "random") {
+            return (
+              <Link
+                key={item.id}
+                href="/random-mode"
+                aria-current={isActive ? "page" : undefined}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.6rem",
+                  padding: "0.5rem 0.75rem",
+                  margin: "0.25rem 0",
+                  borderRadius: "var(--r-sm)",
+                  background: "var(--plum)",
+                  color: "white",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  fontFamily: "var(--font-body)",
+                  textDecoration: "none",
+                  boxShadow: "0 2px 0 var(--plum-deep)",
+                  transition: "transform 120ms ease, box-shadow 120ms ease",
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.transform = "translateY(1px)";
+                  el.style.boxShadow = "0 1px 0 var(--plum-deep)";
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.transform = "none";
+                  el.style.boxShadow = "0 2px 0 var(--plum-deep)";
+                }}
+              >
+                <span aria-hidden="true" style={{ fontSize: 16 }}>🎲</span>
+                <span style={{ flex: 1 }}>{NAV_LABELS.random?.[uiLang] ?? NAV_LABELS.random?.fr}</span>
+              </Link>
+            );
+          }
           const sharedStyle = {
             display: "flex",
             alignItems: "center",
@@ -127,13 +170,13 @@ export default function Sidebar({ uiLang }: Props) {
             : "var(--ink-soft)";
           const inner = (
             <>
-              <item.icon
+              {item.icon && <item.icon
                 aria-hidden="true"
                 size={17}
                 strokeWidth={1.5}
                 color={iconColor}
                 fill={isActive && item.id === "favorites" ? "var(--terra)" : "none"}
-              />
+              />}
               <span style={{ flex: 1 }}>{NAV_LABELS[item.id]?.[uiLang] ?? NAV_LABELS[item.id]?.fr}</span>
               {item.count !== undefined && (
                 <span style={{ fontSize: 11, color: "var(--ink-softer)" }}>{item.count}</span>
