@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Home, Globe, Lightbulb, Search, Heart } from "lucide-react";
 import { getCarnet } from "@/lib/carnet";
-import { getCountries } from "@/lib/api";
+import { getCountries, getGlobalStats, GlobalStats } from "@/lib/api";
 import SearchOverlay from "@/components/SearchOverlay";
 
 const BASE_NAV_ITEMS = [
@@ -45,6 +45,17 @@ const TAGLINE: Record<string, string> = {
   ja: "沈黙は金、雄弁は銀。",
 };
 
+// Footer stat line — counts come live from the API (single source of truth).
+const STATS_LABEL: Record<string, { expressions: (n: string) => string; languages: (n: string) => string; countries: (n: string) => string }> = {
+  fr: { expressions: (n) => `${n} expressions`,  languages: (n) => `${n} langues`,   countries: (n) => `${n} pays` },
+  en: { expressions: (n) => `${n} expressions`,  languages: (n) => `${n} languages`, countries: (n) => `${n} countries` },
+  es: { expressions: (n) => `${n} expresiones`,  languages: (n) => `${n} idiomas`,   countries: (n) => `${n} países` },
+  it: { expressions: (n) => `${n} espressioni`,  languages: (n) => `${n} lingue`,    countries: (n) => `${n} paesi` },
+  tr: { expressions: (n) => `${n} deyim`,        languages: (n) => `${n} dil`,       countries: (n) => `${n} ülke` },
+  de: { expressions: (n) => `${n} Ausdrücke`,    languages: (n) => `${n} Sprachen`,  countries: (n) => `${n} Länder` },
+  ja: { expressions: (n) => `${n}の表現`,        languages: (n) => `${n}言語`,       countries: (n) => `${n}か国` },
+};
+
 type Props = {
   uiLang: string;
 };
@@ -53,6 +64,7 @@ export default function Sidebar({ uiLang }: Props) {
   const pathname = usePathname();
   const [favCount, setFavCount] = useState<number | undefined>(undefined);
   const [countryCount, setCountryCount] = useState<number | undefined>(undefined);
+  const [globalStats, setGlobalStats] = useState<GlobalStats | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -67,6 +79,7 @@ export default function Sidebar({ uiLang }: Props) {
 
   useEffect(() => {
     getCountries().then((countries) => setCountryCount(countries.length));
+    getGlobalStats().then(setGlobalStats).catch(() => {});
   }, []);
 
   const navItems = BASE_NAV_ITEMS.map((item) => {
@@ -146,7 +159,7 @@ export default function Sidebar({ uiLang }: Props) {
                 }}
               >
                 <span aria-hidden="true" style={{ fontSize: 16 }}>🎲</span>
-                <span style={{ flex: 1 }}>{NAV_LABELS.random?.[uiLang] ?? NAV_LABELS.random?.fr}</span>
+                <span style={{ flex: 1 }}>{NAV_LABELS.random?.[uiLang] ?? NAV_LABELS.random?.en}</span>
               </Link>
             );
           }
@@ -177,7 +190,7 @@ export default function Sidebar({ uiLang }: Props) {
                 color={iconColor}
                 fill={isActive && item.id === "favorites" ? "var(--terra)" : "none"}
               />}
-              <span style={{ flex: 1 }}>{NAV_LABELS[item.id]?.[uiLang] ?? NAV_LABELS[item.id]?.fr}</span>
+              <span style={{ flex: 1 }}>{NAV_LABELS[item.id]?.[uiLang] ?? NAV_LABELS[item.id]?.en}</span>
               {item.count !== undefined && (
                 <span style={{ fontSize: 11, color: "var(--ink-softer)" }}>{item.count}</span>
               )}
@@ -238,7 +251,17 @@ export default function Sidebar({ uiLang }: Props) {
         </a>
       </div>
       <p style={{ fontSize: 11, color: "var(--ink-softer)", marginTop: "0.75rem", fontFamily: "var(--font-body)", lineHeight: 1.5 }}>
-        1 580+ expressions<br />5 langues · {countryCount ?? "…"} pays
+        {(() => {
+          const s = STATS_LABEL[uiLang] ?? STATS_LABEL.en;
+          const fmt = (n: number | undefined) => n !== undefined ? n.toLocaleString(uiLang) : "…";
+          return (
+            <>
+              {s.expressions(fmt(globalStats?.expressions))}
+              <br />
+              {s.languages(fmt(globalStats?.languages))} · {s.countries(fmt(countryCount))}
+            </>
+          );
+        })()}
       </p>
     </aside>
   );

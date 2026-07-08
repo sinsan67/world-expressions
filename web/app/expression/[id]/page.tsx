@@ -22,6 +22,7 @@ import { useAudio } from "@/lib/useAudio";
 import { Heart, Dice5, Search, Volume2, VolumeX } from "lucide-react";
 import SearchOverlay from "@/components/SearchOverlay";
 import { useUILangContext } from "@/lib/UILangContext";
+import { FAV_LABEL, CONFIDENCE_LABEL } from "@/lib/uiLabels";
 import ExpressionFloatingNav from "@/components/ui/ExpressionFloatingNav";
 import BottomNav from "@/components/home/BottomNav";
 import Sidebar from "@/components/home/Sidebar";
@@ -45,9 +46,11 @@ const T: Record<UILang, {
   elsewhereInTheWorld: string;
   listen: string;
   noVoice: string;
+  notFound: string;
   register: Record<string, string>;
 }> = {
   fr: {
+    notFound: "Expression introuvable.",
     wordForWord: "Mot à mot",
     equivalent: "Équivalent",
     sameIdea: "La même idée",
@@ -67,6 +70,7 @@ const T: Record<UILang, {
     register: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" },
   },
   en: {
+    notFound: "Expression not found.",
     wordForWord: "Word for word",
     equivalent: "Equivalent",
     original: "Original version",
@@ -86,6 +90,7 @@ const T: Record<UILang, {
     register: { standard: "standard", informal: "informal", slang: "slang", vulgar: "vulgar", formal: "formal" },
   },
   es: {
+    notFound: "Expresión no encontrada.",
     wordForWord: "Literalmente",
     equivalent: "Equivalente",
     original: "Versión original",
@@ -105,6 +110,7 @@ const T: Record<UILang, {
     register: { standard: "estándar", informal: "informal", slang: "argot", vulgar: "vulgar", formal: "formal" },
   },
   tr: {
+    notFound: "İfade bulunamadı.",
     wordForWord: "Kelimesi kelimesine",
     equivalent: "Karşılığı",
     original: "Orijinal versiyon",
@@ -124,6 +130,7 @@ const T: Record<UILang, {
     register: { standard: "standart", informal: "günlük", slang: "argo", vulgar: "kaba", formal: "resmi" },
   },
   it: {
+    notFound: "Espressione non trovata.",
     wordForWord: "Letteralmente",
     equivalent: "Equivalente",
     original: "Versione originale",
@@ -143,6 +150,7 @@ const T: Record<UILang, {
     register: { standard: "standard", informal: "informale", slang: "slang", vulgar: "volgare", formal: "formale" },
   },
   de: {
+    notFound: "Ausdruck nicht gefunden.",
     wordForWord: "Wörtlich",
     equivalent: "Entsprechung",
     original: "Originalversion",
@@ -162,6 +170,7 @@ const T: Record<UILang, {
     register: { standard: "standard", informal: "umgangssprachlich", slang: "Slang", vulgar: "vulgär", formal: "formell" },
   },
   ja: {
+    notFound: "表現が見つかりません。",
     wordForWord: "逐語訳",
     equivalent: "同義表現",
     original: "原文",
@@ -186,14 +195,15 @@ const LANGUAGE_NAME: Record<string, string> = {
   fr: "Français", en: "English", es: "Español", it: "Italiano", tr: "Türkçe", de: "Deutsch", ja: "日本語",
 };
 
-function confidenceBadge(score: number) {
-  if (score >= 1.0)  return { label: "Miroir",     bg: "#ede8f5", color: "#6b4d8f", border: "#c9b8e8" };
-  if (score >= 0.90) return { label: "Équivalent", bg: "#e8f3e8", color: "#2d7a3a", border: "#a8d4a8" };
-  return                    { label: "Proche",     bg: "#fef5e7", color: "#92400e", border: "#f0d090" };
+function confidenceBadge(score: number, lang: string) {
+  const labels = CONFIDENCE_LABEL[lang] ?? CONFIDENCE_LABEL.en;
+  if (score >= 1.0)  return { label: labels.mirror,     bg: "#ede8f5", color: "#6b4d8f", border: "#c9b8e8" };
+  if (score >= 0.90) return { label: labels.equivalent, bg: "#e8f3e8", color: "#2d7a3a", border: "#a8d4a8" };
+  return                    { label: labels.vein,       bg: "#fef5e7", color: "#92400e", border: "#f0d090" };
 }
 
-function ConceptCard({ eq, onNavigate }: { eq: ConceptEquivalent; onNavigate: (url: string) => void }) {
-  const badge = confidenceBadge(eq.concept_confidence ?? 0.65);
+function ConceptCard({ eq, lang, onNavigate }: { eq: ConceptEquivalent; lang: string; onNavigate: (url: string) => void }) {
+  const badge = confidenceBadge(eq.concept_confidence ?? 0.65, lang);
   return (
     <div
       onClick={() => onNavigate(`/expression/${eq.id}`)}
@@ -364,8 +374,8 @@ function ExpressionPageContent({ id }: { id: string }) {
   if (error) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, background: "var(--paper)" }}>
-        <p style={{ color: "var(--terra)" }}>Expression not found.</p>
-        <Link href="/" style={{ fontSize: 13, color: "var(--ink-faint)", textDecoration: "none" }}>← Back</Link>
+        <p style={{ color: "var(--terra)" }}>{(T[lang] ?? T.en).notFound}</p>
+        <Link href="/" style={{ fontSize: 13, color: "var(--ink-faint)", textDecoration: "none" }}>← {(T[lang] ?? T.en).back}</Link>
       </div>
     );
   }
@@ -573,8 +583,8 @@ function ExpressionPageContent({ id }: { id: string }) {
           {/* Favorite button — top-right of card */}
           <button
             onClick={handleFav}
-            aria-label={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
-            title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
+            aria-label={fav ? (FAV_LABEL[lang] ?? FAV_LABEL.en).remove : (FAV_LABEL[lang] ?? FAV_LABEL.en).add}
+            title={fav ? (FAV_LABEL[lang] ?? FAV_LABEL.en).remove : (FAV_LABEL[lang] ?? FAV_LABEL.en).add}
             style={{
               position: "absolute",
               top: "1.25rem",
@@ -770,7 +780,7 @@ function ExpressionPageContent({ id }: { id: string }) {
             <SectionLabel>{t.sameIdea}</SectionLabel>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
               {expr.concept_equivalents.map((eq) => (
-                <ConceptCard key={eq.id} eq={eq} onNavigate={(url) => router.push(url)} />
+                <ConceptCard key={eq.id} eq={eq} lang={lang} onNavigate={(url) => router.push(url)} />
               ))}
             </div>
           </div>

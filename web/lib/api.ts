@@ -301,6 +301,20 @@ export async function getCountries(): Promise<CountryInfo[]> {
   return res.json();
 }
 
+export type GlobalStats = { expressions: number; languages: number };
+
+// Live totals from the API root — single source of truth for the
+// "N expressions · N languages" stat (never hardcode these numbers).
+export async function getGlobalStats(): Promise<GlobalStats | null> {
+  const res = await fetch(`${API}/`);
+  if (!res.ok) return null;
+  const data = await res.json();
+  const total = data.expressions_loaded;
+  const langs = data.by_language ? Object.keys(data.by_language).length : 0;
+  if (typeof total !== "number" || !langs) return null;
+  return { expressions: total, languages: langs };
+}
+
 export type TypeCounts = {
   idiom: number;
   proverb: number;

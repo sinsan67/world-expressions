@@ -11,6 +11,7 @@ import { browseByRegion, Expression } from "@/lib/api";
 import { REGION_DEFS, RegionDef, getSectionStyle } from "@/lib/regionDefs";
 import { useUILangContext } from "@/lib/UILangContext";
 import type { UILang } from "@/lib/useUILang";
+import { FAV_LABEL } from "@/lib/uiLabels";
 
 // ─── RegionCard ───────────────────────────────────────────────────────────────
 
@@ -113,7 +114,7 @@ function RegionCard({
         <div style={{ marginTop: "auto", paddingTop: "0.5rem", display: "flex", justifyContent: "flex-end" }}>
           <button
             onClick={handleFav}
-            title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
+            title={fav ? (FAV_LABEL[uiLang] ?? FAV_LABEL.en).remove : (FAV_LABEL[uiLang] ?? FAV_LABEL.en).add}
             style={{
               background: "none", border: "none", cursor: "pointer",
               padding: "2px", lineHeight: 1,
