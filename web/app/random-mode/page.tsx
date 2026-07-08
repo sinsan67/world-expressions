@@ -51,6 +51,7 @@ const T: Record<string, {
   newCardBtn: string;
   back: string;
   empty: string;
+  serverError: string;
 }> = {
   fr: {
     title: "Au hasard !",
@@ -74,6 +75,7 @@ const T: Record<string, {
     newCardBtn: "Nouvelle carte",
     back: "Retour",
     empty: "Aucune expression pour ces filtres — essaie une autre combinaison.",
+    serverError: "Le serveur ne répond pas — réessaie dans un instant.",
   },
   en: {
     title: "Random mode",
@@ -97,6 +99,7 @@ const T: Record<string, {
     newCardBtn: "New card",
     back: "Back",
     empty: "No expression for these filters — try another combination.",
+    serverError: "The server isn't responding — try again in a moment.",
   },
   es: {
     title: "Modo aleatorio",
@@ -120,6 +123,7 @@ const T: Record<string, {
     newCardBtn: "Nueva carta",
     back: "Volver",
     empty: "Ninguna expresión con estos filtros — prueba otra combinación.",
+    serverError: "El servidor no responde — inténtalo de nuevo en un momento.",
   },
   it: {
     title: "Modalità casuale",
@@ -143,6 +147,7 @@ const T: Record<string, {
     newCardBtn: "Nuova carta",
     back: "Indietro",
     empty: "Nessuna espressione con questi filtri — prova un'altra combinazione.",
+    serverError: "Il server non risponde — riprova tra un istante.",
   },
   tr: {
     title: "Rastgele mod",
@@ -166,6 +171,7 @@ const T: Record<string, {
     newCardBtn: "Yeni kart",
     back: "Geri",
     empty: "Bu filtrelerle ifade bulunamadı — başka bir kombinasyon dene.",
+    serverError: "Sunucu yanıt vermiyor — birazdan tekrar dene.",
   },
   de: {
     title: "Zufallsmodus",
@@ -189,6 +195,7 @@ const T: Record<string, {
     newCardBtn: "Neue Karte",
     back: "Zurück",
     empty: "Kein Ausdruck für diese Filter — probiere eine andere Kombination.",
+    serverError: "Der Server antwortet nicht — versuche es gleich noch einmal.",
   },
   ja: {
     title: "ランダムモード",
@@ -212,6 +219,7 @@ const T: Record<string, {
     newCardBtn: "新しいカード",
     back: "戻る",
     empty: "この条件に合う表現がありません — 別の組み合わせを試してください。",
+    serverError: "サーバーが応答していません — しばらくしてからもう一度お試しください。",
   },
 };
 
@@ -238,7 +246,7 @@ export default function RandomModePage() {
   const [pos, setPos] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [swapping, setSwapping] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<"" | "empty" | "server">("");
   const drawing = useRef(false);
 
   useEffect(() => {
@@ -264,12 +272,19 @@ export default function RandomModePage() {
     );
   }, [spinning, country, domain]);
 
+  // Draw a card. A 404 means the filter pool is empty — no point retrying.
+  // Any other failure (Render cold start, flaky network) is retried twice
+  // before giving up, so transient errors rarely reach the user.
   const draw = useCallback(
-    async (c: string, k: string, d: string): Promise<RandomCard | null> => {
-      try {
-        return await getRandomExpression(uiLang, c, k, d);
-      } catch {
-        return null;
+    async (c: string, k: string, d: string): Promise<RandomCard | "empty" | "server"> => {
+      for (let attempt = 0; ; attempt++) {
+        try {
+          return await getRandomExpression(uiLang, c, k, d);
+        } catch (e) {
+          if (e instanceof Error && e.message === "empty-pool") return "empty";
+          if (attempt >= 2) return "server";
+          await sleep(600 * (attempt + 1));
+        }
       }
     },
     [uiLang],
@@ -279,11 +294,11 @@ export default function RandomModePage() {
     if (drawing.current) return;
     drawing.current = true;
     setRolling(true);
-    setError(false);
+    setError("");
     const card = await draw(c, k, d);
     drawing.current = false;
     setRolling(false);
-    if (!card) { setError(true); return; }
+    if (card === "empty" || card === "server") { setError(card); return; }
     setHistory([card]);
     setPos(0);
     setFlipped(false);
@@ -345,7 +360,7 @@ export default function RandomModePage() {
     drawing.current = true;
     const card = await draw(country, kind, domain);
     drawing.current = false;
-    if (card) goTo(pos + 1, card);
+    if (typeof card !== "string") goTo(pos + 1, card);
   }, [pos, history.length, draw, country, kind, domain, goTo]);
 
   const prev = useCallback(() => {
@@ -562,7 +577,9 @@ export default function RandomModePage() {
             </button>
 
             {error && (
-              <p style={{ marginTop: 14, fontSize: 13.5, color: "var(--terra, #b4552d)", textAlign: "center" }}>{t.empty}</p>
+              <p style={{ marginTop: 14, fontSize: 13.5, color: "var(--terra, #b4552d)", textAlign: "center" }}>
+                {error === "server" ? t.serverError : t.empty}
+              </p>
             )}
           </section>
         )}

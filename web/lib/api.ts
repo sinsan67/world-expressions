@@ -230,6 +230,8 @@ export async function getRandomExpression(
   if (domain) params.set("domain", domain);
   const qs = params.toString();
   const res = await fetch(`${API}/random${qs ? `?${qs}` : ""}`);
+  // 404 = the filter pool is genuinely empty; anything else is a server problem
+  if (res.status === 404) throw new Error("empty-pool");
   if (!res.ok) throw new Error("API error");
   return res.json();
 }
