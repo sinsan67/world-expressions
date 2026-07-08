@@ -48,6 +48,7 @@ const T: Record<string, {
   fullCard: string;
   card: string;
   reviewBtn: string;
+  filtersBtn: string;
   newCardBtn: string;
   back: string;
   empty: string;
@@ -72,6 +73,7 @@ const T: Record<string, {
     fullCard: "Voir la fiche complète →",
     card: "carte",
     reviewBtn: "Revoir",
+    filtersBtn: "Filtres",
     newCardBtn: "Nouvelle carte",
     back: "Retour",
     empty: "Aucune expression pour ces filtres — essaie une autre combinaison.",
@@ -96,6 +98,7 @@ const T: Record<string, {
     fullCard: "See the full card →",
     card: "card",
     reviewBtn: "Review",
+    filtersBtn: "Filters",
     newCardBtn: "New card",
     back: "Back",
     empty: "No expression for these filters — try another combination.",
@@ -120,6 +123,7 @@ const T: Record<string, {
     fullCard: "Ver la ficha completa →",
     card: "carta",
     reviewBtn: "Repasar",
+    filtersBtn: "Filtros",
     newCardBtn: "Nueva carta",
     back: "Volver",
     empty: "Ninguna expresión con estos filtros — prueba otra combinación.",
@@ -144,6 +148,7 @@ const T: Record<string, {
     fullCard: "Vedi la scheda completa →",
     card: "carta",
     reviewBtn: "Rivedi",
+    filtersBtn: "Filtri",
     newCardBtn: "Nuova carta",
     back: "Indietro",
     empty: "Nessuna espressione con questi filtri — prova un'altra combinazione.",
@@ -168,6 +173,7 @@ const T: Record<string, {
     fullCard: "Tam kartı gör →",
     card: "kart",
     reviewBtn: "Tekrar bak",
+    filtersBtn: "Filtreler",
     newCardBtn: "Yeni kart",
     back: "Geri",
     empty: "Bu filtrelerle ifade bulunamadı — başka bir kombinasyon dene.",
@@ -192,6 +198,7 @@ const T: Record<string, {
     fullCard: "Zur vollständigen Karte →",
     card: "Karte",
     reviewBtn: "Zurück",
+    filtersBtn: "Filter",
     newCardBtn: "Neue Karte",
     back: "Zurück",
     empty: "Kein Ausdruck für diese Filter — probiere eine andere Kombination.",
@@ -216,6 +223,7 @@ const T: Record<string, {
     fullCard: "詳細カードを見る →",
     card: "カード",
     reviewBtn: "もどる",
+    filtersBtn: "フィルター",
     newCardBtn: "新しいカード",
     back: "戻る",
     empty: "この条件に合う表現がありません — 別の組み合わせを試してください。",
@@ -616,6 +624,8 @@ export default function RandomModePage() {
                 }}
               >
                 {filterChip}
+                {/* Small pencil: signals the chip is tappable (opens the filters) */}
+                <span aria-hidden="true" style={{ marginLeft: 6, opacity: 0.75 }}>✎</span>
               </button>
               {/* Counter sits next to the chip — the far right belongs to the
                   fixed GlobalHeader (lang switcher / heart) on every viewport */}
@@ -745,10 +755,10 @@ export default function RandomModePage() {
               </div>
             </div>
 
-            {/* Bottom action bar: review (ghost) + new card (hero) */}
+            {/* Bottom action bar: filters (ghost) + review (ghost) + new card (hero) */}
             <div style={{
               display: "flex",
-              gap: 10,
+              gap: 8,
               padding: "0 18px 14px",
               maxWidth: 400,
               margin: "0 auto",
@@ -756,24 +766,21 @@ export default function RandomModePage() {
               zIndex: 5,
             }}>
               <button
+                onClick={() => setPhase("entry")}
+                aria-label={t.filtersBtn}
+                style={ghostBarBtnStyle}
+              >
+                <span style={{ fontSize: 16, lineHeight: 1 }} aria-hidden="true">⚙</span>
+                <span style={{ fontSize: 10, fontWeight: 700, fontFamily: "var(--font-body)" }}>{t.filtersBtn}</span>
+              </button>
+              <button
                 onClick={prev}
                 disabled={pos === 0}
                 aria-label={t.reviewBtn}
                 style={{
-                  flex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 1,
-                  background: "white",
-                  border: "1.5px solid var(--paper-edge)",
-                  borderRadius: 18,
-                  padding: "8px 6px",
+                  ...ghostBarBtnStyle,
                   cursor: pos === 0 ? "default" : "pointer",
                   opacity: pos === 0 ? 0.4 : 1,
-                  boxShadow: "var(--shadow-card)",
-                  color: "var(--ink-soft)",
                 }}
               >
                 <span style={{ fontSize: 16, lineHeight: 1 }} aria-hidden="true">↩</span>
@@ -783,13 +790,14 @@ export default function RandomModePage() {
                 onClick={next}
                 aria-label={t.newCardBtn}
                 style={{
-                  flex: 2.2,
+                  flex: 2,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: 8,
+                  gap: 7,
+                  whiteSpace: "nowrap",
                   fontFamily: "var(--font-display)",
-                  fontSize: 15.5,
+                  fontSize: 15,
                   fontWeight: 700,
                   color: "white",
                   background: "var(--plum)",
@@ -935,6 +943,23 @@ const tagChipStyle: React.CSSProperties = {
   padding: "3px 10px 3px 7px",
   textDecoration: "none",
   fontFamily: "var(--font-body)",
+};
+
+// Ghost buttons of the play-phase bottom bar (Filters, Review)
+const ghostBarBtnStyle: React.CSSProperties = {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 1,
+  background: "white",
+  border: "1.5px solid var(--paper-edge)",
+  borderRadius: 18,
+  padding: "8px 6px",
+  cursor: "pointer",
+  boxShadow: "var(--shadow-card)",
+  color: "var(--ink-soft)",
 };
 
 const badgeStyle: React.CSSProperties = {
