@@ -48,9 +48,11 @@ const T: Record<string, {
   fullCard: string;
   card: string;
   reviewBtn: string;
+  filtersBtn: string;
   newCardBtn: string;
   back: string;
   empty: string;
+  serverError: string;
 }> = {
   fr: {
     title: "Au hasard !",
@@ -71,9 +73,11 @@ const T: Record<string, {
     fullCard: "Voir la fiche complète →",
     card: "carte",
     reviewBtn: "Revoir",
+    filtersBtn: "Filtres",
     newCardBtn: "Nouvelle carte",
     back: "Retour",
     empty: "Aucune expression pour ces filtres — essaie une autre combinaison.",
+    serverError: "Le serveur ne répond pas — réessaie dans un instant.",
   },
   en: {
     title: "Random mode",
@@ -94,9 +98,11 @@ const T: Record<string, {
     fullCard: "See the full card →",
     card: "card",
     reviewBtn: "Review",
+    filtersBtn: "Filters",
     newCardBtn: "New card",
     back: "Back",
     empty: "No expression for these filters — try another combination.",
+    serverError: "The server isn't responding — try again in a moment.",
   },
   es: {
     title: "Modo aleatorio",
@@ -117,9 +123,11 @@ const T: Record<string, {
     fullCard: "Ver la ficha completa →",
     card: "carta",
     reviewBtn: "Repasar",
+    filtersBtn: "Filtros",
     newCardBtn: "Nueva carta",
     back: "Volver",
     empty: "Ninguna expresión con estos filtros — prueba otra combinación.",
+    serverError: "El servidor no responde — inténtalo de nuevo en un momento.",
   },
   it: {
     title: "Modalità casuale",
@@ -140,9 +148,11 @@ const T: Record<string, {
     fullCard: "Vedi la scheda completa →",
     card: "carta",
     reviewBtn: "Rivedi",
+    filtersBtn: "Filtri",
     newCardBtn: "Nuova carta",
     back: "Indietro",
     empty: "Nessuna espressione con questi filtri — prova un'altra combinazione.",
+    serverError: "Il server non risponde — riprova tra un istante.",
   },
   tr: {
     title: "Rastgele mod",
@@ -163,9 +173,11 @@ const T: Record<string, {
     fullCard: "Tam kartı gör →",
     card: "kart",
     reviewBtn: "Tekrar bak",
+    filtersBtn: "Filtreler",
     newCardBtn: "Yeni kart",
     back: "Geri",
     empty: "Bu filtrelerle ifade bulunamadı — başka bir kombinasyon dene.",
+    serverError: "Sunucu yanıt vermiyor — birazdan tekrar dene.",
   },
   de: {
     title: "Zufallsmodus",
@@ -186,9 +198,11 @@ const T: Record<string, {
     fullCard: "Zur vollständigen Karte →",
     card: "Karte",
     reviewBtn: "Zurück",
+    filtersBtn: "Filter",
     newCardBtn: "Neue Karte",
     back: "Zurück",
     empty: "Kein Ausdruck für diese Filter — probiere eine andere Kombination.",
+    serverError: "Der Server antwortet nicht — versuche es gleich noch einmal.",
   },
   ja: {
     title: "ランダムモード",
@@ -209,9 +223,11 @@ const T: Record<string, {
     fullCard: "詳細カードを見る →",
     card: "カード",
     reviewBtn: "もどる",
+    filtersBtn: "フィルター",
     newCardBtn: "新しいカード",
     back: "戻る",
     empty: "この条件に合う表現がありません — 別の組み合わせを試してください。",
+    serverError: "サーバーが応答していません — しばらくしてからもう一度お試しください。",
   },
 };
 
@@ -238,7 +254,7 @@ export default function RandomModePage() {
   const [pos, setPos] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [swapping, setSwapping] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<"" | "empty" | "server">("");
   const drawing = useRef(false);
 
   useEffect(() => {
@@ -264,12 +280,19 @@ export default function RandomModePage() {
     );
   }, [spinning, country, domain]);
 
+  // Draw a card. A 404 means the filter pool is empty — no point retrying.
+  // Any other failure (Render cold start, flaky network) is retried twice
+  // before giving up, so transient errors rarely reach the user.
   const draw = useCallback(
-    async (c: string, k: string, d: string): Promise<RandomCard | null> => {
-      try {
-        return await getRandomExpression(uiLang, c, k, d);
-      } catch {
-        return null;
+    async (c: string, k: string, d: string): Promise<RandomCard | "empty" | "server"> => {
+      for (let attempt = 0; ; attempt++) {
+        try {
+          return await getRandomExpression(uiLang, c, k, d);
+        } catch (e) {
+          if (e instanceof Error && e.message === "empty-pool") return "empty";
+          if (attempt >= 2) return "server";
+          await sleep(600 * (attempt + 1));
+        }
       }
     },
     [uiLang],
@@ -279,11 +302,11 @@ export default function RandomModePage() {
     if (drawing.current) return;
     drawing.current = true;
     setRolling(true);
-    setError(false);
+    setError("");
     const card = await draw(c, k, d);
     drawing.current = false;
     setRolling(false);
-    if (!card) { setError(true); return; }
+    if (card === "empty" || card === "server") { setError(card); return; }
     setHistory([card]);
     setPos(0);
     setFlipped(false);
@@ -345,7 +368,7 @@ export default function RandomModePage() {
     drawing.current = true;
     const card = await draw(country, kind, domain);
     drawing.current = false;
-    if (card) goTo(pos + 1, card);
+    if (typeof card !== "string") goTo(pos + 1, card);
   }, [pos, history.length, draw, country, kind, domain, goTo]);
 
   const prev = useCallback(() => {
@@ -562,7 +585,9 @@ export default function RandomModePage() {
             </button>
 
             {error && (
-              <p style={{ marginTop: 14, fontSize: 13.5, color: "var(--terra, #b4552d)", textAlign: "center" }}>{t.empty}</p>
+              <p style={{ marginTop: 14, fontSize: 13.5, color: "var(--terra, #b4552d)", textAlign: "center" }}>
+                {error === "server" ? t.serverError : t.empty}
+              </p>
             )}
           </section>
         )}
@@ -599,6 +624,8 @@ export default function RandomModePage() {
                 }}
               >
                 {filterChip}
+                {/* Small pencil: signals the chip is tappable (opens the filters) */}
+                <span aria-hidden="true" style={{ marginLeft: 6, opacity: 0.75 }}>✎</span>
               </button>
               {/* Counter sits next to the chip — the far right belongs to the
                   fixed GlobalHeader (lang switcher / heart) on every viewport */}
@@ -674,19 +701,24 @@ export default function RandomModePage() {
                   {/* Back: meaning + example + clickable tags + link to the full card */}
                   <div className="wex-flip-face back" style={{ background: "rgba(255,255,255,0.96)", padding: "24px 22px" }}>
                     <span style={labelStyle}>{t.meaningLabel}</span>
-                    <p style={{ fontSize: 13.5, lineHeight: 1.5, color: "var(--ink-soft)", margin: "7px 0 12px" }}>
+                    {/* Long meanings (proverbs) are clamped so the card never overflows;
+                        the full-card button below gives access to the whole text */}
+                    <p style={{ ...clampStyle(8), fontSize: 13.5, lineHeight: 1.5, color: "var(--ink-soft)", margin: "7px 0 12px" }}>
                       {current.meaning}
                     </p>
                     {current.example && (
                       <>
                         <span style={labelStyle}>{t.exampleLabel}</span>
-                        <p style={{ fontSize: 12, lineHeight: 1.5, color: "var(--ink-softer)", fontStyle: "italic", margin: "6px 0 0" }}>
+                        <p style={{ ...clampStyle(2), fontSize: 12, lineHeight: 1.5, color: "var(--ink-softer)", fontStyle: "italic", margin: "6px 0 0" }}>
                           {current.example}
                         </p>
                       </>
                     )}
                     {current.tags.length > 0 && (
-                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center", marginTop: 13 }}>
+                      /* maxHeight keeps the chips on a single row: overflowing chips
+                         wrap to a second row that is clipped away, so the height
+                         budget of the 400px card always holds */
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center", marginTop: 13, maxHeight: 26, overflow: "hidden", flexShrink: 0 }}>
                         {current.tags.slice(0, 5).map((tg) => (
                           <Link
                             key={tg}
@@ -703,7 +735,18 @@ export default function RandomModePage() {
                     <Link
                       href={`/expression/${current.id}`}
                       onClick={(e) => e.stopPropagation()}
-                      style={{ marginTop: 14, fontSize: 12.5, color: "var(--plum)", fontWeight: 600 }}
+                      style={{
+                        marginTop: 13,
+                        fontSize: 12.5,
+                        fontWeight: 700,
+                        color: "white",
+                        background: "var(--plum)",
+                        borderRadius: 999,
+                        padding: "7px 16px",
+                        textDecoration: "none",
+                        boxShadow: "0 2px 0 var(--plum-deep)",
+                        flexShrink: 0,
+                      }}
                     >
                       {t.fullCard}
                     </Link>
@@ -712,10 +755,10 @@ export default function RandomModePage() {
               </div>
             </div>
 
-            {/* Bottom action bar: review (ghost) + new card (hero) */}
+            {/* Bottom action bar: filters (ghost) + review (ghost) + new card (hero) */}
             <div style={{
               display: "flex",
-              gap: 10,
+              gap: 8,
               padding: "0 18px 14px",
               maxWidth: 400,
               margin: "0 auto",
@@ -723,24 +766,21 @@ export default function RandomModePage() {
               zIndex: 5,
             }}>
               <button
+                onClick={() => setPhase("entry")}
+                aria-label={t.filtersBtn}
+                style={ghostBarBtnStyle}
+              >
+                <span style={{ fontSize: 16, lineHeight: 1 }} aria-hidden="true">⚙</span>
+                <span style={{ fontSize: 10, fontWeight: 700, fontFamily: "var(--font-body)" }}>{t.filtersBtn}</span>
+              </button>
+              <button
                 onClick={prev}
                 disabled={pos === 0}
                 aria-label={t.reviewBtn}
                 style={{
-                  flex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 1,
-                  background: "white",
-                  border: "1.5px solid var(--paper-edge)",
-                  borderRadius: 18,
-                  padding: "8px 6px",
+                  ...ghostBarBtnStyle,
                   cursor: pos === 0 ? "default" : "pointer",
                   opacity: pos === 0 ? 0.4 : 1,
-                  boxShadow: "var(--shadow-card)",
-                  color: "var(--ink-soft)",
                 }}
               >
                 <span style={{ fontSize: 16, lineHeight: 1 }} aria-hidden="true">↩</span>
@@ -750,13 +790,14 @@ export default function RandomModePage() {
                 onClick={next}
                 aria-label={t.newCardBtn}
                 style={{
-                  flex: 2.2,
+                  flex: 2,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: 8,
+                  gap: 7,
+                  whiteSpace: "nowrap",
                   fontFamily: "var(--font-display)",
-                  fontSize: 15.5,
+                  fontSize: 15,
                   fontWeight: 700,
                   color: "white",
                   background: "var(--plum)",
@@ -904,6 +945,23 @@ const tagChipStyle: React.CSSProperties = {
   fontFamily: "var(--font-body)",
 };
 
+// Ghost buttons of the play-phase bottom bar (Filters, Review)
+const ghostBarBtnStyle: React.CSSProperties = {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 1,
+  background: "white",
+  border: "1.5px solid var(--paper-edge)",
+  borderRadius: 18,
+  padding: "8px 6px",
+  cursor: "pointer",
+  boxShadow: "var(--shadow-card)",
+  color: "var(--ink-soft)",
+};
+
 const badgeStyle: React.CSSProperties = {
   fontSize: 10.5,
   fontWeight: 600,
@@ -914,6 +972,18 @@ const badgeStyle: React.CSSProperties = {
   background: "var(--plum-bg)",
   color: "var(--plum-deep)",
 };
+
+// Cut text cleanly after n lines (CSS line-clamp) — mockup B "Résumé + Lire la suite".
+// flexShrink 0 is load-bearing: the back face is a fixed-height flex column, and
+// without it a crowded card shrinks the clamped block a few px, slicing the last
+// line in half instead of ending on the ellipsis.
+const clampStyle = (lines: number): React.CSSProperties => ({
+  display: "-webkit-box",
+  WebkitLineClamp: lines,
+  WebkitBoxOrient: "vertical",
+  overflow: "hidden",
+  flexShrink: 0,
+});
 
 const labelStyle: React.CSSProperties = {
   fontSize: 10,
