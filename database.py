@@ -147,16 +147,46 @@ def get_top_tags(limit: int = 30, language: Optional[str] = None, locale: Option
     return [{"slug": r.slug, "count": r.n, "name": r.display_name} for r in rows]
 
 
+# Filtres partagés entre le tirage aléatoire et son comptage : les deux requêtes
+# DOIVENT rester identiques pour que le compteur affiché corresponde au pool réel.
+_RANDOM_POOL_WHERE = """
+        WHERE e.kind != 'word'
+          AND (:country = '' OR COALESCE(e.country, e.language) = :country)
+          AND (:kind = '' OR e.kind = :kind)
+          AND (:domain = '' OR EXISTS (
+              SELECT 1 FROM expression_tags et_d
+              JOIN concept_domains cd ON cd.tag_id = et_d.tag_id
+              WHERE et_d.expression_id = e.id AND cd.domain_slug = :domain
+          ))
+          AND NOT EXISTS (
+              SELECT 1 FROM expression_tags et_pb
+              JOIN tags t_pb ON t_pb.id = et_pb.tag_id
+              WHERE et_pb.expression_id = e.id AND t_pb.slug = 'phrasebook'
+          )
+"""
+
+
+def count_random_pool(country: str = "", kind: str = "", domain: str = "") -> int:
+    """Compte les expressions éligibles au tirage /random pour ces filtres.
+    Alimente le compteur « N cartes » du Random mode."""
+    sql = f"SELECT COUNT(*) FROM expressions e {_RANDOM_POOL_WHERE}"
+    with engine.connect() as conn:
+        row = conn.execute(text(sql), {"country": country, "kind": kind, "domain": domain}).fetchone()
+    return int(row[0]) if row else 0
+
+
 def get_random_expression(
     locale: Optional[str] = None,
     country: str = "",
     kind: str = "",
+    domain: str = "",
 ) -> Optional[dict]:
     """
     Retourne une expression au hasard (toutes langues).
     Si `locale` est fourni, essaie de servir le sens dans cette locale.
     `country` restreint le tirage à un pays (même convention COALESCE que /neighbors),
-    `kind` à un type d'expression (idiom/proverb/locution). Vides = pas de filtre.
+    `kind` à un type d'expression (idiom/proverb/locution),
+    `domain` à un domaine thématique (slug de concept_domains). Vides = pas de filtre.
     Retourne aussi `meaning_locale` pour que le frontend sache dans quelle langue est le sens.
 
     Optimisation perf : ORDER BY RANDOM() en deux étapes.
@@ -167,16 +197,9 @@ def get_random_expression(
     effective_locale = locale or ""
 
     # Étape 1 : ID aléatoire sur la table légère, sans JOINs
-    id_sql = """
+    id_sql = f"""
         SELECT e.id FROM expressions e
-        WHERE e.kind != 'word'
-          AND (:country = '' OR COALESCE(e.country, e.language) = :country)
-          AND (:kind = '' OR e.kind = :kind)
-          AND NOT EXISTS (
-              SELECT 1 FROM expression_tags et_pb
-              JOIN tags t_pb ON t_pb.id = et_pb.tag_id
-              WHERE et_pb.expression_id = e.id AND t_pb.slug = 'phrasebook'
-          )
+        {_RANDOM_POOL_WHERE}
         ORDER BY RANDOM()
         LIMIT 1
     """
@@ -220,7 +243,7 @@ def get_random_expression(
                  ct_pref.meaning, ct_pref.origin, ct_pref.example, ct_pref.literal
     """
     with engine.connect() as conn:
-        id_row = conn.execute(text(id_sql), {"country": country, "kind": kind}).fetchone()
+        id_row = conn.execute(text(id_sql), {"country": country, "kind": kind, "domain": domain}).fetchone()
         if not id_row:
             return None
         row = conn.execute(text(full_sql), {"locale": effective_locale, "expr_id": id_row.id}).fetchone()

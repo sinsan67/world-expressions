@@ -46,3 +46,30 @@ def test_random_country_and_kind_filter(api):
     data = r.json()
     assert data["country"] == "fr"
     assert data["type"] == "locution"
+
+
+def test_random_domain_filter(api):
+    # Le domaine 'emotions' regroupe des tags (amour, joie, peur…) via concept_domains :
+    # chaque tirage filtré doit porter au moins un tag du domaine.
+    domain_tags = {
+        c["slug"]
+        for c in api.get("/concepts", params={"domain": "emotions", "min_count": 1}).json()["concepts"]
+    }
+    for _ in range(5):
+        r = api.get("/random", params={"domain": "emotions"})
+        assert r.status_code == 200
+        assert set(r.json()["tags"]) & domain_tags
+
+
+def test_random_count_matches_filters(api):
+    # Le compteur doit être cohérent : un filtre réduit toujours le pool
+    total = api.get("/random/count").json()["count"]
+    fr = api.get("/random/count", params={"country": "fr"}).json()["count"]
+    fr_proverb = api.get("/random/count", params={"country": "fr", "kind": "proverb"}).json()["count"]
+    assert total > fr > fr_proverb > 0
+
+
+def test_random_count_unknown_filters_zero(api):
+    r = api.get("/random/count", params={"country": "zz", "domain": "nope"})
+    assert r.status_code == 200
+    assert r.json()["count"] == 0

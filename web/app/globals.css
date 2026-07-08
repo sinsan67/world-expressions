@@ -297,6 +297,26 @@ body {
 }
 .wex-dice-rolling { animation: diceShake 0.5s ease; }
 
+/* Idle wobble: the dice fidgets every few seconds, inviting a tap */
+@keyframes diceWobble {
+  0%, 78%, 100% { transform: rotate(0); }
+  82% { transform: rotate(-14deg) scale(1.06); }
+  86% { transform: rotate(11deg) scale(1.06); }
+  90% { transform: rotate(-7deg); }
+  94% { transform: rotate(4deg); }
+}
+.wex-dice-idle { animation: diceWobble 3.2s ease-in-out infinite; }
+
+/* Horizontal filter rows (country chips, domain pills): scroll without scrollbar */
+.wex-chip-scroll {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+.wex-chip-scroll::-webkit-scrollbar { display: none; }
+
 .wex-flip-wrap { perspective: 1000px; cursor: pointer; }
 .wex-flip-inner {
   width: 100%; height: 100%;
