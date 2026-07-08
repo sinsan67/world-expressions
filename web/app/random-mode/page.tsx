@@ -674,19 +674,24 @@ export default function RandomModePage() {
                   {/* Back: meaning + example + clickable tags + link to the full card */}
                   <div className="wex-flip-face back" style={{ background: "rgba(255,255,255,0.96)", padding: "24px 22px" }}>
                     <span style={labelStyle}>{t.meaningLabel}</span>
-                    <p style={{ fontSize: 13.5, lineHeight: 1.5, color: "var(--ink-soft)", margin: "7px 0 12px" }}>
+                    {/* Long meanings (proverbs) are clamped so the card never overflows;
+                        the full-card button below gives access to the whole text */}
+                    <p style={{ ...clampStyle(8), fontSize: 13.5, lineHeight: 1.5, color: "var(--ink-soft)", margin: "7px 0 12px" }}>
                       {current.meaning}
                     </p>
                     {current.example && (
                       <>
                         <span style={labelStyle}>{t.exampleLabel}</span>
-                        <p style={{ fontSize: 12, lineHeight: 1.5, color: "var(--ink-softer)", fontStyle: "italic", margin: "6px 0 0" }}>
+                        <p style={{ ...clampStyle(2), fontSize: 12, lineHeight: 1.5, color: "var(--ink-softer)", fontStyle: "italic", margin: "6px 0 0" }}>
                           {current.example}
                         </p>
                       </>
                     )}
                     {current.tags.length > 0 && (
-                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center", marginTop: 13 }}>
+                      /* maxHeight keeps the chips on a single row: overflowing chips
+                         wrap to a second row that is clipped away, so the height
+                         budget of the 400px card always holds */
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center", marginTop: 13, maxHeight: 26, overflow: "hidden", flexShrink: 0 }}>
                         {current.tags.slice(0, 5).map((tg) => (
                           <Link
                             key={tg}
@@ -703,7 +708,18 @@ export default function RandomModePage() {
                     <Link
                       href={`/expression/${current.id}`}
                       onClick={(e) => e.stopPropagation()}
-                      style={{ marginTop: 14, fontSize: 12.5, color: "var(--plum)", fontWeight: 600 }}
+                      style={{
+                        marginTop: 13,
+                        fontSize: 12.5,
+                        fontWeight: 700,
+                        color: "white",
+                        background: "var(--plum)",
+                        borderRadius: 999,
+                        padding: "7px 16px",
+                        textDecoration: "none",
+                        boxShadow: "0 2px 0 var(--plum-deep)",
+                        flexShrink: 0,
+                      }}
                     >
                       {t.fullCard}
                     </Link>
@@ -914,6 +930,18 @@ const badgeStyle: React.CSSProperties = {
   background: "var(--plum-bg)",
   color: "var(--plum-deep)",
 };
+
+// Cut text cleanly after n lines (CSS line-clamp) — mockup B "Résumé + Lire la suite".
+// flexShrink 0 is load-bearing: the back face is a fixed-height flex column, and
+// without it a crowded card shrinks the clamped block a few px, slicing the last
+// line in half instead of ending on the ellipsis.
+const clampStyle = (lines: number): React.CSSProperties => ({
+  display: "-webkit-box",
+  WebkitLineClamp: lines,
+  WebkitBoxOrient: "vertical",
+  overflow: "hidden",
+  flexShrink: 0,
+});
 
 const labelStyle: React.CSSProperties = {
   fontSize: 10,
