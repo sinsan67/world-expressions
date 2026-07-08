@@ -187,12 +187,24 @@ def get_random(
     locale: str = Query("", description="Preferred locale for meaning (fr/en/es). Falls back to expression's language."),
     country: str = Query("", description="Restrict the draw to one country code (Random mode filter). Empty = all countries."),
     kind: str = Query("", description="Restrict the draw to one expression kind: idiom, proverb, locution. Empty = all kinds."),
+    domain: str = Query("", description="Restrict the draw to one thematic domain slug (e.g. 'emotions'). Empty = all domains."),
 ):
     """Return a random expression. Pass locale=en to get the meaning in English if available."""
-    expr = database.get_random_expression(locale.strip() or None, country.strip(), kind.strip())
+    expr = database.get_random_expression(locale.strip() or None, country.strip(), kind.strip(), domain.strip())
     if expr is None:
         raise HTTPException(status_code=404, detail="No expressions found")
     return expr
+
+
+@app.get("/random/count")
+def get_random_count(
+    country: str = Query("", description="Country code filter. Empty = all countries."),
+    kind: str = Query("", description="Expression kind filter: idiom, proverb, locution. Empty = all kinds."),
+    domain: str = Query("", description="Thematic domain slug filter. Empty = all domains."),
+    _: None = Depends(_cache_public_1h),
+):
+    """Count expressions eligible for /random with these filters (Random mode live counter)."""
+    return {"count": database.count_random_pool(country.strip(), kind.strip(), domain.strip())}
 
 
 @app.get("/expression/{expression_id}")

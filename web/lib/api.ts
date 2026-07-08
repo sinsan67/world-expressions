@@ -221,15 +221,28 @@ export async function getRandomExpression(
   locale = "",
   country = "",
   kind = "",
+  domain = "",
 ): Promise<Expression & { meaning_locale: string; literal: string | null }> {
   const params = new URLSearchParams();
   if (locale) params.set("locale", locale);
   if (country) params.set("country", country);
   if (kind) params.set("kind", kind);
+  if (domain) params.set("domain", domain);
   const qs = params.toString();
   const res = await fetch(`${API}/random${qs ? `?${qs}` : ""}`);
   if (!res.ok) throw new Error("API error");
   return res.json();
+}
+
+export async function getRandomCount(country = "", kind = "", domain = ""): Promise<number> {
+  const params = new URLSearchParams();
+  if (country) params.set("country", country);
+  if (kind) params.set("kind", kind);
+  if (domain) params.set("domain", domain);
+  const qs = params.toString();
+  const res = await fetch(`${API}/random/count${qs ? `?${qs}` : ""}`);
+  if (!res.ok) throw new Error("API error");
+  return (await res.json()).count;
 }
 
 export async function getExpression(id: string, lang = "", locale = ""): Promise<Expression> {
