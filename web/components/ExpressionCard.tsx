@@ -9,6 +9,7 @@ import { FLAG } from "@/lib/constants";
 import { cap } from "@/lib/utils";
 import { useFavorite } from "@/lib/useFavorite";
 import { useAudio } from "@/lib/useAudio";
+import { FAV_LABEL, LISTEN_LABEL, VIEW_SOURCE_LABEL } from "@/lib/uiLabels";
 import { Heart, Volume2, VolumeX } from "lucide-react";
 import Link from "next/link";
 
@@ -68,10 +69,13 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
   const oeLabel = ORIGIN_EXAMPLE_LABEL[uiLang] ?? ORIGIN_EXAMPLE_LABEL.en;
   const noVoiceLabel = NO_VOICE_LABEL[uiLang] ?? NO_VOICE_LABEL.en;
 
+  const favLabel = FAV_LABEL[uiLang] ?? FAV_LABEL.en;
+  const listenLabel = LISTEN_LABEL[uiLang] ?? LISTEN_LABEL.en;
+
   const audioDisabled = voiceAvailable === false;
   const audioTitle = audioDisabled
     ? noVoiceLabel
-    : speaking ? "Arrêter" : "Écouter l'expression";
+    : speaking ? listenLabel.stop : listenLabel.listen;
 
   return (
     <div
@@ -154,7 +158,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
                 href={e.source}
                 target="_blank"
                 rel="noopener noreferrer"
-                title="Voir la source"
+                title={VIEW_SOURCE_LABEL[uiLang] ?? VIEW_SOURCE_LABEL.en}
                 className="text-xs leading-none transition-colors"
                 style={{ color: "var(--ink-faint)" }}
                 onMouseEnter={(ev) => { (ev.currentTarget as HTMLElement).style.color = "var(--plum)"; }}
@@ -187,7 +191,7 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
             </button>
             <button
               onClick={handleFav}
-              title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
+              title={fav ? favLabel.remove : favLabel.add}
               style={{
                 background: "none",
                 border: "none",

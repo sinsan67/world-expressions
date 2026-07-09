@@ -16,6 +16,7 @@ import { getTypeLabel } from "@/lib/typeLabels";
 import LangDropdown from "@/components/ui/LangDropdown";
 import CarnetHeartLink from "@/components/ui/CarnetHeartLink";
 import { useUILangContext } from "@/lib/UILangContext";
+import { FAV_LABEL, LISTEN_LABEL } from "@/lib/uiLabels";
 
 type Featured = Expression & { meaning_locale: string; literal: string | null };
 
@@ -109,7 +110,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                   {voiceAvailable && (
                     <button
                       onClick={handleListen}
-                      title={speaking ? "Stop" : "Écouter"}
+                      title={speaking ? (LISTEN_LABEL[uiLang] ?? LISTEN_LABEL.en).stop : (LISTEN_LABEL[uiLang] ?? LISTEN_LABEL.en).listen}
                       style={{
                         padding: "4px 7px",
                         borderRadius: "var(--r-pill)",
@@ -130,7 +131,7 @@ export default function HeroSection({ featured, coldStart, uiLang, tagNames, onR
                   )}
                   <button
                     onClick={handleFav}
-                    title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
+                    title={fav ? (FAV_LABEL[uiLang] ?? FAV_LABEL.en).remove : (FAV_LABEL[uiLang] ?? FAV_LABEL.en).add}
                     style={{
                       padding: "4px 7px",
                       borderRadius: "var(--r-pill)",

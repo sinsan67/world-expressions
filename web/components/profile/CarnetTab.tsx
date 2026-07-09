@@ -380,9 +380,9 @@ export default function CarnetTab({ session, uiLang, onAuthRequired }: Props) {
             </p>
           </div>
           <div className="wex-atlas-card" style={{ display: "flex", gap: "0.75rem" }}>
-            <StatTile value={stats.totalSeen} label="vues" size="lg" />
-            <StatTile value={apiFavorites.length} label="favoris" icon="♥" tone="terra" size="lg" />
-            <StatTile value={`${stats.countriesExplored}/14`} label="pays" tone="plum" size="lg" />
+            <StatTile value={stats.totalSeen} label={t.seenLabel} size="lg" />
+            <StatTile value={apiFavorites.length} label={t.favLabel} icon="♥" tone="terra" size="lg" />
+            <StatTile value={`${stats.countriesExplored}/14`} label={t.countriesLabel} tone="plum" size="lg" />
           </div>
         </div>
 

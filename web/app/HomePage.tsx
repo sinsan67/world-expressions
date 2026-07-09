@@ -55,6 +55,8 @@ const T = {
     registers: { standard: "courant", informal: "familier", slang: "argot", vulgar: "vulgaire", formal: "soutenu" } as Record<string, string>,
     matchSections: { exact: "Dans le texte", semantic: "Par le sens", translation: "Via les traductions", concept: "Par concept" } as Record<string, string>,
     showMore: (n: number) => `Voir les ${n} autres →`,
+    searchHelpLabel: "Comment fonctionne la recherche ?",
+    allLabel: "tous",
   },
   en: {
     expressionOfDay: "Expressions of the day",
@@ -86,6 +88,8 @@ const T = {
     registers: { standard: "standard", informal: "informal", slang: "slang", vulgar: "vulgar", formal: "formal" } as Record<string, string>,
     matchSections: { exact: "In the text", semantic: "By meaning", translation: "Via translations", concept: "By concept" } as Record<string, string>,
     showMore: (n: number) => `See ${n} more →`,
+    searchHelpLabel: "How does search work?",
+    allLabel: "all",
   },
   es: {
     expressionOfDay: "Expresiones del día",
@@ -117,6 +121,8 @@ const T = {
     registers: { standard: "estándar", informal: "coloquial", slang: "argot", vulgar: "vulgar", formal: "formal" } as Record<string, string>,
     matchSections: { exact: "En el texto", semantic: "Por el sentido", translation: "Via traducciones", concept: "Por concepto" } as Record<string, string>,
     showMore: (n: number) => `Ver ${n} más →`,
+    searchHelpLabel: "¿Cómo funciona la búsqueda?",
+    allLabel: "todos",
   },
   tr: {
     expressionOfDay: "Günün deyimleri",
@@ -148,6 +154,8 @@ const T = {
     registers: { standard: "standart", informal: "gündelik", slang: "argo", vulgar: "kaba", formal: "resmi" } as Record<string, string>,
     matchSections: { exact: "Metinde", semantic: "Anlama göre", translation: "Çeviri yoluyla", concept: "Kavram ile" } as Record<string, string>,
     showMore: (n: number) => `${n} tanesini daha gör →`,
+    searchHelpLabel: "Arama nasıl çalışır?",
+    allLabel: "tümü",
   },
   it: {
     expressionOfDay: "Espressioni del giorno",
@@ -179,6 +187,8 @@ const T = {
     registers: { standard: "standard", informal: "informale", slang: "gergone", vulgar: "volgare", formal: "formale" } as Record<string, string>,
     matchSections: { exact: "Nel testo", semantic: "Per il senso", translation: "Via traduzioni", concept: "Per concetto" } as Record<string, string>,
     showMore: (n: number) => `Vedi altri ${n} →`,
+    searchHelpLabel: "Come funziona la ricerca?",
+    allLabel: "tutti",
   },
   de: {
     expressionOfDay: "Ausdrücke des Tages",
@@ -210,6 +220,8 @@ const T = {
     registers: { standard: "standard", informal: "umgangssprachlich", slang: "Slang", vulgar: "vulgär", formal: "formell" } as Record<string, string>,
     matchSections: { exact: "Im Text", semantic: "Nach Bedeutung", translation: "Via Übersetzungen", concept: "Nach Konzept" } as Record<string, string>,
     showMore: (n: number) => `${n} weitere anzeigen →`,
+    searchHelpLabel: "Wie funktioniert die Suche?",
+    allLabel: "alle",
   },
   ja: {
     expressionOfDay: "今日の表現",
@@ -241,6 +253,8 @@ const T = {
     registers: { standard: "普通", informal: "くだけた", slang: "俗語", vulgar: "卑語", formal: "丁寧" } as Record<string, string>,
     matchSections: { exact: "テキスト内", semantic: "意味で", translation: "翻訳経由", concept: "概念で" } as Record<string, string>,
     showMore: (n: number) => `他${n}件を見る →`,
+    searchHelpLabel: "検索の仕組み",
+    allLabel: "すべて",
   },
 };
 
@@ -279,11 +293,11 @@ const STATIC_REGIONS = Object.entries(COUNTRY_NAME).map(([code, label]) => ({ co
 
 const SEARCH_HELP: Record<UILang, string> = {
   fr: "Recherche en plusieurs passes : le mot exact, puis synonymes et tags, puis concepts multilingues. Exemple : « industrie » remonte aussi des expressions en anglais ou turc liées à « work » ou « business ».",
-  en: "Search runs in multiple passes: exact word, then synonyms and tags, then multilingual concepts. Example: «industry» also surfaces Spanish or Turkish expressions tagged «work» or «business».",
+  en: "Search runs in multiple passes: exact word, then synonyms and tags, then multilingual concepts. Example: “industry” also surfaces Spanish or Turkish expressions tagged “work” or “business”.",
   es: "Búsqueda en varias pasadas: la palabra exacta, luego sinónimos y etiquetas, y finalmente conceptos multilingues. Ejemplo: «industria» también muestra expresiones en francés o turco relacionadas con «work».",
   it: "Ricerca in più fasi: la parola esatta, poi sinonimi e tag, poi concetti multilingua. Esempio: «industria» mostra anche espressioni in francese o turco legate a «work».",
-  tr: "Arama birden fazla aşamada çalışır: tam kelime, ardından eş anlamlılar ve etiketler, ardından çok dilli kavramlar. Örnek: «sanayi» araması «work» etiketli Fransızca veya İspanyolca ifadeler de gösterir.",
-  de: "Suche läuft in mehreren Schritten: exaktes Wort, dann Synonyme und Tags, dann mehrsprachige Konzepte. Beispiel: «Industrie» zeigt auch französische oder türkische Ausdrücke mit dem Tag «work».",
+  tr: "Arama birden fazla aşamada çalışır: tam kelime, ardından eş anlamlılar ve etiketler, ardından çok dilli kavramlar. Örnek: “sanayi” araması “work” etiketli Fransızca veya İspanyolca ifadeler de gösterir.",
+  de: "Suche läuft in mehreren Schritten: exaktes Wort, dann Synonyme und Tags, dann mehrsprachige Konzepte. Beispiel: „Industrie“ zeigt auch französische oder türkische Ausdrücke mit dem Tag „work“.",
   ja: "検索は複数のパスで実行されます：完全一致、次に類義語とタグ、最後に多言語概念。例：「仕事」で「work」タグのフランス語やスペイン語の表現も見つかります。",
 };
 
@@ -768,7 +782,7 @@ export default function HomePage() {
               >
                 <button
                   onClick={() => setTooltipOpen((o) => !o)}
-                  aria-label="Comment fonctionne la recherche ?"
+                  aria-label={t.searchHelpLabel}
                   style={{ width: "var(--wex-icon-button-size)", height: "var(--wex-icon-button-size)", borderRadius: "50%", border: "1.5px solid var(--paper-edge)", background: "var(--paper-deep)", color: "var(--ink-soft)", fontSize: "var(--wex-meta-size)", fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-body)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
                 >
                   ?
@@ -951,7 +965,7 @@ export default function HomePage() {
                       onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--ink-soft)"; el.style.background = "var(--paper)"; }}
                     >
                       <span>{FLAG[expandedRegion] ?? "🌍"}</span>
-                      <span>{COUNTRY_NAME[expandedRegion] ?? expandedRegion} — tous</span>
+                      <span>{COUNTRY_NAME[expandedRegion] ?? expandedRegion} — {t.allLabel}</span>
                     </button>
                     {/* Sub-regions — secondary */}
                     {COUNTRY_SUB_REGIONS[expandedRegion].map((sub) => (

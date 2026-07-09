@@ -25,6 +25,10 @@ const CTA: Record<UILang, string> = {
   ja: "始めよう →",
 };
 
+const WELCOME_ARIA: Record<UILang, string> = {
+  en: "Welcome", fr: "Bienvenue", es: "Bienvenido", it: "Benvenuto", tr: "Hoş geldin", de: "Willkommen", ja: "ようこそ",
+};
+
 const LANG_FLAGS: Record<UILang, string> = {
   fr: "🇫🇷", en: "🇬🇧", es: "🇪🇸", it: "🇮🇹", tr: "🇹🇷", de: "🇩🇪", ja: "🇯🇵",
 };
@@ -122,7 +126,7 @@ export default function WelcomeModal({ onSelect }: Props) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Bienvenue"
+      aria-label={WELCOME_ARIA[selected]}
       style={{
         position: "fixed", inset: 0, zIndex: 1000,
         background: "rgba(28,20,16,0.72)",
