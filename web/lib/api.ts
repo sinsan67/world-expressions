@@ -306,13 +306,23 @@ export type GlobalStats = { expressions: number; languages: number };
 // Live totals from the API root — single source of truth for the
 // "N expressions · N languages" stat (never hardcode these numbers).
 export async function getGlobalStats(): Promise<GlobalStats | null> {
-  const res = await fetch(`${API}/`);
-  if (!res.ok) return null;
-  const data = await res.json();
-  const total = data.expressions_loaded;
-  const langs = data.by_language ? Object.keys(data.by_language).length : 0;
-  if (typeof total !== "number" || !langs) return null;
-  return { expressions: total, languages: langs };
+  // Render's single instance flakes on cold hits (~1 request in 2 fails):
+  // retry before giving up so the sidebar stat doesn't stay empty.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await new Promise((r) => setTimeout(r, attempt * 2000));
+    try {
+      const res = await fetch(`${API}/`);
+      if (!res.ok) continue;
+      const data = await res.json();
+      const total = data.expressions_loaded;
+      const langs = data.by_language ? Object.keys(data.by_language).length : 0;
+      if (typeof total !== "number" || !langs) return null;
+      return { expressions: total, languages: langs };
+    } catch {
+      // network hiccup — fall through to the next attempt
+    }
+  }
+  return null;
 }
 
 export type TypeCounts = {
