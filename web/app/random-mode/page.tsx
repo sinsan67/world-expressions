@@ -15,12 +15,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Heart } from "lucide-react";
 import { getRandomExpression, getRandomCount, getCountries, Expression } from "@/lib/api";
 import { FLAG, COUNTRY_NAME, COUNTRY_GRADIENT } from "@/lib/constants";
 import { getTypeLabel } from "@/lib/typeLabels";
 import { tagIcon } from "@/lib/tagIcons";
 import { EDITORIAL_DOMAINS } from "@/lib/editorialDomains";
 import { useUILangContext } from "@/lib/UILangContext";
+import { useFavorite } from "@/lib/useFavorite";
+import { FAV_LABEL } from "@/lib/uiLabels";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
 
@@ -28,6 +31,9 @@ type RandomCard = Expression & { meaning_locale: string; literal: string | null 
 
 const KINDS = ["idiom", "proverb", "locution"] as const;
 const KIND_EMOJI: Record<string, string> = { idiom: "💬", proverb: "📜", locution: "🧩" };
+
+// Countries with a photo in /public/images — others fall back to the flag gradient.
+const HERO_IMAGE_COUNTRIES = new Set(["fr", "uk", "us", "au", "es", "tr", "it", "de", "jp", "ar", "pe", "co", "cu"]);
 
 const T: Record<string, {
   title: string;
@@ -414,6 +420,8 @@ export default function RandomModePage() {
   const current = history[pos];
   const countryCode = current ? (current.country || current.language) : "";
   const activeDomain = domain ? EDITORIAL_DOMAINS.find((d) => d.slug === domain) : undefined;
+  const [fav, handleFav] = useFavorite(current?.id ?? "");
+  const favLabel = fav ? (FAV_LABEL[uiLang] ?? FAV_LABEL.en).remove : (FAV_LABEL[uiLang] ?? FAV_LABEL.en).add;
   const filterChip = [
     country ? `${FLAG[country] ?? "🌍"} ${COUNTRY_NAME[country] ?? country}` : `🌍 ${t.allCountries}`,
     kind ? `${KIND_EMOJI[kind]} ${getTypeLabel(kind, uiLang)}` : `✨ ${t.allKinds}`,
@@ -634,28 +642,24 @@ export default function RandomModePage() {
               </span>
             </div>
 
-            {/* Card zone with country-tinted background */}
-            <div style={{
-              flex: 1,
-              position: "relative",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 16,
-              overflow: "hidden",
-              padding: "20px 24px",
-            }}>
-              {/* Tint layer: the country flag gradient, softened over the paper */}
-              <div aria-hidden="true" style={{
-                position: "absolute",
-                inset: 0,
-                background: COUNTRY_GRADIENT[countryCode] ?? "var(--paper-deep)",
-                opacity: 0.13,
-                transition: "opacity 0.4s",
-                pointerEvents: "none",
-              }} />
-
+            {/* Card zone with country photo background (flag gradient as fallback) */}
+            <div
+              className={`country-photo${HERO_IMAGE_COUNTRIES.has(countryCode) ? " fade-bottom" : ""}`}
+              style={{
+                flex: 1,
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 16,
+                overflow: "hidden",
+                padding: "20px 24px",
+                ...(HERO_IMAGE_COUNTRIES.has(countryCode)
+                  ? ({ "--photo": `url('/images/${countryCode}.jpg')` } as React.CSSProperties)
+                  : { background: COUNTRY_GRADIENT[countryCode] ?? "var(--paper-deep)" }),
+              }}
+            >
               <div
                 className={`wex-flip-wrap${flipped ? " flipped" : ""}`}
                 onClick={() => setFlipped((f) => !f)}
@@ -667,6 +671,14 @@ export default function RandomModePage() {
                 <div className="wex-flip-inner">
                   {/* Front: the expression + emoji hints — guess the meaning */}
                   <div className="wex-flip-face" style={{ background: "rgba(255,255,255,0.94)", padding: "26px 22px" }}>
+                    <button
+                      onClick={handleFav}
+                      aria-label={favLabel}
+                      title={favLabel}
+                      style={favBtnStyle(fav)}
+                    >
+                      <Heart size={16} strokeWidth={1.5} fill={fav ? "var(--terra)" : "none"} />
+                    </button>
                     <span style={{ fontSize: 42, marginBottom: 9 }} aria-hidden="true">{FLAG[countryCode] ?? "🌍"}</span>
                     <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap", justifyContent: "center" }}>
                       {getTypeLabel(current.type, uiLang) && (
@@ -700,6 +712,14 @@ export default function RandomModePage() {
                   </div>
                   {/* Back: meaning + example + clickable tags + link to the full card */}
                   <div className="wex-flip-face back" style={{ background: "rgba(255,255,255,0.96)", padding: "24px 22px" }}>
+                    <button
+                      onClick={handleFav}
+                      aria-label={favLabel}
+                      title={favLabel}
+                      style={favBtnStyle(fav)}
+                    >
+                      <Heart size={16} strokeWidth={1.5} fill={fav ? "var(--terra)" : "none"} />
+                    </button>
                     <span style={labelStyle}>{t.meaningLabel}</span>
                     {/* Long meanings (proverbs) are clamped so the card never overflows;
                         the full-card button below gives access to the whole text */}
@@ -916,6 +936,24 @@ const chipSelected: React.CSSProperties = {
   boxShadow: "0 0 0 2px var(--plum)",
   transform: "scale(1.04)",
 };
+
+// Favorite (heart) button, pinned to the top-right corner of a flip-card face
+const favBtnStyle = (active: boolean): React.CSSProperties => ({
+  position: "absolute",
+  top: 10,
+  right: 10,
+  zIndex: 3,
+  background: active ? "var(--terra-soft, rgba(180,80,40,0.08))" : "var(--paper-tint)",
+  border: `1.5px solid ${active ? "var(--terra)" : "var(--paper-edge)"}`,
+  borderRadius: 999,
+  cursor: "pointer",
+  padding: "6px 8px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: active ? "var(--terra)" : "var(--ink-faint)",
+  transition: "all 150ms ease",
+});
 
 const hintTileStyle: React.CSSProperties = {
   fontSize: 21,
