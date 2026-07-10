@@ -95,6 +95,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
+    # Postgres jetable propre au job : les tests écrivent (game sessions,
+    # signalements, favoris depuis le Lot API) — la CI ne touche JAMAIS la
+    # base prod/dev. Migration + seed synthétique à chaque run.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: expressions_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/expressions_test
+
     steps:
       - uses: actions/checkout@v5
 
@@ -106,9 +126,13 @@ jobs:
       - name: Install backend + test dependencies
         run: pip install --quiet -r requirements.txt -r requirements-test.txt
 
+      - name: Migrate + seed throwaway DB
+        run: |
+          alembic upgrade head
+          python3 tests/seed_ci_db.py
+
       # Le backend est lancé depuis CE commit (pas Render, qui déploie main :
       # une feature backend de staging n'y existe pas encore avant le merge).
-      # Tests en lecture seule (GET uniquement) — aucune écriture en DB.
       - name: Start backend from this commit
         run: |
           python3 -m uvicorn main:app --port 8000 > uvicorn.log 2>&1 &
@@ -122,8 +146,6 @@ jobs:
           echo "Backend failed to start:"
           cat uvicorn.log
           exit 1
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_PROD }}
 
       - name: Run backend tests (pytest)
         run: python3 -m pytest tests/ -q
