@@ -743,11 +743,10 @@ function ExpressionPageContent({ id }: { id: string }) {
               )}
               {expr.tags.map((tag) => {
                 const icon = tagIcon(tag);
-                const localLabel = tagNames[tag] || tag;
                 return (
                   <Link
                     key={tag}
-                    href={`/#q=${encodeURIComponent(localLabel)}`}
+                    href={`/search?concept=${encodeURIComponent(tag)}`}
                     style={{
                       display: "flex",
                       alignItems: "center",

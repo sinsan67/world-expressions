@@ -1,5 +1,5 @@
 // Static mapping: domain slug → canonical tag slugs (multi-domain allowed)
-// Source of truth for the /emojis reference page.
+// Source of truth for the /emoji-map reference page.
 // Tags can appear in multiple domains (Q3 decision, session 2026-06-08).
 export const DOMAIN_TAGS: Record<string, string[]> = {
   emotions:  ["amour", "joie", "tristesse", "colère", "honte", "peur", "surprise", "ironie", "disappointment", "despair", "regret", "nostalgia", "hope", "optimism", "homesickness", "resignation"],

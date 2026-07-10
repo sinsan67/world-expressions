@@ -572,6 +572,26 @@ export default function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Newsletter modal opens pre-set to the visitor's UI language
+  useEffect(() => {
+    if (newsletterOpen) setNewsletterLang(uiLang);
+  }, [newsletterOpen, uiLang]);
+
+  // Open the newsletter modal from the /#newsletter anchor (Sidebar footer link),
+  // both on landing (mount) and when clicked from the home page itself (hashchange)
+  useEffect(() => {
+    const openFromHash = () => {
+      if (window.location.hash === "#newsletter") {
+        setNewsletterOpen(true);
+        // Clean the hash so closing the modal doesn't reopen it on back/refresh
+        history.replaceState(null, "", window.location.pathname + window.location.search);
+      }
+    };
+    openFromHash();
+    window.addEventListener("hashchange", openFromHash);
+    return () => window.removeEventListener("hashchange", openFromHash);
+  }, []);
+
   // Handle search triggered from SearchOverlay when already on home page
   // (router.push to /#q=... doesn't re-mount the component, so the hash effect above won't fire)
   useEffect(() => {
@@ -1127,6 +1147,8 @@ export default function HomePage() {
                       <option value="es">🇪🇸 ES</option>
                       <option value="it">🇮🇹 IT</option>
                       <option value="tr">🇹🇷 TR</option>
+                      <option value="de">🇩🇪 DE</option>
+                      <option value="ja">🇯🇵 JA</option>
                     </select>
                     <button
                       onClick={handleNewsletterSubmit}
