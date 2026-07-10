@@ -9,12 +9,16 @@ Ce fichier les assemble et retourne des dicts au même format qu'avant,
 pour que main.py et le frontend n'aient pas besoin de changer.
 """
 
+import hashlib
 import json
 import os
+import random
 import re
 import secrets
 import urllib.error
 import urllib.request
+import uuid
+from datetime import datetime, timezone
 from typing import Optional
 
 import bcrypt
@@ -153,6 +157,7 @@ _RANDOM_POOL_WHERE = """
         WHERE e.kind != 'word'
           AND (:country = '' OR COALESCE(e.country, e.language) = :country)
           AND (:kind = '' OR e.kind = :kind)
+          AND (:language = '' OR e.language = :language)
           AND (:domain = '' OR EXISTS (
               SELECT 1 FROM expression_tags et_d
               JOIN concept_domains cd ON cd.tag_id = et_d.tag_id
@@ -166,13 +171,67 @@ _RANDOM_POOL_WHERE = """
 """
 
 
-def count_random_pool(country: str = "", kind: str = "", domain: str = "") -> int:
+def count_random_pool(country: str = "", kind: str = "", domain: str = "", language: str = "") -> int:
     """Compte les expressions éligibles au tirage /random pour ces filtres.
-    Alimente le compteur « N cartes » du Random mode."""
+    Alimente le compteur « N cartes » du Random mode. `language` (pivot S196) sert le
+    compteur « 31 / 2 438 » de la collection et le compteur de pool du setup Voyage."""
     sql = f"SELECT COUNT(*) FROM expressions e {_RANDOM_POOL_WHERE}"
     with engine.connect() as conn:
-        row = conn.execute(text(sql), {"country": country, "kind": kind, "domain": domain}).fetchone()
+        row = conn.execute(text(sql), {"country": country, "kind": kind, "domain": domain, "language": language}).fetchone()
     return int(row[0]) if row else 0
+
+
+# Chargement d'une expression complète par PK — pas d'ORDER BY, lookup direct.
+# Double LEFT JOIN : ec_orig = contenu dans la langue de l'expression,
+# ec_pref = contenu dans la locale demandée (peut être NULL si pas encore traduit).
+# COALESCE prend ec_pref en priorité, sinon ec_orig.
+# Partagé par get_random_expression et get_daily_expression (même shape de réponse).
+_EXPRESSION_BY_ID_SQL = """
+    SELECT
+        e.id,
+        e.text,
+        e.language,
+        e.region,
+        e.country,
+        e.register,
+        e.illustration,
+        e.kind,
+        e.source,
+        COALESCE(ec_pref.meaning, ct_pref.meaning, ec_orig.meaning)   AS meaning,
+        COALESCE(ec_pref.origin,  ct_pref.origin,  ec_orig.origin)    AS origin,
+        COALESCE(ec_pref.example, ct_pref.example, ec_orig.example)   AS example,
+        CASE WHEN ec_pref.meaning IS NOT NULL OR ct_pref.meaning IS NOT NULL
+             THEN :locale ELSE e.language END         AS meaning_locale,
+        ct_pref.literal                              AS literal,
+        STRING_AGG(t.slug, ',') AS tags
+    FROM expressions e
+    LEFT JOIN expression_content ec_orig
+        ON ec_orig.expression_id = e.id AND ec_orig.locale = e.language
+    LEFT JOIN expression_content ec_pref
+        ON ec_pref.expression_id = e.id AND ec_pref.locale = :locale
+    LEFT JOIN content_translations ct_pref
+        ON ct_pref.expression_id = e.id AND ct_pref.target_lang = :locale
+    LEFT JOIN expression_tags et ON et.expression_id = e.id
+    LEFT JOIN tags t ON t.id = et.tag_id
+    WHERE e.id = :expr_id
+    GROUP BY e.id, e.text, e.language, e.region, e.country, e.register,
+             e.illustration, e.kind, e.source,
+             ec_orig.meaning, ec_orig.origin, ec_orig.example,
+             ec_pref.meaning, ec_pref.origin, ec_pref.example,
+             ct_pref.meaning, ct_pref.origin, ct_pref.example, ct_pref.literal
+"""
+
+
+def _fetch_expression_by_id(conn, expr_id: str, locale: str, match_type: str) -> Optional[dict]:
+    """Loads one expression by PK, localized to `locale` when available. Shared helper for
+    /random and /daily (identical response shape, contract §3)."""
+    row = conn.execute(text(_EXPRESSION_BY_ID_SQL), {"locale": locale, "expr_id": expr_id}).fetchone()
+    if not row:
+        return None
+    result = _build_expression_dict(row, match_type)
+    result["meaning_locale"] = row.meaning_locale
+    result["literal"] = getattr(row, "literal", None)
+    return result
 
 
 def get_random_expression(
@@ -204,54 +263,40 @@ def get_random_expression(
         LIMIT 1
     """
 
-    # Étape 2 : chargement complet par PK — pas d'ORDER BY, lookup direct
-    # Double LEFT JOIN : ec_orig = contenu dans la langue de l'expression,
-    # ec_pref = contenu dans la locale demandée (peut être NULL si pas encore traduit).
-    # COALESCE prend ec_pref en priorité, sinon ec_orig.
-    full_sql = """
-        SELECT
-            e.id,
-            e.text,
-            e.language,
-            e.region,
-            e.country,
-            e.register,
-            e.illustration,
-            e.kind,
-            e.source,
-            COALESCE(ec_pref.meaning, ct_pref.meaning, ec_orig.meaning)   AS meaning,
-            COALESCE(ec_pref.origin,  ct_pref.origin,  ec_orig.origin)    AS origin,
-            COALESCE(ec_pref.example, ct_pref.example, ec_orig.example)   AS example,
-            CASE WHEN ec_pref.meaning IS NOT NULL OR ct_pref.meaning IS NOT NULL
-                 THEN :locale ELSE e.language END         AS meaning_locale,
-            ct_pref.literal                              AS literal,
-            STRING_AGG(t.slug, ',') AS tags
-        FROM expressions e
-        LEFT JOIN expression_content ec_orig
-            ON ec_orig.expression_id = e.id AND ec_orig.locale = e.language
-        LEFT JOIN expression_content ec_pref
-            ON ec_pref.expression_id = e.id AND ec_pref.locale = :locale
-        LEFT JOIN content_translations ct_pref
-            ON ct_pref.expression_id = e.id AND ct_pref.target_lang = :locale
-        LEFT JOIN expression_tags et ON et.expression_id = e.id
-        LEFT JOIN tags t ON t.id = et.tag_id
-        WHERE e.id = :expr_id
-        GROUP BY e.id, e.text, e.language, e.region, e.country, e.register,
-                 e.illustration, e.kind, e.source,
-                 ec_orig.meaning, ec_orig.origin, ec_orig.example,
-                 ec_pref.meaning, ec_pref.origin, ec_pref.example,
-                 ct_pref.meaning, ct_pref.origin, ct_pref.example, ct_pref.literal
-    """
     with engine.connect() as conn:
-        id_row = conn.execute(text(id_sql), {"country": country, "kind": kind, "domain": domain}).fetchone()
+        id_row = conn.execute(text(id_sql), {"country": country, "kind": kind, "domain": domain, "language": ""}).fetchone()
         if not id_row:
             return None
-        row = conn.execute(text(full_sql), {"locale": effective_locale, "expr_id": id_row.id}).fetchone()
-    if not row:
+        return _fetch_expression_by_id(conn, id_row.id, effective_locale, "direct")
+
+
+def get_daily_expression(locale: Optional[str] = None) -> Optional[dict]:
+    """
+    Expression du jour — pivot games hub (contract §3, lot A).
+    Tirage déterministe : seedé par la date UTC (même résultat pour tout le monde,
+    toute la journée). Pool : identique à /random (_RANDOM_POOL_WHERE — exclut
+    phrasebook et kind='word') plus l'exclusion JA commune aux jeux (Luke L3).
+    Retourne la même forme que /random, plus `date` (YYYY-MM-DD).
+    """
+    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    effective_locale = locale or ""
+
+    with engine.connect() as conn:
+        ids = [r[0] for r in conn.execute(text(f"""
+            SELECT e.id FROM expressions e
+            {_RANDOM_POOL_WHERE}
+              AND e.language != 'ja'
+            ORDER BY e.id
+        """), {"country": "", "kind": "", "domain": "", "language": ""}).fetchall()]
+        if not ids:
+            return None
+        seed = int(hashlib.sha256(date_str.encode("utf-8")).hexdigest(), 16)
+        expr_id = ids[seed % len(ids)]
+        result = _fetch_expression_by_id(conn, expr_id, effective_locale, "daily")
+
+    if result is None:
         return None
-    result = _build_expression_dict(row, "direct")
-    result["meaning_locale"] = row.meaning_locale
-    result["literal"] = getattr(row, "literal", None)
+    result["date"] = date_str
     return result
 
 
@@ -663,6 +708,47 @@ def browse_by_region(regions: Optional[set[str]] = None, limit: int = 20, offset
                 r["literal"] = p.get("literal")
 
     return results, total
+
+
+def browse_by_ids(ids: list[str], locale: Optional[str] = None) -> list[dict]:
+    """
+    Hydrate une liste précise d'ids (contract §3 — /browse?ids=). Bypasse pagination et
+    filtres : sert à charger en un seul appel les cartes d'une session de jeu ou les lignes
+    de la collection (❤️ favoris). Ordre de retour = ordre des ids en entrée ; les ids
+    inconnus sont silencieusement ignorés.
+    """
+    if not ids:
+        return []
+    sql = """
+        SELECT
+            e.id, e.text, e.language, e.region, e.country, e.register,
+            e.illustration, e.kind, e.source,
+            ec.meaning, ec.origin, ec.example,
+            STRING_AGG(t.slug, ',') AS tags
+        FROM expressions e
+        LEFT JOIN expression_content ec ON ec.expression_id = e.id AND ec.locale = e.language
+        LEFT JOIN expression_tags et ON et.expression_id = e.id
+        LEFT JOIN tags t ON t.id = et.tag_id
+        WHERE e.id = ANY(:ids)
+        GROUP BY e.id, e.text, e.language, e.region, e.country, e.register,
+                 e.illustration, e.kind, e.source, ec.meaning, ec.origin, ec.example
+    """
+    with engine.connect() as conn:
+        rows = conn.execute(text(sql), {"ids": ids}).fetchall()
+    by_id = {r.id: _build_expression_dict(r, "browse") for r in rows}
+
+    if locale and locale.strip():
+        with engine.connect() as conn:
+            preferred = _get_preferred_content(list(by_id.keys()), locale, conn)
+        for eid, r in by_id.items():
+            if eid in preferred:
+                p = preferred[eid]
+                if p["meaning"]: r["meaning"] = p["meaning"]
+                if p["origin"]:  r["origin"]  = p["origin"]
+                if p["example"]: r["example"] = p["example"]
+                r["literal"] = p.get("literal")
+
+    return [by_id[i] for i in ids if i in by_id]
 
 
 def get_facets(
@@ -1092,10 +1178,12 @@ def upsert_user(google_id: str, email: str, name: Optional[str], avatar_url: Opt
 
 def get_user_preferences(user_id: str) -> Optional[dict]:
     """Retourne les préférences d'un utilisateur."""
+    # CAST(...AS uuid) — pas `:param::uuid` (SQLAlchemy text() ne reconnaît pas un bindparam
+    # collé à un cast Postgres "::" ; cf. commentaire sur create_email_token plus bas).
     sql = text("""
         SELECT id::text, ui_lang, explore_mode, learning_langs, content_type,
-               email_verified, native_lang, user_goal
-        FROM users WHERE id = :user_id::uuid
+               email_verified, native_lang, user_goal, language_modes
+        FROM users WHERE id = CAST(:user_id AS uuid)
     """)
     with engine.connect() as conn:
         row = conn.execute(sql, {"user_id": user_id}).fetchone()
@@ -1110,6 +1198,7 @@ def get_user_preferences(user_id: str) -> Optional[dict]:
         "email_verified": row.email_verified,
         "native_lang": row.native_lang,
         "user_goal": row.user_goal,
+        "language_modes": row.language_modes or {},
     }
 
 
@@ -1121,6 +1210,7 @@ def update_user_preferences(
     content_type: str = "all",
     native_lang: str | None = None,
     user_goal: str | None = None,
+    language_modes: dict | None = None,
 ) -> Optional[dict]:
     """Met à jour les préférences d'un utilisateur. Retourne les nouvelles valeurs."""
     sql = text("""
@@ -1130,9 +1220,10 @@ def update_user_preferences(
             learning_langs = :learning_langs,
             content_type = :content_type,
             native_lang = :native_lang,
-            user_goal = :user_goal
-        WHERE id = :user_id::uuid
-        RETURNING id::text, ui_lang, explore_mode, learning_langs, content_type, native_lang, user_goal
+            user_goal = :user_goal,
+            language_modes = CAST(:language_modes AS JSONB)
+        WHERE id = CAST(:user_id AS uuid)
+        RETURNING id::text, ui_lang, explore_mode, learning_langs, content_type, native_lang, user_goal, language_modes
     """)
     with engine.begin() as conn:
         row = conn.execute(sql, {
@@ -1143,6 +1234,7 @@ def update_user_preferences(
             "content_type": content_type,
             "native_lang": native_lang,
             "user_goal": user_goal,
+            "language_modes": json.dumps(language_modes or {}),
         }).fetchone()
     if row is None:
         return None
@@ -1154,39 +1246,208 @@ def update_user_preferences(
         "content_type": row.content_type,
         "native_lang": row.native_lang,
         "user_goal": row.user_goal,
+        "language_modes": row.language_modes or {},
     }
 
 
 def get_user_favorites(user_id: str) -> list[dict]:
-    """Retourne les favoris d'un utilisateur, du plus récent au plus ancien."""
+    """Retourne les favoris d'un utilisateur, du plus récent au plus ancien.
+    Inclut review_box/reviewed_at/game_session_id (pivot Révision, contract §3)."""
     sql = text("""
-        SELECT expression_id, saved_at
+        SELECT expression_id, saved_at, review_box, reviewed_at, game_session_id::text
         FROM user_favorites
-        WHERE user_id = :user_id::uuid
+        WHERE user_id = CAST(:user_id AS uuid)
         ORDER BY saved_at DESC
     """)
     with engine.connect() as conn:
         rows = conn.execute(sql, {"user_id": user_id}).fetchall()
-    return [{"expression_id": r.expression_id, "saved_at": r.saved_at.isoformat()} for r in rows]
+    return [{
+        "expression_id": r.expression_id,
+        "saved_at": r.saved_at.isoformat(),
+        "review_box": r.review_box,
+        "reviewed_at": r.reviewed_at.isoformat() if r.reviewed_at else None,
+        "game_session_id": r.game_session_id,
+    } for r in rows]
 
 
-def toggle_user_favorite(user_id: str, expression_id: str) -> dict:
-    """Ajoute ou retire un favori. Retourne {"action": "added"} ou {"action": "removed"}."""
-    check_sql = text("SELECT 1 FROM user_favorites WHERE user_id = :uid::uuid AND expression_id = :eid")
+def toggle_user_favorite(user_id: str, expression_id: str, game_session_id: str | None = None) -> dict:
+    """Ajoute ou retire un favori. Retourne {"action": "added"} ou {"action": "removed"}.
+    `game_session_id` (pivot S196, contract §3) : la partie où l'expression a été gardée ❤️,
+    attaché uniquement à l'ajout (le retrait ne le lit pas)."""
+    check_sql = text("SELECT 1 FROM user_favorites WHERE user_id = CAST(:uid AS uuid) AND expression_id = :eid")
     with engine.begin() as conn:
         exists = conn.execute(check_sql, {"uid": user_id, "eid": expression_id}).fetchone()
         if exists:
             conn.execute(
-                text("DELETE FROM user_favorites WHERE user_id = :uid::uuid AND expression_id = :eid"),
+                text("DELETE FROM user_favorites WHERE user_id = CAST(:uid AS uuid) AND expression_id = :eid"),
                 {"uid": user_id, "eid": expression_id}
             )
             return {"action": "removed"}
         else:
             conn.execute(
-                text("INSERT INTO user_favorites (user_id, expression_id, saved_at) VALUES (:uid::uuid, :eid, NOW())"),
-                {"uid": user_id, "eid": expression_id}
+                text("""
+                    INSERT INTO user_favorites (user_id, expression_id, saved_at, game_session_id)
+                    VALUES (CAST(:uid AS uuid), :eid, NOW(), CAST(:gsid AS uuid))
+                """),
+                {"uid": user_id, "eid": expression_id, "gsid": game_session_id}
             )
             return {"action": "added"}
+
+
+# ── Pivot "games hub" (S196) — game_sessions, reports, review ──────────────────
+
+_VALID_GAMES = {"voyage", "revision"}
+_VALID_REPORT_REASONS = {"fabricated", "wrong-translation", "duplicate", "other"}
+
+
+def create_game_session(
+    game: str,
+    client_id: str,
+    user_id: Optional[str] = None,
+    filters: Optional[dict] = None,
+    cards: Optional[list[str]] = None,
+) -> dict:
+    """
+    Crée une partie (contract §3 — POST /game-sessions).
+    - voyage : le serveur tire 10 expressions uniques honorant `filters`
+      {country, kind, domain, locale, quick} — JA exclu, kind='word' exclu (même pool
+      que /random), au plus une carte 'rare' (register slang/vulgar).
+    - revision : le client fournit `cards` (favoris côté client) ; le serveur se contente
+      d'enregistrer et d'hydrater.
+    Retourne {id, cards: [expression...]} — cards toujours hydratées (même forme que /random),
+    avec un champ 'rare' bool sur chaque carte (voyage uniquement, False sinon).
+    """
+    if game not in _VALID_GAMES:
+        raise ValueError(f"unknown game type: {game}")
+
+    filters = filters or {}
+    locale = (filters.get("locale") or "").strip() or None
+    rare_id: Optional[str] = None
+
+    if game == "voyage":
+        country = (filters.get("country") or "").strip()
+        kind = (filters.get("kind") or "").strip()
+        domain = (filters.get("domain") or "").strip()
+        # Same pool as /random (kind='word' + 'phrasebook' tag excluded, via
+        # _RANDOM_POOL_WHERE) plus the game-only rule: JA excluded from all game pools
+        # (contract §0 — JA content broken, Luke L3) until that content is fixed.
+        draw_sql = f"""
+            SELECT e.id, e.register FROM expressions e
+            {_RANDOM_POOL_WHERE}
+              AND e.language != 'ja'
+            ORDER BY RANDOM()
+            LIMIT 10
+        """
+        with engine.connect() as conn:
+            rows = conn.execute(text(draw_sql), {
+                "country": country, "kind": kind, "domain": domain, "language": "",
+            }).fetchall()
+        card_ids = [r.id for r in rows]
+        rare_candidates = [r.id for r in rows if r.register in ("slang", "vulgar")]
+        rare_id = random.choice(rare_candidates) if rare_candidates else None
+    else:  # revision
+        card_ids = list(cards or [])
+
+    session_id = str(uuid.uuid4())
+    insert_sql = text("""
+        INSERT INTO game_sessions (id, user_id, client_id, game, filters, cards, kept_ids, started_at)
+        VALUES (CAST(:id AS uuid), CAST(:user_id AS uuid), :client_id, :game,
+                CAST(:filters AS JSONB), CAST(:cards AS JSONB), '[]'::jsonb, NOW())
+    """)
+    with engine.begin() as conn:
+        conn.execute(insert_sql, {
+            "id": session_id,
+            "user_id": user_id,
+            "client_id": client_id,
+            "game": game,
+            "filters": json.dumps(filters),
+            "cards": json.dumps(card_ids),
+        })
+
+    hydrated = browse_by_ids(card_ids, locale)
+    for card in hydrated:
+        card["rare"] = card["id"] == rare_id
+
+    return {"id": session_id, "cards": hydrated}
+
+
+def close_game_session(session_id: str, ended_at: Optional[str], kept_ids: list[str]) -> bool:
+    """Clôture une partie (contract §3 — PATCH /game-sessions/{id}). `ended_at` est un
+    timestamp ISO fourni par le client ; NOW() si absent. Retourne False si la partie
+    n'existe pas (id inconnu ou malformé)."""
+    try:
+        uuid.UUID(str(session_id))
+    except (ValueError, AttributeError):
+        return False
+    sql = text("""
+        UPDATE game_sessions
+        SET ended_at = COALESCE(CAST(:ended_at AS TIMESTAMPTZ), NOW()),
+            kept_ids = CAST(:kept_ids AS JSONB)
+        WHERE id = CAST(:id AS uuid)
+    """)
+    with engine.begin() as conn:
+        result = conn.execute(sql, {
+            "id": session_id,
+            "ended_at": ended_at,
+            "kept_ids": json.dumps(kept_ids or []),
+        })
+    return result.rowcount > 0
+
+
+def create_report(
+    expression_id: str,
+    reason: Optional[str] = None,
+    comment: Optional[str] = None,
+    client_id: Optional[str] = None,
+    ui_lang: Optional[str] = None,
+) -> None:
+    """
+    Enregistre un signalement 🚩 (contract §2/§3). Idempotent : un seul report 'open' par
+    (client_id, expression_id) — index unique partiel, ON CONFLICT DO NOTHING (silencieux,
+    la répétition d'un tap ne doit ni échouer ni dupliquer). Lève ValueError si
+    `expression_id` n'existe pas (→ 404 côté endpoint).
+    """
+    with engine.begin() as conn:
+        exists = conn.execute(
+            text("SELECT 1 FROM expressions WHERE id = :id"), {"id": expression_id}
+        ).fetchone()
+        if not exists:
+            raise ValueError(f"unknown expression_id: {expression_id}")
+        conn.execute(text("""
+            INSERT INTO expression_reports
+                (id, expression_id, reason, comment, user_id, client_id, ui_lang, status, created_at)
+            VALUES
+                (gen_random_uuid(), :expression_id, :reason, :comment, NULL, :client_id, :ui_lang, 'open', NOW())
+            ON CONFLICT (client_id, expression_id) WHERE status = 'open' AND client_id IS NOT NULL
+            DO NOTHING
+        """), {
+            "expression_id": expression_id,
+            "reason": reason,
+            "comment": comment,
+            "client_id": client_id,
+            "ui_lang": ui_lang,
+        })
+
+
+def set_favorite_review(user_id: str, expression_id: str, result: str) -> Optional[dict]:
+    """
+    Enregistre une réponse de révision sur un favori (contract §2/§3 — v1 semantics).
+    'knew' → review_box=1, 'not_yet' → review_box=0 ; les deux posent reviewed_at=NOW().
+    Retourne None si le favori n'existe pas (l'utilisateur doit avoir déjà gardé cette
+    expression ❤️ avant de pouvoir la réviser).
+    """
+    box = 1 if result == "knew" else 0
+    sql = text("""
+        UPDATE user_favorites
+        SET review_box = :box, reviewed_at = NOW()
+        WHERE user_id = CAST(:user_id AS uuid) AND expression_id = :expression_id
+        RETURNING review_box, reviewed_at
+    """)
+    with engine.begin() as conn:
+        row = conn.execute(sql, {"box": box, "user_id": user_id, "expression_id": expression_id}).fetchone()
+    if row is None:
+        return None
+    return {"review_box": row.review_box, "reviewed_at": row.reviewed_at.isoformat()}
 
 
 def get_concepts(

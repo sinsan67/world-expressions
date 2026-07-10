@@ -142,7 +142,7 @@ changes below are additive → they ship as an early **Lot API** merged to
 
 | Endpoint | Request | Response | Used by |
 |---|---|---|---|
-| `GET /daily` | `locale=` | One expression, same shape as `/random` + `"date": "YYYY-MM-DD"`. Deterministic pick seeded by UTC date, same for everyone. Pool: all kinds/countries **except JA**. Public cache 1h | Hub (lot A) |
+| `GET /daily` | `locale=` | One expression, same shape as `/random` + `"date": "YYYY-MM-DD"`. Deterministic pick seeded by UTC date, same for everyone. Pool: **same as `/random`** (excludes `phrasebook` and `kind='word'`) minus JA *(amended S197, validated by Sinan — the daily postcard must never serve a transactional phrase or a vocabulary word)*. Public cache 1h | Hub (lot A) |
 | `POST /game-sessions` | `{game, client_id, user_id?, filters, cards?}` | `{id, cards: [expression…]}` — **voyage**: server draws 10 unique cards (JA excluded), flags **at most one as `"rare": true`** (~1 game in 10 has none; criterion: `register` in slang/vulgar); cards come localized per `filters.locale`. **revision**: client supplies `cards` (favorites live client-side for anon users), server just records | Voyage (B), Révision (D) |
 | `PATCH /game-sessions/{id}` | `{ended_at, kept_ids}` | `{ok: true}` — closes the game; fire-and-forget from the recap screen | B, D |
 | `POST /reports` | `{expression_id, reason?, comment?, client_id?, ui_lang?}` | `201 {ok: true}` — no auth, idempotent per client+expression | Report lot |
