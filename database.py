@@ -274,16 +274,20 @@ def get_daily_expression(locale: Optional[str] = None) -> Optional[dict]:
     """
     Expression du jour — pivot games hub (contract §3, lot A).
     Tirage déterministe : seedé par la date UTC (même résultat pour tout le monde,
-    toute la journée). Pool : tous kinds/pays, SAUF langue 'ja' (JA cassé — Luke L3).
+    toute la journée). Pool : identique à /random (_RANDOM_POOL_WHERE — exclut
+    phrasebook et kind='word') plus l'exclusion JA commune aux jeux (Luke L3).
     Retourne la même forme que /random, plus `date` (YYYY-MM-DD).
     """
     date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     effective_locale = locale or ""
 
     with engine.connect() as conn:
-        ids = [r[0] for r in conn.execute(text(
-            "SELECT id FROM expressions WHERE language != 'ja' ORDER BY id"
-        )).fetchall()]
+        ids = [r[0] for r in conn.execute(text(f"""
+            SELECT e.id FROM expressions e
+            {_RANDOM_POOL_WHERE}
+              AND e.language != 'ja'
+            ORDER BY e.id
+        """), {"country": "", "kind": "", "domain": "", "language": ""}).fetchall()]
         if not ids:
             return None
         seed = int(hashlib.sha256(date_str.encode("utf-8")).hexdigest(), 16)
