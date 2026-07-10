@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup S195 — Carnet 2.0 (Ma collection)</title>
+<style>
+  :root {
+    --paper:        #fdf8ee;
+    --paper-deep:   #f3e8d4;
+    --paper-edge:   #e8dcc4;
+    --ink:          #1c1410;
+    --ink-soft:     #5c4f47;
+    --ink-softer:   #8b7d72;
+    --ink-faint:    #b8aa9b;
+    --plum:         #6b4d8f;
+    --plum-deep:    #4a3565;
+    --plum-soft:    #c9b8d9;
+    --plum-bg:      #ebe3f1;
+    --terra:        #c1543a;
+    --terra-deep:   #92341f;
+    --terra-soft:   #f0c8b8;
+    --terra-bg:     #f7e3d8;
+    --ochre:        #d4a83a;
+    --ochre-deep:   #8b6b1c;
+    --ochre-bg:     #faf2cf;
+    --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-hand:    "Caveat", "Bradley Hand", "Comic Sans MS", cursive;
+    --shadow-card:  0 1px 2px rgba(28,20,16,0.05), 0 4px 12px rgba(28,20,16,0.06);
+    --shadow-deep:  0 8px 28px rgba(28,20,16,0.18);
+    --r-md: 10px; --r-lg: 18px; --r-pill: 999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--paper-deep); color: var(--ink);
+    font-family: var(--font-body); padding: 24px 16px 80px;
+  }
+  .workshop { max-width: 950px; margin: 0 auto; }
+  .workshop-head { text-align: center; margin-bottom: 8px; }
+  .workshop-head .eyebrow { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--terra); font-weight: 700; }
+  .workshop-head h1 { font-family: var(--font-display); font-size: 28px; margin: 4px 0; }
+  .workshop-head p { color: var(--ink-soft); font-size: 14px; max-width: 620px; margin: 0 auto; }
+  .hand { font-family: var(--font-hand); color: var(--plum-deep); font-size: 19px; line-height: 1.25; }
+  .legend {
+    margin: 14px auto 26px; max-width: 500px; text-align: center;
+    background: var(--ochre-bg); border: 1.5px dashed var(--ochre);
+    border-radius: var(--r-md); padding: 10px 14px;
+  }
+
+  .frames { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; align-items: flex-start; }
+  .frame-col { display: flex; flex-direction: column; gap: 12px; }
+  .frame-label { text-align: center; }
+  .frame-label .step {
+    display: inline-block; background: var(--plum); color: #fff;
+    width: 26px; height: 26px; border-radius: 50%; line-height: 26px;
+    font-weight: 700; font-size: 14px; margin-right: 6px;
+  }
+  .frame-label .txt { font-family: var(--font-display); font-size: 17px; font-weight: 600; }
+
+  .phone {
+    width: 393px; max-width: 100%;
+    background: var(--paper);
+    border: 10px solid var(--ink); border-radius: 38px;
+    box-shadow: var(--shadow-deep); overflow: hidden;
+  }
+  .screen { min-height: 730px; }
+
+  /* ─── Header carnet ─── */
+  .carnet-head { padding: 18px 18px 4px; display: flex; align-items: baseline; justify-content: space-between; }
+  .carnet-title { font-family: var(--font-display); font-size: 24px; }
+  .carnet-total { font-size: 12.5px; color: var(--ink-softer); font-weight: 600; }
+  .carnet-total b { color: var(--terra); font-size: 15px; }
+  .cyc { cursor: pointer; border-bottom: 2px dashed var(--terra); }
+  .cyc:hover { background: var(--ochre-bg); }
+  .cyc::after { content: " ↺"; font-size: 0.55em; color: var(--terra); vertical-align: super; }
+
+  /* ─── Recherche + filtres ─── */
+  .toolbar { padding: 10px 16px 4px; }
+  .search-box {
+    display: flex; align-items: center; gap: 8px;
+    background: #fff; border: 1.5px solid var(--paper-edge);
+    border-radius: var(--r-pill); padding: 9px 14px;
+  }
+  .search-box input {
+    border: none; outline: none; flex: 1; font-size: 14px;
+    font-family: var(--font-body); background: transparent; color: var(--ink);
+  }
+  .filter-row { display: flex; gap: 7px; margin-top: 9px; flex-wrap: wrap; }
+  .f-chip {
+    font-size: 12px; font-weight: 700; padding: 5px 12px;
+    border-radius: var(--r-pill); border: 1.5px solid var(--paper-edge);
+    background: var(--paper); color: var(--ink-soft); cursor: pointer;
+  }
+  .f-chip:hover { border-color: var(--plum-soft); }
+  .f-chip.on { background: var(--plum-bg); border-color: var(--plum); color: var(--plum-deep); }
+
+  /* ─── Sections par langue ─── */
+  .lang-section { margin: 14px 16px 0; }
+  .lang-head {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--paper-deep); border: 1.5px solid var(--paper-edge);
+    border-radius: var(--r-md); padding: 10px 12px; cursor: pointer;
+  }
+  .lang-flag { font-size: 20px; }
+  .lang-name { font-family: var(--font-display); font-weight: 700; font-size: 16px; }
+  .lang-count { font-size: 12px; color: var(--ink-softer); font-weight: 600; }
+  .mode-badge {
+    margin-left: auto; font-size: 11.5px; font-weight: 700;
+    padding: 4px 10px; border-radius: var(--r-pill); cursor: pointer;
+    border: 1.5px dashed transparent;
+  }
+  .mode-badge.discover { background: var(--plum-bg); color: var(--plum-deep); border-color: var(--plum-soft); }
+  .mode-badge.master   { background: var(--ochre-bg); color: var(--ochre-deep); border-color: var(--ochre); }
+  .lang-chev { color: var(--ink-faint); font-size: 15px; transition: transform .2s; }
+  .lang-section.closed .lang-chev { transform: rotate(-90deg); }
+  .lang-body { padding-top: 8px; display: flex; flex-direction: column; gap: 7px; }
+  .lang-section.closed .lang-body { display: none; }
+
+  .fav-row {
+    background: #fff; border: 1.5px solid var(--paper-edge);
+    border-radius: var(--r-md); padding: 10px 13px; cursor: pointer;
+    box-shadow: var(--shadow-card); position: relative;
+  }
+  .fav-row:hover { border-color: var(--plum-soft); }
+  .fav-expr { font-family: var(--font-display); font-weight: 600; font-size: 15.5px; }
+  .fav-lit { font-family: var(--font-hand); font-size: 16px; color: var(--ink-soft); }
+  .fav-mean { font-size: 12.5px; color: var(--ink-softer); margin-top: 2px; }
+  .redo-dot {
+    position: absolute; top: 10px; right: 12px;
+    font-size: 10px; font-weight: 800; color: var(--terra);
+    background: var(--terra-bg); padding: 2px 8px; border-radius: var(--r-pill);
+  }
+  .review-cta {
+    margin-top: 8px; text-align: center;
+    background: none; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 700; color: var(--plum-deep);
+    font-family: var(--font-body);
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+
+  /* ─── Vue retravail ─── */
+  .work-head { padding: 16px 18px 0; }
+  .back-link { background: none; border: none; font-size: 13px; color: var(--ink-softer); cursor: pointer; font-weight: 700; }
+  .work-card {
+    margin: 10px 16px; border-radius: var(--r-lg);
+    background:
+      linear-gradient(rgba(20,12,28,0.5), rgba(24,16,10,0.6)),
+      linear-gradient(120deg, #7a9e7e 0%, #b8a06a 45%, #c98d5f 100%);
+    color: #fff; padding: 16px 18px; position: relative;
+    box-shadow: var(--shadow-card);
+  }
+  .work-card .stamp {
+    position: absolute; top: 10px; right: 12px;
+    background: var(--paper); color: var(--ink);
+    font-size: 15px; padding: 3px 6px; border-radius: 3px;
+    transform: rotate(4deg); border: 1px dashed var(--ink-faint);
+  }
+  .work-expr { font-family: var(--font-display); font-size: 23px; font-weight: 600; }
+  .work-lit { font-family: var(--font-hand); font-size: 19px; opacity: 0.93; margin-top: 2px; }
+  .work-heart {
+    position: absolute; bottom: 10px; right: 12px; font-size: 16px; cursor: pointer;
+  }
+  .study { padding: 2px 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .study-block {
+    background: #fff; border: 1.5px solid var(--paper-edge);
+    border-radius: var(--r-md); padding: 11px 14px; box-shadow: var(--shadow-card);
+  }
+  .study-label {
+    font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase;
+    color: var(--ink-softer); font-weight: 800; margin-bottom: 4px;
+  }
+  .study-txt { font-size: 14px; line-height: 1.5; }
+  .study-txt .trad { font-family: var(--font-hand); font-size: 17px; color: var(--ink-soft); }
+  .vocab-row { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 4px; }
+  .vocab-chip {
+    background: var(--plum-bg); border: 1px solid var(--plum-soft);
+    color: var(--plum-deep); font-size: 12.5px; font-weight: 700;
+    padding: 4px 11px; border-radius: var(--r-pill);
+  }
+  .vocab-chip small { font-weight: 500; opacity: 0.8; }
+  .study-foot { display: flex; gap: 8px; margin-top: 4px; }
+  .sf-btn {
+    flex: 1; font-size: 13px; font-weight: 700; font-family: var(--font-body);
+    padding: 10px; border-radius: var(--r-pill); cursor: pointer;
+  }
+  .sf-btn.fiche { background: var(--paper); border: 2px solid var(--paper-edge); color: var(--ink-soft); }
+  .sf-btn.review { background: var(--terra); border: none; color: #fff; box-shadow: 0 2px 0 var(--terra-deep); }
+  .provenance {
+    text-align: center; font-size: 12px; color: var(--ink-faint);
+    padding-bottom: 18px; font-style: italic;
+  }
+
+  .note {
+    background: var(--ochre-bg); border-radius: 4px; padding: 12px 14px;
+    box-shadow: var(--shadow-card); transform: rotate(-1deg);
+    width: 340px; max-width: 100%; margin: 0 auto;
+  }
+  .note.alt { background: var(--plum-bg); transform: rotate(1deg); }
+  .note .hand { font-size: 18px; display: block; }
+</style>
+</head>
+<body>
+<div class="workshop">
+  <div class="workshop-head">
+    <div class="eyebrow">Session S195 · Mockup 3/3 · Pivot hub de jeux</div>
+    <h1>Carnet 2.0 — de la liste à l'espace de travail</h1>
+    <p>Sections par langue avec leur mode (🧳 découverte / 📚 maîtrisée), carnet retrouvable
+       (recherche, filtres, tri), et la vue « retravail » qui transforme un favori en matière d'étude.</p>
+  </div>
+
+  <div class="legend hand">
+    ✍️ Tout est tactile : replie une langue, bascule un badge 🧳/📚, coche un filtre.
+  </div>
+
+  <div class="frames">
+
+    <!-- ═══ ÉCRAN 1 : LE CARNET ═══ -->
+    <div class="frame-col">
+      <div class="frame-label"><span class="step">1</span><span class="txt">La collection, retrouvable</span></div>
+      <div class="phone">
+        <div class="screen">
+
+          <div class="carnet-head">
+            <div class="carnet-title">Ma collection</div>
+            <div class="carnet-total"><b>47</b> expressions</div>
+          </div>
+
+          <div class="toolbar">
+            <div class="search-box">🔎 <input placeholder="Chercher : expression, sens, littéral…"></div>
+            <div class="filter-row">
+              <button class="f-chip" onclick="this.classList.toggle('on')">Thème ▾</button>
+              <button class="f-chip" onclick="this.classList.toggle('on')">Type ▾</button>
+              <button class="f-chip on" onclick="this.classList.toggle('on')">Récentes d'abord ⌄</button>
+            </div>
+          </div>
+
+          <!-- 🇮🇹 Italien — langue découverte -->
+          <div class="lang-section">
+            <div class="lang-head" onclick="toggleLang(this)">
+              <span class="lang-flag">🇮🇹</span>
+              <span class="lang-name">Italien</span>
+              <span class="lang-count">31</span>
+              <button class="mode-badge discover" onclick="toggleMode(event, this)">🧳 découverte</button>
+              <span class="lang-chev">▾</span>
+            </div>
+            <div class="lang-body">
+              <div class="fav-row">
+                <span class="redo-dot">à revoir</span>
+                <div class="fav-expr">In bocca al lupo</div>
+                <div class="fav-lit">« Dans la gueule du loup »</div>
+                <div class="fav-mean">Bonne chance !</div>
+              </div>
+              <div class="fav-row">
+                <div class="fav-expr">Essere in gamba</div>
+                <div class="fav-lit">« Être en jambe »</div>
+                <div class="fav-mean">Être doué, capable</div>
+              </div>
+              <div class="fav-row">
+                <span class="redo-dot">à revoir</span>
+                <div class="fav-expr">Avere le mani in pasta</div>
+                <div class="fav-lit">« Avoir les mains dans la pâte »</div>
+                <div class="fav-mean">Être impliqué partout, bien introduit</div>
+              </div>
+              <button class="review-cta">🃏 Réviser mes expressions italiennes ▸</button>
+            </div>
+          </div>
+
+          <!-- 🇹🇷 Turc — langue maîtrisée -->
+          <div class="lang-section">
+            <div class="lang-head" onclick="toggleLang(this)">
+              <span class="lang-flag">🇹🇷</span>
+              <span class="lang-name">Turc</span>
+              <span class="lang-count">12</span>
+              <button class="mode-badge master" onclick="toggleMode(event, this)">📚 maîtrisée</button>
+              <span class="lang-chev">▾</span>
+            </div>
+            <div class="lang-body">
+              <div class="fav-row">
+                <div class="fav-expr">Damlaya damlaya göl olur</div>
+                <div class="fav-mean">Proverbe · Les petits ruisseaux font les grandes rivières</div>
+              </div>
+              <div class="fav-row">
+                <div class="fav-expr">Ayağını yorganına göre uzat</div>
+                <div class="fav-mean">Proverbe · Vivre selon ses moyens</div>
+              </div>
+              <button class="review-cta">🃏 Réviser mes proverbes turcs ▸</button>
+            </div>
+          </div>
+
+          <!-- 🇫🇷 Français — replié -->
+          <div class="lang-section closed">
+            <div class="lang-head" onclick="toggleLang(this)">
+              <span class="lang-flag">🇫🇷</span>
+              <span class="lang-name">Français</span>
+              <span class="lang-count">4</span>
+              <button class="mode-badge master" onclick="toggleMode(event, this)">📚 maîtrisée</button>
+              <span class="lang-chev">▾</span>
+            </div>
+            <div class="lang-body">
+              <div class="fav-row">
+                <div class="fav-expr">Tomber dans les pommes</div>
+                <div class="fav-mean">S'évanouir</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="height:24px"></div>
+        </div>
+      </div>
+      <div class="note"><span class="hand">🧳/📚 Le mode d'une langue vient du profil, demandé au premier
+        favori — et il se change ICI, d'un tap sur le badge (essaie !).
+        En 📚 maîtrisée : pas de littéral, le proverbe se savoure tel quel.</span></div>
+      <div class="note alt"><span class="hand">🔎 La recherche fouille expression + sens + littéral.
+        Les notes perso (« entendu à Rome ») viendront en V2 du carnet.</span></div>
+      <div class="note"><span class="hand">🔁 « À revoir » est posé par le jeu Révision : un « pas encore »
+        le pose, un « je savais » l'enlève. Une expression fraîchement gardée
+        est « nouvelle », pas « à revoir ».</span></div>
+    </div>
+
+    <!-- ═══ ÉCRAN 2 : VUE RETRAVAIL ═══ -->
+    <div class="frame-col">
+      <div class="frame-label"><span class="step">2</span><span class="txt">La vue « retravail »</span></div>
+      <div class="phone">
+        <div class="screen">
+
+          <div class="work-head">
+            <button class="back-link">‹ Ma collection · 🇮🇹 Italien</button>
+          </div>
+
+          <div class="work-card">
+            <div class="stamp">🇮🇹</div>
+            <div class="work-expr">In bocca al lupo</div>
+            <div class="work-lit">« Dans la gueule du loup »</div>
+            <span class="work-heart" title="Retirer de la collection">❤️</span>
+          </div>
+
+          <div class="study">
+            <div class="study-block">
+              <div class="study-label">Sens</div>
+              <div class="study-txt">Bonne chance&nbsp;! Se dit avant un examen ou un défi.
+                On répond «&nbsp;Crepi il lupo&nbsp;».</div>
+            </div>
+
+            <div class="study-block">
+              <div class="study-label">Phrase d'exemple</div>
+              <div class="study-txt">«&nbsp;Domani hai l'esame&nbsp;? In bocca al lupo&nbsp;!&nbsp;»<br>
+                <span class="trad">→ « Tu as l'examen demain ? Bonne chance ! »</span></div>
+            </div>
+
+            <div class="study-block">
+              <div class="study-label">Vocabulaire à retenir</div>
+              <div class="vocab-row">
+                <span class="vocab-chip">bocca <small>= bouche</small></span>
+                <span class="vocab-chip">lupo <small>= loup</small></span>
+                <span class="vocab-chip">esame <small>= examen</small></span>
+              </div>
+            </div>
+
+            <div class="study-block">
+              <div class="study-label">Origine</div>
+              <div class="study-txt">Vieux souhait de chasseurs&nbsp;: nommer le danger pour le conjurer.</div>
+            </div>
+
+            <div class="study-foot">
+              <button class="sf-btn fiche">📖 Fiche complète</button>
+              <button class="sf-btn review">🃏 Réviser celle-ci</button>
+            </div>
+
+            <div class="provenance">gardée le 10 juillet · partie 🇮🇹 Animaux <span title="V2 : cliquer mènera à la partie">🕰️</span></div>
+          </div>
+
+        </div>
+      </div>
+      <div class="note"><span class="hand">📐 Rien de neuf en base : littéral, sens, exemple, origine existent
+        déjà sur la fiche. La vue retravail les re-présente pour l'étude —
+        avec le vocabulaire extrait en chips.</span></div>
+      <div class="note alt"><span class="hand">🕰️ La provenance (« gardée le… partie… ») vient de la traçabilité
+        des sessions, stockée dès le jour 1. Le lien vers « Mes parties » = V2.</span></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function toggleLang(head) { head.parentElement.classList.toggle("closed"); }
+  function toggleMode(e, badge) {
+    e.stopPropagation();
+    const isDiscover = badge.classList.contains("discover");
+    badge.classList.toggle("discover", !isDiscover);
+    badge.classList.toggle("master", isDiscover);
+    badge.textContent = isDiscover ? "📚 maîtrisée" : "🧳 découverte";
+  }
+</script>
+</body>
+</html>
