@@ -14,6 +14,9 @@ export const COUNTRY_NAME: Record<string, string> = {
   en: "English",
 };
 
+// Countries with a photo in /public/images — others fall back to the flag gradient.
+export const HERO_IMAGE_COUNTRIES = new Set(["fr", "uk", "us", "au", "es", "tr", "it", "de", "jp", "ar", "pe", "co", "cu"]);
+
 export const COUNTRY_GRADIENT: Record<string, string> = {
   fr: "linear-gradient(90deg, #0055a4 33%, #fff 33% 67%, #ef4135 67%)",
   uk: "linear-gradient(135deg, #012169 40%, #c8102e 40% 60%, #012169 60%)",
