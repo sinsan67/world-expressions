@@ -17,7 +17,7 @@ the coordinator writes.
 | Gate | Status | Notes |
 |---|---|---|
 | Steering note (this file) | ✅ done S197 | docs/ + Obsidian read-only mirror |
-| SVG spike — pan/zoom mobile (game 3 de-risk) | ⏳ | lib vs native, SVG size, perf; throwaway prototype |
+| SVG spike — pan/zoom mobile (game 3 de-risk) | ✅ done S197 | verdict: native + CSS transform — see §4 |
 | Italian vocabulary import scoping (`kind="word"`) | ⏳ | source, volume, fields, quality bar — dedicated data session to plan |
 | **GO fabrication** (Sinan) | ⏳ | after the three gates above |
 
@@ -66,8 +66,19 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
 
 ## 4. Decisions made during the build
 
-*(None yet — decisions that do not touch the contract go here with a date;
-contract-touching changes go to the contract file first, then get logged here.)*
+- **2026-07-10 (S197) — SVG spike verdict (game 3, post-launch build input).**
+  Prototype (throwaway, Claude artifact `40713ab7`): real Wikimedia world map
+  (2,213 paths, per-country clickable groups, 1 MB raw / ~300 KB gzipped) +
+  a 900-emoji constellation (~1,600 nodes), pan/pinch/double-tap via Pointer
+  Events, two switchable engines. **Verdict: no library — native Pointer
+  Events (~150 lines) + CSS `transform` on a wrapper during gestures** (GPU
+  compositing; degrades far better on low-end phones than per-frame `viewBox`
+  mutation, which re-renders every path). Both engines fluid on M1 desktop
+  (Chrome + Brave, validated by Sinan). Target is **all phones incl.
+  iPhone/Safari**: add a `gesturestart` preventDefault guard and test Safari
+  at build time. Asset budget: lazy-load the map on the game route; a
+  simplified 86 KB map exists if island detail proves useless. A pan/zoom lib
+  (react-zoom-pan-pinch) only becomes worth it if we want gesture inertia.
 
 ## 5. Progress log
 
