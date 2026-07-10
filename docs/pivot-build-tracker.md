@@ -56,7 +56,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 
 | Release | Scope | Gate to prod (`main`) | Status |
 |---|---|---|---|
-| **Lot API to main** | migrations + endpoints, zero UI change | backend tests green + staging smoke + Sinan go | ⬜ |
+| **Lot API to main** | migrations + endpoints, zero UI change | backend tests green + staging smoke + Sinan go | ✅ shipped S197 (PR #90, prod verified) |
 | **V-jeu-1 — "hub and a playable game"** | A + B + F + Report 🚩 | hub live, Voyage playable end-to-end, redirects verified (`/random-mode`, `/carnet`), old links intact, QA staging full pass | ⬜ |
 | **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | ⬜ |
 | **V-jeu-3 — "révision"** | D | flashcard on favorites, review queue, empty/locked states | ⬜ |
@@ -79,6 +79,20 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   at build time. Asset budget: lazy-load the map on the game route; a
   simplified 86 KB map exists if island detail proves useless. A pan/zoom lib
   (react-zoom-pan-pinch) only becomes worth it if we want gesture inertia.
+
+- **2026-07-10 (S197) — CI must never touch prod.** The `backend-tests` job
+  used to point uvicorn at the prod DB under a read-only assumption; Lot API
+  tests write. The job now runs a throwaway `postgres:16` service + `alembic
+  upgrade head` + `tests/seed_ci_db.py` (16 synthetic expressions, 4
+  languages). Bonus: every CI run now also tests the migrations themselves.
+- **2026-07-10 (S197) — Render does NOT run migrations on deploy.** The
+  service's real start command (dashboard) lacks `alembic upgrade head`;
+  `render.yaml` is not authoritative (service not Blueprint-managed). The Lot
+  API migration was applied to prod manually (Sinan-approved). **Release rule
+  until the dashboard start command is fixed: applying `alembic upgrade head`
+  to prod is a mandatory manual release step for any backend release.**
+  Sinan's pending action: set the Render start command to
+  `alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port $PORT`.
 
 ## 5. Progress log
 
@@ -103,3 +117,9 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   hard-excludes `kind='word'`; the voyage draw must lift that exclusion when
   an explicit `kind=word` filter is passed (prerequisite recorded in
   `vocab-import-it.md`). Next: release PR staging → main (Render redeploy).
+- **2026-07-10 (S197)** — Release PR #90 merged to main after fixing CI
+  (throwaway Postgres — see §4). Render deployed the code but not the
+  migration (see §4); migration applied to prod manually. **Prod verified:
+  `/daily` deterministic, voyage draw 10 unique cards no-JA, PATCH close OK,
+  `/browse?ids=`, `/random/count?language=` — Lot API live.** Front lots
+  A/B/F + Report are now unblocked.
