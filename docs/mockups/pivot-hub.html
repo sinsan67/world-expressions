@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup S195 — Le HUB (nouvelle home)</title>
+<style>
+  /* ─── Tokens repris de globals.css (prod) ─── */
+  :root {
+    --paper:        #fdf8ee;
+    --paper-deep:   #f3e8d4;
+    --paper-edge:   #e8dcc4;
+    --ink:          #1c1410;
+    --ink-soft:     #5c4f47;
+    --ink-softer:   #8b7d72;
+    --ink-faint:    #b8aa9b;
+    --plum:         #6b4d8f;
+    --plum-deep:    #4a3565;
+    --plum-soft:    #c9b8d9;
+    --plum-bg:      #ebe3f1;
+    --terra:        #c1543a;
+    --terra-deep:   #92341f;
+    --terra-soft:   #f0c8b8;
+    --terra-bg:     #f7e3d8;
+    --ochre:        #d4a83a;
+    --ochre-deep:   #8b6b1c;
+    --ochre-bg:     #faf2cf;
+    --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-hand:    "Caveat", "Bradley Hand", "Comic Sans MS", cursive;
+    --shadow-postcard: 3px 6px 0 rgba(28,20,16,0.08), 1px 2px 4px rgba(28,20,16,0.06);
+    --shadow-card:  0 1px 2px rgba(28,20,16,0.05), 0 4px 12px rgba(28,20,16,0.06);
+    --shadow-deep:  0 8px 28px rgba(28,20,16,0.18);
+    --r-md: 10px; --r-lg: 18px; --r-pill: 999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--paper-deep);
+    color: var(--ink);
+    font-family: var(--font-body);
+    padding: 24px 16px 80px;
+  }
+
+  /* ─── Chrome atelier ─── */
+  .workshop { max-width: 900px; margin: 0 auto; }
+  .workshop-head { text-align: center; margin-bottom: 8px; }
+  .workshop-head .eyebrow {
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--terra); font-weight: 700;
+  }
+  .workshop-head h1 { font-family: var(--font-display); font-size: 28px; margin: 4px 0; }
+  .workshop-head p { color: var(--ink-soft); font-size: 14px; max-width: 560px; margin: 0 auto; }
+  .hand {
+    font-family: var(--font-hand); color: var(--plum-deep);
+    font-size: 19px; line-height: 1.25; transform: rotate(-1.2deg);
+  }
+  .legend {
+    margin: 14px auto 26px; max-width: 460px; text-align: center;
+    background: var(--ochre-bg); border: 1.5px dashed var(--ochre);
+    border-radius: var(--r-md); padding: 10px 14px;
+  }
+
+  /* ─── Cadre téléphone ─── */
+  .phone {
+    width: 393px; max-width: 100%; margin: 0 auto;
+    background: var(--paper);
+    border: 10px solid var(--ink);
+    border-radius: 38px;
+    box-shadow: var(--shadow-deep);
+    overflow: hidden;
+    position: relative;
+  }
+  .screen { padding-bottom: 76px; /* place pour la nav */ }
+
+  /* ─── Header app ─── */
+  .app-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px 10px;
+  }
+  .logo { font-family: var(--font-display); font-weight: 700; font-size: 17px; color: var(--plum-deep); }
+  .logo span { color: var(--terra); }
+  .header-icons { display: flex; gap: 14px; font-size: 18px; }
+  .header-icons button {
+    background: none; border: none; font-size: 18px; cursor: pointer;
+    width: 32px; height: 32px; border-radius: 50%;
+  }
+  .header-icons button:hover { background: var(--plum-bg); }
+
+  /* ─── Titre du hub ─── */
+  .hub-title-wrap { padding: 6px 20px 14px; }
+  .hub-eyebrow {
+    font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--ink-softer); font-weight: 700;
+  }
+  .hub-title {
+    font-family: var(--font-display); font-size: 27px; color: var(--ink);
+    line-height: 1.15; margin-top: 2px;
+  }
+
+  /* Noms candidats cliquables */
+  .cyc {
+    cursor: pointer;
+    border-bottom: 2px dashed var(--terra);
+    transition: background .15s;
+  }
+  .cyc:hover { background: var(--ochre-bg); }
+  .cyc::after {
+    content: " ↺"; font-size: 0.55em; color: var(--terra);
+    vertical-align: super; font-family: var(--font-body);
+  }
+
+  /* ─── Cartes de jeu ─── */
+  .games { display: flex; flex-direction: column; gap: 12px; padding: 0 16px; }
+  .game-card {
+    border-radius: var(--r-lg);
+    padding: 18px 18px 16px;
+    box-shadow: var(--shadow-card);
+    position: relative;
+    cursor: pointer;
+    transition: transform .15s;
+    border: 1px solid transparent;
+  }
+  .game-card:hover { transform: translateY(-2px) rotate(-0.3deg); }
+  .game-card.discover { background: linear-gradient(135deg, var(--plum-bg), #f7f2fa 70%); border-color: var(--plum-soft); }
+  .game-card.review   { background: linear-gradient(135deg, var(--terra-bg), #fbf1ea 70%); border-color: var(--terra-soft); }
+  .game-emoji { font-size: 34px; line-height: 1; }
+  .game-title {
+    font-family: var(--font-display); font-size: 22px; margin-top: 8px;
+    color: var(--ink);
+  }
+  .game-sub { font-size: 13.5px; color: var(--ink-soft); margin-top: 3px; line-height: 1.4; }
+  .game-meta {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; align-items: center;
+  }
+  .chip {
+    font-size: 11.5px; padding: 3px 9px; border-radius: var(--r-pill);
+    background: rgba(255,255,255,0.75); border: 1px solid var(--paper-edge);
+    color: var(--ink-soft); font-weight: 600;
+  }
+  .chip.warn { background: var(--ochre-bg); border-color: var(--ochre); color: var(--ochre-deep); }
+  .play-btn {
+    position: absolute; right: 16px; bottom: 14px;
+    font-size: 14px; font-weight: 700; padding: 8px 16px;
+    border-radius: var(--r-pill); border: none; cursor: pointer;
+    color: #fff; font-family: var(--font-body);
+  }
+  .discover .play-btn { background: var(--plum); }
+  .review   .play-btn { background: var(--terra); }
+  .play-btn:hover { filter: brightness(1.1); }
+
+  /* Teaser jeu 3 */
+  .game-card.teaser {
+    background: transparent;
+    border: 2px dashed var(--ink-faint);
+    box-shadow: none;
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: default;
+  }
+  .game-card.teaser:hover { transform: none; }
+  .teaser .game-emoji { font-size: 26px; filter: grayscale(0.4); }
+  .teaser-txt { font-size: 13px; color: var(--ink-softer); line-height: 1.35; }
+  .teaser-txt strong { color: var(--ink-soft); }
+
+  /* ─── Bandeau collection ─── */
+  .collection-strip {
+    margin: 14px 16px 0;
+    background: var(--paper); border: 1.5px solid var(--paper-edge);
+    border-radius: var(--r-md);
+    padding: 12px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; box-shadow: var(--shadow-card);
+  }
+  .collection-strip:hover { border-color: var(--plum-soft); }
+  .coll-left { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .coll-title { font-family: var(--font-display); font-size: 15.5px; font-weight: 600; }
+  .coll-count { font-size: 12.5px; color: var(--ink-softer); }
+  .coll-count b { color: var(--terra); font-size: 14px; }
+  .coll-arrow { color: var(--ink-faint); font-size: 18px; }
+
+  /* ─── Postcard Expressions du jour (compacte) ─── */
+  .daily-wrap { padding: 18px 16px 8px; }
+  .daily-label {
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--ink-softer); font-weight: 700; margin-bottom: 7px;
+  }
+  .postcard {
+    border-radius: var(--r-md);
+    overflow: hidden; position: relative;
+    box-shadow: var(--shadow-postcard);
+    /* Placeholder « photo pays » — en prod : vraie photo Italie */
+    background:
+      linear-gradient(rgba(20,12,28,0.42), rgba(20,12,28,0.42)),
+      linear-gradient(120deg, #7a9e7e 0%, #b8a06a 45%, #c98d5f 100%);
+    color: #fff;
+    padding: 14px 16px 12px;
+    cursor: pointer;
+    min-height: 104px;
+  }
+  .postcard:hover { filter: brightness(1.06); }
+  .stamp {
+    position: absolute; top: 10px; right: 12px;
+    background: var(--paper); color: var(--ink);
+    font-size: 16px; padding: 4px 6px;
+    border-radius: 3px; transform: rotate(4deg);
+    box-shadow: 1px 2px 0 rgba(0,0,0,0.25);
+    border: 1px dashed var(--ink-faint);
+  }
+  .postcard .expr {
+    font-family: var(--font-display); font-size: 19px; font-weight: 600;
+    max-width: 78%;
+  }
+  .postcard .lit {
+    font-family: var(--font-hand); font-size: 17px; opacity: 0.92; margin-top: 2px;
+  }
+  .postcard .country { font-size: 11px; opacity: 0.85; margin-top: 8px; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* ─── Nav mobile ─── */
+  .bottom-nav {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: var(--paper);
+    border-top: 1px solid var(--paper-edge);
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 8px 6px 14px;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 20px; color: var(--ink-softer); cursor: pointer;
+    background: none; border: none;
+  }
+  .nav-item small { font-size: 9px; font-weight: 600; font-family: var(--font-body); }
+  .nav-item.active { color: var(--plum-deep); }
+  .nav-dice {
+    width: 54px; height: 54px; border-radius: 50%;
+    background: var(--plum); color: #fff;
+    font-size: 26px; border: 4px solid var(--paper);
+    box-shadow: var(--shadow-card);
+    margin-top: -26px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .2s;
+  }
+  .nav-dice:hover { transform: rotate(20deg) scale(1.06); }
+
+  /* ─── Écran « Chercher » (ancienne home) ─── */
+  .quit-x { background: none; border: none; font-size: 17px; color: var(--ink-softer); cursor: pointer; width: 32px; }
+  .search-wrap { padding: 18px 20px 30px; }
+  .search-box {
+    display: flex; align-items: center; gap: 8px;
+    background: #fff; border: 2px solid var(--plum-soft);
+    border-radius: var(--r-pill); padding: 12px 16px;
+    box-shadow: var(--shadow-card);
+  }
+  .search-box input {
+    border: none; outline: none; flex: 1; font-size: 15px;
+    font-family: var(--font-body); background: transparent; color: var(--ink);
+  }
+  .search-hint { font-size: 12px; color: var(--ink-softer); text-align: center; margin-top: 8px; }
+  .chips-label {
+    margin-top: 24px; font-size: 11px; font-weight: 700;
+    letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-softer);
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .s-chip {
+    background: var(--paper); border: 1.5px solid var(--paper-edge); border-radius: var(--r-pill);
+    padding: 7px 14px; font-size: 13.5px; font-weight: 600; color: var(--ink-soft); cursor: pointer;
+  }
+  .s-chip:hover { border-color: var(--plum); color: var(--plum-deep); background: var(--plum-bg); }
+
+  /* ─── Annotations latérales ─── */
+  .board { display: flex; gap: 26px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+  .notes-col { width: 250px; display: flex; flex-direction: column; gap: 18px; padding-top: 30px; }
+  .note {
+    background: var(--ochre-bg);
+    border-radius: 4px; padding: 12px 14px;
+    box-shadow: var(--shadow-card);
+    transform: rotate(-1deg);
+  }
+  .note:nth-child(even) { transform: rotate(1.1deg); background: var(--plum-bg); }
+  .note .hand { font-size: 18px; transform: none; display: block; }
+  @media (max-width: 760px) { .notes-col { width: 393px; max-width: 100%; padding-top: 0; } }
+</style>
+</head>
+<body>
+<div class="workshop">
+  <div class="workshop-head">
+    <div class="eyebrow">Session S195 · Mockup 1/3 · Pivot hub de jeux</div>
+    <h1>Le HUB — nouvelle page d'accueil</h1>
+    <p>La home devient la salle de jeux : 2 cartes jouables, un teaser du jeu 3,
+       la collection en raccourci, et la carte postale « Expressions du jour » conservée en pied.</p>
+  </div>
+
+  <div class="legend hand">
+    ✅ Noms tranchés S195 : « À quoi on joue ? » · Voyage · Révision · Ma collection
+  </div>
+
+  <div class="board">
+    <!-- ═══════════ TÉLÉPHONE ═══════════ -->
+    <div class="phone">
+      <div class="screen">
+
+        <header class="app-header">
+          <div class="logo">World <span>Expressions</span></div>
+          <div class="header-icons">
+            <button title="Recherche — rétrogradée en icône">🔍</button>
+            <button title="Carnet / collection">❤️</button>
+            <button title="Menu Explorer : Atlas, domaines, emojis, About">☰</button>
+          </div>
+        </header>
+
+        <div class="hub-title-wrap">
+          <div class="hub-eyebrow">World Expressions</div>
+          <div class="hub-title">À quoi on joue&nbsp;?</div>
+        </div>
+
+        <div class="games">
+
+          <!-- Jeu 1 : Découverte -->
+          <div class="game-card discover">
+            <div class="game-emoji">🧭</div>
+            <div class="game-title">Voyage</div>
+            <div class="game-sub">10 cartes à deviner ou à faire défiler.<br>Garde celles qui te plaisent&nbsp;❤️</div>
+            <div class="game-meta">
+              <span class="chip">Derniers filtres&nbsp;: 🇮🇹 Italien · Animaux</span>
+            </div>
+            <button class="play-btn">Jouer ▸</button>
+          </div>
+
+          <!-- Jeu 2 : Révision -->
+          <div class="game-card review">
+            <div class="game-emoji">🃏</div>
+            <div class="game-title">Révision</div>
+            <div class="game-sub">Ne pioche que dans ta collection.<br>Retourne la carte — tu la savais, ou pas encore&nbsp;?</div>
+            <div class="game-meta">
+              <span class="chip">🇮🇹 31 prêtes</span>
+              <span class="chip warn">6 à revoir</span>
+            </div>
+            <button class="play-btn">Réviser ▸</button>
+          </div>
+
+          <!-- Teaser jeu 3 -->
+          <div class="game-card teaser">
+            <div class="game-emoji">🗺️</div>
+            <div class="teaser-txt">
+              <strong>Bientôt — un 3e jeu</strong><br>
+              Explore les expressions sur une carte du monde… ou dans des constellations d'emojis ✨
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Bandeau collection -->
+        <div class="collection-strip">
+          <div class="coll-left">
+            <span class="coll-title">Ma collection</span>
+            <span class="coll-count"><b>47</b> expressions · 🇮🇹 31 · 🇹🇷 12 · 🇫🇷 4</span>
+          </div>
+          <span class="coll-arrow">›</span>
+        </div>
+
+        <!-- Expressions du jour (compacte, fond photo pays conservé) -->
+        <div class="daily-wrap">
+          <div class="daily-label">Expressions du jour</div>
+          <div class="postcard">
+            <div class="stamp">🇮🇹</div>
+            <div class="expr">In bocca al lupo</div>
+            <div class="lit">« Dans la gueule du loup »</div>
+            <div class="country">Italie · toucher pour découvrir</div>
+          </div>
+        </div>
+
+        <!-- Nav mobile -->
+        <nav class="bottom-nav">
+          <button class="nav-item active">🏠<small>Jouer</small></button>
+          <button class="nav-item">🔍<small>Chercher</small></button>
+          <button class="nav-dice" title="Partie rapide : une partie Découverte démarre direct, sans filtres">🎲</button>
+          <button class="nav-item">🗺️<small>Atlas</small></button>
+          <button class="nav-item">💡<small>Concepts</small></button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- ═══════════ ANNOTATIONS ═══════════ -->
+    <div class="notes-col">
+      <div class="note"><span class="hand">🎲 Le dé central = « partie rapide » : un tap, une partie Découverte
+        démarre sans filtres. Le hub = le menu, le dé = le plat du jour.</span></div>
+      <div class="note"><span class="hand">🔍 La recherche descend dans le header + garde sa place dans la nav.
+        L'exploration (Atlas, domaines, emojis) va au menu ☰.</span></div>
+      <div class="note"><span class="hand">🃏 Révision affiche l'état réel : nombre de cartes prêtes + « à revoir ».
+        À 0 favori → la carte rebondit vers Découverte (état vide avec rebond).</span></div>
+      <div class="note"><span class="hand">💌 « Expressions du jour » : carte postale compacte, fond photo du pays
+        conservé, clic → la fiche.</span></div>
+      <div class="note"><span class="hand">📖 La fiche expression ne change pas — elle reste la destination
+        de tout clic sur une carte.</span></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ ET L'ANCIENNE HOME ? ═══════════ -->
+  <div class="workshop-head" style="margin-top:56px">
+    <div class="eyebrow">Bonus — ce que devient l'ancienne home</div>
+    <h1 style="font-size:23px">L'écran « Chercher »</h1>
+    <p>Rien n'est perdu : la barre de recherche et les chips d'idées vivent désormais derrière
+       le 🔍 (header + nav). « Expressions du jour » a déménagé en pied de hub.
+       La page de résultats, elle, ne change pas.</p>
+  </div>
+  <div class="board" style="margin-top:20px">
+    <div class="phone">
+      <div class="screen" style="padding-bottom:8px; min-height:430px">
+        <header class="app-header">
+          <button class="quit-x">✕</button>
+          <div class="logo">Chercher</div>
+          <span style="width:32px"></span>
+        </header>
+        <div class="search-wrap">
+          <div class="search-box">🔎 <input placeholder="Un mot, une émotion, une idée…"></div>
+          <div class="search-hint">Recherche exacte + sémantique, dans les 7 langues</div>
+          <div class="chips-label">Ou pioche une idée</div>
+          <div class="chips">
+            <span class="s-chip">🦶 pied</span>
+            <span class="s-chip">💰 argent</span>
+            <span class="s-chip">🐺 animaux</span>
+            <span class="s-chip">🤥 mentir</span>
+            <span class="s-chip">😨 peur</span>
+            <span class="s-chip">✨ surprends-moi</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note"><span class="hand">🔍 ✅ Validé S195 : la page « Chercher » refondue remplace l'ancienne
+        home ET l'overlay → voir le mockup dédié
+        <a href="pivot-chercher.html">pivot-chercher.html</a>.</span></div>
+      <div class="note"><span class="hand">💡 L'esprit du pivot : la recherche devient un OUTIL,
+        le hub devient la PORTE.</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Noms candidats — cliquer un mot souligné fait défiler les alternatives.
+  const CANDIDATES = {
+    hubtitle: ["À quoi on joue ?", "Salle de jeux", "Jouer", "Le kiosque"],
+    game1:    ["Découverte", "Exploration", "Pioche", "Voyage"],
+    game2:    ["Révision", "Mémo", "Entraînement", "Atelier"],
+    coll:     ["Ma collection", "Mon carnet", "Mes trouvailles"],
+  };
+  document.querySelectorAll(".cyc").forEach(el => {
+    const key = el.dataset.cycle;
+    let i = 0;
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      i = (i + 1) % CANDIDATES[key].length;
+      el.textContent = CANDIDATES[key][i];
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup S195 — Page « Chercher » refondue</title>
+<style>
+  :root {
+    --paper:        #fdf8ee;
+    --paper-deep:   #f3e8d4;
+    --paper-edge:   #e8dcc4;
+    --ink:          #1c1410;
+    --ink-soft:     #5c4f47;
+    --ink-softer:   #8b7d72;
+    --ink-faint:    #b8aa9b;
+    --plum:         #6b4d8f;
+    --plum-deep:    #4a3565;
+    --plum-soft:    #c9b8d9;
+    --plum-bg:      #ebe3f1;
+    --terra:        #c1543a;
+    --terra-deep:   #92341f;
+    --terra-soft:   #f0c8b8;
+    --terra-bg:     #f7e3d8;
+    --ochre:        #d4a83a;
+    --ochre-deep:   #8b6b1c;
+    --ochre-bg:     #faf2cf;
+    --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-hand:    "Caveat", "Bradley Hand", "Comic Sans MS", cursive;
+    --shadow-card:  0 1px 2px rgba(28,20,16,0.05), 0 4px 12px rgba(28,20,16,0.06);
+    --shadow-deep:  0 8px 28px rgba(28,20,16,0.18);
+    --r-md: 10px; --r-lg: 18px; --r-pill: 999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--paper-deep); color: var(--ink);
+    font-family: var(--font-body); padding: 24px 16px 80px;
+  }
+  .workshop { max-width: 950px; margin: 0 auto; }
+  .workshop-head { text-align: center; margin-bottom: 8px; }
+  .workshop-head .eyebrow { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--terra); font-weight: 700; }
+  .workshop-head h1 { font-family: var(--font-display); font-size: 28px; margin: 4px 0; }
+  .workshop-head p { color: var(--ink-soft); font-size: 14px; max-width: 640px; margin: 0 auto; }
+  .hand { font-family: var(--font-hand); color: var(--plum-deep); font-size: 19px; line-height: 1.25; }
+  .legend {
+    margin: 14px auto 26px; max-width: 480px; text-align: center;
+    background: var(--ochre-bg); border: 1.5px dashed var(--ochre);
+    border-radius: var(--r-md); padding: 10px 14px;
+  }
+
+  .frames { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; align-items: flex-start; }
+  .frame-col { display: flex; flex-direction: column; gap: 12px; }
+  .frame-label { text-align: center; }
+  .frame-label .step {
+    display: inline-block; background: var(--plum); color: #fff;
+    width: 26px; height: 26px; border-radius: 50%; line-height: 26px;
+    font-weight: 700; font-size: 14px; margin-right: 6px;
+  }
+  .frame-label .txt { font-family: var(--font-display); font-size: 17px; font-weight: 600; }
+
+  .phone {
+    width: 393px; max-width: 100%;
+    background: var(--paper);
+    border: 10px solid var(--ink); border-radius: 38px;
+    box-shadow: var(--shadow-deep); overflow: hidden;
+  }
+  .screen { min-height: 700px; }
+
+  /* ─── Header ─── */
+  .app-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 6px; }
+  .quit-x { background: none; border: none; font-size: 17px; color: var(--ink-softer); cursor: pointer; width: 32px; }
+  .page-title { font-family: var(--font-display); font-weight: 700; font-size: 17px; color: var(--plum-deep); }
+
+  /* ─── Barre de recherche ─── */
+  .search-wrap { padding: 12px 18px 0; }
+  .search-box {
+    display: flex; align-items: center; gap: 8px;
+    background: #fff; border: 2px solid var(--plum-soft);
+    border-radius: var(--r-pill); padding: 12px 16px;
+    box-shadow: var(--shadow-card);
+  }
+  .search-box.active { border-color: var(--plum); }
+  .search-box input {
+    border: none; outline: none; flex: 1; font-size: 15px;
+    font-family: var(--font-body); background: transparent; color: var(--ink);
+  }
+  .search-hint { font-size: 12px; color: var(--ink-softer); text-align: center; margin-top: 8px; }
+
+  /* ─── Chips d'idées ─── */
+  .chips-head { display: flex; align-items: center; justify-content: space-between; margin-top: 26px; }
+  .chips-label { font-size: 11px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-softer); }
+  .reshuffle {
+    background: none; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 700; color: var(--plum-deep); font-family: var(--font-body);
+  }
+  .reshuffle:hover { text-decoration: underline; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .s-chip {
+    background: var(--paper); border: 1.5px solid var(--paper-edge); border-radius: var(--r-pill);
+    padding: 7px 14px; font-size: 13.5px; font-weight: 600; color: var(--ink-soft); cursor: pointer;
+    animation: pop .25s ease;
+  }
+  @keyframes pop { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+  .s-chip:hover { border-color: var(--plum); color: var(--plum-deep); background: var(--plum-bg); }
+
+  /* ─── Explorer autrement ─── */
+  .explore-label { margin-top: 30px; font-size: 11px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-softer); }
+  .explore-row { display: flex; gap: 10px; margin-top: 10px; }
+  .explore-tile {
+    flex: 1; text-align: center; cursor: pointer;
+    background: #fff; border: 1.5px solid var(--paper-edge);
+    border-radius: var(--r-md); padding: 14px 6px 12px;
+    box-shadow: var(--shadow-card);
+  }
+  .explore-tile:hover { border-color: var(--plum-soft); transform: translateY(-2px); }
+  .explore-tile .ic { font-size: 26px; }
+  .explore-tile .lb { font-size: 12px; font-weight: 700; color: var(--ink-soft); margin-top: 4px; }
+
+  /* ─── Expression du hasard (pied de page vide) ─── */
+  .lucky {
+    margin-top: 30px; text-align: center;
+    background: var(--plum-bg); border: 1.5px dashed var(--plum-soft);
+    border-radius: var(--r-md); padding: 12px;
+    font-size: 13.5px; color: var(--plum-deep); font-weight: 600; cursor: pointer;
+  }
+  .lucky:hover { background: var(--plum-soft); }
+
+  /* ─── Résultats ─── */
+  .filter-row { display: flex; gap: 7px; margin-top: 12px; flex-wrap: wrap; }
+  .f-chip {
+    font-size: 12px; font-weight: 700; padding: 5px 12px;
+    border-radius: var(--r-pill); border: 1.5px solid var(--paper-edge);
+    background: var(--paper); color: var(--ink-soft); cursor: pointer;
+  }
+  .f-chip.on { background: var(--plum-bg); border-color: var(--plum); color: var(--plum-deep); }
+  .results { padding: 6px 18px 26px; }
+  .res-group { margin-top: 18px; }
+  .res-group-head { display: flex; align-items: baseline; gap: 8px; }
+  .res-group-title { font-family: var(--font-display); font-size: 16.5px; font-weight: 700; }
+  .res-group-count { font-size: 12px; color: var(--ink-softer); font-weight: 600; }
+  .res-group-sub { font-size: 12px; color: var(--ink-softer); margin-top: 1px; }
+  .res-list { display: flex; flex-direction: column; gap: 8px; margin-top: 9px; }
+  .res-row {
+    background: #fff; border: 1.5px solid var(--paper-edge);
+    border-radius: var(--r-md); padding: 11px 13px; cursor: pointer;
+    box-shadow: var(--shadow-card); position: relative;
+  }
+  .res-row:hover { border-color: var(--plum-soft); }
+  .res-flag { position: absolute; top: 10px; right: 12px; font-size: 16px; }
+  .res-expr { font-family: var(--font-display); font-weight: 600; font-size: 15.5px; padding-right: 28px; }
+  .res-expr mark { background: var(--ochre-bg); color: inherit; border-radius: 3px; padding: 0 2px; }
+  .res-lit { font-family: var(--font-hand); font-size: 16px; color: var(--ink-soft); }
+  .res-mean { font-size: 12.5px; color: var(--ink-softer); margin-top: 2px; }
+  .group-exact .res-row { border-left: 4px solid var(--plum); }
+  .group-sem .res-row { border-left: 4px solid var(--ochre); }
+  .more-link {
+    margin-top: 8px; text-align: center; width: 100%;
+    background: none; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 700; color: var(--plum-deep);
+    font-family: var(--font-body); text-decoration: underline; text-underline-offset: 3px;
+  }
+
+  .note {
+    background: var(--ochre-bg); border-radius: 4px; padding: 12px 14px;
+    box-shadow: var(--shadow-card); transform: rotate(-1deg);
+    width: 340px; max-width: 100%; margin: 0 auto;
+  }
+  .note.alt { background: var(--plum-bg); transform: rotate(1deg); }
+  .note .hand { font-size: 18px; display: block; }
+</style>
+</head>
+<body>
+<div class="workshop">
+  <div class="workshop-head">
+    <div class="eyebrow">Session S195 · Mockup bonus · Pivot hub de jeux</div>
+    <h1>La page « Chercher », refondue</h1>
+    <p>Puisqu'on refond, autant refondre : une vraie page de recherche qui remplace
+       l'ancienne home ET l'overlay. Un seul écran de recherche à maintenir, avec sa propre URL.</p>
+  </div>
+
+  <div class="legend hand">
+    ✍️ Le « ↻ d'autres idées » rebat vraiment les chips — essaie plusieurs fois !
+  </div>
+
+  <div class="frames">
+
+    <!-- ═══ ÉTAT 1 : L'INVITATION ═══ -->
+    <div class="frame-col">
+      <div class="frame-label"><span class="step">1</span><span class="txt">L'invitation</span></div>
+      <div class="phone">
+        <div class="screen">
+          <header class="app-header">
+            <button class="quit-x">‹</button>
+            <div class="page-title">Chercher</div>
+            <span style="width:32px"></span>
+          </header>
+          <div class="search-wrap">
+            <div class="search-box">🔎 <input placeholder="Un mot, une émotion, une idée…"></div>
+            <div class="search-hint">Le mot exact… ou juste l'idée — on cherche les deux, dans les 7 langues</div>
+
+            <div class="chips-head">
+              <span class="chips-label">Pioche une idée</span>
+              <button class="reshuffle" onclick="reshuffle()">↻ d'autres idées</button>
+            </div>
+            <div class="chips" id="chipZone">
+              <span class="s-chip">🦶 pied</span>
+              <span class="s-chip">💰 argent</span>
+              <span class="s-chip">🐺 animaux</span>
+              <span class="s-chip">🤥 mentir</span>
+              <span class="s-chip">😨 peur</span>
+            </div>
+
+            <div class="explore-label">Explorer autrement</div>
+            <div class="explore-row">
+              <div class="explore-tile"><div class="ic">🗺️</div><div class="lb">Atlas</div></div>
+              <div class="explore-tile"><div class="ic">💡</div><div class="lb">Concepts</div></div>
+              <div class="explore-tile"><div class="ic">😀</div><div class="lb">Emojis</div></div>
+            </div>
+
+            <div class="lucky">🎲 Pas d'idée ? Ouvre une expression au hasard</div>
+          </div>
+        </div>
+      </div>
+      <div class="note"><span class="hand">💡 La page reste vivante : le ↻ rebat les chips, et elles changent
+        à chaque visite (principe malice — comme sur l'ancienne home).</span></div>
+      <div class="note alt"><span class="hand">🧭 « Explorer autrement » rapatrie les entrées du menu ☰ ici —
+        la page devient LA maison de la curiosité, pas juste une barre.</span></div>
+    </div>
+
+    <!-- ═══ ÉTAT 2 : RÉSULTATS ═══ -->
+    <div class="frame-col">
+      <div class="frame-label"><span class="step">2</span><span class="txt">Deux familles de résultats</span></div>
+      <div class="phone">
+        <div class="screen">
+          <header class="app-header">
+            <button class="quit-x">‹</button>
+            <div class="page-title">Chercher</div>
+            <span style="width:32px"></span>
+          </header>
+          <div class="search-wrap">
+            <div class="search-box active">🔎 <input value="peur"></div>
+            <div class="filter-row">
+              <button class="f-chip on">Toutes les langues ▾</button>
+              <button class="f-chip">Type ▾</button>
+            </div>
+          </div>
+
+          <div class="results">
+            <!-- Correspondance exacte -->
+            <div class="res-group group-exact">
+              <div class="res-group-head">
+                <span class="res-group-title">Le mot y est</span>
+                <span class="res-group-count">7 résultats</span>
+              </div>
+              <div class="res-group-sub">« peur » apparaît dans l'expression</div>
+              <div class="res-list">
+                <div class="res-row">
+                  <span class="res-flag">🇫🇷</span>
+                  <div class="res-expr">Avoir une <mark>peur</mark> bleue</div>
+                  <div class="res-mean">Être terrorisé</div>
+                </div>
+                <div class="res-row">
+                  <span class="res-flag">🇫🇷</span>
+                  <div class="res-expr">La <mark>peur</mark> au ventre</div>
+                  <div class="res-mean">Une angoisse qui ne lâche pas</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Correspondance sémantique -->
+            <div class="res-group group-sem">
+              <div class="res-group-head">
+                <span class="res-group-title">L'idée y est</span>
+                <span class="res-group-count">23 résultats</span>
+              </div>
+              <div class="res-group-sub">des expressions qui parlent de peur, sans le mot</div>
+              <div class="res-list">
+                <div class="res-row">
+                  <span class="res-flag">🇮🇹</span>
+                  <div class="res-expr">Avere il cuore in gola</div>
+                  <div class="res-lit">« Avoir le cœur dans la gorge »</div>
+                  <div class="res-mean">Être mort de trouille, à bout de souffle</div>
+                </div>
+                <div class="res-row">
+                  <span class="res-flag">🇹🇷</span>
+                  <div class="res-expr">Etekleri tutuşmak</div>
+                  <div class="res-lit">« Avoir les jupes qui prennent feu »</div>
+                  <div class="res-mean">Paniquer, être aux cent coups</div>
+                </div>
+                <div class="res-row">
+                  <span class="res-flag">🇩🇪</span>
+                  <div class="res-expr">Muffensausen haben</div>
+                  <div class="res-lit">« Avoir le sifflement du trouillomètre »</div>
+                  <div class="res-mean">Avoir la frousse</div>
+                </div>
+                <button class="more-link">Voir les 23 →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note"><span class="hand">🎨 Les deux familles existent déjà dans le moteur (4 passes) —
+        ici on les rend lisibles : liseré prune = le mot, liseré ocre = l'idée,
+        et le mot trouvé est surligné.</span></div>
+      <div class="note alt"><span class="hand">✅ Validés S195 : « Le mot y est / L'idée y est ».
+        À l'intérieur de la 2e famille, les labels actuels (Par le sens · Via les
+        traductions · Par concept) pourraient rester en séparateurs discrets.</span></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const CHIP_SETS = [
+    ["🦶 pied", "💰 argent", "🐺 animaux", "🤥 mentir", "😨 peur"],
+    ["💘 amour", "🍞 nourriture", "🌧️ météo", "😴 paresse", "🏃 partir"],
+    ["🧠 intelligence", "🍀 chance", "😡 colère", "👵 vieillesse", "🤫 secrets"],
+    ["⏳ patience", "🎭 mensonge", "💪 courage", "🌙 rêver", "🗣️ bavarder"],
+  ];
+  let setIdx = 0;
+  function reshuffle() {
+    setIdx = (setIdx + 1) % CHIP_SETS.length;
+    const zone = document.getElementById("chipZone");
+    zone.innerHTML = "";
+    CHIP_SETS[setIdx].forEach((c, i) => {
+      const el = document.createElement("span");
+      el.className = "s-chip";
+      el.textContent = c;
+      el.style.animationDelay = (i * 40) + "ms";
+      zone.appendChild(el);
+    });
+  }
+</script>
+</body>
+</html>

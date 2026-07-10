@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup S195 — Jeu Découverte (carte de jeu)</title>
+<style>
+  :root {
+    --paper:        #fdf8ee;
+    --paper-deep:   #f3e8d4;
+    --paper-edge:   #e8dcc4;
+    --ink:          #1c1410;
+    --ink-soft:     #5c4f47;
+    --ink-softer:   #8b7d72;
+    --ink-faint:    #b8aa9b;
+    --plum:         #6b4d8f;
+    --plum-deep:    #4a3565;
+    --plum-soft:    #c9b8d9;
+    --plum-bg:      #ebe3f1;
+    --terra:        #c1543a;
+    --terra-deep:   #92341f;
+    --terra-soft:   #f0c8b8;
+    --terra-bg:     #f7e3d8;
+    --ochre:        #d4a83a;
+    --ochre-deep:   #8b6b1c;
+    --ochre-bg:     #faf2cf;
+    --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-hand:    "Caveat", "Bradley Hand", "Comic Sans MS", cursive;
+    --shadow-card:  0 1px 2px rgba(28,20,16,0.05), 0 4px 12px rgba(28,20,16,0.06);
+    --shadow-deep:  0 8px 28px rgba(28,20,16,0.18);
+    --r-md: 10px; --r-lg: 18px; --r-pill: 999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--paper-deep); color: var(--ink);
+    font-family: var(--font-body); padding: 24px 16px 80px;
+  }
+  .workshop { max-width: 1360px; margin: 0 auto; }
+  .workshop-head { text-align: center; margin-bottom: 20px; }
+  .workshop-head .eyebrow { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--terra); font-weight: 700; }
+  .workshop-head h1 { font-family: var(--font-display); font-size: 28px; margin: 4px 0; }
+  .workshop-head p { color: var(--ink-soft); font-size: 14px; max-width: 620px; margin: 0 auto; }
+  .hand { font-family: var(--font-hand); color: var(--plum-deep); font-size: 19px; line-height: 1.25; }
+
+  .frames { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; align-items: flex-start; }
+  .frame-col { display: flex; flex-direction: column; gap: 12px; }
+  .frame-label { text-align: center; }
+  .frame-label .step {
+    display: inline-block; background: var(--plum); color: #fff;
+    width: 26px; height: 26px; border-radius: 50%; line-height: 26px;
+    font-weight: 700; font-size: 14px; margin-right: 6px;
+  }
+  .frame-label .txt { font-family: var(--font-display); font-size: 17px; font-weight: 600; }
+
+  .phone {
+    width: 393px; max-width: 100%;
+    background: var(--paper);
+    border: 10px solid var(--ink); border-radius: 38px;
+    box-shadow: var(--shadow-deep); overflow: hidden; position: relative;
+  }
+  .screen { min-height: 700px; display: flex; flex-direction: column; }
+
+  /* ─── Barre de partie ─── */
+  .game-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 14px 8px;
+  }
+  .quit { background: none; border: none; font-size: 17px; color: var(--ink-softer); cursor: pointer; }
+  .filters-recap {
+    font-size: 11px; font-weight: 700; color: var(--ink-soft);
+    background: var(--paper-deep); border: 1px solid var(--paper-edge);
+    padding: 4px 10px; border-radius: var(--r-pill);
+  }
+  .progress { display: flex; gap: 4px; align-items: center; padding: 0 16px 10px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--paper-edge); }
+  .dot.done { background: var(--plum); }
+  .dot.kept { background: var(--terra); }
+  .dot.now  { background: var(--ochre); transform: scale(1.35); }
+  .progress .count { margin-left: auto; font-size: 11.5px; color: var(--ink-softer); font-weight: 700; }
+
+  /* ─── Carte de jeu ─── */
+  .card-zone { padding: 4px 16px 16px; flex: 1; display: flex; flex-direction: column; }
+  .game-card {
+    border-radius: var(--r-lg); overflow: hidden; position: relative;
+    box-shadow: var(--shadow-card);
+    background:
+      linear-gradient(rgba(20,12,28,0.5), rgba(24,16,10,0.62)),
+      linear-gradient(120deg, #7a9e7e 0%, #b8a06a 45%, #c98d5f 100%);
+    color: #fff;
+    padding: 22px 20px 18px;
+    flex: 1; display: flex; flex-direction: column;
+  }
+  .stamp {
+    position: absolute; top: 12px; right: 14px;
+    background: var(--paper); color: var(--ink);
+    font-size: 17px; padding: 4px 7px; border-radius: 3px;
+    transform: rotate(4deg); box-shadow: 1px 2px 0 rgba(0,0,0,0.3);
+    border: 1px dashed var(--ink-faint);
+  }
+  .flag-report {
+    position: absolute; bottom: 10px; right: 12px;
+    background: none; border: none; cursor: pointer;
+    font-size: 14px; opacity: 0.45;
+  }
+  .flag-report:hover { opacity: 1; }
+  .card-kind { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; font-weight: 700; }
+  .card-expr { font-family: var(--font-display); font-size: 30px; font-weight: 600; line-height: 1.15; margin-top: 8px; }
+  .card-lit  { font-family: var(--font-hand); font-size: 22px; opacity: 0.95; margin-top: 6px; }
+  .hint-row { display: flex; gap: 8px; margin-top: 14px; }
+  .hint-chip {
+    background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35);
+    border-radius: var(--r-pill); padding: 4px 12px; font-size: 12.5px; font-weight: 600;
+  }
+
+  /* Zone devinette */
+  .guess-zone { margin-top: auto; text-align: center; padding-top: 26px; }
+  .guess-q { font-size: 15px; opacity: 0.95; margin-bottom: 14px; }
+  .reveal-btn {
+    background: var(--ochre); color: var(--ink); border: none;
+    font-size: 16px; font-weight: 800; font-family: var(--font-body);
+    padding: 13px 30px; border-radius: var(--r-pill); cursor: pointer;
+    box-shadow: 0 3px 0 var(--ochre-deep);
+    transition: transform .1s;
+  }
+  .reveal-btn:hover { transform: translateY(-2px); }
+  .reveal-btn:active { transform: translateY(1px); box-shadow: none; }
+
+  /* Zone révélée */
+  .meaning-zone { margin-top: 18px; animation: rise .35s ease; }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .meaning-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.75; font-weight: 700; }
+  .meaning-txt { font-size: 18px; font-weight: 600; line-height: 1.4; margin-top: 4px; }
+  .meaning-note { font-size: 13px; opacity: 0.85; margin-top: 6px; line-height: 1.45; }
+
+  /* Profondeur en 1 clic */
+  .depth { margin-top: 14px; display: flex; flex-direction: column; gap: 7px; }
+  .depth-item {
+    background: rgba(253,248,238,0.13); border: 1px solid rgba(255,255,255,0.28);
+    border-radius: var(--r-md); overflow: hidden;
+  }
+  .depth-head {
+    width: 100%; text-align: left; background: none; border: none; color: #fff;
+    font-size: 13.5px; font-weight: 700; font-family: var(--font-body);
+    padding: 9px 12px; cursor: pointer; display: flex; justify-content: space-between;
+  }
+  .depth-head .chev { transition: transform .2s; opacity: 0.7; }
+  .depth-item.open .chev { transform: rotate(90deg); }
+  .depth-body { display: none; padding: 0 12px 11px; font-size: 13px; line-height: 1.5; opacity: 0.94; }
+  .depth-item.open .depth-body { display: block; animation: rise .25s ease; }
+  .depth-body .trad { font-family: var(--font-hand); font-size: 17px; opacity: 0.9; }
+  .depth-link {
+    display: block; text-align: center; margin-top: 4px;
+    color: #fff; font-size: 13px; font-weight: 700; text-decoration: underline;
+    text-underline-offset: 3px; opacity: 0.9; cursor: pointer;
+    background: none; border: none; font-family: var(--font-body); width: 100%;
+  }
+
+  /* Actions sous la carte */
+  .actions { display: flex; gap: 10px; padding: 14px 16px 20px; }
+  .act {
+    flex: 1; padding: 13px 0; border-radius: var(--r-pill);
+    font-size: 15px; font-weight: 800; font-family: var(--font-body); cursor: pointer;
+    transition: transform .12s;
+  }
+  .act:hover { transform: translateY(-1px); }
+  .act.keep { background: var(--terra); color: #fff; border: none; box-shadow: 0 3px 0 var(--terra-deep); }
+  .act.keep.kept { background: var(--paper); color: var(--terra); border: 2px solid var(--terra); box-shadow: none; }
+  .act.next { background: var(--paper); color: var(--ink-soft); border: 2px solid var(--paper-edge); }
+  .actions.disabled .act { opacity: 0.35; pointer-events: none; }
+
+  /* ─── Récap fin de partie ─── */
+  .recap { text-align: center; flex: 1; display: flex; flex-direction: column; }
+  .recap-hero {
+    position: relative; color: #fff;
+    padding: 34px 22px 22px;
+    /* Même photo pays que les cartes de la partie (filtre 🇮🇹) */
+    background:
+      linear-gradient(rgba(20,12,28,0.48), rgba(24,16,10,0.6)),
+      linear-gradient(120deg, #7a9e7e 0%, #b8a06a 45%, #c98d5f 100%);
+  }
+  .recap-emoji { font-size: 44px; }
+  .recap-title { font-family: var(--font-display); font-size: 26px; margin-top: 8px; }
+  .recap-sub { font-size: 14px; margin-top: 6px; opacity: 0.95; }
+  .recap-sub b { color: var(--ochre); font-size: 17px; }
+  .recap-body { padding: 14px 22px 20px; flex: 1; display: flex; flex-direction: column; }
+  .kept-list { margin: 18px 0 8px; display: flex; flex-direction: column; gap: 8px; }
+  .kept-row {
+    background: var(--paper); border: 1.5px solid var(--paper-edge);
+    border-radius: var(--r-md); padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: var(--shadow-card); text-align: left;
+  }
+  .kept-row .heart { color: var(--terra); }
+  .kept-row .k-expr { font-family: var(--font-display); font-weight: 600; font-size: 15px; }
+  .kept-row .k-mean { font-size: 12px; color: var(--ink-softer); }
+  .coll-update {
+    margin: 8px auto 0; display: inline-block;
+    background: var(--ochre-bg); border: 1.5px dashed var(--ochre);
+    border-radius: var(--r-pill); padding: 6px 16px;
+    font-size: 13px; font-weight: 700; color: var(--ochre-deep);
+  }
+  .recap-actions { margin-top: auto; display: flex; flex-direction: column; gap: 9px; padding-top: 22px; }
+  .recap-actions .primary {
+    background: var(--plum); color: #fff; border: none;
+    padding: 14px; border-radius: var(--r-pill); font-size: 16px; font-weight: 800;
+    font-family: var(--font-body); cursor: pointer; box-shadow: 0 3px 0 var(--plum-deep);
+  }
+  .recap-actions .secondary {
+    background: none; border: none; color: var(--ink-soft);
+    font-size: 14px; font-weight: 700; font-family: var(--font-body);
+    cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+  }
+
+  .note {
+    background: var(--ochre-bg); border-radius: 4px; padding: 12px 14px;
+    box-shadow: var(--shadow-card); transform: rotate(-1deg);
+    width: 340px; max-width: 100%; margin: 0 auto;
+  }
+  .note.alt { background: var(--plum-bg); transform: rotate(1deg); }
+  .note .hand { font-size: 18px; display: block; }
+</style>
+</head>
+<body>
+<div class="workshop">
+  <div class="workshop-head">
+    <div class="eyebrow">Session S195 · Mockup 2/3 · Pivot hub de jeux</div>
+    <h1>Jeu Découverte — la carte de jeu</h1>
+    <p>Mode devinette : le sens est caché, on devine, on révèle, on garde ❤️.
+       L'écran 1 est jouable — appuie sur « Révéler le sens » ! Toute la profondeur de la fiche reste à 1 clic.</p>
+  </div>
+
+  <div class="frames">
+
+    <!-- ═══ ÉTAT 1 : DEVINETTE (jouable) ═══ -->
+    <div class="frame-col">
+      <div class="frame-label"><span class="step">1</span><span class="txt">Devine…</span></div>
+      <div class="phone">
+        <div class="screen">
+          <div class="game-bar">
+            <button class="quit">✕</button>
+            <span class="filters-recap">🇮🇹 Italien · Animaux · Expressions</span>
+            <span style="width:17px"></span>
+          </div>
+          <div class="progress">
+            <span class="dot done"></span><span class="dot kept"></span><span class="dot now"></span>
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="count">carte 3/10</span>
+          </div>
+          <div class="card-zone">
+            <div class="game-card" id="playCard">
+              <div class="stamp">🇮🇹</div>
+              <div class="card-kind">Expression · Italie</div>
+              <div class="card-expr">In bocca al lupo</div>
+              <div class="card-lit">« Dans la gueule du loup »</div>
+              <div class="hint-row">
+                <span class="hint-chip">🐺 Animaux</span>
+                <span class="hint-chip">💬 très courante</span>
+              </div>
+
+              <!-- Devinette -->
+              <div class="guess-zone" id="guessZone">
+                <div class="guess-q">🤔 À ton avis, que veut dire cette expression&nbsp;?</div>
+                <button class="reveal-btn" onclick="reveal()">Révéler le sens</button>
+              </div>
+
+              <!-- Révélé (caché au départ) -->
+              <div class="meaning-zone" id="meaningZone" style="display:none">
+                <div class="meaning-label">Signification</div>
+                <div class="meaning-txt">Bonne chance&nbsp;!</div>
+                <div class="meaning-note">Se dit avant un examen ou un défi. On répond «&nbsp;Crepi il lupo&nbsp;» — que le loup crève&nbsp;!</div>
+                <div class="depth">
+                  <div class="depth-item">
+                    <button class="depth-head" onclick="toggleDepth(this)">📜 D'où ça vient&nbsp;? <span class="chev">›</span></button>
+                    <div class="depth-body">Vieux souhait de chasseurs&nbsp;: nommer le danger pour le conjurer. Entrer «&nbsp;dans la gueule du loup&nbsp;» et en réchapper, c'est la chance suprême.</div>
+                  </div>
+                  <div class="depth-item">
+                    <button class="depth-head" onclick="toggleDepth(this)">💬 Exemple + traduction <span class="chev">›</span></button>
+                    <div class="depth-body">
+                      «&nbsp;Domani hai l'esame&nbsp;? In bocca al lupo&nbsp;!&nbsp;»<br>
+                      <span class="trad">→ « Tu as l'examen demain ? Bonne chance ! »</span>
+                    </div>
+                  </div>
+                  <button class="depth-link">📖 Voir la fiche complète →</button>
+                </div>
+              </div>
+              <button class="flag-report" title="Signaler cette expression (fabriquée, traduction fausse, doublon…)">🚩</button>
+            </div>
+          </div>
+          <div class="actions disabled" id="actionRow">
+            <button class="act keep" id="keepBtn" onclick="keep()">❤️ Garder</button>
+            <button class="act next">Suivante ⏭</button>
+          </div>
+        </div>
+      </div>
+      <div class="note"><span class="hand">🧳 Italien = langue « découverte » pour Sinan → le littéral s'affiche
+        dès la devinette. En langue maîtrisée, il n'apparaît pas.</span></div>
+      <div class="note alt"><span class="hand">🖼️ Le fond de chaque carte = la photo du pays de SON expression —
+        c'est déjà en prod sur Random mode (PR #87).</span></div>
+    </div>
+
+    <!-- ═══ ÉTAT 2 : RÉVÉLÉE + PROFONDEUR ═══ -->
+    <div class="frame-col">
+      <div class="frame-label"><span class="step">2</span><span class="txt">Révèle, explore, garde</span></div>
+      <div class="phone">
+        <div class="screen">
+          <div class="game-bar">
+            <button class="quit">✕</button>
+            <span class="filters-recap">🇮🇹 Italien · Animaux · Expressions</span>
+            <span style="width:17px"></span>
+          </div>
+          <div class="progress">
+            <span class="dot done"></span><span class="dot kept"></span><span class="dot now"></span>
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="count">carte 3/10</span>
+          </div>
+          <div class="card-zone">
+            <div class="game-card">
+              <div class="stamp">🇮🇹</div>
+              <div class="card-kind">Expression · Italie</div>
+              <div class="card-expr">In bocca al lupo</div>
+              <div class="card-lit">« Dans la gueule du loup »</div>
+              <div class="meaning-zone">
+                <div class="meaning-label">Signification</div>
+                <div class="meaning-txt">Bonne chance&nbsp;!</div>
+                <div class="meaning-note">Se dit avant un examen ou un défi. On répond «&nbsp;Crepi il lupo&nbsp;» — que le loup crève&nbsp;!</div>
+                <div class="depth">
+                  <div class="depth-item open">
+                    <button class="depth-head" onclick="toggleDepth(this)">📜 D'où ça vient&nbsp;? <span class="chev">›</span></button>
+                    <div class="depth-body">Vieux souhait de chasseurs&nbsp;: nommer le danger pour le conjurer. Entrer «&nbsp;dans la gueule du loup&nbsp;» et en réchapper, c'est la chance suprême.</div>
+                  </div>
+                  <div class="depth-item open">
+                    <button class="depth-head" onclick="toggleDepth(this)">💬 Exemple + traduction <span class="chev">›</span></button>
+                    <div class="depth-body">
+                      «&nbsp;Domani hai l'esame&nbsp;? In bocca al lupo&nbsp;!&nbsp;»<br>
+                      <span class="trad">→ « Tu as l'examen demain ? Bonne chance ! »</span>
+                    </div>
+                  </div>
+                  <button class="depth-link">📖 Voir la fiche complète →</button>
+                </div>
+              </div>
+              <button class="flag-report" title="Signaler cette expression">🚩</button>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="act keep">❤️ Garder</button>
+            <button class="act next">Suivante ⏭</button>
+          </div>
+        </div>
+      </div>
+      <div class="note alt"><span class="hand">📖 « Profondeur en 1 clic » : origine et exemple traduit se déplient
+        SUR la carte — le jeu est une porte vers le contenu, pas une version appauvrie.
+        Le 🚩 discret (coin bas droit) signale une expression pourrie, même sans compte.</span></div>
+    </div>
+
+    <!-- ═══ ÉTAT 3 : RÉCAP ═══ -->
+    <div class="frame-col">
+      <div class="frame-label"><span class="step">3</span><span class="txt">Fin de partie</span></div>
+      <div class="phone">
+        <div class="screen">
+          <div class="recap">
+            <div class="recap-hero">
+              <div class="stamp">🇮🇹</div>
+              <div class="recap-emoji">🎉</div>
+              <div class="recap-title">Belle pioche&nbsp;!</div>
+              <div class="recap-sub">10 cartes vues — tu as gardé <b>3 expressions</b></div>
+            </div>
+            <div class="recap-body">
+            <div class="kept-list">
+              <div class="kept-row"><span class="heart">❤️</span>
+                <div><div class="k-expr">In bocca al lupo</div><div class="k-mean">Bonne chance !</div></div>
+              </div>
+              <div class="kept-row"><span class="heart">❤️</span>
+                <div><div class="k-expr">Avere la botte piena e la moglie ubriaca</div><div class="k-mean">Le beurre et l'argent du beurre</div></div>
+              </div>
+              <div class="kept-row"><span class="heart">❤️</span>
+                <div><div class="k-expr">Essere in gamba</div><div class="k-mean">Être doué, capable</div></div>
+              </div>
+            </div>
+            <span class="coll-update">🇮🇹 Ta collection italienne passe à 34&nbsp;!</span>
+            <div class="recap-actions">
+              <button class="primary">Rejouer ▸</button>
+              <button class="secondary">Changer les filtres</button>
+              <button class="secondary">Voir ma collection ❤️</button>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note"><span class="hand">🔗 « Rejouer » = le chaînage : le flux libre, c'est des sessions
+        enchaînées. La partie est enregistrée en base dès le jour 1
+        (date, filtres, cartes, favoris) — la page « Mes parties » viendra en V2. 🕰️</span></div>
+      <div class="note alt"><span class="hand">🏞️ Le récap prend la photo du pays le plus vu de la partie
+        (égalité → tirage au sort). Avec un filtre pays unique, c'est forcément lui.</span></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function reveal() {
+    document.getElementById("guessZone").style.display = "none";
+    document.getElementById("meaningZone").style.display = "block";
+    document.getElementById("actionRow").classList.remove("disabled");
+  }
+  function keep() {
+    const b = document.getElementById("keepBtn");
+    b.classList.toggle("kept");
+    b.innerHTML = b.classList.contains("kept") ? "❤️ Gardée !" : "❤️ Garder";
+  }
+  function toggleDepth(head) {
+    head.parentElement.classList.toggle("open");
+  }
+</script>
+</body>
+</html>
