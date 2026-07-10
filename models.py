@@ -8,10 +8,10 @@ Alembic lit ce fichier pour générer les migrations SQL.
 import uuid
 from datetime import datetime, timezone
 from sqlalchemy import (
-    Boolean, Column, Float, ForeignKey, String, Text,
+    Boolean, Column, Float, ForeignKey, SmallInteger, String, Text,
     UniqueConstraint, DateTime
 )
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
+from sqlalchemy.dialects.postgresql import JSONB, UUID, ARRAY
 from sqlalchemy.orm import DeclarativeBase, relationship
 
 
@@ -193,6 +193,9 @@ class User(Base):
     content_type  = Column(String(20), nullable=False, server_default="all")
     native_lang   = Column(String(10))
     user_goal     = Column(String(30))
+    # Pivot "games hub" (S196) — profil 🧳 découverte / 📚 maîtrisé par langue.
+    # Ex: {"it": "discovery", "tr": "mastered"}. Absent = langue UI considérée maîtrisée.
+    language_modes = Column(JSONB, nullable=False, server_default="{}")
 
     favorites = relationship("UserFavorite", back_populates="user",
                              cascade="all, delete-orphan")
@@ -206,8 +209,52 @@ class UserFavorite(Base):
     expression_id = Column(String(120), ForeignKey("expressions.id", ondelete="CASCADE"), primary_key=True)
     saved_at      = Column(DateTime(timezone=True), nullable=False,
                            default=lambda: datetime.now(timezone.utc))
+    # Pivot "games hub" (S196) — Révision game (contract §2).
+    # v1 semantics: reviewed_at IS NULL = new · box 0 (reviewed) = to review · box >= 1 = known.
+    review_box      = Column(SmallInteger, nullable=False, server_default="0")
+    reviewed_at     = Column(DateTime(timezone=True), nullable=True)
+    game_session_id = Column(UUID(as_uuid=True), ForeignKey("game_sessions.id", ondelete="SET NULL"), nullable=True)
 
     user = relationship("User", back_populates="favorites")
+
+
+class GameSession(Base):
+    """
+    Une partie jouée (Voyage ou Révision) — pivot "games hub" (S196, contract §2).
+    Enregistrée dès le lancement (started_at) ; ended_at NULL = partie abandonnée en cours.
+    """
+    __tablename__ = "game_sessions"
+
+    id         = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id    = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    client_id  = Column(String(64), nullable=False)
+    game       = Column(String(20), nullable=False)  # 'voyage' | 'revision'
+    filters    = Column(JSONB, nullable=False, server_default="{}")
+    cards      = Column(JSONB, nullable=False, server_default="[]")  # ordered list of expression ids
+    kept_ids   = Column(JSONB, nullable=False, server_default="[]")
+    started_at = Column(DateTime(timezone=True), nullable=False,
+                        default=lambda: datetime.now(timezone.utc))
+    ended_at   = Column(DateTime(timezone=True), nullable=True)
+
+
+class ExpressionReport(Base):
+    """
+    Signalement 🚩 d'une expression (contenu fabriqué, mauvaise traduction...).
+    Pas d'authentification requise — user_id ou client_id, l'un des deux.
+    Dédoublonnage : un seul report 'open' par (client_id, expression_id) — cf. index partiel en migration.
+    """
+    __tablename__ = "expression_reports"
+
+    id            = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    expression_id = Column(String(120), ForeignKey("expressions.id", ondelete="CASCADE"), nullable=False)
+    reason        = Column(String(30), nullable=True)  # fabricated | wrong-translation | duplicate | other
+    comment       = Column(Text, nullable=True)
+    user_id       = Column(UUID(as_uuid=True), nullable=True)
+    client_id     = Column(String(64), nullable=True)
+    ui_lang       = Column(String(10), nullable=True)
+    status        = Column(String(20), nullable=False, server_default="open")  # open | resolved | dismissed
+    created_at    = Column(DateTime(timezone=True), nullable=False,
+                           default=lambda: datetime.now(timezone.utc))
 
 
 class EmailToken(Base):
