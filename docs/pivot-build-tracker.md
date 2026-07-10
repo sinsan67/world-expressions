@@ -29,7 +29,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 
 | Lot | Content (contract §5) | Model | Depends on | Branch | Status |
 |---|---|---|---|---|---|
-| **API** | Migrations §2 + endpoints §3 + `models.py` sync + backend tests | Sonnet 5 | contract only | `pivot/lot-api` | ⬜ |
+| **API** | Migrations §2 + endpoints §3 + `models.py` sync + backend tests | Sonnet 5 | contract only | `pivot/lot-api` | 🔨 started S197 |
 | **Report 🚩** | `expression_reports` + `POST /reports` + flag button (fiche + game card) | Sonnet 5 | independent (backend part ships inside Lot API) | `pivot/lot-report` | ⬜ |
 | **A — Hub** | New `/`, hub cards, daily postcard, collection teaser | Sonnet 5 | API (`/daily`) in prod | `pivot/lot-a-hub` | ⬜ |
 | **B — Voyage** | `/voyage` 3 states, quick mode, rare badge, session recording | Sonnet 5 | API (`/game-sessions`) in prod | `pivot/lot-b-voyage` | ⬜ |
