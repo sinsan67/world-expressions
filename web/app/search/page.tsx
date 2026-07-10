@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import EmptyStateRebound from "@/components/home/EmptyStateRebound";
 import ExpressionCard from "@/components/ExpressionCard";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
@@ -28,6 +29,8 @@ const T: Record<UILang, {
   allDisplayed: (n: number) => string;
   noResults: string;
   noResultsHint: string;
+  noResultsRebound: string;
+  noResultsSurprise: string;
   serverError: string;
   titleSearch: (q: string) => string;
   titleConcept: (name: string) => string;
@@ -50,6 +53,8 @@ const T: Record<UILang, {
     allDisplayed: (n) => `${n} expression${n > 1 ? "s" : ""} affichée${n > 1 ? "s" : ""}`,
     noResults: "Aucune expression trouvée",
     noResultsHint: "Essaie un autre mot ou une variante…",
+    noResultsRebound: "Ou rebondis sur une idée",
+    noResultsSurprise: "Surprends-moi",
     serverError: "Impossible de contacter le serveur.",
     titleSearch: (q) => `Recherche : « ${q} » — World Expressions`,
     titleConcept: (name) => `${name} — World Expressions`,
@@ -72,6 +77,8 @@ const T: Record<UILang, {
     allDisplayed: (n) => `${n} expression${n > 1 ? "s" : ""} displayed`,
     noResults: "No expressions found",
     noResultsHint: "Try another word or a variant…",
+    noResultsRebound: "Or bounce to an idea",
+    noResultsSurprise: "Surprise me",
     serverError: "Could not reach the server.",
     titleSearch: (q) => `Search: "${q}" — World Expressions`,
     titleConcept: (name) => `${name} — World Expressions`,
@@ -94,6 +101,8 @@ const T: Record<UILang, {
     allDisplayed: (n) => `${n} expresión${n > 1 ? "es" : ""} mostrada${n > 1 ? "s" : ""}`,
     noResults: "No se encontraron expresiones",
     noResultsHint: "Prueba otra palabra o una variante…",
+    noResultsRebound: "O salta a una idea",
+    noResultsSurprise: "Sorpréndeme",
     serverError: "No se pudo contactar el servidor.",
     titleSearch: (q) => `Búsqueda: "${q}" — World Expressions`,
     titleConcept: (name) => `${name} — World Expressions`,
@@ -116,6 +125,8 @@ const T: Record<UILang, {
     allDisplayed: (n) => `${n} espression${n > 1 ? "i" : "e"} visualizzat${n > 1 ? "e" : "a"}`,
     noResults: "Nessuna espressione trovata",
     noResultsHint: "Prova un'altra parola o una variante…",
+    noResultsRebound: "Oppure rimbalza su un'idea",
+    noResultsSurprise: "Sorprendimi",
     serverError: "Impossibile contattare il server.",
     titleSearch: (q) => `Ricerca: "${q}" — World Expressions`,
     titleConcept: (name) => `${name} — World Expressions`,
@@ -138,6 +149,8 @@ const T: Record<UILang, {
     allDisplayed: (n) => `${n} deyim gösteriliyor`,
     noResults: "Deyim bulunamadı",
     noResultsHint: "Başka bir kelime deneyin…",
+    noResultsRebound: "Ya da bir fikre atla",
+    noResultsSurprise: "Beni şaşırt",
     serverError: "Sunucuya bağlanılamıyor.",
     titleSearch: (q) => `Arama: "${q}" — World Expressions`,
     titleConcept: (name) => `${name} — World Expressions`,
@@ -160,6 +173,8 @@ const T: Record<UILang, {
     allDisplayed: (n) => `${n} Ausdruck${n !== 1 ? "...ausdrücke".slice(3) : ""} angezeigt`,
     noResults: "Keine Ausdrücke gefunden",
     noResultsHint: "Versuche ein anderes Wort oder eine Variante…",
+    noResultsRebound: "Oder spring zu einer Idee",
+    noResultsSurprise: "Überrasch mich",
     serverError: "Server nicht erreichbar.",
     titleSearch: (q) => `Suche: „${q}" — World Expressions`,
     titleConcept: (name) => `${name} — World Expressions`,
@@ -182,6 +197,8 @@ const T: Record<UILang, {
     allDisplayed: (n) => `${n}件の表現を表示`,
     noResults: "表現が見つかりません",
     noResultsHint: "別の言葉か変形を試してください…",
+    noResultsRebound: "気になるテーマから探す",
+    noResultsSurprise: "おまかせで",
     serverError: "サーバーに接続できません。",
     titleSearch: (q) => `検索：「${q}」— World Expressions`,
     titleConcept: (name) => `${name} — World Expressions`,
@@ -778,6 +795,12 @@ function SearchPageContent() {
             <div className="text-center mt-16">
               <p className="text-lg font-medium" style={{ color: "var(--ink-soft)" }}>{t.noResults}</p>
               <p className="text-sm mt-1" style={{ color: "var(--ink-faint)" }}>{t.noResultsHint}</p>
+              <EmptyStateRebound
+                eyebrow={t.noResultsRebound}
+                surpriseLabel={t.noResultsSurprise}
+                tagNames={tagNames}
+                onConceptClick={handleTagClick}
+              />
             </div>
           )}
 
