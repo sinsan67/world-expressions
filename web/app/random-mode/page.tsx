@@ -742,7 +742,7 @@ export default function RandomModePage() {
                         {current.tags.slice(0, 5).map((tg) => (
                           <Link
                             key={tg}
-                            href={`/#q=${encodeURIComponent(tg)}`}
+                            href={`/search?concept=${encodeURIComponent(tg)}`}
                             onClick={(e) => e.stopPropagation()}
                             style={tagChipStyle}
                           >

@@ -13,6 +13,8 @@ const nextConfig: NextConfig = {
     return [
       { source: "/concepts", destination: "/emoji", permanent: true },
       { source: "/concepts/:path*", destination: "/emoji/:path*", permanent: true },
+      // /emojis was one letter away from /emoji (Concepts) — renamed to match its nav label "Emoji map"
+      { source: "/emojis", destination: "/emoji-map", permanent: true },
     ];
   },
 };

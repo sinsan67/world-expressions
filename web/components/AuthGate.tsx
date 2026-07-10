@@ -7,15 +7,22 @@ import { getCarnet, markSynced } from "@/lib/carnet";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
+const UI_LANGS = ["fr", "en", "es", "it", "tr", "de", "ja"] as const;
+type UILang = (typeof UI_LANGS)[number];
+
 export default function AuthGate() {
   const { data: session, status } = useSession();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [knownLang, setKnownLang] = useState<UILang | null>(null);
   const [syncToast, setSyncToast] = useState(0);
 
   useEffect(() => {
     if (status !== "authenticated" || !session?.user?.id) return;
     const key = `wex_onboarded_${session.user.id}`;
     if (!localStorage.getItem(key)) {
+      // Language already picked pre-auth (WelcomeModal / selector) → don't ask again
+      const stored = localStorage.getItem("wex_lang");
+      setKnownLang(UI_LANGS.includes(stored as UILang) ? (stored as UILang) : null);
       setShowOnboarding(true);
     }
   }, [status, session?.user?.id]);
@@ -72,6 +79,7 @@ export default function AuthGate() {
         <OnboardingModal
           onClose={handleOnboardingClose}
           apiUrl={API_URL}
+          initialUiLang={knownLang}
         />
       )}
       {syncToast > 0 && (

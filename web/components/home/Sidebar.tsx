@@ -246,8 +246,11 @@ export default function Sidebar({ uiLang }: Props) {
         <a href="/about" style={{ fontSize: 12, color: "var(--ink-softer)", textDecoration: "none", fontFamily: "var(--font-body)" }}>
           About
         </a>
-        <a href="/emojis" style={{ fontSize: 12, color: "var(--ink-softer)", textDecoration: "none", fontFamily: "var(--font-body)" }}>
+        <a href="/emoji-map" style={{ fontSize: 12, color: "var(--ink-softer)", textDecoration: "none", fontFamily: "var(--font-body)" }}>
           Emoji map
+        </a>
+        <a href="/#newsletter" style={{ fontSize: 12, color: "var(--ink-softer)", textDecoration: "none", fontFamily: "var(--font-body)" }}>
+          Newsletter
         </a>
       </div>
       <p style={{ fontSize: 11, color: "var(--ink-softer)", marginTop: "0.75rem", fontFamily: "var(--font-body)", lineHeight: 1.5 }}>

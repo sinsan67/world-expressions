@@ -28,12 +28,10 @@ const GOAL_OPTIONS: { value: UserGoal; emoji: string; label: string; sub: string
   { value: "teacher",  emoji: "👩‍🏫", label: "Teacher / Educator",  sub: "I use expressions in my teaching" },
 ];
 
-const TOTAL_STEPS = 4;
-
-function ProgressDots({ current }: { current: number }) {
+function ProgressDots({ current, total }: { current: number; total: number }) {
   return (
     <div style={{ display: "flex", gap: "0.375rem", marginBottom: "1.5rem" }}>
-      {Array.from({ length: TOTAL_STEPS }, (_, i) => (
+      {Array.from({ length: total }, (_, i) => (
         <div
           key={i}
           style={{
@@ -52,12 +50,17 @@ function ProgressDots({ current }: { current: number }) {
 type Props = {
   onClose: (uiLang: UILang | null) => void;
   apiUrl: string;
+  /* Language already picked pre-auth (WelcomeModal / selector): skip the
+     interface-language step instead of asking twice */
+  initialUiLang?: UILang | null;
 };
 
-export default function OnboardingModal({ onClose, apiUrl }: Props) {
+export default function OnboardingModal({ onClose, apiUrl, initialUiLang = null }: Props) {
   const { data: session } = useSession();
+  const askLang = !initialUiLang;
+  const totalSteps = askLang ? 4 : 3;
   const [step, setStep] = useState(0);
-  const [uiLang, setUiLang] = useState<UILang>("en");
+  const [uiLang, setUiLang] = useState<UILang>(initialUiLang ?? "en");
   const [nativeLang, setNativeLang] = useState<string | null>(null);
   const [exploreLangs, setExploreLangs] = useState<UILang[]>([]);
   const [userGoal, setUserGoal] = useState<UserGoal | null>(null);
@@ -244,16 +247,16 @@ export default function OnboardingModal({ onClose, apiUrl }: Props) {
             </p>
             <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem" }}>
               <button onClick={() => onClose(null)} style={skipBtnStyle}>Skip for now</button>
-              <button onClick={() => setStep(1)} style={nextBtnStyle}>Let&apos;s go →</button>
+              <button onClick={() => setStep(askLang ? 1 : 2)} style={nextBtnStyle}>Let&apos;s go →</button>
             </div>
           </div>
         )}
 
-        {/* ── Step 1 — Interface language (mandatory) ── */}
-        {step === 1 && (
+        {/* ── Step 1 — Interface language (mandatory, skipped when inherited) ── */}
+        {step === 1 && askLang && (
           <div>
-            <ProgressDots current={1} />
-            <p style={eyebrowStyle}>Step 1 / 4 · Required</p>
+            <ProgressDots current={1} total={totalSteps} />
+            <p style={eyebrowStyle}>Step 1 / {totalSteps} · Required</p>
             <h2 style={titleStyle}>Which language for explanations?</h2>
             <p style={subtitleStyle}>Expressions will be explained in this language throughout the app.</p>
             <LangGrid selected={uiLang} onSelect={(c) => setUiLang(c as UILang)} />
@@ -267,8 +270,8 @@ export default function OnboardingModal({ onClose, apiUrl }: Props) {
         {/* ── Step 2 — Native language (optional) ── */}
         {step === 2 && (
           <div>
-            <ProgressDots current={2} />
-            <p style={eyebrowStyle}>Step 2 / 4 · Optional</p>
+            <ProgressDots current={askLang ? 2 : 1} total={totalSteps} />
+            <p style={eyebrowStyle}>Step {askLang ? 2 : 1} / {totalSteps} · Optional</p>
             <h2 style={titleStyle}>What&apos;s your native language?</h2>
             <p style={subtitleStyle}>Helps surface equivalent expressions in your language first.</p>
             <LangGrid
@@ -277,7 +280,7 @@ export default function OnboardingModal({ onClose, apiUrl }: Props) {
               options={NATIVE_LANG_OPTIONS}
             />
             <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem" }}>
-              <button onClick={() => setStep(1)} style={backBtnStyle}>← Back</button>
+              <button onClick={() => setStep(askLang ? 1 : 0)} style={backBtnStyle}>← Back</button>
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <button onClick={() => { setNativeLang(null); setStep(3); }} style={skipBtnStyle}>Skip</button>
                 <button onClick={() => setStep(3)} style={nextBtnStyle}>Next →</button>
@@ -289,8 +292,8 @@ export default function OnboardingModal({ onClose, apiUrl }: Props) {
         {/* ── Step 3 — Languages to explore (optional, max 3) ── */}
         {step === 3 && (
           <div>
-            <ProgressDots current={3} />
-            <p style={eyebrowStyle}>Step 3 / 4 · Optional</p>
+            <ProgressDots current={askLang ? 3 : 2} total={totalSteps} />
+            <p style={eyebrowStyle}>Step {askLang ? 3 : 2} / {totalSteps} · Optional</p>
             <h2 style={titleStyle}>Which languages fascinate you?</h2>
             <p style={subtitleStyle}>
               Pick up to 3 — we&apos;ll highlight those equivalents across the app.
@@ -316,8 +319,8 @@ export default function OnboardingModal({ onClose, apiUrl }: Props) {
         {/* ── Step 4 — Goal (optional) ── */}
         {step === 4 && (
           <div>
-            <ProgressDots current={4} />
-            <p style={eyebrowStyle}>Step 4 / 4 · Optional</p>
+            <ProgressDots current={askLang ? 4 : 3} total={totalSteps} />
+            <p style={eyebrowStyle}>Step {askLang ? 4 : 3} / {totalSteps} · Optional</p>
             <h2 style={titleStyle}>What brings you here?</h2>
             <p style={subtitleStyle}>Helps us personalize the experience over time.</p>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", marginBottom: "1.25rem" }}>
