@@ -18,7 +18,7 @@ the coordinator writes.
 |---|---|---|
 | Steering note (this file) | ✅ done S197 | docs/ + Obsidian read-only mirror |
 | SVG spike — pan/zoom mobile (game 3 de-risk) | ✅ done S197 | verdict: native + CSS transform — see §4 |
-| Italian vocabulary import scoping (`kind="word"`) | ⏳ | source, volume, fields, quality bar — dedicated data session to plan |
+| Italian vocabulary import scoping (`kind="word"`) | ✅ done S197 | spec: [`vocab-import-it.md`](vocab-import-it.md) — travel-themed, ~300 words, standard card |
 | **GO fabrication** (Sinan) | ⏳ | after the three gates above |
 
 ---
@@ -85,3 +85,7 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
 - **2026-07-10 (S197)** — Tracker created. Contract frozen at `fdbdf14`
   (S196, PR #88 in prod). Conception closeout started: SVG spike and Italian
   vocabulary scoping next, then GO.
+- **2026-07-10 (S197)** — SVG spike closed (verdict in §4, prototype artifact
+  `40713ab7`). Italian vocabulary import scoped and validated by Sinan
+  ([`vocab-import-it.md`](vocab-import-it.md)). All conception gates done —
+  awaiting Sinan's GO to start Lot API.
