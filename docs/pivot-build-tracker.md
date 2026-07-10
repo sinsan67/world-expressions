@@ -29,7 +29,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 
 | Lot | Content (contract §5) | Model | Depends on | Branch | Status |
 |---|---|---|---|---|---|
-| **API** | Migrations §2 + endpoints §3 + `models.py` sync + backend tests | Sonnet 5 | contract only | `pivot/lot-api` | 🔍 PR #89 open |
+| **API** | Migrations §2 + endpoints §3 + `models.py` sync + backend tests | Sonnet 5 | contract only | `pivot/lot-api` | ✅ merged to staging (PR #89) |
 | **Report 🚩** | `expression_reports` + `POST /reports` + flag button (fiche + game card) | Sonnet 5 | independent (backend part ships inside Lot API) | `pivot/lot-report` | ⬜ |
 | **A — Hub** | New `/`, hub cards, daily postcard, collection teaser | Sonnet 5 | API (`/daily`) in prod | `pivot/lot-a-hub` | ⬜ |
 | **B — Voyage** | `/voyage` 3 states, quick mode, rare badge, session recording | Sonnet 5 | API (`/game-sessions`) in prod | `pivot/lot-b-voyage` | ⬜ |
@@ -97,3 +97,9 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   `/daily` pool literal reading (does not exclude `phrasebook`/`word` like
   `/random` does) · agent fixed a pre-existing `:param::uuid` bind pattern in
   4 user endpoints (worth checking prod behavior). Awaiting merge go.
+- **2026-07-10 (S197)** — `/daily` pool aligned with `/random` (contract §3
+  amended, validated by Sinan) — 66/66 green on Neon dev. **PR #89 merged to
+  staging** (`7d43140`). Noted for the vocabulary session: `_RANDOM_POOL_WHERE`
+  hard-excludes `kind='word'`; the voyage draw must lift that exclusion when
+  an explicit `kind=word` filter is passed (prerequisite recorded in
+  `vocab-import-it.md`). Next: release PR staging → main (Render redeploy).

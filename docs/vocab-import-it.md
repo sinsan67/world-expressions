@@ -47,6 +47,14 @@ feed the collection and Révision like any expression.
   ideal reviewer. Full native review not required at this risk level (basic
   vocabulary), unlike JA content.
 
+## Backend prerequisite (found S197, Lot API)
+
+`_RANDOM_POOL_WHERE` (shared by `/random`, `/random/count` and the voyage
+draw) hard-excludes `kind='word'`. Before word-only Voyage sessions can work,
+that exclusion must become conditional: keep it when no `kind` filter is set,
+lift it when the caller explicitly asks `kind=word`. Small change in
+`database.py` + tests — do it in the data session, with the import.
+
 ## Later (recorded, not planned)
 
 Other languages (TR is the natural next, same spec) · etymology in `origin` ·
