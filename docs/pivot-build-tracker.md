@@ -29,7 +29,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 
 | Lot | Content (contract §5) | Model | Depends on | Branch | Status |
 |---|---|---|---|---|---|
-| **API** | Migrations §2 + endpoints §3 + `models.py` sync + backend tests | Sonnet 5 | contract only | `pivot/lot-api` | 🔨 started S197 |
+| **API** | Migrations §2 + endpoints §3 + `models.py` sync + backend tests | Sonnet 5 | contract only | `pivot/lot-api` | 🔍 PR #89 open |
 | **Report 🚩** | `expression_reports` + `POST /reports` + flag button (fiche + game card) | Sonnet 5 | independent (backend part ships inside Lot API) | `pivot/lot-report` | ⬜ |
 | **A — Hub** | New `/`, hub cards, daily postcard, collection teaser | Sonnet 5 | API (`/daily`) in prod | `pivot/lot-a-hub` | ⬜ |
 | **B — Voyage** | `/voyage` 3 states, quick mode, rare badge, session recording | Sonnet 5 | API (`/game-sessions`) in prod | `pivot/lot-b-voyage` | ⬜ |
@@ -89,3 +89,11 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   `40713ab7`). Italian vocabulary import scoped and validated by Sinan
   ([`vocab-import-it.md`](vocab-import-it.md)). All conception gates done —
   awaiting Sinan's GO to start Lot API.
+- **2026-07-10 (S197)** — GO given. Lot API built (Sonnet 5 agent, worktree
+  `../expressions-du-monde-lot-api`): **PR #89** open to staging — Alembic
+  migration `c4d5e6f7a8b9` + 5 new endpoints + 5 additive changes + 40 new
+  tests. Coordinator validated against Neon dev (migration applied, 66/66
+  pass, manual smoke of `/daily` and a voyage draw). Open questions logged:
+  `/daily` pool literal reading (does not exclude `phrasebook`/`word` like
+  `/random` does) · agent fixed a pre-existing `:param::uuid` bind pattern in
+  4 user endpoints (worth checking prod behavior). Awaiting merge go.
