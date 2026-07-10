@@ -9,10 +9,16 @@ test.describe('Search — locale-aware meanings (bug fix: sense in UI language)'
 
     const searchUrls: string[] = [];
     page.on('request', (req) => {
-      if (req.url().includes('/search?')) searchUrls.push(req.url());
+      // Exclude Next.js's own RSC navigation fetches (?_rsc=...) — submitting
+      // the search box on /search does a router.push to /search?q=..., which
+      // triggers both a same-origin RSC request AND the real backend API
+      // call; only the latter carries `locale=`.
+      if (req.url().includes('/search?') && !req.url().includes('_rsc=')) searchUrls.push(req.url());
     });
 
-    await page.goto('/');
+    // Search moved from "/" to "/search" (games-hub pivot, S196 — see
+    // docs/pivot-lot0-contract.md §1). The old home's inline search bar is gone.
+    await page.goto('/search');
     const input = page.locator('input.wex-input').first();
     await input.waitFor({ timeout: T });
     await input.fill('argent');
@@ -27,7 +33,7 @@ test.describe('Search — locale-aware meanings (bug fix: sense in UI language)'
 
   test('changing UI language re-searches with new locale', async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('wex_lang', 'fr'));
-    await page.goto('/#q=argent');
+    await page.goto('/search?q=argent');
 
     await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
 
