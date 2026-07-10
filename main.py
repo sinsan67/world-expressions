@@ -19,7 +19,7 @@ _cors_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", _default_origins).
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
-    allow_methods=["GET", "POST", "PUT"],
+    allow_methods=["GET", "POST", "PUT", "PATCH"],
     allow_headers=["*"],
 )
 
@@ -132,8 +132,21 @@ def browse_expressions(
     offset: int = Query(0, ge=0, description="Number of results to skip"),
     type_filter: str = Query("", description="Filter by expression type: idiom, proverb, locution, word"),
     locale: str = Query("", description="UI locale for translated meanings: fr, en, es, it, tr."),
+    ids: str = Query("", description="Comma-separated expression ids — hydrate exactly these (bypasses every other filter and pagination). Powers the collection (❤️) and game session cards."),
 ):
-    """Return all expressions for given countries/regions, in random order. No query needed."""
+    """Return all expressions for given countries/regions, in random order. No query needed.
+    Pass ids= to hydrate a precise set of expressions instead (order preserved)."""
+    ids_list = [i.strip() for i in ids.split(",") if i.strip()] if ids else []
+    if ids_list:
+        loc = locale.strip() or None
+        results = database.browse_by_ids(ids_list, loc)
+        return {
+            "countries": "all",
+            "total": len(results),
+            "offset": 0,
+            "limit": len(results),
+            "results": results,
+        }
     regions = set(region.split(",")) - {""} if region else None
     countries = set(country.split(",")) - {""} if country else None
     languages = set(language.split(",")) - {""} if language else None
@@ -201,10 +214,29 @@ def get_random_count(
     country: str = Query("", description="Country code filter. Empty = all countries."),
     kind: str = Query("", description="Expression kind filter: idiom, proverb, locution. Empty = all kinds."),
     domain: str = Query("", description="Thematic domain slug filter. Empty = all domains."),
+    language: str = Query("", description="Expression language filter, e.g. 'it' (collection set counter, Voyage setup pool count)."),
     _: None = Depends(_cache_public_1h),
 ):
     """Count expressions eligible for /random with these filters (Random mode live counter)."""
-    return {"count": database.count_random_pool(country.strip(), kind.strip(), domain.strip())}
+    return {"count": database.count_random_pool(country.strip(), kind.strip(), domain.strip(), language.strip())}
+
+
+@app.get("/daily")
+def get_daily(
+    response: Response,
+    locale: str = Query("", description="Preferred locale for meaning (fr/en/es...). Falls back to expression's language."),
+):
+    """
+    Deterministic expression of the day (pivot games hub, contract §3 — lot A hub postcard).
+    Same expression for everyone, all day (seeded by the UTC date). Pool: all kinds/countries
+    except language 'ja' (broken JA content — Luke L3). Same response shape as /random,
+    plus a 'date' (YYYY-MM-DD) field.
+    """
+    response.headers["Cache-Control"] = "public, max-age=3600"
+    expr = database.get_daily_expression(locale.strip() or None)
+    if expr is None:
+        raise HTTPException(status_code=404, detail="No expressions found")
+    return expr
 
 
 @app.get("/expression/{expression_id}")
@@ -295,6 +327,7 @@ class UpsertUserRequest(BaseModel):
 
 _VALID_EXPLORE_MODES = {"multilingual", "single"}
 _VALID_CONTENT_TYPES = {"all", "proverbs", "everyday", "slang"}
+_VALID_LANGUAGE_MODES = {"discovery", "mastered"}
 
 
 class PreferencesRequest(BaseModel):
@@ -304,10 +337,12 @@ class PreferencesRequest(BaseModel):
     content_type: str = "all"
     native_lang: str | None = None
     user_goal: str | None = None
+    language_modes: dict[str, str] = {}
 
 
 class FavoriteRequest(BaseModel):
     expression_id: str
+    game_session_id: str | None = None
 
 
 @app.post("/users/upsert")
@@ -337,9 +372,12 @@ def update_preferences(user_id: str, body: PreferencesRequest):
     invalid_langs = [l for l in body.learning_langs if l not in _VALID_LANGS]
     if invalid_langs:
         raise HTTPException(status_code=422, detail=f"learning_langs contains invalid values: {invalid_langs}")
+    invalid_modes = [v for v in body.language_modes.values() if v not in _VALID_LANGUAGE_MODES]
+    if invalid_modes:
+        raise HTTPException(status_code=422, detail=f"language_modes values must be one of {sorted(_VALID_LANGUAGE_MODES)}")
     prefs = database.update_user_preferences(
         user_id, body.ui_lang, body.explore_mode, body.learning_langs, body.content_type,
-        body.native_lang, body.user_goal,
+        body.native_lang, body.user_goal, body.language_modes,
     )
     if prefs is None:
         raise HTTPException(status_code=404, detail="User not found")
@@ -358,14 +396,109 @@ def update_user_name(user_id: str, body: dict):
 
 @app.get("/users/{user_id}/favorites")
 def get_favorites(user_id: str):
-    """Retourne les favoris d'un utilisateur."""
+    """Retourne les favoris d'un utilisateur, avec l'état de révision (review_box,
+    reviewed_at, game_session_id — pivot games hub, contract §3)."""
     return {"favorites": database.get_user_favorites(user_id)}
 
 
 @app.post("/users/{user_id}/favorites")
 def toggle_favorite(user_id: str, body: FavoriteRequest):
-    """Ajoute ou retire un favori (toggle). Retourne {"action": "added"|"removed"}."""
-    return database.toggle_user_favorite(user_id, body.expression_id)
+    """Ajoute ou retire un favori (toggle). Retourne {"action": "added"|"removed"}.
+    `game_session_id` optionnel (pivot S196) : la partie Voyage où l'expression a été gardée."""
+    return database.toggle_user_favorite(user_id, body.expression_id, body.game_session_id)
+
+
+class GameSessionRequest(BaseModel):
+    game: str
+    client_id: str
+    user_id: str | None = None
+    filters: dict = {}
+    cards: list[str] | None = None
+
+
+class GameSessionCloseRequest(BaseModel):
+    ended_at: str | None = None
+    kept_ids: list[str] = []
+
+
+class ReportRequest(BaseModel):
+    expression_id: str
+    reason: str | None = None
+    comment: str | None = None
+    client_id: str | None = None
+    ui_lang: str | None = None
+
+
+class ReviewRequest(BaseModel):
+    result: str
+
+
+_VALID_GAMES = {"voyage", "revision"}
+_VALID_REPORT_REASONS = {"fabricated", "wrong-translation", "duplicate", "other"}
+_VALID_REVIEW_RESULTS = {"knew", "not_yet"}
+
+
+@app.post("/game-sessions")
+def start_game_session(body: GameSessionRequest):
+    """
+    Lance une partie (contract §3). voyage : le serveur tire 10 cartes uniques (JA exclu,
+    au plus une 'rare'). révision : le client fournit `cards` (favoris), le serveur
+    enregistre et hydrate. Retourne {id, cards: [expression...]}.
+    """
+    if body.game not in _VALID_GAMES:
+        raise HTTPException(status_code=422, detail=f"game must be one of {sorted(_VALID_GAMES)}")
+    if body.game == "revision" and not body.cards:
+        raise HTTPException(status_code=422, detail="revision requires a non-empty 'cards' list")
+    return database.create_game_session(
+        game=body.game,
+        client_id=body.client_id,
+        user_id=body.user_id,
+        filters=body.filters,
+        cards=body.cards,
+    )
+
+
+@app.patch("/game-sessions/{session_id}")
+def end_game_session(session_id: str, body: GameSessionCloseRequest):
+    """Clôture une partie — fire-and-forget depuis l'écran récap (contract §3)."""
+    ok = database.close_game_session(session_id, body.ended_at, body.kept_ids)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Game session not found")
+    return {"ok": True}
+
+
+@app.post("/reports", status_code=201)
+def create_report(body: ReportRequest):
+    """Signale une expression 🚩 — sans authentification, idempotent par (client_id,
+    expression_id) tant que le report est 'open' (contract §2/§3)."""
+    if body.reason and body.reason not in _VALID_REPORT_REASONS:
+        raise HTTPException(status_code=422, detail=f"reason must be one of {sorted(_VALID_REPORT_REASONS)}")
+    try:
+        database.create_report(
+            expression_id=body.expression_id,
+            reason=body.reason,
+            comment=body.comment,
+            client_id=body.client_id,
+            ui_lang=body.ui_lang,
+        )
+    except ValueError:
+        raise HTTPException(status_code=404, detail=f"Expression '{body.expression_id}' not found")
+    return {"ok": True}
+
+
+@app.post("/users/{user_id}/favorites/{expression_id}/review")
+def review_favorite(user_id: str, expression_id: str, body: ReviewRequest):
+    """
+    Enregistre une réponse de révision sur un favori (contract §2/§3, v1 semantics).
+    'knew' -> review_box=1, 'not_yet' -> review_box=0 ; les deux posent reviewed_at=now().
+    Sync pour les utilisateurs connectés — les anonymes mettent à jour le carnet local.
+    """
+    if body.result not in _VALID_REVIEW_RESULTS:
+        raise HTTPException(status_code=422, detail=f"result must be one of {sorted(_VALID_REVIEW_RESULTS)}")
+    result = database.set_favorite_review(user_id, expression_id, body.result)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Favorite not found")
+    return result
 
 
 class SubscribeRequest(BaseModel):
