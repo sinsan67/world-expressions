@@ -91,8 +91,11 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   API migration was applied to prod manually (Sinan-approved). **Release rule
   until the dashboard start command is fixed: applying `alembic upgrade head`
   to prod is a mandatory manual release step for any backend release.**
-  Sinan's pending action: set the Render start command to
-  `alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port $PORT`.
+  ~~Sinan's pending action~~ **done S197** (Sinan set the start command to
+  `alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port $PORT`) —
+  to be confirmed at the next backend release: the deploy log must show
+  `Running upgrade`. Until confirmed, double-check `alembic_version` after
+  each backend release.
 
 ## 5. Progress log
 
