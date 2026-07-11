@@ -31,8 +31,8 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 |---|---|---|---|---|---|
 | **API** | Migrations §2 + endpoints §3 + `models.py` sync + backend tests | Sonnet 5 | contract only | `pivot/lot-api` | ✅ merged to staging (PR #89) |
 | **Report 🚩** | `expression_reports` + `POST /reports` + flag button (fiche + game card) | Sonnet 5 | independent (backend part ships inside Lot API) | `pivot/lot-report` | ⬜ |
-| **A — Hub** | New `/`, hub cards, daily postcard, collection teaser | Sonnet 5 | API (`/daily`) in prod | `pivot/lot-a-hub` | ⬜ |
-| **B — Voyage** | `/voyage` 3 states, quick mode, rare badge, session recording | Sonnet 5 | API (`/game-sessions`) in prod | `pivot/lot-b-voyage` | ⬜ |
+| **A — Hub** | New `/`, hub cards, daily postcard, collection teaser | Sonnet 5 | API (`/daily`) in prod | `pivot/lot-a-hub` | 🧪 QA passed on staging (PR #91) |
+| **B — Voyage** | `/voyage` 3 states, quick mode, rare badge, session recording | Sonnet 5 | API (`/game-sessions`) in prod | `pivot/lot-b-voyage` | 🧪 QA passed on staging (PR #92) |
 | **C — Collection** | `/collection`, 🧳/📚 sections, search/filter/sort, set counter, mode prompt | Sonnet 5 | API (favorites enrichment) in prod | `pivot/lot-c-collection` | ⬜ |
 | **D — Révision** | `/revision` flashcard v1, review queue, empty/locked states | Sonnet 5 | API (review endpoint) + C's local-carnet migration | `pivot/lot-d-revision` | ⬜ |
 | **E — i18n** | Complete es/it/tr/de/ja, wording arbitration with Sinan | Haiku | A–D key files merged | `pivot/lot-e-i18n` | ⬜ |
@@ -57,7 +57,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 | Release | Scope | Gate to prod (`main`) | Status |
 |---|---|---|---|
 | **Lot API to main** | migrations + endpoints, zero UI change | backend tests green + staging smoke + Sinan go | ✅ shipped S197 (PR #90, prod verified) |
-| **V-jeu-1 — "hub and a playable game"** | A + B + F + Report 🚩 | hub live, Voyage playable end-to-end, redirects verified (`/random-mode`, `/carnet`), old links intact, QA staging full pass | ⬜ |
+| **V-jeu-1 — "hub and a playable game"** | A + B + F + Report 🚩 | hub live, Voyage playable end-to-end, redirects verified (`/random-mode`, `/carnet`), old links intact, QA staging full pass | 🔨 A+B done, F + Report remain |
 | **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | ⬜ |
 | **V-jeu-3 — "révision"** | D | flashcard on favorites, review queue, empty/locked states | ⬜ |
 
@@ -126,3 +126,30 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   `/daily` deterministic, voyage draw 10 unique cards no-JA, PATCH close OK,
   `/browse?ids=`, `/random/count?language=` — Lot API live.** Front lots
   A/B/F + Report are now unblocked.
+- **2026-07-11 (S198)** — **Lots A + B built, merged to staging, QA passed.**
+  Two Sonnet 5 agents in manual worktrees (`../wex-lot-a-hub`,
+  `../wex-lot-b-voyage`, CLT workaround per §note). First launch attempt was
+  silently interrupted by an infra glitch (both agents hit
+  `[Request interrupted by user]` at the same timestamp before writing any
+  code — not a real user action); relaunched clean, no work lost. **PR #91
+  (Hub)** merged first — coordinator-reviewed diff, no issues besides a minor
+  flagged regression (desktop Sidebar's `/#newsletter` footer link is now a
+  dead click, newsletter modal lived only in the deleted `HomePage.tsx` and
+  wasn't in the Lot A spec — left as-is, not blocking, revisit in lot F or
+  later). **PR #92 (Voyage)** hit a merge conflict against the new
+  `staging` HEAD (`web/lib/api.ts` — both lots added functions near
+  `getRandomExpression`): resolved by hand (kept both additions), `tsc
+  --noEmit` clean, pushed, merged. Both PRs' CI "test" job showed a false
+  red ("Wait for Vercel staging to serve this commit" timed out — that step
+  polls the live `staging` domain for the PR's exact SHA, which structurally
+  can't exist before merge; zero real Playwright tests ran) — pre-existing
+  CI wiring gap for any PR targeting `staging`, not introduced by these
+  lots, worth a Bob-audit look. **QA staging: 36/36 e2e green**
+  (`homepage.spec.ts` + `voyage.spec.ts`, chromium + mobile-chrome) against
+  `https://world-expressions-git-staging-ssinanusa-gmailcoms-projects.vercel.app`,
+  full flows verified (hub sections/nav/i18n-fallback, Voyage
+  setup→play→reveal→recap and `?quick=1`). Lot B agent also self-caught and
+  fixed a real race-condition bug (`startGame`'s `useCallback` deps included
+  `uiLang`, which flips async right after mount — froze a stale closure,
+  silently breaking "Rejouer"; fixed with a `useRef` reentrancy guard).
+  **V-jeu-1 remaining: Lot F (nav/redirects) + Report 🚩.**
