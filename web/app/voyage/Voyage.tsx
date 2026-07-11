@@ -29,6 +29,7 @@ import BottomNav from "@/components/home/BottomNav";
 import VoyageSetup, { VoyageFilters } from "@/components/voyage/VoyageSetup";
 import VoyageCard from "@/components/voyage/VoyageCard";
 import VoyageRecap from "@/components/voyage/VoyageRecap";
+import ReportReasonPicker from "@/components/ReportReasonPicker";
 
 type Phase = "setup" | "loading" | "play" | "recap";
 
@@ -55,9 +56,11 @@ export default function Voyage({ quick }: { quick: boolean }) {
   // (e.g. "Rejouer"). A ref is always current regardless of closure staleness.
   const startingRef = useRef(false);
 
-  // TODO(Report lot): wire to POST /reports (expression_id, reason?, comment?, client_id?, ui_lang?)
+  // expression_id currently flagged, if the ReportReasonPicker is open.
+  const [reportingId, setReportingId] = useState<string | null>(null);
+
   const handleReport = useCallback((expressionId: string) => {
-    void expressionId;
+    setReportingId(expressionId);
   }, []);
 
   const startGame = useCallback(async (filters: VoyageFilters, isQuick: boolean) => {
@@ -265,6 +268,15 @@ export default function Voyage({ quick }: { quick: boolean }) {
       </main>
 
       <BottomNav uiLang={uiLang} />
+
+      {reportingId && (
+        <ReportReasonPicker
+          expressionId={reportingId}
+          uiLang={uiLang}
+          clientId={getCarnet().clientId}
+          onClose={() => setReportingId(null)}
+        />
+      )}
     </div>
   );
 }
