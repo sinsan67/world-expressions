@@ -443,6 +443,26 @@ export async function getFacets(
   return res.json();
 }
 
+// ─── Report 🚩 (flag a wrong/fabricated expression) ───
+// Backend already live in prod (models.py ExpressionReport / main.py
+// POST /reports). Idempotent per (client_id, expression_id) server-side —
+// no need to guard against double-submission on the frontend.
+export async function reportExpression(payload: {
+  expression_id: string;
+  reason?: string;
+  comment?: string;
+  client_id?: string;
+  ui_lang?: string;
+}): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API}/reports`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
 export async function updateUserName(userId: string, name: string): Promise<{ name: string | null }> {
   const res = await fetch(`${API}/users/${userId}/name`, {
     method: "PUT",
