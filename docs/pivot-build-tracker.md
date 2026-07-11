@@ -30,13 +30,13 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 | Lot | Content (contract §5) | Model | Depends on | Branch | Status |
 |---|---|---|---|---|---|
 | **API** | Migrations §2 + endpoints §3 + `models.py` sync + backend tests | Sonnet 5 | contract only | `pivot/lot-api` | ✅ merged to staging (PR #89) |
-| **Report 🚩** | `expression_reports` + `POST /reports` + flag button (fiche + game card) | Sonnet 5 | independent (backend part ships inside Lot API) | `pivot/lot-report` | ⬜ |
+| **Report 🚩** | `expression_reports` + `POST /reports` + flag button (fiche + game card) | Sonnet 5 | independent (backend part ships inside Lot API) | `pivot/lot-report` | ✅ merged to staging (PR #93) |
 | **A — Hub** | New `/`, hub cards, daily postcard, collection teaser | Sonnet 5 | API (`/daily`) in prod | `pivot/lot-a-hub` | 🧪 QA passed on staging (PR #91) |
 | **B — Voyage** | `/voyage` 3 states, quick mode, rare badge, session recording | Sonnet 5 | API (`/game-sessions`) in prod | `pivot/lot-b-voyage` | 🧪 QA passed on staging (PR #92) |
 | **C — Collection** | `/collection`, 🧳/📚 sections, search/filter/sort, set counter, mode prompt | Sonnet 5 | API (favorites enrichment) in prod | `pivot/lot-c-collection` | ⬜ |
 | **D — Révision** | `/revision` flashcard v1, review queue, empty/locked states | Sonnet 5 | API (review endpoint) + C's local-carnet migration | `pivot/lot-d-revision` | ⬜ |
 | **E — i18n** | Complete es/it/tr/de/ja, wording arbitration with Sinan | Haiku | A–D key files merged | `pivot/lot-e-i18n` | ⬜ |
-| **F — Nav & redirects** | BottomNav/header/sidebar rewiring, redirects, `/search` swap, SearchOverlay removal | Haiku | A (hub live on staging) | `pivot/lot-f-nav` | ⬜ |
+| **F — Nav & redirects** | BottomNav/header/sidebar rewiring, redirects, `/search` swap, SearchOverlay removal | Haiku | A (hub live on staging) | `pivot/lot-f-nav` | ✅ merged to staging (PR #94) |
 
 ### Execution rules
 
@@ -57,7 +57,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 | Release | Scope | Gate to prod (`main`) | Status |
 |---|---|---|---|
 | **Lot API to main** | migrations + endpoints, zero UI change | backend tests green + staging smoke + Sinan go | ✅ shipped S197 (PR #90, prod verified) |
-| **V-jeu-1 — "hub and a playable game"** | A + B + F + Report 🚩 | hub live, Voyage playable end-to-end, redirects verified (`/random-mode`, `/carnet`), old links intact, QA staging full pass | 🔨 A+B done, F + Report remain |
+| **V-jeu-1 — "hub and a playable game"** | A + B + F + Report 🚩 | hub live, Voyage playable end-to-end, redirects verified (`/random-mode`, `/carnet`), old links intact, QA staging full pass | 🔨 A+B+F+Report merged to staging — QA + release PR to `main` next |
 | **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | ⬜ |
 | **V-jeu-3 — "révision"** | D | flashcard on favorites, review queue, empty/locked states | ⬜ |
 
@@ -96,6 +96,16 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   to be confirmed at the next backend release: the deploy log must show
   `Running upgrade`. Until confirmed, double-check `alembic_version` after
   each backend release.
+
+- **2026-07-11 (S199) — ❤️/`/carnet` target deferred to Lot C.** Contract §1
+  says the heart icon and the `/carnet` redirect should point to `/collection`,
+  but Lot C (which builds that route) hasn't started. Sinan decided: leave
+  both pointing at `/profile` for V-jeu-1 (unchanged from today), and let
+  Lot C establish the real `/collection` route and this redirect in V-jeu-2.
+  No throwaway placeholder page was built.
+- **2026-07-11 (S199) — dead "Newsletter" footer link removed.** Sidebar's
+  `/#newsletter` link (orphaned since the S198 homepage rewrite) was deleted
+  as part of Lot F rather than carried forward.
 
 ## 5. Progress log
 
@@ -153,3 +163,37 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   `uiLang`, which flips async right after mount — froze a stale closure,
   silently breaking "Rejouer"; fixed with a `useRef` reentrancy guard).
   **V-jeu-1 remaining: Lot F (nav/redirects) + Report 🚩.**
+- **2026-07-11 (S199)** — **Lots F + Report built, merged to staging.** Two
+  agents in manual worktrees (`../wex-lot-f-nav` Haiku, `../wex-lot-report`
+  Sonnet 5, CLT workaround per earlier note). Both hit the same silent-kill
+  infra glitch mid-run (Lot F once, resumed cleanly with no work lost — see
+  §4/S198 for the pattern); Report ran through unaffected. **PR #93 (Report)**
+  merged first: `reportLabels.ts`, `reportExpression()` in `api.ts`, a new
+  `ReportReasonPicker.tsx` modal, wired into `Voyage.tsx`'s existing
+  `onReport` stub and a new 🚩 button added to the expression detail page
+  (previously had no report UI at all). **PR #94 (Lot F)** hit one expected
+  merge conflict against the new `staging` HEAD — both lots touched
+  `web/app/expression/[id]/page.tsx` (Lot F removed the `SearchOverlay`
+  trigger, Report added its Flag button/import) — resolved by hand (kept
+  both), `tsc --noEmit` + `next build --webpack` clean, pushed, merged. Lot F
+  also deleted `app/random-mode/page.tsx` and `SearchOverlay.tsx` outright
+  (config-level redirect + `/search` page fully supersede them), added the
+  `/random-mode → /voyage` redirect, and removed the dead Newsletter link
+  (see §4 decisions above). **V-jeu-1 build is complete on staging: A + B +
+  F + Report all merged.** Staging smoke QA run (Playwright vs staging,
+  homepage/voyage/search-page/carnet/expression specs, chromium): 4 failures
+  found, triaged — 2 (`#S6`, `#S9` in `search-page.spec.ts`, both about
+  `/search`'s own URL/filter state) are **pre-existing**, unrelated to F/Report
+  (confirmed via `git log` on `search/page.tsx`, untouched by either lot;
+  `#S6` was already flagged fragile back on 2026-06-15); 2 (`#18`, `#S28`,
+  BottomNav link-count) were a **direct, expected consequence** of Lot F
+  (search item is now a `<Link>`, so the nav has 5 `<a>` tags, not 4) — fixed
+  the stale assertions (`fa8107f`, pushed straight to staging), re-ran green.
+  Manual curl checks: `/random-mode?utm=test` → 308 → `/voyage?utm=test`
+  (query preserved) ✓, `/carnet` → 307 → `/profile#carnet` ✓ (unchanged),
+  `POST /reports` on prod → 201 twice in a row for the same
+  (client_id, expression_id) with no error (idempotent) ✓. Note: that last
+  check left a real test row in prod `expression_reports`
+  (`client_id="s199-smoke-test-client"`, expression `casser-les-pieds`,
+  reason `other`) — flagged to Sinan, not deleted without a go. **Next: the
+  V-jeu-1 release PR to `main`.**
