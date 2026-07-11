@@ -174,8 +174,8 @@ test.describe('Hub — BottomNav mobile (< 1024px)', () => {
   test('#18 BottomNav est visible sur mobile', async ({ page }) => {
     const nav = page.locator('[data-testid="bottom-nav"]');
     await expect(nav).toBeVisible({ timeout: T });
-    // 4 liens de navigation (home, random, atlas, concepts — search ouvre l'overlay via un bouton)
-    expect(await nav.locator('a').count()).toBe(4);
+    // 5 liens de navigation (home, search, random, atlas, concepts — search navigue vers /search depuis Lot F)
+    expect(await nav.locator('a').count()).toBe(5);
   });
 
   test('#19 lien Accueil dans BottomNav est cliquable', async ({ page }) => {
