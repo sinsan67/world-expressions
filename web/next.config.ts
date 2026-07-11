@@ -9,6 +9,7 @@ const withSerwist = withSerwistInit({
 });
 
 const nextConfig: NextConfig = {
+  devIndicators: false,
   async redirects() {
     return [
       { source: "/concepts", destination: "/emoji", permanent: true },

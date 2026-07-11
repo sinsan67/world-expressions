@@ -80,25 +80,12 @@ test.describe('Lang switch — content reloads in new language (#WWWW)', () => {
     await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
   });
 
-  test('homepage: lang switch re-fetches search results in new locale', async ({ page }) => {
-    await page.addInitScript(() => localStorage.setItem('wex_lang', 'en'));
-
-    await page.goto('/');
-    const input = page.locator('input.wex-input').first();
-    await input.waitFor({ timeout: T });
-    await input.fill('chat');
-    await input.press('Enter');
-    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
-
-    // Switch to FR — should trigger a new search with locale=fr
-    const frCallPromise = page.waitForRequest(
-      req => req.url().includes('/search?') && req.url().includes('locale=fr'),
-      { timeout: T },
-    );
-    await switchLang(page, 'fr');
-    await frCallPromise;
-
-    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
-  });
+  // NOTE: the former "homepage: lang switch re-fetches search results in new
+  // locale" test lived here — it drove the old home's inline search bar
+  // ("/" + input.wex-input), which no longer exists since "/" became the
+  // games hub and search moved to "/search" (games-hub pivot, S196 — see
+  // docs/pivot-lot0-contract.md §1). It's now a duplicate of the "search
+  // page:" test above (same assertion, same endpoint), so it was removed
+  // rather than retargeted.
 
 });

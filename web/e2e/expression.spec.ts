@@ -43,8 +43,10 @@ test.describe('Page /expression/[id]', () => {
 
   test('#38 interface EN + expression FR → traduction littérale visible', async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('wex_lang', 'en'));
-    // Chercher une expression française spécifiquement
-    await page.goto('/');
+    // Chercher une expression française spécifiquement.
+    // Search moved from "/" to "/search" (games-hub pivot, S196 — see
+    // docs/pivot-lot0-contract.md §1). The old home's inline search bar is gone.
+    await page.goto('/search');
     await page.locator('input.wex-input').first().waitFor({ timeout: T });
     await page.locator('input.wex-input').fill('avoir');
     await page.locator('input.wex-input').press('Enter');

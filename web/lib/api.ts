@@ -289,6 +289,20 @@ export async function patchGameSession(
   return res.json();
 }
 
+// GET /daily — deterministic expression of the day, same for everyone on the
+// same UTC date. Backend-side cache (1h) — no client-side date/session logic
+// needed here, unlike the old getRandomExpression() sessionStorage pattern.
+export async function getDailyExpression(
+  locale = ""
+): Promise<Expression & { meaning_locale: string; literal: string | null; date: string }> {
+  const params = new URLSearchParams();
+  if (locale) params.set("locale", locale);
+  const qs = params.toString();
+  const res = await fetch(`${API}/daily${qs ? `?${qs}` : ""}`);
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
 export async function getRandomCount(country = "", kind = "", domain = ""): Promise<number> {
   const params = new URLSearchParams();
   if (country) params.set("country", country);

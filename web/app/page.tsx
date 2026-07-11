@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import HomePage from "./HomePage";
+import Hub from "./Hub";
 
 const SITE = "https://worldexpressions.app";
 
@@ -32,5 +32,5 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default function Page() {
-  return <HomePage />;
+  return <Hub />;
 }
