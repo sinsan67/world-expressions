@@ -17,7 +17,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Heart } from "lucide-react";
 import { getRandomExpression, getRandomCount, getCountries, Expression } from "@/lib/api";
-import { FLAG, COUNTRY_NAME, COUNTRY_GRADIENT } from "@/lib/constants";
+import { FLAG, COUNTRY_NAME, COUNTRY_GRADIENT, HERO_IMAGE_COUNTRIES } from "@/lib/constants";
 import { getTypeLabel } from "@/lib/typeLabels";
 import { tagIcon } from "@/lib/tagIcons";
 import { EDITORIAL_DOMAINS } from "@/lib/editorialDomains";
@@ -31,9 +31,6 @@ type RandomCard = Expression & { meaning_locale: string; literal: string | null 
 
 const KINDS = ["idiom", "proverb", "locution"] as const;
 const KIND_EMOJI: Record<string, string> = { idiom: "💬", proverb: "📜", locution: "🧩" };
-
-// Countries with a photo in /public/images — others fall back to the flag gradient.
-const HERO_IMAGE_COUNTRIES = new Set(["fr", "uk", "us", "au", "es", "tr", "it", "de", "jp", "ar", "pe", "co", "cu"]);
 
 const T: Record<string, {
   title: string;
