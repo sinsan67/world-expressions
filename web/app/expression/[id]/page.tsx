@@ -20,7 +20,6 @@ import { recordView, getCarnet } from "@/lib/carnet";
 import { useFavorite } from "@/lib/useFavorite";
 import { useAudio } from "@/lib/useAudio";
 import { Heart, Dice5, Search, Volume2, VolumeX, Flag } from "lucide-react";
-import SearchOverlay from "@/components/SearchOverlay";
 import ReportReasonPicker from "@/components/ReportReasonPicker";
 import { useUILangContext } from "@/lib/UILangContext";
 import { FAV_LABEL, CONFIDENCE_LABEL } from "@/lib/uiLabels";
@@ -342,7 +341,6 @@ function ExpressionPageContent({ id }: { id: string }) {
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [error, setError] = useState(false);
   const [fav, handleFav] = useFavorite(id);
-  const [showSearch, setShowSearch] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const { speaking, voiceAvailable, handleListen: handleSpeak } = useAudio(
     expr?.expression ?? "",
@@ -461,15 +459,15 @@ function ExpressionPageContent({ id }: { id: string }) {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <button
-            onClick={() => setShowSearch(true)}
+          <Link
+            href="/search"
             title="Search"
-            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink-faint)", display: "flex", padding: 4, transition: "color 120ms ease" }}
+            style={{ color: "var(--ink-faint)", textDecoration: "none", display: "flex", padding: 4, alignItems: "center", transition: "color 120ms ease" }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink)"; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-faint)"; }}
           >
             <Search size={16} strokeWidth={1.5} />
-          </button>
+          </Link>
           <Link
             href={`/random?prev=${id}&lang=${lang}`}
             title={t.randomBtn}
@@ -821,10 +819,6 @@ function ExpressionPageContent({ id }: { id: string }) {
 
 
       </main>
-
-      {showSearch && (
-        <SearchOverlay uiLang={lang} onClose={() => setShowSearch(false)} />
-      )}
 
       {showReport && (
         <ReportReasonPicker

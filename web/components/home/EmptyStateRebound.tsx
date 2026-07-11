@@ -36,7 +36,7 @@ export default function EmptyStateRebound({ eyebrow, surpriseLabel, tagNames, on
         ))}
       </div>
       <Link
-        href="/random-mode"
+        href="/voyage"
         style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: "1.5rem", padding: "10px 22px", borderRadius: "var(--r-pill)", background: "var(--terra)", color: "var(--paper)", fontSize: 14, fontWeight: 600, textDecoration: "none", fontFamily: "var(--font-body)" }}
       >
         🎲 {surpriseLabel}

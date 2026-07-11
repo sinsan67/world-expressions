@@ -3,9 +3,8 @@
 /**
  * Voyage — setup screen (filters).
  * Country chips + kind tiles + domain pills, with a debounced live pool
- * counter on the CTA — same interaction pattern as Random mode's entry
- * phase (web/app/random-mode/page.tsx), extracted into its own component
- * so `/voyage` can skip straight past it in quick mode.
+ * counter on the CTA — interactive setup for filtering expressions,
+ * extracted as a component so `/voyage` can skip straight past it in quick mode.
  */
 
 import { useEffect, useState } from "react";

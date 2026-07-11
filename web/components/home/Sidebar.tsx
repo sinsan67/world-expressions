@@ -5,14 +5,13 @@ import { useState, useEffect } from "react";
 import { Home, Globe, Lightbulb, Search, Heart } from "lucide-react";
 import { getCarnet } from "@/lib/carnet";
 import { getCountries, getGlobalStats, GlobalStats } from "@/lib/api";
-import SearchOverlay from "@/components/SearchOverlay";
 
 const BASE_NAV_ITEMS = [
   { id: "home",      icon: Home,       href: "/",            count: undefined as number | undefined },
   { id: "atlas",     icon: Globe,      href: "/atlas",       count: undefined as number | undefined },
-  { id: "random",    icon: null,       href: "/random-mode", count: undefined as number | undefined },
+  { id: "random",    icon: null,       href: "/voyage?quick=1", count: undefined as number | undefined },
   { id: "concepts",  icon: Lightbulb,  href: "/emoji",       count: undefined as number | undefined },
-  { id: "search",    icon: Search,     href: null,           count: undefined as number | undefined },
+  { id: "search",    icon: Search,     href: "/search",      count: undefined as number | undefined },
   { id: "carnet",    icon: Heart,      href: "/profile",     count: undefined as number | undefined },
 ];
 
@@ -65,7 +64,6 @@ export default function Sidebar({ uiLang }: Props) {
   const [favCount, setFavCount] = useState<number | undefined>(undefined);
   const [countryCount, setCountryCount] = useState<number | undefined>(undefined);
   const [globalStats, setGlobalStats] = useState<GlobalStats | null>(null);
-  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     const update = () => {
@@ -129,7 +127,7 @@ export default function Sidebar({ uiLang }: Props) {
             return (
               <Link
                 key={item.id}
-                href="/random-mode"
+                href="/voyage?quick=1"
                 aria-current={isActive ? "page" : undefined}
                 style={{
                   display: "flex",
@@ -197,19 +195,6 @@ export default function Sidebar({ uiLang }: Props) {
             </>
           );
 
-          if (item.href === null) {
-            return (
-              <button
-                key={item.id}
-                onClick={() => setSearchOpen(true)}
-                style={{ ...sharedStyle, border: "none", cursor: "pointer" }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--paper-deep)"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-              >
-                {inner}
-              </button>
-            );
-          }
           return (
             <Link
               key={item.id}
@@ -230,8 +215,6 @@ export default function Sidebar({ uiLang }: Props) {
         })}
       </nav>
 
-      {searchOpen && <SearchOverlay uiLang={uiLang} onClose={() => setSearchOpen(false)} />}
-
       <div style={{ flex: 1 }} />
       <div style={{ margin: "1rem 0 0.5rem", height: 1, background: "var(--paper-edge)" }} />
 
@@ -248,9 +231,6 @@ export default function Sidebar({ uiLang }: Props) {
         </a>
         <a href="/emoji-map" style={{ fontSize: 12, color: "var(--ink-softer)", textDecoration: "none", fontFamily: "var(--font-body)" }}>
           Emoji map
-        </a>
-        <a href="/#newsletter" style={{ fontSize: 12, color: "var(--ink-softer)", textDecoration: "none", fontFamily: "var(--font-body)" }}>
-          Newsletter
         </a>
       </div>
       <p style={{ fontSize: 11, color: "var(--ink-softer)", marginTop: "0.75rem", fontFamily: "var(--font-body)", lineHeight: 1.5 }}>

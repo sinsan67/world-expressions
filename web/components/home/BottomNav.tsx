@@ -1,16 +1,14 @@
 "use client";
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Globe, Lightbulb, Search } from "lucide-react";
-import SearchOverlay from "@/components/SearchOverlay";
 
 // M2 layout: Search gets a tab (parity with desktop sidebar), the dice is the
 // raised central action button, Carnet moves up to the top-right header heart.
 const NAV_ITEMS = [
   { id: "home",      icon: Home,       href: "/" },
-  { id: "search",    icon: Search,     href: null },
-  { id: "random",    icon: null,       href: "/random-mode" },
+  { id: "search",    icon: Search,     href: "/search" },
+  { id: "random",    icon: null,       href: "/voyage?quick=1" },
   { id: "atlas",     icon: Globe,      href: "/atlas" },
   { id: "concepts",  icon: Lightbulb,  href: "/emoji" },
 ];
@@ -39,7 +37,6 @@ type Props = {
 
 export default function BottomNav({ uiLang = "fr" }: Props) {
   const pathname = usePathname();
-  const [searchOpen, setSearchOpen] = useState(false);
 
   const itemStyle = (isActive: boolean): React.CSSProperties => ({
     flex: 1,
@@ -88,7 +85,7 @@ export default function BottomNav({ uiLang = "fr" }: Props) {
             return (
               <Link
                 key={item.id}
-                href="/random-mode"
+                href="/voyage?quick=1"
                 aria-current={isActive ? "page" : undefined}
                 style={itemStyle(isActive)}
               >
@@ -117,19 +114,6 @@ export default function BottomNav({ uiLang = "fr" }: Props) {
             );
           }
 
-          // Search opens the overlay instead of navigating
-          if (item.id === "search") {
-            return (
-              <button
-                key={item.id}
-                onClick={() => setSearchOpen(true)}
-                style={itemStyle(false)}
-              >
-                <Search aria-hidden="true" size={21} strokeWidth={1.5} color="var(--ink-softer)" />
-                {label(item.id)}
-              </button>
-            );
-          }
 
           return (
             <Link
@@ -156,7 +140,6 @@ export default function BottomNav({ uiLang = "fr" }: Props) {
           );
         })}
       </nav>
-      {searchOpen && <SearchOverlay uiLang={uiLang} onClose={() => setSearchOpen(false)} />}
     </>
   );
 }
