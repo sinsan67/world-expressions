@@ -2,6 +2,10 @@ const STORAGE_KEY = "wex_carnet";
 
 type Carnet = {
   version: 1;
+  // Anonymous device id — generated once, lazily backfilled for carnets
+  // created before this field existed. Feeds game_sessions.client_id
+  // (pivot-lot0-contract §2/§5) and, later, expression_reports.client_id.
+  clientId?: string;
   user: {
     pseudo: string | null;
     createdAt: string;
@@ -62,13 +66,20 @@ const DEFAULT: Carnet = {
 
 export function getCarnet(): Carnet {
   if (typeof window === "undefined") return structuredClone(DEFAULT);
+  let c: Carnet;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return structuredClone(DEFAULT);
-    return JSON.parse(raw) as Carnet;
+    c = raw ? (JSON.parse(raw) as Carnet) : structuredClone(DEFAULT);
   } catch {
-    return structuredClone(DEFAULT);
+    c = structuredClone(DEFAULT);
   }
+  // Lazy v1→v1.1 backfill: carnets created before clientId existed get one
+  // generated now, persisted immediately so it's stable across reads.
+  if (!c.clientId) {
+    c.clientId = crypto.randomUUID();
+    saveCarnet(c);
+  }
+  return c;
 }
 
 function saveCarnet(c: Carnet): void {

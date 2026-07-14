@@ -236,6 +236,73 @@ export async function getRandomExpression(
   return res.json();
 }
 
+// ─── Game sessions (Voyage / Révision) — pivot-lot0-contract §2-3 ───
+
+export type GameSessionFilters = {
+  country?: string;
+  kind?: string;
+  domain?: string;
+  locale?: string;
+  quick?: boolean;
+};
+export type GameCard = Expression & { rare?: boolean };
+export type GameSession = { id: string; cards: GameCard[] };
+
+// Starting a game blocks the whole play phase, so a couple of retries are
+// worth it against a cold Render instance (mirrors getGlobalStats's backoff).
+export async function postGameSession(
+  game: "voyage" | "revision",
+  clientId: string,
+  filters: GameSessionFilters,
+  userId?: string,
+  cards?: string[], // only used for game="revision", omit for "voyage"
+): Promise<GameSession> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const res = await fetch(`${API}/game-sessions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ game, client_id: clientId, user_id: userId, filters, cards }),
+      });
+      if (!res.ok) throw new Error("API error");
+      return res.json();
+    } catch (e) {
+      if (attempt >= 1) throw e;
+      await new Promise((r) => setTimeout(r, 800));
+    }
+  }
+}
+
+// Fire-and-forget: closes the game session when the recap screen is reached.
+// Never retried — a failed close is harmless (session just stays "abandoned").
+export async function patchGameSession(
+  sessionId: string,
+  keptIds: string[],
+  endedAt = new Date().toISOString(),
+): Promise<{ ok: true }> {
+  const res = await fetch(`${API}/game-sessions/${sessionId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ended_at: endedAt, kept_ids: keptIds }),
+  });
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
+// GET /daily — deterministic expression of the day, same for everyone on the
+// same UTC date. Backend-side cache (1h) — no client-side date/session logic
+// needed here, unlike the old getRandomExpression() sessionStorage pattern.
+export async function getDailyExpression(
+  locale = ""
+): Promise<Expression & { meaning_locale: string; literal: string | null; date: string }> {
+  const params = new URLSearchParams();
+  if (locale) params.set("locale", locale);
+  const qs = params.toString();
+  const res = await fetch(`${API}/daily${qs ? `?${qs}` : ""}`);
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
 export async function getRandomCount(country = "", kind = "", domain = ""): Promise<number> {
   const params = new URLSearchParams();
   if (country) params.set("country", country);
@@ -373,6 +440,26 @@ export async function getFacets(
   if (concept) params.set("concept", concept);
   const res = await fetch(`${API}/facets?${params}`);
   if (!res.ok) return { region: {}, kind: {}, subregion: {} };
+  return res.json();
+}
+
+// ─── Report 🚩 (flag a wrong/fabricated expression) ───
+// Backend already live in prod (models.py ExpressionReport / main.py
+// POST /reports). Idempotent per (client_id, expression_id) server-side —
+// no need to guard against double-submission on the frontend.
+export async function reportExpression(payload: {
+  expression_id: string;
+  reason?: string;
+  comment?: string;
+  client_id?: string;
+  ui_lang?: string;
+}): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API}/reports`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("API error");
   return res.json();
 }
 

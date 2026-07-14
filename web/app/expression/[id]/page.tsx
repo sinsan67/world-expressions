@@ -16,13 +16,14 @@ import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { cap } from "@/lib/utils";
 import CountryPhotoBackdrop from "@/components/home/CountryPhotoBackdrop";
 import Eyebrow from "@/components/home/Eyebrow";
-import { recordView } from "@/lib/carnet";
+import { recordView, getCarnet } from "@/lib/carnet";
 import { useFavorite } from "@/lib/useFavorite";
 import { useAudio } from "@/lib/useAudio";
-import { Heart, Dice5, Search, Volume2, VolumeX } from "lucide-react";
-import SearchOverlay from "@/components/SearchOverlay";
+import { Heart, Dice5, Search, Volume2, VolumeX, Flag } from "lucide-react";
+import ReportReasonPicker from "@/components/ReportReasonPicker";
 import { useUILangContext } from "@/lib/UILangContext";
 import { FAV_LABEL, CONFIDENCE_LABEL } from "@/lib/uiLabels";
+import { REPORT_LABELS } from "@/lib/reportLabels";
 import ExpressionFloatingNav from "@/components/ui/ExpressionFloatingNav";
 import BottomNav from "@/components/home/BottomNav";
 import Sidebar from "@/components/home/Sidebar";
@@ -340,7 +341,7 @@ function ExpressionPageContent({ id }: { id: string }) {
   const [tagNames, setTagNames] = useState<Record<string, string>>({});
   const [error, setError] = useState(false);
   const [fav, handleFav] = useFavorite(id);
-  const [showSearch, setShowSearch] = useState(false);
+  const [showReport, setShowReport] = useState(false);
   const { speaking, voiceAvailable, handleListen: handleSpeak } = useAudio(
     expr?.expression ?? "",
     expr?.language ?? ""
@@ -458,15 +459,15 @@ function ExpressionPageContent({ id }: { id: string }) {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <button
-            onClick={() => setShowSearch(true)}
+          <Link
+            href="/search"
             title="Search"
-            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink-faint)", display: "flex", padding: 4, transition: "color 120ms ease" }}
+            style={{ color: "var(--ink-faint)", textDecoration: "none", display: "flex", padding: 4, alignItems: "center", transition: "color 120ms ease" }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink)"; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--ink-faint)"; }}
           >
             <Search size={16} strokeWidth={1.5} />
-          </button>
+          </Link>
           <Link
             href={`/random?prev=${id}&lang=${lang}`}
             title={t.randomBtn}
@@ -580,31 +581,50 @@ function ExpressionPageContent({ id }: { id: string }) {
           animation: "fadeSlideUp 0.4s ease-out both",
         }}>
 
-          {/* Favorite button — top-right of card */}
-          <button
-            onClick={handleFav}
-            aria-label={fav ? (FAV_LABEL[lang] ?? FAV_LABEL.en).remove : (FAV_LABEL[lang] ?? FAV_LABEL.en).add}
-            title={fav ? (FAV_LABEL[lang] ?? FAV_LABEL.en).remove : (FAV_LABEL[lang] ?? FAV_LABEL.en).add}
-            style={{
-              position: "absolute",
-              top: "1.25rem",
-              right: "1.25rem",
-              background: fav ? "var(--terra-soft, rgba(180,80,40,0.08))" : "var(--paper-tint)",
-              border: `1.5px solid ${fav ? "var(--terra)" : "var(--paper-edge)"}`,
-              borderRadius: "var(--r-pill)",
-              cursor: "pointer",
-              padding: "6px 10px",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.3rem",
-              color: fav ? "var(--terra)" : "var(--ink-faint)",
-              transition: "all 150ms ease",
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.05)"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
-          >
-            <Heart size={16} strokeWidth={1.5} fill={fav ? "var(--terra)" : "none"} />
-          </button>
+          {/* Favorite + report buttons — top-right of card */}
+          <div style={{ position: "absolute", top: "1.25rem", right: "1.25rem", display: "flex", gap: "0.5rem" }}>
+            <button
+              onClick={() => setShowReport(true)}
+              aria-label={(REPORT_LABELS[lang] ?? REPORT_LABELS.en).flag}
+              title={(REPORT_LABELS[lang] ?? REPORT_LABELS.en).flag}
+              style={{
+                background: "var(--paper-tint)",
+                border: "1.5px solid var(--paper-edge)",
+                borderRadius: "var(--r-pill)",
+                cursor: "pointer",
+                padding: "6px 10px",
+                display: "flex",
+                alignItems: "center",
+                color: "var(--ink-faint)",
+                transition: "all 150ms ease",
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.05)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
+            >
+              <Flag size={16} strokeWidth={1.5} />
+            </button>
+            <button
+              onClick={handleFav}
+              aria-label={fav ? (FAV_LABEL[lang] ?? FAV_LABEL.en).remove : (FAV_LABEL[lang] ?? FAV_LABEL.en).add}
+              title={fav ? (FAV_LABEL[lang] ?? FAV_LABEL.en).remove : (FAV_LABEL[lang] ?? FAV_LABEL.en).add}
+              style={{
+                background: fav ? "var(--terra-soft, rgba(180,80,40,0.08))" : "var(--paper-tint)",
+                border: `1.5px solid ${fav ? "var(--terra)" : "var(--paper-edge)"}`,
+                borderRadius: "var(--r-pill)",
+                cursor: "pointer",
+                padding: "6px 10px",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.3rem",
+                color: fav ? "var(--terra)" : "var(--ink-faint)",
+                transition: "all 150ms ease",
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.05)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
+            >
+              <Heart size={16} strokeWidth={1.5} fill={fav ? "var(--terra)" : "none"} />
+            </button>
+          </div>
 
           {/* Meaning */}
           <div>
@@ -800,8 +820,13 @@ function ExpressionPageContent({ id }: { id: string }) {
 
       </main>
 
-      {showSearch && (
-        <SearchOverlay uiLang={lang} onClose={() => setShowSearch(false)} />
+      {showReport && (
+        <ReportReasonPicker
+          expressionId={id}
+          uiLang={lang}
+          clientId={getCarnet().clientId}
+          onClose={() => setShowReport(false)}
+        />
       )}
 
       </div>{/* end wex-main */}

@@ -322,6 +322,7 @@ test.describe('Page /search — BottomNav mobile (< 1024px)', () => {
     await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
     const nav = page.locator('[data-testid="bottom-nav"]');
     await expect(nav).toBeVisible({ timeout: T });
-    expect(await nav.locator('a').count()).toBe(4);
+    // 5 liens (home, search, random, atlas, concepts — search navigue vers /search depuis Lot F)
+    expect(await nav.locator('a').count()).toBe(5);
   });
 });
