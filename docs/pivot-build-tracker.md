@@ -217,3 +217,30 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   collection + Lot E i18n), V-jeu-3 (Lot D révision), the pre-existing
   `/search` flakiness (`#S6`/`#S9`/`search-locale.spec.ts`) worth a
   dedicated look, and the ❤️/`/collection` redirect deferred from Lot F.
+- **2026-07-15 (S200)** — `enforce_admins` re-enabled on `main` (no blocker
+  this time, unlike the S199 attempt). **`/search` flakiness root-caused —
+  it's a Next.js 16.2.6 (canary channel) router bug, not app code.** Reproduced
+  live against staging by calling `window.next.router.push(...)` directly from
+  devtools, bypassing all app code entirely: navigating to a *different* route
+  (e.g. `/country/de`) always works; navigating to the *same* pathname with
+  only different search params (any `/search?q=X` → `/search?q=Y` once results
+  are already rendered) gets silently reverted — `history.replaceState` fires
+  with the **current** (stale) URL instead of the target one, as if the
+  router's canonical-state sync wins a race against the pending navigation.
+  Confirmed independent of split-view/concept-bridge (still fails with an
+  ambiguous query like `q=para` that has no split view) and independent of
+  Enter-vs-click (button click reproduces identically). A fresh `/search`
+  landing with no prior results (`#S2`-style) is unaffected. This explains
+  `#S6` (filter → `router.replace`) and `#S9` (re-search → `router.push`) as
+  one root cause; `search-locale.spec.ts`'s second case doesn't even call
+  `router.push` (it re-fetches on `uiLang` change) so is likely unaffected —
+  not yet re-checked. No fix attempted this session (framework-level, needs a
+  dedicated pass). Two candidate directions for next time: (a) bump Next.js
+  — project is on `16.2.6`, latest available is `16.3.0-preview.6` (~90 canary
+  builds ahead), try in a throwaway branch first; (b) an app-level workaround
+  for `/search` navigations if the bump doesn't fix it. Also: a QA pass from
+  Sinan (mobile + desktop) was analyzed by a background agent in parallel —
+  report at `scratchpad/qa-session1-analysis.md` (gitignored/untracked,
+  not part of this repo's history) — flagged that `HeroSection.tsx` is dead
+  code (unused since Lot A/S198) and one of Sinan's screenshots was likely a
+  stale cached tab, not the current deployed UI.
