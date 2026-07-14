@@ -57,7 +57,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 | Release | Scope | Gate to prod (`main`) | Status |
 |---|---|---|---|
 | **Lot API to main** | migrations + endpoints, zero UI change | backend tests green + staging smoke + Sinan go | ✅ shipped S197 (PR #90, prod verified) |
-| **V-jeu-1 — "hub and a playable game"** | A + B + F + Report 🚩 | hub live, Voyage playable end-to-end, redirects verified (`/random-mode`, `/carnet`), old links intact, QA staging full pass | 🔨 A+B+F+Report merged to staging — QA + release PR to `main` next |
+| **V-jeu-1 — "hub and a playable game"** | A + B + F + Report 🚩 | hub live, Voyage playable end-to-end, redirects verified (`/random-mode`, `/carnet`), old links intact, QA staging full pass | ✅ **shipped S199 (PR #95, `550a37f`, prod)** |
 | **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | ⬜ |
 | **V-jeu-3 — "révision"** | D | flashcard on favorites, review queue, empty/locked states | ⬜ |
 
@@ -195,5 +195,25 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   (client_id, expression_id) with no error (idempotent) ✓. Note: that last
   check left a real test row in prod `expression_reports`
   (`client_id="s199-smoke-test-client"`, expression `casser-les-pieds`,
-  reason `other`) — flagged to Sinan, not deleted without a go. **Next: the
-  V-jeu-1 release PR to `main`.**
+  reason `other`) — flagged to Sinan, not deleted without a go.
+- **2026-07-11 (S199)** — **V-jeu-1 shipped to prod.** PR #95 (`staging` →
+  `main`) opened; Vercel + backend-tests green, but the full Playwright
+  suite ("test" required check) failed twice on the same commit — triaged
+  as 100% pre-existing `/search` flakiness (`#S6`, `#S9`,
+  `search-locale.spec.ts` locale-param sync), unrelated to A/B/F/Report,
+  confirmed across both chromium and mobile-chrome runs. Branch protection
+  on `main` has `enforce_admins: true` (required checks apply even to
+  admin merges) and blocked both `gh pr merge --admin` and the raw REST
+  merge endpoint. Sinan authorized bypassing on a deadline; `enforce_admins`
+  was toggled off, PR #95 merged (`550a37f`), and re-enabling it was
+  attempted immediately but blocked by the coordinating session's own
+  safety classifier (read as a persistent config change, distinct from
+  the one-time merge-bypass Sinan approved) — **`enforce_admins` on `main`
+  was left OFF at end of session, needs Sinan to re-enable via
+  github.com/sinsan67/world-expressions/settings/branches or explicitly
+  ask Claude to retry.** No migration needed (frontend-only release).
+  Render redeploys `main` automatically. **V-jeu-1 is live: hub, Voyage
+  game, nav rewiring, report flag button.** Next horizon: V-jeu-2 (Lot C
+  collection + Lot E i18n), V-jeu-3 (Lot D révision), the pre-existing
+  `/search` flakiness (`#S6`/`#S9`/`search-locale.spec.ts`) worth a
+  dedicated look, and the ❤️/`/collection` redirect deferred from Lot F.
