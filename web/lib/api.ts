@@ -180,6 +180,17 @@ export async function browseByCountry(
   return res.json();
 }
 
+// Hydrate an exact set of expression ids, order preserved — bypasses every
+// other /browse filter and pagination (pivot-lot0-contract §3, "Changed
+// endpoints"). Powers the collection (❤️) and game session cards.
+export async function browseByIds(ids: string[], locale?: string): Promise<SearchResponse> {
+  const params = new URLSearchParams({ ids: ids.join(",") });
+  if (locale) params.set("locale", locale);
+  const res = await fetch(`${API}/browse?${params}`);
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
 export type TagInfo = { slug: string; count: number; name: string };
 
 export async function getAllTagNames(locale = "en"): Promise<Record<string, string>> {
@@ -303,11 +314,12 @@ export async function getDailyExpression(
   return res.json();
 }
 
-export async function getRandomCount(country = "", kind = "", domain = ""): Promise<number> {
+export async function getRandomCount(country = "", kind = "", domain = "", language = ""): Promise<number> {
   const params = new URLSearchParams();
   if (country) params.set("country", country);
   if (kind) params.set("kind", kind);
   if (domain) params.set("domain", domain);
+  if (language) params.set("language", language);
   const qs = params.toString();
   const res = await fetch(`${API}/random/count${qs ? `?${qs}` : ""}`);
   if (!res.ok) throw new Error("API error");
@@ -470,5 +482,69 @@ export async function updateUserName(userId: string, name: string): Promise<{ na
     body: JSON.stringify({ name }),
   });
   if (!res.ok) throw new Error("Failed to update name");
+  return res.json();
+}
+
+// ─── Favorites (server-side, logged-in users) — pivot-lot0-contract §3 ───
+// Rows now carry review_box/reviewed_at/game_session_id (Révision lot, D).
+
+export type UserFavorite = {
+  expression_id: string;
+  saved_at: string;
+  review_box: number;
+  reviewed_at: string | null;
+  game_session_id: string | null;
+};
+
+export async function getUserFavorites(userId: string): Promise<UserFavorite[]> {
+  const res = await fetch(`${API}/users/${userId}/favorites`);
+  if (!res.ok) throw new Error("API error");
+  const data = await res.json();
+  return data.favorites ?? [];
+}
+
+// ─── Preferences — carries language_modes (🧳/📚 per language, Lot C) ───
+
+export type UserPreferences = {
+  id: string;
+  ui_lang: string;
+  explore_mode: string;
+  learning_langs: string[];
+  content_type: string;
+  native_lang: string | null;
+  user_goal: string | null;
+  language_modes: Record<string, string>;
+};
+
+export async function getUserPreferences(userId: string): Promise<UserPreferences | null> {
+  const res = await fetch(`${API}/users/${userId}/preferences`);
+  if (!res.ok) return null;
+  return res.json();
+}
+
+// PUT /users/{id}/preferences requires the FULL PreferencesRequest body
+// (ui_lang is mandatory; every other field defaults server-side but resending
+// the user's current values — not just the field you're changing — avoids
+// clobbering the rest of their preferences).
+export type UpdateUserPreferencesBody = {
+  ui_lang: string;
+  explore_mode?: string;
+  learning_langs?: string[];
+  content_type?: string;
+  native_lang?: string | null;
+  user_goal?: string | null;
+  language_modes?: Record<string, string>;
+};
+
+export async function updateUserPreferences(
+  userId: string,
+  body: UpdateUserPreferencesBody
+): Promise<UserPreferences | null> {
+  const res = await fetch(`${API}/users/${userId}/preferences`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) return null;
   return res.json();
 }

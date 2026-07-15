@@ -1,7 +1,9 @@
 const STORAGE_KEY = "wex_carnet";
 
+export type LanguageMode = "discovery" | "mastered";
+
 type Carnet = {
-  version: 1;
+  version: 2;
   // Anonymous device id — generated once, lazily backfilled for carnets
   // created before this field existed. Feeds game_sessions.client_id
   // (pivot-lot0-contract §2/§5) and, later, expression_reports.client_id.
@@ -15,6 +17,12 @@ type Carnet = {
   favorites: Array<{
     expressionId: string;
     savedAt: string;
+    // Mirrors of the server user_favorites columns (pivot-lot0-contract §2,
+    // v2 migration). Kept in sync with the server on login (AuthGate);
+    // authoritative locally for anonymous users.
+    reviewBox: number;
+    reviewedAt: string | null;
+    sessionId: string | null;
   }>;
   // Each entry also carries region + language for stats computation
   history: Array<{
@@ -33,6 +41,9 @@ type Carnet = {
     streakDays: number;
     lastActiveDate: string; // ISO date "YYYY-MM-DD"
   };
+  // Mirror of users.language_modes (pivot-lot0-contract §2) — 🧳 discovery /
+  // 📚 mastered per language, keyed by language code (e.g. "it", "tr").
+  languageModes: Record<string, LanguageMode>;
 };
 
 export type ComputedStats = {
@@ -49,7 +60,7 @@ export type CountryProgress = {
 };
 
 const DEFAULT: Carnet = {
-  version: 1,
+  version: 2,
   user: {
     pseudo: null,
     createdAt: new Date().toISOString(),
@@ -62,19 +73,57 @@ const DEFAULT: Carnet = {
     streakDays: 0,
     lastActiveDate: "",
   },
+  languageModes: {},
 };
+
+/**
+ * Migrates a raw parsed localStorage payload to the current v2 shape.
+ * v1 carnets (or unversioned, pre-dating the `version` field) get
+ * `favorites[*].reviewBox/reviewedAt/sessionId` defaulted and a top-level
+ * `languageModes: {}` added, per pivot-lot0-contract §2's "local carnet
+ * v1→2 migration" note. Idempotent — already-v2 carnets are passed through
+ * (defensively re-defaulting any missing field, e.g. hand-edited storage).
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function migrate(raw: any): Carnet {
+  const favorites = Array.isArray(raw.favorites)
+    ? raw.favorites.map((f: { expressionId: string; savedAt: string; reviewBox?: number; reviewedAt?: string | null; sessionId?: string | null }) => ({
+        expressionId: f.expressionId,
+        savedAt: f.savedAt,
+        reviewBox: f.reviewBox ?? 0,
+        reviewedAt: f.reviewedAt ?? null,
+        sessionId: f.sessionId ?? null,
+      }))
+    : [];
+  return {
+    ...structuredClone(DEFAULT),
+    ...raw,
+    version: 2,
+    favorites,
+    languageModes: raw.languageModes && typeof raw.languageModes === "object" ? raw.languageModes : {},
+  };
+}
 
 export function getCarnet(): Carnet {
   if (typeof window === "undefined") return structuredClone(DEFAULT);
-  let c: Carnet;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let raw: any = null;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    c = raw ? (JSON.parse(raw) as Carnet) : structuredClone(DEFAULT);
+    const stored = localStorage.getItem(STORAGE_KEY);
+    raw = stored ? JSON.parse(stored) : null;
   } catch {
+    raw = null;
+  }
+  let c: Carnet;
+  if (raw) {
+    const needsMigration = (raw.version ?? 1) < 2;
+    c = migrate(raw);
+    if (needsMigration) saveCarnet(c);
+  } else {
     c = structuredClone(DEFAULT);
   }
-  // Lazy v1→v1.1 backfill: carnets created before clientId existed get one
-  // generated now, persisted immediately so it's stable across reads.
+  // Lazy backfill: carnets created before clientId existed get one generated
+  // now, persisted immediately so it's stable across reads.
   if (!c.clientId) {
     c.clientId = crypto.randomUUID();
     saveCarnet(c);
@@ -93,7 +142,13 @@ export function toggleFavorite(expressionId: string): void {
   if (idx !== -1) {
     c.favorites.splice(idx, 1);
   } else {
-    c.favorites.push({ expressionId, savedAt: new Date().toISOString() });
+    c.favorites.push({
+      expressionId,
+      savedAt: new Date().toISOString(),
+      reviewBox: 0,
+      reviewedAt: null,
+      sessionId: null,
+    });
   }
   saveCarnet(c);
   if (typeof window !== "undefined") {
@@ -103,6 +158,19 @@ export function toggleFavorite(expressionId: string): void {
 
 export function isFavorite(expressionId: string): boolean {
   return getCarnet().favorites.some((f) => f.expressionId === expressionId);
+}
+
+// Local-only language mode setter (anonymous users) — the collection page
+// (Lot C) mirrors this to the server via PUT /users/{id}/preferences when
+// the visitor is logged in; this function only ever touches localStorage.
+export function setLanguageMode(language: string, mode: LanguageMode): void {
+  const c = getCarnet();
+  c.languageModes[language] = mode;
+  saveCarnet(c);
+}
+
+export function getLanguageModes(): Record<string, LanguageMode> {
+  return getCarnet().languageModes;
 }
 
 function updateStreak(c: Carnet): void {
