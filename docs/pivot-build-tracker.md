@@ -57,7 +57,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 | Release | Scope | Gate to prod (`main`) | Status |
 |---|---|---|---|
 | **Lot API to main** | migrations + endpoints, zero UI change | backend tests green + staging smoke + Sinan go | ✅ shipped S197 (PR #90, prod verified) |
-| **V-jeu-1 — "hub and a playable game"** | A + B + F + Report 🚩 | hub live, Voyage playable end-to-end, redirects verified (`/random-mode`, `/carnet`), old links intact, QA staging full pass | 🔨 A+B+F+Report merged to staging — QA + release PR to `main` next |
+| **V-jeu-1 — "hub and a playable game"** | A + B + F + Report 🚩 | hub live, Voyage playable end-to-end, redirects verified (`/random-mode`, `/carnet`), old links intact, QA staging full pass | ✅ **shipped S199 (PR #95, `550a37f`, prod)** |
 | **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | ⬜ |
 | **V-jeu-3 — "révision"** | D | flashcard on favorites, review queue, empty/locked states | ⬜ |
 
@@ -195,5 +195,52 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   (client_id, expression_id) with no error (idempotent) ✓. Note: that last
   check left a real test row in prod `expression_reports`
   (`client_id="s199-smoke-test-client"`, expression `casser-les-pieds`,
-  reason `other`) — flagged to Sinan, not deleted without a go. **Next: the
-  V-jeu-1 release PR to `main`.**
+  reason `other`) — flagged to Sinan, not deleted without a go.
+- **2026-07-11 (S199)** — **V-jeu-1 shipped to prod.** PR #95 (`staging` →
+  `main`) opened; Vercel + backend-tests green, but the full Playwright
+  suite ("test" required check) failed twice on the same commit — triaged
+  as 100% pre-existing `/search` flakiness (`#S6`, `#S9`,
+  `search-locale.spec.ts` locale-param sync), unrelated to A/B/F/Report,
+  confirmed across both chromium and mobile-chrome runs. Branch protection
+  on `main` has `enforce_admins: true` (required checks apply even to
+  admin merges) and blocked both `gh pr merge --admin` and the raw REST
+  merge endpoint. Sinan authorized bypassing on a deadline; `enforce_admins`
+  was toggled off, PR #95 merged (`550a37f`), and re-enabling it was
+  attempted immediately but blocked by the coordinating session's own
+  safety classifier (read as a persistent config change, distinct from
+  the one-time merge-bypass Sinan approved) — **`enforce_admins` on `main`
+  was left OFF at end of session, needs Sinan to re-enable via
+  github.com/sinsan67/world-expressions/settings/branches or explicitly
+  ask Claude to retry.** No migration needed (frontend-only release).
+  Render redeploys `main` automatically. **V-jeu-1 is live: hub, Voyage
+  game, nav rewiring, report flag button.** Next horizon: V-jeu-2 (Lot C
+  collection + Lot E i18n), V-jeu-3 (Lot D révision), the pre-existing
+  `/search` flakiness (`#S6`/`#S9`/`search-locale.spec.ts`) worth a
+  dedicated look, and the ❤️/`/collection` redirect deferred from Lot F.
+- **2026-07-15 (S200)** — `enforce_admins` re-enabled on `main` (no blocker
+  this time, unlike the S199 attempt). **`/search` flakiness root-caused —
+  it's a Next.js 16.2.6 (canary channel) router bug, not app code.** Reproduced
+  live against staging by calling `window.next.router.push(...)` directly from
+  devtools, bypassing all app code entirely: navigating to a *different* route
+  (e.g. `/country/de`) always works; navigating to the *same* pathname with
+  only different search params (any `/search?q=X` → `/search?q=Y` once results
+  are already rendered) gets silently reverted — `history.replaceState` fires
+  with the **current** (stale) URL instead of the target one, as if the
+  router's canonical-state sync wins a race against the pending navigation.
+  Confirmed independent of split-view/concept-bridge (still fails with an
+  ambiguous query like `q=para` that has no split view) and independent of
+  Enter-vs-click (button click reproduces identically). A fresh `/search`
+  landing with no prior results (`#S2`-style) is unaffected. This explains
+  `#S6` (filter → `router.replace`) and `#S9` (re-search → `router.push`) as
+  one root cause; `search-locale.spec.ts`'s second case doesn't even call
+  `router.push` (it re-fetches on `uiLang` change) so is likely unaffected —
+  not yet re-checked. No fix attempted this session (framework-level, needs a
+  dedicated pass). Two candidate directions for next time: (a) bump Next.js
+  — project is on `16.2.6`, latest available is `16.3.0-preview.6` (~90 canary
+  builds ahead), try in a throwaway branch first; (b) an app-level workaround
+  for `/search` navigations if the bump doesn't fix it. Also: a QA pass from
+  Sinan (mobile + desktop) was analyzed by a background agent in parallel —
+  report at `scratchpad/qa-session1-analysis.md` (gitignored/untracked,
+  not part of this repo's history) — flagged that `HeroSection.tsx` is dead
+  code (unused since Lot A/S198) and one of Sinan's screenshots was likely a
+  stale cached tab, not the current deployed UI.

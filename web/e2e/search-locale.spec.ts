@@ -9,11 +9,11 @@ test.describe('Search — locale-aware meanings (bug fix: sense in UI language)'
 
     const searchUrls: string[] = [];
     page.on('request', (req) => {
-      // Exclude Next.js's own RSC navigation fetches (?_rsc=...) — submitting
-      // the search box on /search does a router.push to /search?q=..., which
-      // triggers both a same-origin RSC request AND the real backend API
-      // call; only the latter carries `locale=`.
-      if (req.url().includes('/search?') && !req.url().includes('_rsc=')) searchUrls.push(req.url());
+      // Submitting the search box on /search triggers a same-origin frontend
+      // navigation request AND the real backend API call — only the latter
+      // carries `locale=`, so require it to isolate the backend call (same
+      // pattern as lang-switch.spec.ts).
+      if (req.url().includes('/search?') && req.url().includes('locale=')) searchUrls.push(req.url());
     });
 
     // Search moved from "/" to "/search" (games-hub pivot, S196 — see
