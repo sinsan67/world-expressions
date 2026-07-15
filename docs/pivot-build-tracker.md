@@ -35,7 +35,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 | **B — Voyage** | `/voyage` 3 states, quick mode, rare badge, session recording | Sonnet 5 | API (`/game-sessions`) in prod | `pivot/lot-b-voyage` | 🧪 QA passed on staging (PR #92) |
 | **C — Collection** | `/collection`, 🧳/📚 sections, search/filter/sort, set counter, mode prompt | Sonnet 5 | API (favorites enrichment) in prod | `pivot/lot-c-collection` | ✅ merged to staging (PR #98) |
 | **D — Révision** | `/revision` flashcard v1, review queue, empty/locked states | Sonnet 5 | API (review endpoint) + C's local-carnet migration | `pivot/lot-d-revision` | ⬜ |
-| **E — i18n** | Complete es/it/tr/de/ja, wording arbitration with Sinan | Haiku | A–D key files merged | `pivot/lot-e-i18n` | ⬜ |
+| **E — i18n** | Complete es/it/tr/de/ja, wording arbitration with Sinan | Haiku | A–D key files merged | `pivot/lot-e-i18n` | ✅ on staging (`b0f2d97` + arbitrage `37e904b`, S203) |
 | **F — Nav & redirects** | BottomNav/header/sidebar rewiring, redirects, `/search` swap, SearchOverlay removal | Haiku | A (hub live on staging) | `pivot/lot-f-nav` | ✅ merged to staging (PR #94) |
 
 ### Execution rules
