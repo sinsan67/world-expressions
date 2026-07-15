@@ -230,7 +230,7 @@ export const VOYAGE_PLAY: Record<Lang, VoyagePlayLabels> = {
     exampleLabel: "Beispiel + Übersetzung",
     fullCard: "Ganze Karte ansehen →",
     keepBtn: "❤️ Behalten",
-    keptBtn: "❤️ Gesichert!",
+    keptBtn: "❤️ Behalten!",
     nextBtn: "Weiter ⏭",
     reportAria: "Diesen Ausdruck melden",
     cardCounter: (c, t) => `Karte ${c}/${t}`,

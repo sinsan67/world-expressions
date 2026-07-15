@@ -138,8 +138,8 @@ export const COLLECTION_LABELS: Record<Lang, CollectionLabels> = {
     filters: { theme: "Thema", type: "Typ", allThemes: "Alle Themen", allTypes: "Alle Typen" },
     sort: { byDate: "Neueste zuerst", byName: "Alphabetisch" },
     mode: {
-      discovery: "🧳 Entdecken",
-      mastered: "📚 Gemeistert",
+      discovery: "🧳 entdecken",
+      mastered: "📚 gemeistert",
       prompt: "Wie willst du diese Sprache erkunden?",
       choose: "Modus wählen",
     },
