@@ -33,7 +33,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 | **Report 🚩** | `expression_reports` + `POST /reports` + flag button (fiche + game card) | Sonnet 5 | independent (backend part ships inside Lot API) | `pivot/lot-report` | ✅ merged to staging (PR #93) |
 | **A — Hub** | New `/`, hub cards, daily postcard, collection teaser | Sonnet 5 | API (`/daily`) in prod | `pivot/lot-a-hub` | 🧪 QA passed on staging (PR #91) |
 | **B — Voyage** | `/voyage` 3 states, quick mode, rare badge, session recording | Sonnet 5 | API (`/game-sessions`) in prod | `pivot/lot-b-voyage` | 🧪 QA passed on staging (PR #92) |
-| **C — Collection** | `/collection`, 🧳/📚 sections, search/filter/sort, set counter, mode prompt | Sonnet 5 | API (favorites enrichment) in prod | `pivot/lot-c-collection` | ⬜ |
+| **C — Collection** | `/collection`, 🧳/📚 sections, search/filter/sort, set counter, mode prompt | Sonnet 5 | API (favorites enrichment) in prod | `pivot/lot-c-collection` | ✅ merged to staging (PR #98) |
 | **D — Révision** | `/revision` flashcard v1, review queue, empty/locked states | Sonnet 5 | API (review endpoint) + C's local-carnet migration | `pivot/lot-d-revision` | ⬜ |
 | **E — i18n** | Complete es/it/tr/de/ja, wording arbitration with Sinan | Haiku | A–D key files merged | `pivot/lot-e-i18n` | ⬜ |
 | **F — Nav & redirects** | BottomNav/header/sidebar rewiring, redirects, `/search` swap, SearchOverlay removal | Haiku | A (hub live on staging) | `pivot/lot-f-nav` | ✅ merged to staging (PR #94) |
@@ -58,7 +58,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 |---|---|---|---|
 | **Lot API to main** | migrations + endpoints, zero UI change | backend tests green + staging smoke + Sinan go | ✅ shipped S197 (PR #90, prod verified) |
 | **V-jeu-1 — "hub and a playable game"** | A + B + F + Report 🚩 | hub live, Voyage playable end-to-end, redirects verified (`/random-mode`, `/carnet`), old links intact, QA staging full pass | ✅ **shipped S199 (PR #95, `550a37f`, prod)** |
-| **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | ⬜ |
+| **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | 🔨 C merged to staging (PR #98, S202) — E remaining |
 | **V-jeu-3 — "révision"** | D | flashcard on favorites, review queue, empty/locked states | ⬜ |
 
 Post-launch (recorded, not planned here): Leitner workshop · "My games" UI ·
@@ -274,3 +274,54 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   against `worldexpressions.app`. `#S6`, `#S9`, and the `search-locale`
   flakiness are **closed**. Next: Lot C (collection) is now unblocked with
   a clean CI baseline.
+- **2026-07-15 (S202)** — **Lot C (Collection) built and merged to staging.**
+  Sonnet 5 agent in a manual worktree (`../wex-lot-c-collection`, CLT
+  workaround per earlier note), single clean run, no infra interruption.
+  `/collection` ships anonymous **and** logged-in support (local carnet vs.
+  server favorites, no merge — same authoritative split as the old
+  `/profile` carnet tab), per-language sections with 🧳/📚 mode (contained
+  entirely to this page — no global favorite-add interception, a scope
+  call made with Sinan before the build), "à revoir" badges, client-side
+  search/filter/sort, and per-language set counters. Local carnet migrated
+  v1→v2 (`reviewBox`/`reviewedAt`/`sessionId`/`languageModes` mirrors),
+  laying the groundwork Lot D depends on. Row click goes to the existing
+  `/expression/[id]` fiche — the mockup's "Écran 2" (retravail/study view)
+  was deliberately left to Lot D, which needs the same kind of view for its
+  flashcard anyway. Rewired the 5 links deferred from Lot F (S199 decision):
+  `Sidebar`, `CarnetHeartLink`, `CollectionStrip`, `VoyageRecap`, `/carnet`
+  redirect — all now point at `/collection`. Coordinator independently
+  re-verified `tsc`/`next build --webpack` (agent's own report matched).
+  **PR #98**: CI's "test" job hit the same pre-existing false-red as
+  A/B/F/Report (`Wait for Vercel staging to serve this commit` — structurally
+  can't pass on a PR against `staging` before merge; `backend-tests` green,
+  Vercel preview deployed fine) — merged on that basis, matching precedent.
+  Live-verified on staging (`api/version` sha match). **Not yet verified**:
+  the logged-in path (server favorites sync + `PUT /preferences`
+  language_modes) — no OAuth session available in the build/CI environment,
+  needs a manual pass from Sinan.
+- **2026-07-15 (S202)** — **3 QA quick wins shipped to staging** (`8d590a9`,
+  direct push, no PR — small fixes, not a lot). (1) Voyage/hub "fiche
+  complète" links now open in a new tab (`target=_blank`), so a click
+  doesn't lose your place in a session; `homepage.spec.ts` #8 updated to
+  assert on the popup page instead of same-tab navigation. (2) Onboarding's
+  hard-coded 3-language cap on "languages to explore" removed — backend
+  already stores `learning_langs` as an unbounded array, zero migration
+  needed. (3) Root-caused the reported "fiche repasses en anglais": found
+  while reading `UILangContext.tsx` that `uiLang` always mounts at `"en"`
+  and only corrects to the stored language inside a plain `useEffect`
+  (runs after paint) — a real, if usually brief, flash of English on every
+  fresh mount, and one made **more likely to be noticed** by change (1)
+  above (new tab = guaranteed fresh mount on every fiche click). Fixed with
+  an isomorphic layout effect (corrects before paint, SSR-safe). Verification
+  caught a real gap in the coordinator's own earlier `tsc`/build checks:
+  `node_modules/next` was stale at `16.2.6` despite `package.json` pinning
+  `16.3.0-preview.6` (the S201 upgrade) — `npm install` re-synced it; all
+  three fixes were re-verified against the *correct* Next version.
+  22/22 e2e (homepage, voyage, lang-switch) green via local dev server
+  pointed at the live backend (the one lang-switch flake in a 4-worker run
+  passed clean in isolation — resource contention against a live Render
+  backend, not a regression).
+- **2026-07-15 (S202)** — Cleaned up the S199 smoke-test row in prod
+  `expression_reports` (`client_id="s199-smoke-test-client"`,
+  `casser-les-pieds`, `reason="other"`) — confirmed via Sinan, single row
+  verified before and after (`DELETE`, 1 row affected, 0 remaining).
