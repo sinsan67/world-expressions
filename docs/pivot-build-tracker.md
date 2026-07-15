@@ -244,3 +244,33 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   not part of this repo's history) — flagged that `HeroSection.tsx` is dead
   code (unused since Lot A/S198) and one of Sinan's screenshots was likely a
   stale cached tab, not the current deployed UI.
+- **2026-07-15 (S201)** — **`/search` router bug fixed and shipped to prod.**
+  Confirmed the S200 root cause reproduces reliably in **production builds
+  only** (`next build && next start`, never `next dev` — the router's
+  prefetch/cache overhaul is prod-only), then confirmed the Next.js
+  `16.2.6` → `16.3.0-preview.6` bump (~90 canary builds) fixes it: 3/3 manual
+  repro fails on 16.2.6 / 3/3 pass on 16.3.0-preview.6; `search-page.spec.ts`
+  + `search-locale.spec.ts` (29 tests) show the same pattern (`#S6`/`#S9`
+  fail on 16.2.6, all pass on 16.3.0-preview.6); full e2e suite (101 tests)
+  on the upgrade showed zero regressions (the only 3 failures — `auth.spec.ts`
+  #A1, `regions.spec.ts` #R3/R5/R6 — reproduce identically on the 16.2.6
+  control, pre-existing/environmental). **PR #96** (`staging`): the bump
+  alone broke Vercel's `npm install` (`ERESOLVE` — npm excludes prereleases
+  from peer ranges by default, `@serwist/next`'s `"next": ">=14.0.0"` peer
+  doesn't match a `-preview.6` tag even on its latest version) — fixed with
+  `web/.npmrc` (`legacy-peer-deps=true`). Merged to staging, live-verified
+  29/29 on the real staging domain. **PR #97** (`staging` → `main`): first
+  run of the "test" required check was a **real** run this time (not the
+  known false-red — see S198) and caught a genuine but expected side effect:
+  `search-locale.spec.ts`'s first case matched the frontend's own same-origin
+  navigation request (now that `router.push` actually completes) before the
+  real backend fetch, because its `/search?` filter didn't also require
+  `locale=` (the pattern `lang-switch.spec.ts` already used) — tightened,
+  verified 6/6 on staging, pushed straight to `staging` (test-only fix, no
+  app code touched). Second CI run on PR #97 green twice in a row — **first
+  clean staging→main CI pass since the flakiness was introduced**, no
+  `enforce_admins` bypass needed this time. Merged (`9cb95d6`), Vercel prod
+  verified live, `search-page.spec.ts` + `search-locale.spec.ts` 29/29 green
+  against `worldexpressions.app`. `#S6`, `#S9`, and the `search-locale`
+  flakiness are **closed**. Next: Lot C (collection) is now unblocked with
+  a clean CI baseline.
