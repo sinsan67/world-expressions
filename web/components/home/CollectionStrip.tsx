@@ -6,8 +6,7 @@ import { getCarnet } from "@/lib/carnet";
 
 // Hub collection teaser strip — total favorites count only (per-language
 // breakdown needs /browse?ids= hydration, out of scope for lot A, see
-// docs/pivot-lot0-contract.md §5). Links to /profile — NOT /collection,
-// which doesn't exist yet (lot C renames /carnet → /collection later).
+// docs/pivot-lot0-contract.md §5). Links to /collection (lot C).
 
 type Props = {
   title: string;
@@ -27,7 +26,7 @@ export default function CollectionStrip({ title, countLabel, emptyLabel }: Props
 
   return (
     <Link
-      href="/profile"
+      href="/collection"
       data-testid="collection-strip"
       style={{
         display: "flex",

@@ -88,9 +88,9 @@ test.describe('Hub — sections & navigation', () => {
     await expect(page).toHaveURL(/\/expression\//, { timeout: T });
   });
 
-  test('#9 le bandeau collection navigue vers /profile', async ({ page }) => {
+  test('#9 le bandeau collection navigue vers /collection', async ({ page }) => {
     await page.locator(COLLECTION_STRIP).click();
-    await expect(page).toHaveURL(/\/profile/, { timeout: T });
+    await expect(page).toHaveURL(/\/collection/, { timeout: T });
   });
 
   test('#10 la carte du jour est déterministe (même expression au rechargement)', async ({ page }) => {
@@ -130,9 +130,9 @@ test.describe('Hub — header mobile (< 1024px)', () => {
     await expect(page).toHaveURL(/\/search/, { timeout: T });
   });
 
-  test('#13 icône cœur du header navigue vers /profile', async ({ page }) => {
-    await page.locator('.wex-mobile-header a[href="/profile"]').first().click();
-    await expect(page).toHaveURL(/\/profile/, { timeout: T });
+  test('#13 icône cœur du header navigue vers /collection', async ({ page }) => {
+    await page.locator('.wex-mobile-header a[href="/collection"]').first().click();
+    await expect(page).toHaveURL(/\/collection/, { timeout: T });
   });
 });
 

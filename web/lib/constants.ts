@@ -14,6 +14,19 @@ export const COUNTRY_NAME: Record<string, string> = {
   en: "English",
 };
 
+// Expression *language* codes (fr, en, es, it, tr, de, ja — as used by
+// expression.language / the collection's per-language sections) — distinct
+// from the *country* codes above (FLAG/COUNTRY_NAME are keyed by country,
+// e.g. "uk"/"us"/"jp", not "en"/"ja"). "en" has no single flag of its own —
+// FLAG.uk (🇬🇧) is used as the collection's stand-in, consistently.
+export const LANG_NAME: Record<string, string> = {
+  fr: "Français", en: "English", es: "Español", it: "Italiano", tr: "Türkçe", de: "Deutsch", ja: "日本語",
+};
+
+export const LANG_FLAG: Record<string, string> = {
+  fr: "🇫🇷", en: "🇬🇧", es: "🇪🇸", it: "🇮🇹", tr: "🇹🇷", de: "🇩🇪", ja: "🇯🇵",
+};
+
 // Countries with a photo in /public/images — others fall back to the flag gradient.
 export const HERO_IMAGE_COUNTRIES = new Set(["fr", "uk", "us", "au", "es", "tr", "it", "de", "jp", "ar", "pe", "co", "cu"]);
 
