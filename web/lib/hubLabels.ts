@@ -3,9 +3,10 @@
 // site does `HUB_LABELS[uiLang] ?? HUB_LABELS.en` — fallback is always
 // English, never French (editorial charter).
 //
-// FR + EN are fully arbitrated (S195 workshop). The other 5 languages are
-// placeholder copies of EN until lot E arbitrates final wording with Sinan
-// (contract §5) — keys must stay identical across all languages.
+// FR + EN are fully arbitrated (S195 workshop). es/it/tr/de/ja were
+// arbitrated with Sinan in lot E (S203, contract §5) — keys must stay
+// identical across all languages. Native-speaker proofreading welcome,
+// especially for ja.
 
 type Lang = string;
 
@@ -81,153 +82,153 @@ export const HUB_LABELS: Record<Lang, HubLabels> = {
     },
   },
   es: {
-    title: "What shall we play?",
+    title: "¿A qué jugamos?",
     voyage: {
-      title: "Voyage",
-      tagline: "10 cards to guess or flip through. Keep the ones you like ❤️",
-      cta: "Play ▸",
+      title: "Viaje",
+      tagline: "10 cartas para adivinar o pasar. Guarda las que te gusten ❤️",
+      cta: "Jugar ▸",
     },
     revision: {
-      title: "Review",
-      tagline: "Draws only from your collection. Flip the card — did you know it, or not yet?",
-      cta: "Review ▸",
+      title: "Repaso",
+      tagline: "Solo saca cartas de tu colección. Dale la vuelta: ¿la sabías, o todavía no?",
+      cta: "Repasar ▸",
     },
     comingSoon: {
-      title: "Coming soon — a 3rd game",
-      body: "Explore expressions on a world map… or in emoji constellations ✨",
+      title: "Muy pronto — un 3er juego",
+      body: "Explora las expresiones en un mapa del mundo… o en constelaciones de emojis ✨",
     },
     daily: {
-      title: "Today's expressions",
-      hint: "tap to discover",
+      title: "Expresiones del día",
+      hint: "toca para descubrir",
     },
     collection: {
-      teaser: "My collection",
-      count: (n) => `${n} expression${n > 1 ? "s" : ""}`,
-      empty: "No favorites yet — keep your first card while playing",
+      teaser: "Mi colección",
+      count: (n) => `${n} ${n === 1 ? "expresión" : "expresiones"}`,
+      empty: "Todavía no hay favoritos — guarda tu primera carta jugando",
     },
     search: {
-      invite: "A word, a feeling, an idea…",
-      title: "Search",
+      invite: "Una palabra, una emoción, una idea…",
+      title: "Buscar",
     },
   },
   it: {
-    title: "What shall we play?",
+    title: "A cosa giochiamo?",
     voyage: {
-      title: "Voyage",
-      tagline: "10 cards to guess or flip through. Keep the ones you like ❤️",
-      cta: "Play ▸",
+      title: "Viaggio",
+      tagline: "10 carte da indovinare o sfogliare. Tieni quelle che ti piacciono ❤️",
+      cta: "Gioca ▸",
     },
     revision: {
-      title: "Review",
-      tagline: "Draws only from your collection. Flip the card — did you know it, or not yet?",
-      cta: "Review ▸",
+      title: "Ripasso",
+      tagline: "Pesca solo dalla tua collezione. Gira la carta: la sapevi, o non ancora?",
+      cta: "Ripassa ▸",
     },
     comingSoon: {
-      title: "Coming soon — a 3rd game",
-      body: "Explore expressions on a world map… or in emoji constellations ✨",
+      title: "Prossimamente — un 3° gioco",
+      body: "Esplora le espressioni su una mappa del mondo… o in costellazioni di emoji ✨",
     },
     daily: {
-      title: "Today's expressions",
-      hint: "tap to discover",
+      title: "Espressioni del giorno",
+      hint: "tocca per scoprire",
     },
     collection: {
-      teaser: "My collection",
-      count: (n) => `${n} expression${n > 1 ? "s" : ""}`,
-      empty: "No favorites yet — keep your first card while playing",
+      teaser: "La mia collezione",
+      count: (n) => `${n} ${n === 1 ? "espressione" : "espressioni"}`,
+      empty: "Ancora nessun preferito — conserva la tua prima carta giocando",
     },
     search: {
-      invite: "A word, a feeling, an idea…",
-      title: "Search",
+      invite: "Una parola, un'emozione, un'idea…",
+      title: "Cerca",
     },
   },
   tr: {
-    title: "What shall we play?",
+    title: "Ne oynayalım?",
     voyage: {
-      title: "Voyage",
-      tagline: "10 cards to guess or flip through. Keep the ones you like ❤️",
-      cta: "Play ▸",
+      title: "Yolculuk",
+      tagline: "10 kart: tahmin et ya da kaydırıp geç. Beğendiklerini sakla ❤️",
+      cta: "Oyna ▸",
     },
     revision: {
-      title: "Review",
-      tagline: "Draws only from your collection. Flip the card — did you know it, or not yet?",
-      cta: "Review ▸",
+      title: "Tekrar",
+      tagline: "Sadece senin koleksiyonundan çeker. Kartı çevir — biliyor muydun, yoksa henüz mü?",
+      cta: "Tekrar et ▸",
     },
     comingSoon: {
-      title: "Coming soon — a 3rd game",
-      body: "Explore expressions on a world map… or in emoji constellations ✨",
+      title: "Yakında — 3. bir oyun",
+      body: "Deyimleri bir dünya haritasında keşfet… ya da emoji takımyıldızlarında ✨",
     },
     daily: {
-      title: "Today's expressions",
-      hint: "tap to discover",
+      title: "Günün deyimleri",
+      hint: "keşfetmek için dokun",
     },
     collection: {
-      teaser: "My collection",
-      count: (n) => `${n} expression${n > 1 ? "s" : ""}`,
-      empty: "No favorites yet — keep your first card while playing",
+      teaser: "Koleksiyonum",
+      count: (n) => `${n} deyim`,
+      empty: "Henüz favori yok — oynarken ilk kartını sakla",
     },
     search: {
-      invite: "A word, a feeling, an idea…",
-      title: "Search",
+      invite: "Bir kelime, bir duygu, bir fikir…",
+      title: "Ara",
     },
   },
   de: {
-    title: "What shall we play?",
+    title: "Was spielen wir?",
     voyage: {
-      title: "Voyage",
-      tagline: "10 cards to guess or flip through. Keep the ones you like ❤️",
-      cta: "Play ▸",
+      title: "Reise",
+      tagline: "10 Karten zum Raten oder Durchblättern. Behalte die, die dir gefallen ❤️",
+      cta: "Spielen ▸",
     },
     revision: {
-      title: "Review",
-      tagline: "Draws only from your collection. Flip the card — did you know it, or not yet?",
-      cta: "Review ▸",
+      title: "Wiederholung",
+      tagline: "Zieht nur aus deiner Sammlung. Dreh die Karte um — wusstest du sie, oder noch nicht?",
+      cta: "Wiederholen ▸",
     },
     comingSoon: {
-      title: "Coming soon — a 3rd game",
-      body: "Explore expressions on a world map… or in emoji constellations ✨",
+      title: "Bald — ein 3. Spiel",
+      body: "Entdecke Ausdrücke auf einer Weltkarte… oder in Emoji-Konstellationen ✨",
     },
     daily: {
-      title: "Today's expressions",
-      hint: "tap to discover",
+      title: "Ausdrücke des Tages",
+      hint: "tippen zum Entdecken",
     },
     collection: {
-      teaser: "My collection",
-      count: (n) => `${n} expression${n > 1 ? "s" : ""}`,
-      empty: "No favorites yet — keep your first card while playing",
+      teaser: "Meine Sammlung",
+      count: (n) => `${n} ${n === 1 ? "Ausdruck" : "Ausdrücke"}`,
+      empty: "Noch keine Favoriten — behalte deine erste Karte beim Spielen",
     },
     search: {
-      invite: "A word, a feeling, an idea…",
-      title: "Search",
+      invite: "Ein Wort, ein Gefühl, eine Idee…",
+      title: "Suchen",
     },
   },
   ja: {
-    title: "What shall we play?",
+    title: "何して遊びましょう？",
     voyage: {
-      title: "Voyage",
-      tagline: "10 cards to guess or flip through. Keep the ones you like ❤️",
-      cta: "Play ▸",
+      title: "旅",
+      tagline: "10枚のカードを当てたり、めくったり。気に入ったカードは残しましょう ❤️",
+      cta: "遊ぶ ▸",
     },
     revision: {
-      title: "Review",
-      tagline: "Draws only from your collection. Flip the card — did you know it, or not yet?",
-      cta: "Review ▸",
+      title: "復習",
+      tagline: "あなたのコレクションからだけ出題。カードをめくって——覚えていましたか、まだですか？",
+      cta: "復習する ▸",
     },
     comingSoon: {
-      title: "Coming soon — a 3rd game",
-      body: "Explore expressions on a world map… or in emoji constellations ✨",
+      title: "近日公開 — 3つ目のゲーム",
+      body: "世界地図で表現を探検…あるいは絵文字の星座の中で ✨",
     },
     daily: {
-      title: "Today's expressions",
-      hint: "tap to discover",
+      title: "今日の表現",
+      hint: "タップして発見",
     },
     collection: {
-      teaser: "My collection",
-      count: (n) => `${n} expression${n > 1 ? "s" : ""}`,
-      empty: "No favorites yet — keep your first card while playing",
+      teaser: "マイコレクション",
+      count: (n) => `${n}個の表現`,
+      empty: "まだお気に入りはありません — 遊びながら最初のカードを残しましょう",
     },
     search: {
-      invite: "A word, a feeling, an idea…",
-      title: "Search",
+      invite: "ことば、気持ち、アイデア…",
+      title: "検索",
     },
   },
 };
