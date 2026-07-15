@@ -6,8 +6,7 @@
  * drawn cards (client-side computation, random tie-break — decision #8),
  * kept-expressions list, a "collection updated" chip, and the three actions
  * from decision #10 (Rejouer reuses the same filters · Changer les filtres →
- * setup, pre-filled · Voir ma collection → /profile, not /collection which
- * doesn't exist yet).
+ * setup, pre-filled · Voir ma collection → /collection, lot C).
  */
 
 import { useState } from "react";
@@ -85,7 +84,7 @@ export default function VoyageRecap({ uiLang, cards, keptCards, onReplay, onChan
         <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 9, paddingTop: 22 }}>
           <button onClick={onReplay} style={primaryBtnStyle}>{t.replay}</button>
           <button onClick={onChangeFilters} style={secondaryBtnStyle}>{t.changeFilters}</button>
-          <Link href="/profile" style={secondaryBtnStyle}>{t.viewCollection}</Link>
+          <Link href="/collection" style={secondaryBtnStyle}>{t.viewCollection}</Link>
         </div>
       </div>
     </div>

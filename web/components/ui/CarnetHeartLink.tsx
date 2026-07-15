@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Heart link to the Carnet (/profile) with a favorites-count badge.
+ * Heart link to the Collection (/collection) with a favorites-count badge.
  * Replaces the Carnet tab in the mobile bottom nav (M2 layout) — lives in
  * the top header instead, so it stays visible on every page.
  */
@@ -39,7 +39,7 @@ export default function CarnetHeartLink({ uiLang = "fr", color = "var(--ink-soft
 
   return (
     <Link
-      href="/profile"
+      href="/collection"
       aria-label={ARIA_LABEL[uiLang] ?? ARIA_LABEL.en}
       style={{ position: "relative", display: "flex", alignItems: "center", color, textDecoration: "none" }}
     >
