@@ -58,7 +58,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 |---|---|---|---|
 | **Lot API to main** | migrations + endpoints, zero UI change | backend tests green + staging smoke + Sinan go | ✅ shipped S197 (PR #90, prod verified) |
 | **V-jeu-1 — "hub and a playable game"** | A + B + F + Report 🚩 | hub live, Voyage playable end-to-end, redirects verified (`/random-mode`, `/carnet`), old links intact, QA staging full pass | ✅ **shipped S199 (PR #95, `550a37f`, prod)** |
-| **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | 🔨 C merged to staging (PR #98, S202) — E remaining |
+| **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | 🔨 C + E on staging (E arbitrated S203, `37e904b`) — gate: Sinan live-tests logged-in `/collection` on staging, then go to `main` |
 | **V-jeu-3 — "révision"** | D | flashcard on favorites, review queue, empty/locked states | ⬜ |
 
 Post-launch (recorded, not planned here): Leitner workshop · "My games" UI ·
@@ -325,3 +325,17 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   `expression_reports` (`client_id="s199-smoke-test-client"`,
   `casser-les-pieds`, `reason="other"`) — confirmed via Sinan, single row
   verified before and after (`DELETE`, 1 row affected, 0 remaining).
+- **2026-07-15 (S203)** — **Lot E closed.** (1) Verified "playable in every
+  UI language" end-to-end: front already passes `locale: uiLang`, no fr/en
+  gate anywhere; prod coverage via `expression_content` +
+  `content_translations` is ~100% of the Voyage pool in all 7 locales
+  (ja 97%); live read-only hydration check against prod returned correct
+  de/ja meanings. Country names on cards are endonyms by design ("España",
+  "日本") — same in every UI language, not a gap. (2) Wording arbitrage with
+  Sinan (targeted review, ~20 most visible strings): tr/ja recap titles keep
+  their free "journey" translations (better than the fishing metaphor —
+  they loop back to the game's name), de `keptBtn` fixed to "❤️ Behalten!"
+  (verb consistency with keepBtn), de collection mode badges lowercased for
+  cross-language visual harmony, de "Wiederholung" kept. Fixes in `37e904b`
+  on staging. Remaining V-jeu-2 gate: Sinan live-tests logged-in
+  `/collection` on staging.
