@@ -83,9 +83,12 @@ test.describe('Hub — sections & navigation', () => {
     await expect(page).toHaveURL(/\/revision/, { timeout: T });
   });
 
-  test('#8 la carte postale du jour navigue vers la fiche expression', async ({ page }) => {
-    await page.locator(DAILY_POSTCARD).click();
-    await expect(page).toHaveURL(/\/expression\//, { timeout: T });
+  test('#8 la carte postale du jour ouvre la fiche expression dans un nouvel onglet', async ({ page, context }) => {
+    const [popup] = await Promise.all([
+      context.waitForEvent('page'),
+      page.locator(DAILY_POSTCARD).click(),
+    ]);
+    await expect(popup).toHaveURL(/\/expression\//, { timeout: T });
   });
 
   test('#9 le bandeau collection navigue vers /collection', async ({ page }) => {

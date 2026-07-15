@@ -72,7 +72,7 @@ export default function OnboardingModal({ onClose, apiUrl, initialUiLang = null 
     setExploreLangs((prev) =>
       prev.includes(code)
         ? prev.filter((l) => l !== code)
-        : prev.length < 3 ? [...prev, code] : prev
+        : [...prev, code]
     );
   }
 
@@ -296,9 +296,9 @@ export default function OnboardingModal({ onClose, apiUrl, initialUiLang = null 
             <p style={eyebrowStyle}>Step {askLang ? 3 : 2} / {totalSteps} · Optional</p>
             <h2 style={titleStyle}>Which languages fascinate you?</h2>
             <p style={subtitleStyle}>
-              Pick up to 3 — we&apos;ll highlight those equivalents across the app.
-              {exploreLangs.length === 3 && (
-                <span style={{ color: "var(--plum)", fontWeight: 600 }}> (3 selected)</span>
+              Pick as many as you like — we&apos;ll highlight those equivalents across the app.
+              {exploreLangs.length > 0 && (
+                <span style={{ color: "var(--plum)", fontWeight: 600 }}> ({exploreLangs.length} selected)</span>
               )}
             </p>
             <LangGrid

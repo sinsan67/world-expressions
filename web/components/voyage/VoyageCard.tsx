@@ -116,7 +116,7 @@ export default function VoyageCard({ uiLang, card, onNext, onReport = () => {}, 
                   {exampleOpen && <div style={depthBodyStyle}>{card.example}</div>}
                 </div>
               )}
-              <Link href={`/expression/${card.id}`} style={depthLinkStyle}>{t.fullCard}</Link>
+              <Link href={`/expression/${card.id}`} target="_blank" rel="noopener noreferrer" style={depthLinkStyle}>{t.fullCard}</Link>
             </div>
           </div>
         )}
