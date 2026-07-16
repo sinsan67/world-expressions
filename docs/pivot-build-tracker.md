@@ -34,7 +34,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 | **A — Hub** | New `/`, hub cards, daily postcard, collection teaser | Sonnet 5 | API (`/daily`) in prod | `pivot/lot-a-hub` | 🧪 QA passed on staging (PR #91) |
 | **B — Voyage** | `/voyage` 3 states, quick mode, rare badge, session recording | Sonnet 5 | API (`/game-sessions`) in prod | `pivot/lot-b-voyage` | 🧪 QA passed on staging (PR #92) |
 | **C — Collection** | `/collection`, 🧳/📚 sections, search/filter/sort, set counter, mode prompt | Sonnet 5 | API (favorites enrichment) in prod | `pivot/lot-c-collection` | ✅ merged to staging (PR #98) |
-| **D — Révision** | `/revision` flashcard v1, review queue, empty/locked states | Sonnet 5 | API (review endpoint) + C's local-carnet migration | `pivot/lot-d-revision` | ⬜ |
+| **D — Révision** | `/revision` flashcard v1, review queue, empty/locked states | Sonnet 5 | API (review endpoint) + C's local-carnet migration | `pivot/lot-d-revision` | 🔨 built + pushed, PR not yet opened |
 | **E — i18n** | Complete es/it/tr/de/ja, wording arbitration with Sinan | Haiku | A–D key files merged | `pivot/lot-e-i18n` | ✅ on staging (`b0f2d97` + arbitrage `37e904b`, S203) |
 | **F — Nav & redirects** | BottomNav/header/sidebar rewiring, redirects, `/search` swap, SearchOverlay removal | Haiku | A (hub live on staging) | `pivot/lot-f-nav` | ✅ merged to staging (PR #94) |
 
@@ -58,7 +58,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 |---|---|---|---|
 | **Lot API to main** | migrations + endpoints, zero UI change | backend tests green + staging smoke + Sinan go | ✅ shipped S197 (PR #90, prod verified) |
 | **V-jeu-1 — "hub and a playable game"** | A + B + F + Report 🚩 | hub live, Voyage playable end-to-end, redirects verified (`/random-mode`, `/carnet`), old links intact, QA staging full pass | ✅ **shipped S199 (PR #95, `550a37f`, prod)** |
-| **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | 🧪 QA passed on staging (E arbitrated S203 `37e904b`; connected path tested + a real keepalive bug fixed S204 `b2e3627`) — awaiting Sinan's go to merge to `main` |
+| **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | ✅ **shipped S204 (PR #99, `8dae761`, prod verified)** |
 | **V-jeu-3 — "révision"** | D | flashcard on favorites, review queue, empty/locked states | ⬜ |
 
 Post-launch (recorded, not planned here): Leitner workshop · "My games" UI ·
@@ -395,3 +395,50 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   log. **V-jeu-2 gate assessment**: the connected favorites+mode path now
   checks out; recommend proceeding to the merge-to-`main` conversation with
   Sinan.
+- **2026-07-16 (S204, continued) — V-jeu-2 shipped to prod.** Sinan's go
+  given, **PR #99 opened and merged to `main`** (`8dae761`). First CI run on
+  the release PR failed for a real but non-regression reason: `homepage.spec.ts`
+  #11 asserted `de` falls back to English (no hub translation) — Lot E
+  (S203) had since shipped full German hub labels, so the heading now
+  correctly renders in German and the old assertion is simply obsolete.
+  Retired the test via `test.describe.fixme` (same pattern as
+  `carnet.spec.ts`) with a dated comment explaining why — all 7 `UI_LANGS`
+  are now translated, so there's no longer a valid-but-untranslated
+  language to exercise that fallback path against. Pushed (`449a610`),
+  re-ran CI green, merged. Prod verified: `/api/version` sha match,
+  `/`, `/collection`, `/voyage` all 200, backend `/countries` responding
+  (the cold-start retry fix from earlier in S204).
+- **2026-07-16 (S205)** — **Lot D (Révision) built.** Sonnet 5 agent in a
+  manual worktree (`../wex-lot-d-revision`, CLT workaround per earlier
+  note), single run with one silent-kill infra interruption (same known
+  pattern as S198/S199 — resumed cleanly via SendMessage, no work lost).
+  No setup/filter screen (decision #1: mixed-language queue straight from
+  the hub card) and a 5-favorite lock threshold (decision #2), both
+  confirmed with Sinan before coding since the contract's `revisionLabels.ts`
+  key list and the S195 mockups didn't specify either. New shared
+  `lib/reviewQueue.ts` centralizes the to-review/new/known v1 classification
+  (`reviewedAt`/`review_box`) — reused by both `/revision`'s actual queue
+  and a new chip row on the hub's Révision card (`GameCard.tsx` gained an
+  optional `chips` prop). Pure frontend: the backend endpoints Révision
+  needs (`POST /game-sessions` game=revision, the review endpoint) have
+  been live since Lot API (S197) — no migration, no `models.py`/
+  `database.py` touch. Coordinator reviewed the full diff, found and fixed
+  one small duplication (`LOCK_THRESHOLD` defined separately in two
+  components — consolidated into `reviewQueue.ts` as
+  `REVISION_LOCK_THRESHOLD`), independently re-ran `tsc --noEmit` and
+  `next build --webpack` (both clean). Agent's own verification: 3/3 on
+  the new `e2e/revision.spec.ts` (locked/empty/full playthrough, the
+  playthrough test seeds real expression ids collected live via `/random`
+  rather than fabricated ones since the session round-trips through the
+  real backend) + 16/17 on `homepage.spec.ts` (1 pre-existing skip, 2
+  transient parallel-load flakes confirmed non-regressions in isolation).
+  Committed (`ba253eb`) and pushed to `pivot/lot-d-revision` — **PR to
+  `staging` not yet opened**, next session's first step. Note: the main
+  repo's working tree picked up new uncommitted files mid-session
+  (`alembic/versions/f4c2d1a9b8e7_add_phonetic_to_expressions.py`,
+  `scripts/populate_phonetic.py`, edits to `web/lib/api.ts` and
+  `web/app/expression/[id]/page.tsx`) — Sinan's separate Codex phonetic
+  chantier, untouched by this lot (built in an isolated worktree). Worth
+  noting for the eventual PR: Codex's local `web/lib/api.ts` changes and
+  Lot D's `web/lib/api.ts` changes (adds `reviewFavorite`) both touch the
+  same file — a real merge point to watch once Codex's work is committed.

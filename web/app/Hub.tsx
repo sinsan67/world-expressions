@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { Search } from "lucide-react";
 import WelcomeModal from "@/components/WelcomeModal";
 import Sidebar from "@/components/home/Sidebar";
@@ -11,8 +12,11 @@ import DailyPostcard from "@/components/home/DailyPostcard";
 import CollectionStrip from "@/components/home/CollectionStrip";
 import CarnetHeartLink from "@/components/ui/CarnetHeartLink";
 import LangDropdown from "@/components/ui/LangDropdown";
-import { getDailyExpression, Expression } from "@/lib/api";
+import { getDailyExpression, getUserFavorites, Expression } from "@/lib/api";
+import { getCarnet } from "@/lib/carnet";
+import { classifyFavorites, FavoriteReviewState } from "@/lib/reviewQueue";
 import { HUB_LABELS } from "@/lib/hubLabels";
+import { REVISION_LABELS } from "@/lib/revisionLabels";
 import { useUILangContext } from "@/lib/UILangContext";
 import { UI_LANGS, type UILang } from "@/lib/useUILang";
 
@@ -23,17 +27,48 @@ type DailyExpression = Expression & { meaning_locale: string; literal: string | 
 // docs/mockups/pivot-hub.html for the visual reference this mirrors.
 export default function Hub() {
   const { uiLang, setUILang } = useUILangContext();
+  const { data: authSession, status } = useSession();
   const [showWelcome, setShowWelcome] = useState<boolean | null>(null);
   const [daily, setDaily] = useState<DailyExpression | null>(null);
   const [dailyLoading, setDailyLoading] = useState(true);
+  // Révision chip counts (lot D) — total favorites + how many are due for
+  // review. Loaded the same anon-local/logged-in-server dual path as
+  // Collection.tsx; classification logic lives once in lib/reviewQueue.ts.
+  const [favStats, setFavStats] = useState<{ total: number; toReview: number }>({ total: 0, toReview: 0 });
 
   const t = HUB_LABELS[uiLang] ?? HUB_LABELS.en;
+  const revisionT = REVISION_LABELS[uiLang] ?? REVISION_LABELS.en;
 
   // First-visit language gate — same localStorage check as the old HomePage.
   useEffect(() => {
     const stored = localStorage.getItem("wex_lang");
     setShowWelcome(!stored || !UI_LANGS.includes(stored as UILang));
   }, []);
+
+  // Révision chip counts — fire once auth status resolves.
+  useEffect(() => {
+    if (status === "loading") return;
+    let cancelled = false;
+    async function load() {
+      const userId = authSession?.user?.id;
+      let favs: FavoriteReviewState[];
+      if (status === "authenticated" && userId) {
+        try {
+          const raw = await getUserFavorites(userId);
+          favs = raw.map((f) => ({ expressionId: f.expression_id, reviewBox: f.review_box, reviewedAt: f.reviewed_at }));
+        } catch {
+          favs = [];
+        }
+      } else {
+        favs = getCarnet().favorites.map((f) => ({ expressionId: f.expressionId, reviewBox: f.reviewBox, reviewedAt: f.reviewedAt }));
+      }
+      if (cancelled) return;
+      const { toReview } = classifyFavorites(favs);
+      setFavStats({ total: favs.length, toReview: toReview.length });
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [status, authSession]);
 
   // GET /daily — deterministic pick for the UTC day, no client-side caching
   // needed (unlike the old getRandomExpression() sessionStorage pattern).
@@ -110,6 +145,12 @@ export default function Hub() {
             ctaLabel={t.revision.cta}
             href="/revision"
             testId="game-card-revision"
+            chips={favStats.total === 0 ? undefined : [
+              { label: t.collection.count(favStats.total) },
+              ...(favStats.toReview > 0
+                ? [{ label: `${favStats.toReview} ${revisionT.queue.toReview}`, tone: "warn" as const }]
+                : []),
+            ]}
           />
 
           {/* Teaser — 3rd game, static & non-clickable (S196 decision) */}

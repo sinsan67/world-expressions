@@ -160,6 +160,22 @@ export function isFavorite(expressionId: string): boolean {
   return getCarnet().favorites.some((f) => f.expressionId === expressionId);
 }
 
+// Révision (lot D) — records a flashcard answer on an existing favorite.
+// v1 semantics (pivot-lot0-contract §2): "knew" sets box 1, "not yet" resets
+// to box 0. No-ops if the favorite doesn't exist — same precondition as the
+// server endpoint (POST /users/{id}/favorites/{expressionId}/review).
+export function setFavoriteReview(expressionId: string, result: "knew" | "not_yet"): void {
+  const c = getCarnet();
+  const fav = c.favorites.find((f) => f.expressionId === expressionId);
+  if (!fav) return;
+  fav.reviewBox = result === "knew" ? 1 : 0;
+  fav.reviewedAt = new Date().toISOString();
+  saveCarnet(c);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("wex-carnet-updated"));
+  }
+}
+
 // Local-only language mode setter (anonymous users) — the collection page
 // (Lot C) mirrors this to the server via PUT /users/{id}/preferences when
 // the visitor is logged in; this function only ever touches localStorage.
