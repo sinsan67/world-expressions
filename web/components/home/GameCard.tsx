@@ -8,6 +8,8 @@ import Link from "next/link";
 
 type Variant = "discover" | "review";
 
+type Chip = { label: string; tone?: "default" | "warn" };
+
 type Props = {
   variant: Variant;
   emoji: string;
@@ -16,6 +18,10 @@ type Props = {
   ctaLabel: string;
   href: string;
   testId?: string;
+  // Optional small pill row between the subtitle and the CTA button — used
+  // by Révision (lot D) to surface favorites/to-review counts on the hub.
+  // Purely additive: Voyage's card doesn't pass this, so nothing renders.
+  chips?: Chip[];
 };
 
 const VARIANT_STYLES: Record<Variant, { background: string; border: string; cta: string }> = {
@@ -31,7 +37,7 @@ const VARIANT_STYLES: Record<Variant, { background: string; border: string; cta:
   },
 };
 
-export default function GameCard({ variant, emoji, title, subtitle, ctaLabel, href, testId }: Props) {
+export default function GameCard({ variant, emoji, title, subtitle, ctaLabel, href, testId, chips }: Props) {
   const styles = VARIANT_STYLES[variant];
 
   return (
@@ -60,6 +66,26 @@ export default function GameCard({ variant, emoji, title, subtitle, ctaLabel, hr
       <p style={{ fontSize: 13.5, color: "var(--ink-soft)", marginTop: 3, lineHeight: 1.4, maxWidth: "78%" }}>
         {subtitle}
       </p>
+      {chips && chips.length > 0 && (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8, maxWidth: "78%" }}>
+          {chips.map((chip, i) => (
+            <span
+              key={i}
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                padding: "3px 10px",
+                borderRadius: 999,
+                background: chip.tone === "warn" ? "var(--ochre-bg)" : "rgba(255,255,255,0.55)",
+                color: chip.tone === "warn" ? "var(--ochre-deep)" : "var(--ink-soft)",
+                border: chip.tone === "warn" ? "1px solid var(--ochre)" : "1px solid var(--paper-edge)",
+              }}
+            >
+              {chip.label}
+            </span>
+          ))}
+        </div>
+      )}
       <span
         style={{
           position: "absolute",
