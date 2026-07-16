@@ -83,14 +83,17 @@ test.describe('Hub — sections & navigation', () => {
     await expect(page).toHaveURL(/\/revision/, { timeout: T });
   });
 
-  test('#8 la carte postale du jour navigue vers la fiche expression', async ({ page }) => {
-    await page.locator(DAILY_POSTCARD).click();
-    await expect(page).toHaveURL(/\/expression\//, { timeout: T });
+  test('#8 la carte postale du jour ouvre la fiche expression dans un nouvel onglet', async ({ page, context }) => {
+    const [popup] = await Promise.all([
+      context.waitForEvent('page'),
+      page.locator(DAILY_POSTCARD).click(),
+    ]);
+    await expect(popup).toHaveURL(/\/expression\//, { timeout: T });
   });
 
-  test('#9 le bandeau collection navigue vers /profile', async ({ page }) => {
+  test('#9 le bandeau collection navigue vers /collection', async ({ page }) => {
     await page.locator(COLLECTION_STRIP).click();
-    await expect(page).toHaveURL(/\/profile/, { timeout: T });
+    await expect(page).toHaveURL(/\/collection/, { timeout: T });
   });
 
   test('#10 la carte du jour est déterministe (même expression au rechargement)', async ({ page }) => {
@@ -104,7 +107,15 @@ test.describe('Hub — sections & navigation', () => {
   });
 });
 
-test.describe('Hub — i18n', () => {
+// FIXME (S204): written when 'de' had no hub label translations yet, to
+// prove the fallback lands on English, never French. Lot E (S203) closed
+// that gap — hubLabels.ts now has all 7 UI_LANGS translated, so there is no
+// longer a valid-but-untranslated language to exercise this with (an
+// invalid code like 'pt' gets rejected by UILangContext's UI_LANGS
+// whitelist and silently stays "en", which would test localStorage
+// validation, not label fallback). Retire until a new language is added
+// ahead of its hub translations.
+test.describe.fixme('Hub — i18n', () => {
   test('#11 langue non traduite (de) retombe sur l\'anglais, jamais le français', async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('wex_lang', 'de'));
     await page.goto('/');
@@ -130,9 +141,9 @@ test.describe('Hub — header mobile (< 1024px)', () => {
     await expect(page).toHaveURL(/\/search/, { timeout: T });
   });
 
-  test('#13 icône cœur du header navigue vers /profile', async ({ page }) => {
-    await page.locator('.wex-mobile-header a[href="/profile"]').first().click();
-    await expect(page).toHaveURL(/\/profile/, { timeout: T });
+  test('#13 icône cœur du header navigue vers /collection', async ({ page }) => {
+    await page.locator('.wex-mobile-header a[href="/collection"]').first().click();
+    await expect(page).toHaveURL(/\/collection/, { timeout: T });
   });
 });
 

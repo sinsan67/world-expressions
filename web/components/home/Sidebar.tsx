@@ -12,7 +12,7 @@ const BASE_NAV_ITEMS = [
   { id: "random",    icon: null,       href: "/voyage?quick=1", count: undefined as number | undefined },
   { id: "concepts",  icon: Lightbulb,  href: "/emoji",       count: undefined as number | undefined },
   { id: "search",    icon: Search,     href: "/search",      count: undefined as number | undefined },
-  { id: "carnet",    icon: Heart,      href: "/profile",     count: undefined as number | undefined },
+  { id: "carnet",    icon: Heart,      href: "/collection",  count: undefined as number | undefined },
 ];
 
 const NAV_LABELS: Record<string, Record<string, string>> = {

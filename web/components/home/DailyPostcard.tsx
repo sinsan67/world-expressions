@@ -41,6 +41,8 @@ export default function DailyPostcard({ expression, loading, uiLang, label, hint
       ) : (
         <Link
           href={`/expression/${expression.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
           data-testid="daily-postcard"
           style={{ textDecoration: "none", display: "block" }}
         >

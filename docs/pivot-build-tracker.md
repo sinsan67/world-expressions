@@ -33,9 +33,9 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 | **Report 🚩** | `expression_reports` + `POST /reports` + flag button (fiche + game card) | Sonnet 5 | independent (backend part ships inside Lot API) | `pivot/lot-report` | ✅ merged to staging (PR #93) |
 | **A — Hub** | New `/`, hub cards, daily postcard, collection teaser | Sonnet 5 | API (`/daily`) in prod | `pivot/lot-a-hub` | 🧪 QA passed on staging (PR #91) |
 | **B — Voyage** | `/voyage` 3 states, quick mode, rare badge, session recording | Sonnet 5 | API (`/game-sessions`) in prod | `pivot/lot-b-voyage` | 🧪 QA passed on staging (PR #92) |
-| **C — Collection** | `/collection`, 🧳/📚 sections, search/filter/sort, set counter, mode prompt | Sonnet 5 | API (favorites enrichment) in prod | `pivot/lot-c-collection` | ⬜ |
+| **C — Collection** | `/collection`, 🧳/📚 sections, search/filter/sort, set counter, mode prompt | Sonnet 5 | API (favorites enrichment) in prod | `pivot/lot-c-collection` | ✅ merged to staging (PR #98) |
 | **D — Révision** | `/revision` flashcard v1, review queue, empty/locked states | Sonnet 5 | API (review endpoint) + C's local-carnet migration | `pivot/lot-d-revision` | ⬜ |
-| **E — i18n** | Complete es/it/tr/de/ja, wording arbitration with Sinan | Haiku | A–D key files merged | `pivot/lot-e-i18n` | ⬜ |
+| **E — i18n** | Complete es/it/tr/de/ja, wording arbitration with Sinan | Haiku | A–D key files merged | `pivot/lot-e-i18n` | ✅ on staging (`b0f2d97` + arbitrage `37e904b`, S203) |
 | **F — Nav & redirects** | BottomNav/header/sidebar rewiring, redirects, `/search` swap, SearchOverlay removal | Haiku | A (hub live on staging) | `pivot/lot-f-nav` | ✅ merged to staging (PR #94) |
 
 ### Execution rules
@@ -58,7 +58,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 |---|---|---|---|
 | **Lot API to main** | migrations + endpoints, zero UI change | backend tests green + staging smoke + Sinan go | ✅ shipped S197 (PR #90, prod verified) |
 | **V-jeu-1 — "hub and a playable game"** | A + B + F + Report 🚩 | hub live, Voyage playable end-to-end, redirects verified (`/random-mode`, `/carnet`), old links intact, QA staging full pass | ✅ **shipped S199 (PR #95, `550a37f`, prod)** |
-| **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | ⬜ |
+| **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | 🧪 QA passed on staging (E arbitrated S203 `37e904b`; connected path tested + a real keepalive bug fixed S204 `b2e3627`) — awaiting Sinan's go to merge to `main` |
 | **V-jeu-3 — "révision"** | D | flashcard on favorites, review queue, empty/locked states | ⬜ |
 
 Post-launch (recorded, not planned here): Leitner workshop · "My games" UI ·
@@ -244,3 +244,154 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   not part of this repo's history) — flagged that `HeroSection.tsx` is dead
   code (unused since Lot A/S198) and one of Sinan's screenshots was likely a
   stale cached tab, not the current deployed UI.
+- **2026-07-15 (S201)** — **`/search` router bug fixed and shipped to prod.**
+  Confirmed the S200 root cause reproduces reliably in **production builds
+  only** (`next build && next start`, never `next dev` — the router's
+  prefetch/cache overhaul is prod-only), then confirmed the Next.js
+  `16.2.6` → `16.3.0-preview.6` bump (~90 canary builds) fixes it: 3/3 manual
+  repro fails on 16.2.6 / 3/3 pass on 16.3.0-preview.6; `search-page.spec.ts`
+  + `search-locale.spec.ts` (29 tests) show the same pattern (`#S6`/`#S9`
+  fail on 16.2.6, all pass on 16.3.0-preview.6); full e2e suite (101 tests)
+  on the upgrade showed zero regressions (the only 3 failures — `auth.spec.ts`
+  #A1, `regions.spec.ts` #R3/R5/R6 — reproduce identically on the 16.2.6
+  control, pre-existing/environmental). **PR #96** (`staging`): the bump
+  alone broke Vercel's `npm install` (`ERESOLVE` — npm excludes prereleases
+  from peer ranges by default, `@serwist/next`'s `"next": ">=14.0.0"` peer
+  doesn't match a `-preview.6` tag even on its latest version) — fixed with
+  `web/.npmrc` (`legacy-peer-deps=true`). Merged to staging, live-verified
+  29/29 on the real staging domain. **PR #97** (`staging` → `main`): first
+  run of the "test" required check was a **real** run this time (not the
+  known false-red — see S198) and caught a genuine but expected side effect:
+  `search-locale.spec.ts`'s first case matched the frontend's own same-origin
+  navigation request (now that `router.push` actually completes) before the
+  real backend fetch, because its `/search?` filter didn't also require
+  `locale=` (the pattern `lang-switch.spec.ts` already used) — tightened,
+  verified 6/6 on staging, pushed straight to `staging` (test-only fix, no
+  app code touched). Second CI run on PR #97 green twice in a row — **first
+  clean staging→main CI pass since the flakiness was introduced**, no
+  `enforce_admins` bypass needed this time. Merged (`9cb95d6`), Vercel prod
+  verified live, `search-page.spec.ts` + `search-locale.spec.ts` 29/29 green
+  against `worldexpressions.app`. `#S6`, `#S9`, and the `search-locale`
+  flakiness are **closed**. Next: Lot C (collection) is now unblocked with
+  a clean CI baseline.
+- **2026-07-15 (S202)** — **Lot C (Collection) built and merged to staging.**
+  Sonnet 5 agent in a manual worktree (`../wex-lot-c-collection`, CLT
+  workaround per earlier note), single clean run, no infra interruption.
+  `/collection` ships anonymous **and** logged-in support (local carnet vs.
+  server favorites, no merge — same authoritative split as the old
+  `/profile` carnet tab), per-language sections with 🧳/📚 mode (contained
+  entirely to this page — no global favorite-add interception, a scope
+  call made with Sinan before the build), "à revoir" badges, client-side
+  search/filter/sort, and per-language set counters. Local carnet migrated
+  v1→v2 (`reviewBox`/`reviewedAt`/`sessionId`/`languageModes` mirrors),
+  laying the groundwork Lot D depends on. Row click goes to the existing
+  `/expression/[id]` fiche — the mockup's "Écran 2" (retravail/study view)
+  was deliberately left to Lot D, which needs the same kind of view for its
+  flashcard anyway. Rewired the 5 links deferred from Lot F (S199 decision):
+  `Sidebar`, `CarnetHeartLink`, `CollectionStrip`, `VoyageRecap`, `/carnet`
+  redirect — all now point at `/collection`. Coordinator independently
+  re-verified `tsc`/`next build --webpack` (agent's own report matched).
+  **PR #98**: CI's "test" job hit the same pre-existing false-red as
+  A/B/F/Report (`Wait for Vercel staging to serve this commit` — structurally
+  can't pass on a PR against `staging` before merge; `backend-tests` green,
+  Vercel preview deployed fine) — merged on that basis, matching precedent.
+  Live-verified on staging (`api/version` sha match). **Not yet verified**:
+  the logged-in path (server favorites sync + `PUT /preferences`
+  language_modes) — no OAuth session available in the build/CI environment,
+  needs a manual pass from Sinan.
+- **2026-07-15 (S202)** — **3 QA quick wins shipped to staging** (`8d590a9`,
+  direct push, no PR — small fixes, not a lot). (1) Voyage/hub "fiche
+  complète" links now open in a new tab (`target=_blank`), so a click
+  doesn't lose your place in a session; `homepage.spec.ts` #8 updated to
+  assert on the popup page instead of same-tab navigation. (2) Onboarding's
+  hard-coded 3-language cap on "languages to explore" removed — backend
+  already stores `learning_langs` as an unbounded array, zero migration
+  needed. (3) Root-caused the reported "fiche repasses en anglais": found
+  while reading `UILangContext.tsx` that `uiLang` always mounts at `"en"`
+  and only corrects to the stored language inside a plain `useEffect`
+  (runs after paint) — a real, if usually brief, flash of English on every
+  fresh mount, and one made **more likely to be noticed** by change (1)
+  above (new tab = guaranteed fresh mount on every fiche click). Fixed with
+  an isomorphic layout effect (corrects before paint, SSR-safe). Verification
+  caught a real gap in the coordinator's own earlier `tsc`/build checks:
+  `node_modules/next` was stale at `16.2.6` despite `package.json` pinning
+  `16.3.0-preview.6` (the S201 upgrade) — `npm install` re-synced it; all
+  three fixes were re-verified against the *correct* Next version.
+  22/22 e2e (homepage, voyage, lang-switch) green via local dev server
+  pointed at the live backend (the one lang-switch flake in a 4-worker run
+  passed clean in isolation — resource contention against a live Render
+  backend, not a regression).
+- **2026-07-15 (S202)** — Cleaned up the S199 smoke-test row in prod
+  `expression_reports` (`client_id="s199-smoke-test-client"`,
+  `casser-les-pieds`, `reason="other"`) — confirmed via Sinan, single row
+  verified before and after (`DELETE`, 1 row affected, 0 remaining).
+- **2026-07-15 (S203)** — **Lot E closed.** (1) Verified "playable in every
+  UI language" end-to-end: front already passes `locale: uiLang`, no fr/en
+  gate anywhere; prod coverage via `expression_content` +
+  `content_translations` is ~100% of the Voyage pool in all 7 locales
+  (ja 97%); live read-only hydration check against prod returned correct
+  de/ja meanings. Country names on cards are endonyms by design ("España",
+  "日本") — same in every UI language, not a gap. (2) Wording arbitrage with
+  Sinan (targeted review, ~20 most visible strings): tr/ja recap titles keep
+  their free "journey" translations (better than the fishing metaphor —
+  they loop back to the game's name), de `keptBtn` fixed to "❤️ Behalten!"
+  (verb consistency with keepBtn), de collection mode badges lowercased for
+  cross-language visual harmony, de "Wiederholung" kept. Fixes in `37e904b`
+  on staging. Remaining V-jeu-2 gate: Sinan live-tests logged-in
+  `/collection` on staging.
+- **2026-07-16 (S204)** — **QA session 2 analyzed and 6 quick wins shipped**
+  (`91fab73`, direct push to staging, no PR — small fixes, not a lot; full
+  analysis in `scratchpad/qa-session2-analysis.md`). Fixes: (1) `getCountries()`
+  now retries on cold Render hits (mirrors `getGlobalStats`'s backoff) —
+  root cause of the reported "countries don't show up" on first PWA install,
+  where the service worker has no cache yet to mask the cold start. (2)
+  Collection mode badge ("🧳 découverte"/"📚 maîtrisée") no longer wraps on
+  narrow screens (missing `whiteSpace`/`flexShrink` on the header flex row —
+  reproduced from the S23 report). (3) Collection theme filter now shows
+  emojis via the existing `tagIcon()` map (was already used on Voyage cards,
+  just not wired here). (4) `useAudio` adds blind rechecks of `getVoices()`
+  in addition to the `voiceschanged` listener — some Android WebViews never
+  fire that event, which silently greys the listen button forever. (5)
+  `VoyageRecap` shows an explicit message instead of a blank gap when no
+  card was kept; also added `app/error.tsx` + `app/global-error.tsx` — **no
+  error boundary existed anywhere in the app before this**, a plausible
+  structural cause for the reported blank-screen. (6) Added a country filter
+  to the collection toolbar, reusing the Voyage/Setup flag+country chip
+  pattern. Verification: `tsc --noEmit` clean; dev server smoke-tested
+  (`/collection`, `/voyage` both 200) — no headless-browser tool available
+  in this environment, so the new UI wasn't visually screenshotted, only
+  confirmed not to crash. Remaining from QA session 2, deliberately not
+  built yet: the "session lost / Android back button" bug (item 7 — shares
+  one root cause, no persistence/history at all inside `/voyage`'s
+  setup→play→recap state machine; flagged as a structural chantier for next
+  sprint, not a quick fix); phonetic transcription (item 8 — real data gap,
+  no `phonetic` field anywhere in the schema; handed to Codex via
+  `scratchpad/codex-prompt-phonetic.md`, Sinan has OpenAI credit to spend
+  there); navigation rework and filters-page redesign (items 9-10 — waiting
+  on a dedicated UX workshop / Sinan's mock-ups, per his own request).
+- **2026-07-16 (S204, continued)** — **V-jeu-2 connected-`/collection` gate
+  actually tested** (`91fab73`/`b2e3627` deployed to staging), using
+  infrastructure that already existed but hadn't been used for this manual
+  QA gate: the Playwright test account (`ssin@protonmail.com`), Vercel
+  bypass token, and `scripts/reset_test_account.py` — no OAuth session
+  needed after all. Found a real bug in the process: picking a collection
+  mode (🧳/📚) updates the UI optimistically, but the `PUT /preferences`
+  write is fire-and-forget (`fetch(...).catch(() => {})`, no await, no
+  retry) — reproduced with a throwaway Playwright script that picks a mode
+  and reloads immediately: the browser aborts the in-flight request
+  (`net::ERR_ABORTED`) and the choice silently reverts on next load, no
+  error surfaced anywhere. Same shape found in the favorite-add POST
+  (`useFavorite.ts`). Root cause: nothing protects these writes against the
+  page unloading mid-flight — the same underlying gap as QA session 2's
+  item 7 (session lost on backgrounding), just hitting a different write.
+  **Fixed** (`b2e3627`): added `keepalive: true` to both fetch calls —
+  tells the browser to complete the request even after the document
+  unloads. Re-verified against redeployed staging with the same worst-case
+  script (pick mode → reload with zero wait): now survives. The CDP-level
+  network log still reports the request as "failed" from the page's
+  perspective (the frame is gone before the response arrives), which is
+  expected/harmless with keepalive, not a sign of continued failure — the
+  reload-and-recheck is what actually proves persistence, not the request
+  log. **V-jeu-2 gate assessment**: the connected favorites+mode path now
+  checks out; recommend proceeding to the merge-to-`main` conversation with
+  Sinan.
