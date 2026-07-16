@@ -107,7 +107,15 @@ test.describe('Hub — sections & navigation', () => {
   });
 });
 
-test.describe('Hub — i18n', () => {
+// FIXME (S204): written when 'de' had no hub label translations yet, to
+// prove the fallback lands on English, never French. Lot E (S203) closed
+// that gap — hubLabels.ts now has all 7 UI_LANGS translated, so there is no
+// longer a valid-but-untranslated language to exercise this with (an
+// invalid code like 'pt' gets rejected by UILangContext's UI_LANGS
+// whitelist and silently stays "en", which would test localStorage
+// validation, not label fallback). Retire until a new language is added
+// ahead of its hub translations.
+test.describe.fixme('Hub — i18n', () => {
   test('#11 langue non traduite (de) retombe sur l\'anglais, jamais le français', async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('wex_lang', 'de'));
     await page.goto('/');
