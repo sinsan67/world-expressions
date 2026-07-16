@@ -339,3 +339,33 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   cross-language visual harmony, de "Wiederholung" kept. Fixes in `37e904b`
   on staging. Remaining V-jeu-2 gate: Sinan live-tests logged-in
   `/collection` on staging.
+- **2026-07-16 (S204)** — **QA session 2 analyzed and 6 quick wins shipped**
+  (`91fab73`, direct push to staging, no PR — small fixes, not a lot; full
+  analysis in `scratchpad/qa-session2-analysis.md`). Fixes: (1) `getCountries()`
+  now retries on cold Render hits (mirrors `getGlobalStats`'s backoff) —
+  root cause of the reported "countries don't show up" on first PWA install,
+  where the service worker has no cache yet to mask the cold start. (2)
+  Collection mode badge ("🧳 découverte"/"📚 maîtrisée") no longer wraps on
+  narrow screens (missing `whiteSpace`/`flexShrink` on the header flex row —
+  reproduced from the S23 report). (3) Collection theme filter now shows
+  emojis via the existing `tagIcon()` map (was already used on Voyage cards,
+  just not wired here). (4) `useAudio` adds blind rechecks of `getVoices()`
+  in addition to the `voiceschanged` listener — some Android WebViews never
+  fire that event, which silently greys the listen button forever. (5)
+  `VoyageRecap` shows an explicit message instead of a blank gap when no
+  card was kept; also added `app/error.tsx` + `app/global-error.tsx` — **no
+  error boundary existed anywhere in the app before this**, a plausible
+  structural cause for the reported blank-screen. (6) Added a country filter
+  to the collection toolbar, reusing the Voyage/Setup flag+country chip
+  pattern. Verification: `tsc --noEmit` clean; dev server smoke-tested
+  (`/collection`, `/voyage` both 200) — no headless-browser tool available
+  in this environment, so the new UI wasn't visually screenshotted, only
+  confirmed not to crash. Remaining from QA session 2, deliberately not
+  built yet: the "session lost / Android back button" bug (item 7 — shares
+  one root cause, no persistence/history at all inside `/voyage`'s
+  setup→play→recap state machine; flagged as a structural chantier for next
+  sprint, not a quick fix); phonetic transcription (item 8 — real data gap,
+  no `phonetic` field anywhere in the schema; handed to Codex via
+  `scratchpad/codex-prompt-phonetic.md`, Sinan has OpenAI credit to spend
+  there); navigation rework and filters-page redesign (items 9-10 — waiting
+  on a dedicated UX workshop / Sinan's mock-ups, per his own request).
