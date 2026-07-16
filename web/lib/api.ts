@@ -514,6 +514,25 @@ export async function getUserFavorites(userId: string): Promise<UserFavorite[]> 
   return data.favorites ?? [];
 }
 
+// Révision (lot D) — records a flashcard answer server-side for a logged-in
+// user. keepalive: true, same as useFavorite.ts's write — a quick navigation
+// right after answering (e.g. auto-advance to the next card) can otherwise
+// abort a fire-and-forget fetch before it reaches the server.
+export async function reviewFavorite(
+  userId: string,
+  expressionId: string,
+  result: "knew" | "not_yet",
+): Promise<{ review_box: number; reviewed_at: string }> {
+  const res = await fetch(`${API}/users/${userId}/favorites/${expressionId}/review`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ result }),
+    keepalive: true,
+  });
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
 // ─── Preferences — carries language_modes (🧳/📚 per language, Lot C) ───
 
 export type UserPreferences = {
