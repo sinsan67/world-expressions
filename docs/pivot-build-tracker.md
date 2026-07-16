@@ -58,7 +58,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 |---|---|---|---|
 | **Lot API to main** | migrations + endpoints, zero UI change | backend tests green + staging smoke + Sinan go | ✅ shipped S197 (PR #90, prod verified) |
 | **V-jeu-1 — "hub and a playable game"** | A + B + F + Report 🚩 | hub live, Voyage playable end-to-end, redirects verified (`/random-mode`, `/carnet`), old links intact, QA staging full pass | ✅ **shipped S199 (PR #95, `550a37f`, prod)** |
-| **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | 🧪 QA passed on staging (E arbitrated S203 `37e904b`; connected path tested + a real keepalive bug fixed S204 `b2e3627`) — awaiting Sinan's go to merge to `main` |
+| **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | ✅ **shipped S204 (PR #99, `8dae761`, prod verified)** |
 | **V-jeu-3 — "révision"** | D | flashcard on favorites, review queue, empty/locked states | ⬜ |
 
 Post-launch (recorded, not planned here): Leitner workshop · "My games" UI ·
@@ -395,3 +395,16 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   log. **V-jeu-2 gate assessment**: the connected favorites+mode path now
   checks out; recommend proceeding to the merge-to-`main` conversation with
   Sinan.
+- **2026-07-16 (S204, continued) — V-jeu-2 shipped to prod.** Sinan's go
+  given, **PR #99 opened and merged to `main`** (`8dae761`). First CI run on
+  the release PR failed for a real but non-regression reason: `homepage.spec.ts`
+  #11 asserted `de` falls back to English (no hub translation) — Lot E
+  (S203) had since shipped full German hub labels, so the heading now
+  correctly renders in German and the old assertion is simply obsolete.
+  Retired the test via `test.describe.fixme` (same pattern as
+  `carnet.spec.ts`) with a dated comment explaining why — all 7 `UI_LANGS`
+  are now translated, so there's no longer a valid-but-untranslated
+  language to exercise that fallback path against. Pushed (`449a610`),
+  re-ran CI green, merged. Prod verified: `/api/version` sha match,
+  `/`, `/collection`, `/voyage` all 200, backend `/countries` responding
+  (the cold-start retry fix from earlier in S204).
