@@ -32,7 +32,7 @@ import { COLLECTION_LABELS } from "@/lib/collectionLabels";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
 import LanguageSection, { CollectionItem } from "@/components/collection/LanguageSection";
-import CollectionToolbar, { ThemeOption, SortOption } from "@/components/collection/CollectionToolbar";
+import CollectionToolbar, { ThemeOption, CountryOption, SortOption } from "@/components/collection/CollectionToolbar";
 import EmptyCollection from "@/components/collection/EmptyCollection";
 
 type RawFavorite = {
@@ -58,6 +58,7 @@ export default function Collection() {
 
   const [query, setQuery] = useState("");
   const [themeFilter, setThemeFilter] = useState<string | null>(null);
+  const [countryFilter, setCountryFilter] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>("date");
 
@@ -181,11 +182,20 @@ export default function Collection() {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [items, tagNames]);
 
+  const countries: CountryOption[] = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const it of items) counts[it.expression.country] = (counts[it.expression.country] ?? 0) + 1;
+    return Object.entries(counts)
+      .map(([code, count]) => ({ code, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [items]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return items.filter((it) => {
       if (typeFilter && it.expression.type !== typeFilter) return false;
       if (themeFilter && !it.expression.tags.includes(themeFilter)) return false;
+      if (countryFilter && it.expression.country !== countryFilter) return false;
       if (q) {
         const haystack = [
           it.expression.expression,
@@ -197,7 +207,7 @@ export default function Collection() {
       }
       return true;
     });
-  }, [items, query, typeFilter, themeFilter]);
+  }, [items, query, typeFilter, themeFilter, countryFilter]);
 
   const byLanguageFiltered = useMemo(() => {
     const groups: Record<string, CollectionItem[]> = {};
@@ -282,6 +292,9 @@ export default function Collection() {
               themes={themes}
               themeFilter={themeFilter}
               onThemeChange={setThemeFilter}
+              countries={countries}
+              countryFilter={countryFilter}
+              onCountryChange={setCountryFilter}
               typeFilter={typeFilter}
               onTypeChange={setTypeFilter}
               sortBy={sortBy}

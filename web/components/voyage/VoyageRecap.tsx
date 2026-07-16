@@ -61,7 +61,7 @@ export default function VoyageRecap({ uiLang, cards, keptCards, onReplay, onChan
       </div>
 
       <div style={{ padding: "16px 20px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
-        {keptCards.length > 0 && (
+        {keptCards.length > 0 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 8, margin: "14px 0 6px" }}>
             {keptCards.map((c) => (
               <div key={c.id} style={keptRowStyle}>
@@ -73,6 +73,10 @@ export default function VoyageRecap({ uiLang, cards, keptCards, onReplay, onChan
               </div>
             ))}
           </div>
+        ) : (
+          <p style={{ fontFamily: "var(--font-hand)", fontSize: 16, color: "var(--ink-softer)", textAlign: "center", margin: "20px 0" }}>
+            {t.emptyKept}
+          </p>
         )}
 
         {keptCards.length > 0 && heroCountry && (

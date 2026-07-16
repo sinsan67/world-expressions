@@ -10,8 +10,11 @@
 
 import { TYPE_LABELS, ExpressionType } from "@/lib/typeLabels";
 import type { CollectionLabels } from "@/lib/collectionLabels";
+import { tagIcon } from "@/lib/tagIcons";
+import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 
 export type ThemeOption = { slug: string; name: string };
+export type CountryOption = { code: string; count: number };
 export type SortOption = "date" | "name";
 
 type Props = {
@@ -20,6 +23,9 @@ type Props = {
   themes: ThemeOption[];
   themeFilter: string | null;
   onThemeChange: (slug: string | null) => void;
+  countries: CountryOption[];
+  countryFilter: string | null;
+  onCountryChange: (code: string | null) => void;
   typeFilter: string | null;
   onTypeChange: (type: string | null) => void;
   sortBy: SortOption;
@@ -46,6 +52,7 @@ function selectStyle(active: boolean): React.CSSProperties {
 
 export default function CollectionToolbar({
   query, onQueryChange, themes, themeFilter, onThemeChange,
+  countries, countryFilter, onCountryChange,
   typeFilter, onTypeChange, sortBy, onSortChange, uiLang, t,
 }: Props) {
   return (
@@ -86,8 +93,22 @@ export default function CollectionToolbar({
           style={selectStyle(!!themeFilter)}
         >
           <option value="">{t.filters.theme} — {t.filters.allThemes}</option>
-          {themes.map((th) => (
-            <option key={th.slug} value={th.slug}>{th.name}</option>
+          {themes.map((th) => {
+            const icon = tagIcon(th.slug);
+            return (
+              <option key={th.slug} value={th.slug}>{icon ? `${icon} ${th.name}` : th.name}</option>
+            );
+          })}
+        </select>
+
+        <select
+          value={countryFilter ?? ""}
+          onChange={(e) => onCountryChange(e.target.value || null)}
+          style={selectStyle(!!countryFilter)}
+        >
+          <option value="">{t.filters.country} — {t.filters.allCountries}</option>
+          {countries.map((c) => (
+            <option key={c.code} value={c.code}>{FLAG[c.code] ?? "🌍"} {COUNTRY_NAME[c.code] ?? c.code.toUpperCase()}</option>
           ))}
         </select>
 

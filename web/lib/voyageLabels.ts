@@ -48,6 +48,7 @@ export type VoyageRecapLabels = {
   replay: string;
   changeFilters: string;
   viewCollection: string;
+  emptyKept: string;
 };
 
 export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
@@ -270,6 +271,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     replay: "Rejouer ▸",
     changeFilters: "Changer les filtres",
     viewCollection: "Voir ma collection ❤️",
+    emptyKept: "Aucune carte gardée cette fois — retente ta chance !",
   },
   en: {
     title: "Nice pull!",
@@ -278,6 +280,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     replay: "Replay ▸",
     changeFilters: "Change filters",
     viewCollection: "View my collection ❤️",
+    emptyKept: "No cards kept this time — give it another go!",
   },
   es: {
     title: "¡Buena pesca!",
@@ -286,6 +289,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     replay: "Jugar de nuevo ▸",
     changeFilters: "Cambiar filtros",
     viewCollection: "Ver mi colección ❤️",
+    emptyKept: "No guardaste ninguna carta esta vez — ¡inténtalo de nuevo!",
   },
   it: {
     title: "Bella pescata!",
@@ -294,6 +298,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     replay: "Rigioca ▸",
     changeFilters: "Cambia filtri",
     viewCollection: "Vedi la mia collezione ❤️",
+    emptyKept: "Nessuna carta conservata questa volta — riprova!",
   },
   tr: {
     title: "Ne yolculuk ama!",
@@ -302,6 +307,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     replay: "Yeniden oyna ▸",
     changeFilters: "Filtreleri değiştir",
     viewCollection: "Koleksiyonumu gör ❤️",
+    emptyKept: "Bu sefer hiç kart saklamadın — bir şans daha dene!",
   },
   de: {
     title: "Guter Fang!",
@@ -310,6 +316,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     replay: "Nochmal spielen ▸",
     changeFilters: "Filter ändern",
     viewCollection: "Meine Sammlung ansehen ❤️",
+    emptyKept: "Diesmal keine Karte behalten — versuch's nochmal!",
   },
   ja: {
     title: "いい旅でしたね！",
@@ -318,5 +325,6 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     replay: "もう一度遊ぶ ▸",
     changeFilters: "フィルターを変更",
     viewCollection: "マイコレクションを見る ❤️",
+    emptyKept: "今回は残したカードがありませんでした — もう一度挑戦してみましょう！",
   },
 };

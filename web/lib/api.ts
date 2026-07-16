@@ -374,10 +374,21 @@ export async function getRegions(): Promise<RegionInfo[]> {
   return res.json();
 }
 
+// Voyage/Setup can't offer country filters without this list, and a fresh
+// PWA install has no service-worker cache yet to mask a Render cold start —
+// so this needs the same retry/backoff as getGlobalStats.
 export async function getCountries(): Promise<CountryInfo[]> {
-  const res = await fetch(`${API}/countries`);
-  if (!res.ok) return [];
-  return res.json();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await new Promise((r) => setTimeout(r, attempt * 2000));
+    try {
+      const res = await fetch(`${API}/countries`);
+      if (!res.ok) continue;
+      return res.json();
+    } catch {
+      // network hiccup — fall through to the next attempt
+    }
+  }
+  return [];
 }
 
 export type GlobalStats = { expressions: number; languages: number };

@@ -53,6 +53,7 @@ export default function LanguageSection({ language, items, totalFavorited, mode,
         style={{
           display: "flex",
           alignItems: "center",
+          flexWrap: "wrap",
           gap: 8,
           background: "var(--paper-deep)",
           border: "1.5px solid var(--paper-edge)",
@@ -77,6 +78,8 @@ export default function LanguageSection({ language, items, totalFavorited, mode,
               padding: "4px 10px",
               borderRadius: "var(--r-pill)",
               cursor: "pointer",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
               border: mode
                 ? `1.5px dashed ${mode === "discovery" ? "var(--plum-soft)" : "var(--ochre)"}`
                 : "1.5px dashed var(--ink-faint)",

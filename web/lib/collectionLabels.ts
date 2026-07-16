@@ -11,7 +11,7 @@ export type CollectionLabels = {
   title: string;
   totalCount: (n: number) => string;
   search: { placeholder: string };
-  filters: { theme: string; type: string; allThemes: string; allTypes: string };
+  filters: { theme: string; type: string; country: string; allThemes: string; allTypes: string; allCountries: string };
   sort: { byDate: string; byName: string };
   mode: {
     discovery: string;
@@ -30,7 +30,7 @@ export const COLLECTION_LABELS: Record<Lang, CollectionLabels> = {
     title: "Ma collection",
     totalCount: (n) => `${n} expression${n > 1 ? "s" : ""}`,
     search: { placeholder: "Chercher : expression, sens, littéral…" },
-    filters: { theme: "Thème", type: "Type", allThemes: "Tous les thèmes", allTypes: "Tous les types" },
+    filters: { theme: "Thème", type: "Type", country: "Pays", allThemes: "Tous les thèmes", allTypes: "Tous les types", allCountries: "Tous les pays" },
     sort: { byDate: "Récentes d'abord", byName: "Alphabétique" },
     mode: {
       discovery: "🧳 découverte",
@@ -51,7 +51,7 @@ export const COLLECTION_LABELS: Record<Lang, CollectionLabels> = {
     title: "My collection",
     totalCount: (n) => `${n} expression${n > 1 ? "s" : ""}`,
     search: { placeholder: "Search: expression, meaning, literal…" },
-    filters: { theme: "Theme", type: "Type", allThemes: "All themes", allTypes: "All types" },
+    filters: { theme: "Theme", type: "Type", country: "Country", allThemes: "All themes", allTypes: "All types", allCountries: "All countries" },
     sort: { byDate: "Recent first", byName: "Alphabetical" },
     mode: {
       discovery: "🧳 discovery",
@@ -72,7 +72,7 @@ export const COLLECTION_LABELS: Record<Lang, CollectionLabels> = {
     title: "Mi colección",
     totalCount: (n) => `${n} ${n === 1 ? "expresión" : "expresiones"}`,
     search: { placeholder: "Buscar: expresión, significado, literal…" },
-    filters: { theme: "Tema", type: "Tipo", allThemes: "Todos los temas", allTypes: "Todos los tipos" },
+    filters: { theme: "Tema", type: "Tipo", country: "País", allThemes: "Todos los temas", allTypes: "Todos los tipos", allCountries: "Todos los países" },
     sort: { byDate: "Más recientes primero", byName: "Alfabético" },
     mode: {
       discovery: "🧳 descubrimiento",
@@ -93,7 +93,7 @@ export const COLLECTION_LABELS: Record<Lang, CollectionLabels> = {
     title: "La mia collezione",
     totalCount: (n) => `${n} ${n === 1 ? "espressione" : "espressioni"}`,
     search: { placeholder: "Cerca: espressione, significato, letterale…" },
-    filters: { theme: "Tema", type: "Tipo", allThemes: "Tutti i temi", allTypes: "Tutti i tipi" },
+    filters: { theme: "Tema", type: "Tipo", country: "Paese", allThemes: "Tutti i temi", allTypes: "Tutti i tipi", allCountries: "Tutti i paesi" },
     sort: { byDate: "Più recenti prima", byName: "Alfabetico" },
     mode: {
       discovery: "🧳 scoperta",
@@ -114,7 +114,7 @@ export const COLLECTION_LABELS: Record<Lang, CollectionLabels> = {
     title: "Koleksiyonum",
     totalCount: (n) => `${n} deyim`,
     search: { placeholder: "Ara: deyim, anlam, birebir çeviri…" },
-    filters: { theme: "Tema", type: "Tür", allThemes: "Tüm temalar", allTypes: "Tüm türler" },
+    filters: { theme: "Tema", type: "Tür", country: "Ülke", allThemes: "Tüm temalar", allTypes: "Tüm türler", allCountries: "Tüm ülkeler" },
     sort: { byDate: "Önce en yeniler", byName: "Alfabetik" },
     mode: {
       discovery: "🧳 keşif",
@@ -135,7 +135,7 @@ export const COLLECTION_LABELS: Record<Lang, CollectionLabels> = {
     title: "Meine Sammlung",
     totalCount: (n) => `${n} ${n === 1 ? "Ausdruck" : "Ausdrücke"}`,
     search: { placeholder: "Suchen: Ausdruck, Bedeutung, wörtlich…" },
-    filters: { theme: "Thema", type: "Typ", allThemes: "Alle Themen", allTypes: "Alle Typen" },
+    filters: { theme: "Thema", type: "Typ", country: "Land", allThemes: "Alle Themen", allTypes: "Alle Typen", allCountries: "Alle Länder" },
     sort: { byDate: "Neueste zuerst", byName: "Alphabetisch" },
     mode: {
       discovery: "🧳 entdecken",
@@ -156,7 +156,7 @@ export const COLLECTION_LABELS: Record<Lang, CollectionLabels> = {
     title: "マイコレクション",
     totalCount: (n) => `${n}個の表現`,
     search: { placeholder: "検索：表現、意味、直訳…" },
-    filters: { theme: "テーマ", type: "タイプ", allThemes: "すべてのテーマ", allTypes: "すべてのタイプ" },
+    filters: { theme: "テーマ", type: "タイプ", country: "国", allThemes: "すべてのテーマ", allTypes: "すべてのタイプ", allCountries: "すべての国" },
     sort: { byDate: "新しい順", byName: "アルファベット順" },
     mode: {
       discovery: "🧳 発見",

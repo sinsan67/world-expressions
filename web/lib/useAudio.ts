@@ -42,7 +42,17 @@ export function useAudio(text: string, language: string) {
     }
     check(); // synchronous on Safari/Firefox; may be empty on Chrome first call
     window.speechSynthesis.addEventListener("voiceschanged", check);
-    return () => window.speechSynthesis.removeEventListener("voiceschanged", check);
+    // Some Android WebViews (PWA) never fire "voiceschanged" at all, so the
+    // button can stay greyed out forever even once voices are actually
+    // loaded — a couple of blind rechecks catch that without relying on the
+    // event.
+    const t1 = setTimeout(check, 300);
+    const t2 = setTimeout(check, 1500);
+    return () => {
+      window.speechSynthesis.removeEventListener("voiceschanged", check);
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
   }, [language]);
 
   // Cancel any pending speech when the component unmounts
