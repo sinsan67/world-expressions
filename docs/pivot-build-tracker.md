@@ -58,7 +58,7 @@ Legend: ⬜ not started · 🔨 in progress · 🔍 PR open · ✅ merged · �
 |---|---|---|---|
 | **Lot API to main** | migrations + endpoints, zero UI change | backend tests green + staging smoke + Sinan go | ✅ shipped S197 (PR #90, prod verified) |
 | **V-jeu-1 — "hub and a playable game"** | A + B + F + Report 🚩 | hub live, Voyage playable end-to-end, redirects verified (`/random-mode`, `/carnet`), old links intact, QA staging full pass | ✅ **shipped S199 (PR #95, `550a37f`, prod)** |
-| **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | 🔨 C + E on staging (E arbitrated S203, `37e904b`) — gate: Sinan live-tests logged-in `/collection` on staging, then go to `main` |
+| **V-jeu-2 — "collection becomes a workspace"** | C + E | two-mode collection, search/filter/sort, 7-language wording arbitrated with Sinan | 🧪 QA passed on staging (E arbitrated S203 `37e904b`; connected path tested + a real keepalive bug fixed S204 `b2e3627`) — awaiting Sinan's go to merge to `main` |
 | **V-jeu-3 — "révision"** | D | flashcard on favorites, review queue, empty/locked states | ⬜ |
 
 Post-launch (recorded, not planned here): Leitner workshop · "My games" UI ·
@@ -369,3 +369,29 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   `scratchpad/codex-prompt-phonetic.md`, Sinan has OpenAI credit to spend
   there); navigation rework and filters-page redesign (items 9-10 — waiting
   on a dedicated UX workshop / Sinan's mock-ups, per his own request).
+- **2026-07-16 (S204, continued)** — **V-jeu-2 connected-`/collection` gate
+  actually tested** (`91fab73`/`b2e3627` deployed to staging), using
+  infrastructure that already existed but hadn't been used for this manual
+  QA gate: the Playwright test account (`ssin@protonmail.com`), Vercel
+  bypass token, and `scripts/reset_test_account.py` — no OAuth session
+  needed after all. Found a real bug in the process: picking a collection
+  mode (🧳/📚) updates the UI optimistically, but the `PUT /preferences`
+  write is fire-and-forget (`fetch(...).catch(() => {})`, no await, no
+  retry) — reproduced with a throwaway Playwright script that picks a mode
+  and reloads immediately: the browser aborts the in-flight request
+  (`net::ERR_ABORTED`) and the choice silently reverts on next load, no
+  error surfaced anywhere. Same shape found in the favorite-add POST
+  (`useFavorite.ts`). Root cause: nothing protects these writes against the
+  page unloading mid-flight — the same underlying gap as QA session 2's
+  item 7 (session lost on backgrounding), just hitting a different write.
+  **Fixed** (`b2e3627`): added `keepalive: true` to both fetch calls —
+  tells the browser to complete the request even after the document
+  unloads. Re-verified against redeployed staging with the same worst-case
+  script (pick mode → reload with zero wait): now survives. The CDP-level
+  network log still reports the request as "failed" from the page's
+  perspective (the frame is gone before the response arrives), which is
+  expected/harmless with keepalive, not a sign of continued failure — the
+  reload-and-recheck is what actually proves persistence, not the request
+  log. **V-jeu-2 gate assessment**: the connected favorites+mode path now
+  checks out; recommend proceeding to the merge-to-`main` conversation with
+  Sinan.
