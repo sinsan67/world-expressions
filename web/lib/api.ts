@@ -555,6 +555,11 @@ export async function updateUserPreferences(
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
+    // Callers fire this right after an optimistic UI update (e.g. picking a
+    // collection mode) and often navigate away a moment later — without
+    // keepalive the browser aborts the in-flight request on navigation/reload
+    // (net::ERR_ABORTED), silently dropping the write.
+    keepalive: true,
   });
   if (!res.ok) return null;
   return res.json();
