@@ -58,4 +58,57 @@ test.describe('Page /voyage', () => {
     // de l'écran de jeu contient lui aussi le texte "Tous les pays").
     await expect(page.getByRole('button', { name: "C'est parti !" })).not.toBeVisible();
   });
+
+  // Régression du bug QA2 "bouton retour Android depuis les filtres → va à la
+  // home" (scratchpad/qa-session2-analysis.md) : Voyage.tsx poussait 0 entrée
+  // d'historique en entrant en partie, donc le retour physique/navigateur
+  // sautait directement à la page précédente réelle plutôt que de reculer
+  // dans le jeu.
+  test('retour navigateur pendant une partie ramène l\'écran de filtres, pas la home', async ({ page }) => {
+    await page.goto('/voyage');
+
+    const startBtn = page.getByRole('button', { name: "C'est parti !" });
+    await expect(startBtn).toBeVisible({ timeout: API_TIMEOUT });
+    await expect(startBtn).toBeEnabled({ timeout: API_TIMEOUT });
+    await startBtn.click();
+
+    const revealBtn = page.getByRole('button', { name: 'Révéler le sens' });
+    await expect(revealBtn).toBeVisible({ timeout: API_TIMEOUT });
+    await expect(page).toHaveURL(/screen=play/);
+
+    await page.goBack();
+
+    // Retour dans le jeu (écran de filtres sur /voyage), jamais la home.
+    await expect(startBtn).toBeVisible();
+    await expect(page).toHaveURL(/\/voyage/);
+    await expect(page).not.toHaveURL(/screen=play/);
+  });
+
+  // Régression du bug QA2 "session perdue au retour d'app" : un reload
+  // (proxy le plus proche, en Playwright, d'un process WebView Android tué
+  // puis relancé sur la même URL) doit restaurer la carte en cours via
+  // sessionStorage plutôt que de retomber sur l'écran de filtres.
+  test('recharger la page en cours de partie restaure la carte via sessionStorage', async ({ page }) => {
+    await page.goto('/voyage');
+
+    const startBtn = page.getByRole('button', { name: "C'est parti !" });
+    await expect(startBtn).toBeVisible({ timeout: API_TIMEOUT });
+    await expect(startBtn).toBeEnabled({ timeout: API_TIMEOUT });
+    await startBtn.click();
+
+    const revealBtn = page.getByRole('button', { name: 'Révéler le sens' });
+    const nextBtn = page.getByRole('button', { name: 'Suivante ⏭' });
+    await expect(revealBtn).toBeVisible({ timeout: API_TIMEOUT });
+    await revealBtn.click();
+    await expect(nextBtn).toHaveCSS('pointer-events', 'auto');
+    await nextBtn.click();
+
+    // Carte 2/10 affichée avant le reload.
+    await expect(page.getByText('carte 2/10')).toBeVisible();
+
+    await page.reload();
+
+    await expect(page.getByText('carte 2/10')).toBeVisible({ timeout: API_TIMEOUT });
+    await expect(startBtn).not.toBeVisible();
+  });
 });
