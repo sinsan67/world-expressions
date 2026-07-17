@@ -71,6 +71,9 @@ export default function Voyage({ quick }: { quick: boolean }) {
   // player already left.
   const mountedRef = useRef(true);
   useEffect(() => {
+    // Must reset to true here, not just to false in the cleanup — React
+    // Strict Mode's dev-mode mount→unmount→remount dance would otherwise
+    // leave this stuck at false forever after the simulated unmount.
     mountedRef.current = true;
     return () => { mountedRef.current = false; };
   }, []);
