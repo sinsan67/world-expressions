@@ -1,28 +1,46 @@
 "use client";
 
 /**
- * Voyage — setup screen (filters).
- * Country chips + kind tiles + domain pills, with a debounced live pool
- * counter on the CTA — interactive setup for filtering expressions,
- * extracted as a component so `/voyage` can skip straight past it in quick mode.
+ * Voyage — setup screen. 4 one-tap presets (decisions-produit.md, atelier
+ * S208 Décision 1) above a collapsible "Composer mon voyage" section holding
+ * the full country/kind/domain filters + a debounced live pool counter on
+ * the CTA. Country chips and domain pills wrap (no hidden horizontal
+ * scroll) and each filter section has a "🎲 au hasard" dice — both borrowed
+ * from mockup-voyage-setup-C.html per the same decision.
  */
 
 import { useEffect, useState } from "react";
-import { getCountries, getRandomCount } from "@/lib/api";
+import { getCountries, getRandomCount, CountryInfo } from "@/lib/api";
+import { getLastFilters } from "@/lib/voyagePersistence";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { getTypeLabel } from "@/lib/typeLabels";
 import { EDITORIAL_DOMAINS } from "@/lib/editorialDomains";
-import { VOYAGE_SETUP } from "@/lib/voyageLabels";
+import { VOYAGE_SETUP, VoyageSetupLabels } from "@/lib/voyageLabels";
 
 const KINDS = ["idiom", "proverb", "locution"] as const;
 const KIND_EMOJI: Record<string, string> = { idiom: "💬", proverb: "📜", locution: "🧩" };
+const EMPTY: VoyageFilters = { country: "", kind: "", domain: "" };
 
 export type VoyageFilters = { country: string; kind: string; domain: string };
+
+// Shared with Voyage.tsx (in-game filters chip) so the same country/kind/
+// domain → text recipe isn't duplicated in two places.
+export function formatFiltersSummary(filters: VoyageFilters, uiLang: string, t: VoyageSetupLabels): string {
+  const domainLabel = (slug: string) => {
+    const d = EDITORIAL_DOMAINS.find((dm) => dm.slug === slug);
+    return d ? `${d.emoji} ${d.labels[uiLang as keyof typeof d.labels] ?? d.labels.en}` : "";
+  };
+  return [
+    filters.country ? `${FLAG[filters.country] ?? "🌍"} ${COUNTRY_NAME[filters.country] ?? filters.country}` : `🌍 ${t.allCountries}`,
+    filters.kind ? getTypeLabel(filters.kind, uiLang) : `✨ ${t.allKinds}`,
+    ...(filters.domain ? [domainLabel(filters.domain)] : []),
+  ].join(" · ");
+}
 
 type Props = {
   uiLang: string;
   initial?: VoyageFilters;
-  onStart: (filters: VoyageFilters) => void;
+  onStart: (filters: VoyageFilters, isQuick?: boolean) => void;
   starting?: boolean;
   error?: "" | "empty" | "server";
 };
@@ -32,11 +50,27 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
   const [country, setCountry] = useState(initial?.country ?? "");
   const [kind, setKind] = useState(initial?.kind ?? "");
   const [domain, setDomain] = useState(initial?.domain ?? "");
-  const [countries, setCountries] = useState<{ code: string; count: number }[]>([]);
+  const [countries, setCountries] = useState<CountryInfo[]>([]);
   const [poolCount, setPoolCount] = useState<number | null>(null);
+  const [composerOpen, setComposerOpen] = useState(false);
+  const [rollingSection, setRollingSection] = useState<"country" | "kind" | "domain" | null>(null);
+
+  // Presets: pool badges. Surprends-moi derives from the countries list
+  // already being fetched below (no extra request) — proverbs/last-time
+  // need their own getRandomCount() call, same function the composer's live
+  // counter already uses.
+  const [proverbsPool, setProverbsPool] = useState<number | null>(null);
+  const [lastFilters, setLastFilters] = useState<VoyageFilters | null>(null);
+  const [lastPool, setLastPool] = useState<number | null>(null);
 
   useEffect(() => {
     getCountries().then(setCountries).catch(() => {});
+    getRandomCount("", "proverb", "").then(setProverbsPool).catch(() => {});
+    const last = getLastFilters();
+    if (last) {
+      setLastFilters(last);
+      getRandomCount(last.country, last.kind, last.domain).then(setLastPool).catch(() => {});
+    }
   }, []);
 
   // Live pool counter: how many cards match the current filters (debounced)
@@ -50,7 +84,28 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
     return () => { cancelled = true; clearTimeout(timer); };
   }, [country, kind, domain]);
 
-  const domainRows = [EDITORIAL_DOMAINS.slice(0, 8), EDITORIAL_DOMAINS.slice(8)];
+  // Same country for everyone on the same UTC day — /countries is sorted by
+  // count DESC server-side (database.py get_countries), so the array order
+  // is stable; no dedicated endpoint needed for this rotation.
+  const epochDay = Math.floor(Date.now() / 86_400_000);
+  const dailyCountry = countries.length ? countries[epochDay % countries.length] : null;
+  const surprisePool = countries.length ? countries.reduce((s, c) => s + c.count, 0) : null;
+
+  const roll = (section: "country" | "kind" | "domain") => {
+    setRollingSection(section);
+    setTimeout(() => setRollingSection((s) => (s === section ? null : s)), 500);
+    if (section === "country" && countries.length) {
+      setCountry(countries[Math.floor(Math.random() * countries.length)].code);
+    } else if (section === "kind") {
+      setKind(KINDS[Math.floor(Math.random() * KINDS.length)]);
+    } else if (section === "domain") {
+      setDomain(EDITORIAL_DOMAINS[Math.floor(Math.random() * EDITORIAL_DOMAINS.length)].slug);
+    }
+  };
+
+  const poolBadge = (n: number | null) => n !== null && (
+    <span style={presetPoolStyle}>{n.toLocaleString(uiLang)} {t.cards}</span>
+  );
 
   return (
     <section style={{
@@ -71,57 +126,162 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
         {t.subtitle}
       </p>
 
-      {/* Country chips */}
-      <div style={filterLabelStyle}>🌍 {t.countryLabel}</div>
-      <div className="wex-chip-scroll">
+      {/* Presets — one tap = straight into a game */}
+      <button
+        onClick={() => onStart(EMPTY, true)}
+        disabled={starting}
+        style={{ ...presetStyle, background: "linear-gradient(135deg,var(--plum-bg) 0%,#f7e3d8 100%)", borderColor: "var(--plum-soft)" }}
+      >
+        <span style={presetPictoStyle}>🎲</span>
+        <span style={presetTextStyle}>
+          <b style={presetTitleStyle}>{t.presetSurprise}</b>
+          <small style={presetDescStyle}>{t.presetSurpriseDesc}</small>
+        </span>
+        {poolBadge(surprisePool)}
+      </button>
+
+      {dailyCountry && (
         <button
-          onClick={() => setCountry("")}
-          className={country === "" ? "chip-on" : undefined}
-          style={{ ...countryChipStyle, ...(country === "" ? chipSelected : {}) }}
+          onClick={() => onStart({ country: dailyCountry.code, kind: "", domain: "" }, false)}
+          disabled={starting}
+          style={presetStyle}
         >
-          <span style={{ fontSize: 22, lineHeight: 1.2 }}>🌍</span>
-          <span style={countryChipName}>{t.allCountries}</span>
+          <span style={presetPictoStyle}>{FLAG[dailyCountry.code] ?? "🌍"}</span>
+          <span style={presetTextStyle}>
+            <b style={presetTitleStyle}>{t.presetDaily}</b>
+            <small style={presetDescStyle}>{t.presetDailyDesc(COUNTRY_NAME[dailyCountry.code] ?? dailyCountry.code.toUpperCase())}</small>
+          </span>
+          {poolBadge(dailyCountry.count)}
         </button>
-        {countries.map((c) => (
-          <button
-            key={c.code}
-            onClick={() => setCountry(country === c.code ? "" : c.code)}
-            className={country === c.code ? "chip-on" : undefined}
-            style={{ ...countryChipStyle, ...(country === c.code ? chipSelected : {}) }}
-          >
-            <span style={{ fontSize: 22, lineHeight: 1.2 }}>{FLAG[c.code] ?? "🌍"}</span>
-            <span style={countryChipName}>{COUNTRY_NAME[c.code] ?? c.code.toUpperCase()}</span>
-          </button>
-        ))}
+      )}
+
+      <button
+        onClick={() => onStart({ country: "", kind: "proverb", domain: "" }, false)}
+        disabled={starting}
+        style={presetStyle}
+      >
+        <span style={presetPictoStyle}>📜</span>
+        <span style={presetTextStyle}>
+          <b style={presetTitleStyle}>{t.presetProverbs}</b>
+          <small style={presetDescStyle}>{t.presetProverbsDesc}</small>
+        </span>
+        {poolBadge(proverbsPool)}
+      </button>
+
+      {lastFilters && (
+        <button
+          onClick={() => onStart(lastFilters, false)}
+          disabled={starting}
+          style={{ ...presetStyle, borderStyle: "dashed", background: "var(--paper)" }}
+        >
+          <span style={{ ...presetPictoStyle, opacity: 0.85 }}>🔁</span>
+          <span style={presetTextStyle}>
+            <b style={presetTitleStyle}>{t.presetLastTime}</b>
+            <small style={presetDescStyle}>{formatFiltersSummary(lastFilters, uiLang, t)}</small>
+          </span>
+          {poolBadge(lastPool)}
+        </button>
+      )}
+
+      <div style={dividerStyle}>
+        <span style={dividerLineStyle} />
+        {t.orDivider}
+        <span style={dividerLineStyle} />
       </div>
 
-      {/* Kind tiles */}
-      <div style={filterLabelStyle}>✨ {t.kindLabel}</div>
-      <div style={{ display: "flex", gap: 7 }}>
-        <button
-          onClick={() => setKind("")}
-          style={{ ...kindTileStyle, ...(kind === "" ? chipSelected : {}) }}
-        >
-          <span style={{ fontSize: 18, display: "block" }}>✨</span>
-          <span style={kindTileText}>{t.allKinds}</span>
-        </button>
-        {KINDS.map((k) => (
-          <button
-            key={k}
-            onClick={() => setKind(kind === k ? "" : k)}
-            style={{ ...kindTileStyle, ...(kind === k ? chipSelected : {}) }}
-          >
-            <span style={{ fontSize: 18, display: "block" }}>{KIND_EMOJI[k]}</span>
-            <span style={kindTileText}>{getTypeLabel(k, uiLang)}</span>
-          </button>
-        ))}
-      </div>
+      <button
+        onClick={() => setComposerOpen((o) => !o)}
+        aria-expanded={composerOpen}
+        style={composeToggleStyle}
+      >
+        🎛️ {t.composeToggle}
+        <span aria-hidden="true" style={{ display: "inline-block", transition: "transform 0.25s", transform: composerOpen ? "rotate(180deg)" : undefined }}>▾</span>
+      </button>
 
-      {/* Domain pills — two scrollable rows over the editorial gradients */}
-      <div style={filterLabelStyle}>🎨 {t.domainLabel}</div>
-      {domainRows.map((row, i) => (
-        <div key={i} className="wex-chip-scroll" style={i === 1 ? { marginTop: 7 } : undefined}>
-          {row.map((d) => (
+      <div style={composerOpen ? { ...collapseStyle, ...collapseOpenStyle } : collapseStyle}>
+        {/* Country chips — wrap, no hidden horizontal scroll */}
+        <div style={sectionHeadStyle}>
+          <span style={sectionLabelStyle}>🌍 {t.countryLabel}</span>
+          <button
+            onClick={() => roll("country")}
+            aria-label={t.randomCountryAria}
+            title={t.randomCountryAria}
+            className={rollingSection === "country" ? "wex-dice-rolling" : undefined}
+            style={diceButtonStyle}
+          >
+            🎲
+          </button>
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          <button
+            onClick={() => setCountry("")}
+            className={country === "" ? "chip-on" : undefined}
+            style={{ ...countryChipStyle, ...(country === "" ? chipSelected : {}) }}
+          >
+            <span style={{ fontSize: 22, lineHeight: 1.2 }}>🌍</span>
+            <span style={countryChipName}>{t.allCountries}</span>
+          </button>
+          {countries.map((c) => (
+            <button
+              key={c.code}
+              onClick={() => setCountry(country === c.code ? "" : c.code)}
+              className={country === c.code ? "chip-on" : undefined}
+              style={{ ...countryChipStyle, ...(country === c.code ? chipSelected : {}) }}
+            >
+              <span style={{ fontSize: 22, lineHeight: 1.2 }}>{FLAG[c.code] ?? "🌍"}</span>
+              <span style={countryChipName}>{COUNTRY_NAME[c.code] ?? c.code.toUpperCase()}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Kind tiles */}
+        <div style={sectionHeadStyle}>
+          <span style={sectionLabelStyle}>✨ {t.kindLabel}</span>
+          <button
+            onClick={() => roll("kind")}
+            aria-label={t.randomKindAria}
+            title={t.randomKindAria}
+            className={rollingSection === "kind" ? "wex-dice-rolling" : undefined}
+            style={diceButtonStyle}
+          >
+            🎲
+          </button>
+        </div>
+        <div style={{ display: "flex", gap: 7 }}>
+          <button
+            onClick={() => setKind("")}
+            style={{ ...kindTileStyle, ...(kind === "" ? chipSelected : {}) }}
+          >
+            <span style={{ fontSize: 18, display: "block" }}>✨</span>
+            <span style={kindTileText}>{t.allKinds}</span>
+          </button>
+          {KINDS.map((k) => (
+            <button
+              key={k}
+              onClick={() => setKind(kind === k ? "" : k)}
+              style={{ ...kindTileStyle, ...(kind === k ? chipSelected : {}) }}
+            >
+              <span style={{ fontSize: 18, display: "block" }}>{KIND_EMOJI[k]}</span>
+              <span style={kindTileText}>{getTypeLabel(k, uiLang)}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Domain pills — grid, wraps instead of a hidden horizontal scroll */}
+        <div style={sectionHeadStyle}>
+          <span style={sectionLabelStyle}>🎨 {t.domainLabel}</span>
+          <button
+            onClick={() => roll("domain")}
+            aria-label={t.randomDomainAria}
+            title={t.randomDomainAria}
+            className={rollingSection === "domain" ? "wex-dice-rolling" : undefined}
+            style={diceButtonStyle}
+          >
+            🎲
+          </button>
+        </div>
+        <div className="wex-domain-grid">
+          {EDITORIAL_DOMAINS.map((d) => (
             <button
               key={d.slug}
               onClick={() => setDomain(domain === d.slug ? "" : d.slug)}
@@ -137,44 +297,45 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
             </button>
           ))}
         </div>
-      ))}
 
-      <button
-        onClick={() => onStart({ country, kind, domain })}
-        disabled={starting || poolCount === 0}
-        style={{
-          fontFamily: "var(--font-display)",
-          fontSize: 17,
-          fontWeight: 700,
-          color: "white",
-          background: "var(--plum)",
-          border: "none",
-          borderRadius: 999,
-          padding: "14px 28px",
-          cursor: poolCount === 0 ? "default" : "pointer",
-          opacity: poolCount === 0 ? 0.55 : 1,
-          boxShadow: "0 4px 0 var(--plum-deep), var(--shadow-card)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 9,
-          marginTop: 24,
-        }}
-      >
-        🧳 {t.cta}
-        {poolCount !== null && (
-          <span style={{
-            fontFamily: "var(--font-body)",
-            fontWeight: 600,
-            fontSize: 11.5,
-            background: "rgba(255,255,255,0.18)",
+        <button
+          onClick={() => onStart({ country, kind, domain })}
+          disabled={starting || poolCount === 0}
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: 17,
+            fontWeight: 700,
+            color: "white",
+            background: "var(--plum)",
+            border: "none",
             borderRadius: 999,
-            padding: "3px 9px",
-          }}>
-            {poolCount.toLocaleString(uiLang)} {t.cards}
-          </span>
-        )}
-      </button>
+            padding: "14px 28px",
+            cursor: poolCount === 0 ? "default" : "pointer",
+            opacity: poolCount === 0 ? 0.55 : 1,
+            boxShadow: "0 4px 0 var(--plum-deep), var(--shadow-card)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 9,
+            marginTop: 24,
+            width: "100%",
+          }}
+        >
+          🧳 {t.cta}
+          {poolCount !== null && (
+            <span style={{
+              fontFamily: "var(--font-body)",
+              fontWeight: 600,
+              fontSize: 11.5,
+              background: "rgba(255,255,255,0.18)",
+              borderRadius: 999,
+              padding: "3px 9px",
+            }}>
+              {poolCount.toLocaleString(uiLang)} {t.cards}
+            </span>
+          )}
+        </button>
+      </div>
 
       {error && (
         <p style={{ marginTop: 14, fontSize: 13.5, color: "var(--terra, #b4552d)", textAlign: "center" }}>
@@ -185,13 +346,131 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
   );
 }
 
-const filterLabelStyle: React.CSSProperties = {
+const presetStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 14,
+  width: "100%",
+  textAlign: "left",
+  background: "white",
+  border: "1.5px solid var(--paper-edge)",
+  borderRadius: 18,
+  padding: "14px 16px",
+  marginBottom: 10,
+  cursor: "pointer",
+  boxShadow: "var(--shadow-card)",
+  fontFamily: "var(--font-body)",
+};
+
+const presetPictoStyle: React.CSSProperties = {
+  fontSize: 30,
+  lineHeight: 1,
+  flexShrink: 0,
+  width: 40,
+  textAlign: "center",
+};
+
+const presetTextStyle: React.CSSProperties = { flex: 1, minWidth: 0 };
+
+const presetTitleStyle: React.CSSProperties = {
+  fontFamily: "var(--font-display)",
+  fontSize: 16.5,
+  fontWeight: 700,
+  display: "block",
+  color: "var(--ink)",
+};
+
+const presetDescStyle: React.CSSProperties = {
+  fontSize: 12,
+  color: "var(--ink-softer)",
+  display: "block",
+  lineHeight: 1.35,
+};
+
+const presetPoolStyle: React.CSSProperties = {
+  flexShrink: 0,
+  fontSize: 11,
+  fontWeight: 600,
+  color: "var(--plum)",
+  background: "var(--plum-bg)",
+  borderRadius: 999,
+  padding: "4px 9px",
+  whiteSpace: "nowrap",
+};
+
+const dividerStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 12,
+  margin: "20px 0 12px",
+  color: "var(--ink-faint)",
+  fontSize: 12,
+};
+
+const dividerLineStyle: React.CSSProperties = {
+  flex: 1,
+  borderTop: "1.5px dashed var(--paper-edge)",
+};
+
+const composeToggleStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
+  width: "100%",
+  background: "none",
+  border: "none",
+  cursor: "pointer",
+  padding: 10,
+  fontSize: 14,
+  fontWeight: 600,
+  color: "var(--plum)",
+  fontFamily: "var(--font-body)",
+};
+
+const collapseStyle: React.CSSProperties = {
+  overflow: "hidden",
+  maxHeight: 0,
+  opacity: 0,
+  // visibility delayed until the collapse finishes, so it animates shut
+  // instead of vanishing instantly — but still ends up properly excluded
+  // from focus/assistive tech while closed (unlike max-height/opacity alone,
+  // which leave descendants focusable despite being clipped from view).
+  visibility: "hidden",
+  transition: "max-height 0.4s ease, opacity 0.3s ease, visibility 0s linear 0.4s",
+};
+
+const collapseOpenStyle: React.CSSProperties = {
+  maxHeight: 1400,
+  opacity: 1,
+  visibility: "visible",
+  transition: "max-height 0.4s ease, opacity 0.3s ease",
+};
+
+const sectionHeadStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  margin: "14px 0 7px",
+};
+
+const sectionLabelStyle: React.CSSProperties = {
   fontSize: 11,
   fontWeight: 700,
   textTransform: "uppercase",
   letterSpacing: "0.06em",
   color: "var(--ink-softer)",
-  margin: "14px 0 7px",
+};
+
+const diceButtonStyle: React.CSSProperties = {
+  marginLeft: "auto",
+  background: "white",
+  border: "1.5px solid var(--paper-edge)",
+  borderRadius: 999,
+  fontSize: 12,
+  padding: "3px 10px",
+  cursor: "pointer",
+  color: "var(--ink-soft)",
+  fontFamily: "var(--font-body)",
 };
 
 const countryChipStyle: React.CSSProperties = {
@@ -236,19 +515,19 @@ const kindTileText: React.CSSProperties = {
 };
 
 const domainPillStyle: React.CSSProperties = {
-  flexShrink: 0,
   display: "flex",
   alignItems: "center",
   gap: 6,
   border: "1.5px solid transparent",
-  borderRadius: 999,
-  padding: "7px 13px 7px 9px",
+  borderRadius: 12,
+  padding: "8px 9px",
   cursor: "pointer",
-  fontSize: 11.5,
+  fontSize: 10.5,
   fontWeight: 600,
   color: "#3f3428",
   fontFamily: "var(--font-body)",
-  whiteSpace: "nowrap",
+  lineHeight: 1.25,
+  textAlign: "left",
   transition: "transform 0.12s, box-shadow 0.12s",
 };
 
