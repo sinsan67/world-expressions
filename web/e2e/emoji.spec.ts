@@ -63,21 +63,18 @@ test.describe('Page /emoji', () => {
     await expect(page).toHaveURL(/\/search\?concept=/, { timeout: T });
   });
 
-  test('#31 "Concepts" est en surbrillance dans la sidebar', async ({ page }) => {
+  // Lot N1 (atelier S208 décision 2) : Concepts est sorti de la nav
+  // persistante, relégué à la section "Explorer le monde" du hub — #31/#32
+  // vérifiaient sa surbrillance dans la nav, elles vérifient maintenant son absence.
+  test('#31 "Concepts" est absent de la sidebar (sorti de la nav persistante, Lot N1)', async ({ page }) => {
     await page.goto('/emoji');
-    const link = page.locator('.wex-sidebar a[href="/emoji"]').first();
-    await link.waitFor({ timeout: T });
-    const color = await link.evaluate((el) => getComputedStyle(el).color);
-    expect(color).not.toBe('rgb(92, 79, 58)');
+    await expect(page.locator('.wex-sidebar a[href="/emoji"]')).toHaveCount(0);
   });
 
-  test('#32 icône Concepts active dans la BottomNav (mobile)', async ({ page }) => {
+  test('#32 "Concepts" est absent de la BottomNav mobile (sorti de la nav persistante, Lot N1)', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/emoji');
-    const link = page.locator('[data-testid="bottom-nav"] a[href="/emoji"]');
-    await expect(link).toBeVisible({ timeout: T });
-    const color = await link.evaluate((el) => getComputedStyle(el).color);
-    expect(color).not.toBe('rgb(92, 79, 58)');
+    await expect(page.locator('[data-testid="bottom-nav"] a[href="/emoji"]')).toHaveCount(0);
   });
 
   // ─── Domain panel via URL directe ─────────────────────────────────────────────

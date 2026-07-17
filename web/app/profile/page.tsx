@@ -14,13 +14,26 @@ import { useUILangContext } from "@/lib/UILangContext";
 import type { UILang } from "@/lib/useUILang";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-type TopTab = "carnet" | "preferences" | "account";
+type TopTab = "carnet" | "preferences" | "account" | "about";
 
 const TOP_TABS: { id: TopTab; label: Record<UILang, string> }[] = [
   { id: "carnet",      label: { fr: "Mon carnet",   en: "My notebook",   es: "Mi cuaderno",    it: "Il mio taccuino", tr: "Defterim",  de: "Mein Heft",       ja: "ノート" } },
   { id: "preferences", label: { fr: "Préférences",  en: "Preferences",   es: "Preferencias",   it: "Preferenze",      tr: "Tercihler", de: "Einstellungen",   ja: "設定" } },
   { id: "account",     label: { fr: "Compte",        en: "Account",       es: "Cuenta",         it: "Account",         tr: "Hesap",     de: "Konto",           ja: "アカウント" } },
+  { id: "about",       label: { fr: "À propos",     en: "About",         es: "Acerca de",      it: "Informazioni",    tr: "Hakkında",  de: "Über",            ja: "アプリについて" } },
 ];
+
+// New in Lot N1 — Instagram/About/Contact moved here from the now-removed
+// Sidebar footer (atelier S208 décision 3: "/instagram + /about → Profil").
+const ABOUT_TAB_LABELS: Record<UILang, { aboutLink: string; instagram: string; contact: string }> = {
+  fr: { aboutLink: "À propos de World Expressions", instagram: "Instagram", contact: "Contact" },
+  en: { aboutLink: "About World Expressions", instagram: "Instagram", contact: "Contact" },
+  es: { aboutLink: "Acerca de World Expressions", instagram: "Instagram", contact: "Contacto" },
+  it: { aboutLink: "Informazioni su World Expressions", instagram: "Instagram", contact: "Contatto" },
+  tr: { aboutLink: "World Expressions Hakkında", instagram: "Instagram", contact: "İletişim" },
+  de: { aboutLink: "Über World Expressions", instagram: "Instagram", contact: "Kontakt" },
+  ja: { aboutLink: "World Expressionsについて", instagram: "Instagram", contact: "お問い合わせ" },
+};
 
 export default function ProfilePage() {
   const { data: session, status, update: updateSession } = useSession();
@@ -38,6 +51,7 @@ export default function ProfilePage() {
     const hash = window.location.hash.replace("#", "");
     if (hash === "preferences") setActiveTab("preferences");
     else if (hash === "account") setActiveTab("account");
+    else if (hash === "about") setActiveTab("about");
   }, []);
 
   useEffect(() => {
@@ -261,6 +275,22 @@ export default function ProfilePage() {
                   </button>
                 </div>
               )
+            )}
+
+            {activeTab === "about" && (
+              <div style={{ maxWidth: 480 }}>
+                <div style={{ background: "var(--paper)", border: "1px solid var(--paper-edge)", borderRadius: "var(--r-lg)", boxShadow: "var(--shadow-postcard)", padding: "1.25rem 1.5rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  <Link href="/about" style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 600, color: "var(--ink)", textDecoration: "none" }}>
+                    {ABOUT_TAB_LABELS[uiLang].aboutLink} →
+                  </Link>
+                  <a href="https://www.instagram.com/world.expressions" target="_blank" rel="noopener noreferrer" style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 600, color: "var(--ink)", textDecoration: "none" }}>
+                    {ABOUT_TAB_LABELS[uiLang].instagram} →
+                  </a>
+                  <a href="mailto:worldsexpressions@proton.me" style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 600, color: "var(--ink)", textDecoration: "none" }}>
+                    {ABOUT_TAB_LABELS[uiLang].contact} →
+                  </a>
+                </div>
+              </div>
             )}
 
           </div>

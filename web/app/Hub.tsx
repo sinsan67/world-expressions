@@ -15,12 +15,23 @@ import LangDropdown from "@/components/ui/LangDropdown";
 import { getDailyExpression, getUserFavorites, Expression } from "@/lib/api";
 import { getCarnet } from "@/lib/carnet";
 import { classifyFavorites, FavoriteReviewState } from "@/lib/reviewQueue";
-import { HUB_LABELS } from "@/lib/hubLabels";
+import { HUB_LABELS, type HubLabels } from "@/lib/hubLabels";
 import { REVISION_LABELS } from "@/lib/revisionLabels";
 import { useUILangContext } from "@/lib/UILangContext";
 import { UI_LANGS, type UILang } from "@/lib/useUILang";
 
 type DailyExpression = Expression & { meaning_locale: string; literal: string | null; date: string };
+
+// "Explorer le monde" hub section (Lot N1) — Atlas/Concepts/Pays/Proverbes
+// left the persistent nav (atelier S208 décision 2), demoted to a 2-tap
+// discovery grid here. "Pays" is a direct shortcut to /country/fr (the
+// flagship country page, regions included), not a duplicate of Atlas.
+const EXPLORE_ITEMS: { id: string; emoji: string; href: string; labelKey: keyof HubLabels["explore"] }[] = [
+  { id: "atlas", emoji: "🗺️", href: "/atlas", labelKey: "atlas" },
+  { id: "concepts", emoji: "💡", href: "/emoji", labelKey: "concepts" },
+  { id: "countries", emoji: "🇫🇷", href: "/country/fr", labelKey: "countries" },
+  { id: "proverbs", emoji: "📜", href: "/type/proverb", labelKey: "proverbs" },
+];
 
 // Games hub — new "/" home. Replaces the old search-first HomePage (moved to
 // /search). See docs/pivot-lot0-contract.md §1/§5 (lot A) and the mockup
@@ -186,6 +197,37 @@ export default function Hub() {
             label={t.daily.title}
             hint={t.daily.hint}
           />
+
+          {/* Explorer le monde — Atlas/Concepts/Pays/Proverbes left the
+              persistent nav in Lot N1, demoted to this hub section. */}
+          <div style={{ padding: "1.1rem 1rem 0" }}>
+            <h2 style={{ fontFamily: "var(--font-display)", fontSize: 15, color: "var(--ink-soft)", margin: "0 0 0.6rem" }}>
+              {t.explore.title}
+            </h2>
+            <div data-testid="explore-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+              {EXPLORE_ITEMS.map((item) => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  data-testid={`explore-item-${item.id}`}
+                  style={{
+                    background: "var(--paper-deep)",
+                    border: "1px solid var(--paper-edge)",
+                    borderRadius: "var(--r-md)",
+                    padding: "0.6rem 0.2rem",
+                    textAlign: "center",
+                    textDecoration: "none",
+                    color: "var(--ink-soft)",
+                    fontSize: 11,
+                    fontWeight: 600,
+                  }}
+                >
+                  <span aria-hidden="true" style={{ display: "block", fontSize: 22, marginBottom: 2 }}>{item.emoji}</span>
+                  {t.explore[item.labelKey]}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </main>
 

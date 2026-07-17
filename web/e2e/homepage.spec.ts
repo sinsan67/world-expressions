@@ -12,6 +12,7 @@ const REVISION_CARD = '[data-testid="game-card-revision"]';
 const TEASER_CARD = '[data-testid="game-card-teaser"]';
 const COLLECTION_STRIP = '[data-testid="collection-strip"]';
 const DAILY_POSTCARD = '[data-testid="daily-postcard"]';
+const EXPLORE_GRID = '[data-testid="explore-grid"]';
 
 test.describe('Hub — modal bienvenue', () => {
   test('#1 modal s\'affiche à la première visite', async ({ page }) => {
@@ -71,6 +72,16 @@ test.describe('Hub — sections & navigation', () => {
     await expect(page.locator(TEASER_CARD)).toBeVisible({ timeout: T });
     await expect(page.locator(COLLECTION_STRIP)).toBeVisible({ timeout: T });
     await expect(page.locator(DAILY_POSTCARD)).toBeVisible({ timeout: T });
+  });
+
+  test('#5b section "Explorer le monde" avec ses 4 cartes (Atlas, Concepts, Pays, Proverbes)', async ({ page }) => {
+    const grid = page.locator(EXPLORE_GRID);
+    await expect(grid).toBeVisible({ timeout: T });
+    await expect(grid.locator('a[href="/atlas"]')).toBeVisible();
+    await expect(grid.locator('a[href="/emoji"]')).toBeVisible();
+    await expect(grid.locator('a[href="/country/fr"]')).toBeVisible();
+    await expect(grid.locator('a[href="/type/proverb"]')).toBeVisible();
+    expect(await grid.locator('a').count()).toBe(4);
   });
 
   test('#6 la carte Voyage navigue vers /voyage', async ({ page }) => {
@@ -163,12 +174,23 @@ test.describe('Hub — navigation sidebar (desktop)', () => {
     await expect(page).toHaveURL(/\/(\?.*|#.*)?$/);
   });
 
-  test('#17 "Accueil" est en surbrillance dans la sidebar sur /', async ({ page }) => {
+  test('#17 "Jouer" est en surbrillance dans la sidebar sur /', async ({ page }) => {
     const homeLink = page.locator('.wex-sidebar a[href="/"]').first();
     await expect(homeLink).toBeVisible({ timeout: T });
     const color = await homeLink.evaluate((el) => getComputedStyle(el).color);
     // La couleur active est --plum, pas la couleur par défaut
     expect(color).not.toBe('rgb(92, 79, 58)'); // --ink-soft
+  });
+
+  test('#17b sidebar = 5 items du pivot (Jouer, Collection, 🎲, Chercher, Profil) — Atlas/Concepts en sont sortis', async ({ page }) => {
+    const sidebar = page.locator('.wex-sidebar');
+    await expect(sidebar.locator('a[href="/"]')).toBeVisible();
+    await expect(sidebar.locator('a[href="/collection"]')).toBeVisible();
+    await expect(sidebar.locator('a[href="/voyage?quick=1"]')).toBeVisible();
+    await expect(sidebar.locator('a[href="/search"]')).toBeVisible();
+    await expect(sidebar.locator('a[href="/profile"]')).toBeVisible();
+    await expect(sidebar.locator('a[href="/atlas"]')).toHaveCount(0);
+    await expect(sidebar.locator('a[href="/emoji"]')).toHaveCount(0);
   });
 });
 
@@ -185,8 +207,19 @@ test.describe('Hub — BottomNav mobile (< 1024px)', () => {
   test('#18 BottomNav est visible sur mobile', async ({ page }) => {
     const nav = page.locator('[data-testid="bottom-nav"]');
     await expect(nav).toBeVisible({ timeout: T });
-    // 5 liens de navigation (home, search, random, atlas, concepts — search navigue vers /search depuis Lot F)
+    // 5 liens du pivot (Lot N1) : Jouer, Collection, 🎲, Chercher, Profil — Atlas/Concepts sont sortis de la nav
     expect(await nav.locator('a').count()).toBe(5);
+  });
+
+  test('#18b BottomNav = les 5 items du pivot, Atlas/Concepts absents', async ({ page }) => {
+    const nav = page.locator('[data-testid="bottom-nav"]');
+    await expect(nav.locator('a[href="/"]')).toBeVisible();
+    await expect(nav.locator('a[href="/collection"]')).toBeVisible();
+    await expect(nav.locator('a[href="/voyage?quick=1"]')).toBeVisible();
+    await expect(nav.locator('a[href="/search"]')).toBeVisible();
+    await expect(nav.locator('a[href="/profile"]')).toBeVisible();
+    await expect(nav.locator('a[href="/atlas"]')).toHaveCount(0);
+    await expect(nav.locator('a[href="/emoji"]')).toHaveCount(0);
   });
 
   test('#19 lien Accueil dans BottomNav est cliquable', async ({ page }) => {

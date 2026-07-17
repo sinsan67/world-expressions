@@ -1,42 +1,17 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Globe, Lightbulb, Search } from "lucide-react";
-
-// M2 layout: Search gets a tab (parity with desktop sidebar), the dice is the
-// raised central action button, Carnet moves up to the top-right header heart.
-const NAV_ITEMS = [
-  { id: "home",      icon: Home,       href: "/" },
-  { id: "search",    icon: Search,     href: "/search" },
-  { id: "random",    icon: null,       href: "/voyage?quick=1" },
-  { id: "atlas",     icon: Globe,      href: "/atlas" },
-  { id: "concepts",  icon: Lightbulb,  href: "/emoji" },
-];
-
-const NAV_LABELS: Record<string, Record<string, string>> = {
-  home:      { fr: "Accueil",    en: "Home",     es: "Inicio",    it: "Home",      tr: "Ana sayfa", de: "Startseite", ja: "ホーム" },
-  search:    { fr: "Rechercher", en: "Search",   es: "Buscar",    it: "Cerca",     tr: "Ara",       de: "Suchen",     ja: "検索" },
-  random:    { fr: "Hasard",     en: "Random",   es: "Azar",      it: "Caso",      tr: "Rastgele",  de: "Zufall",     ja: "ランダム" },
-  atlas:     { fr: "Atlas",      en: "Atlas",    es: "Atlas",     it: "Atlante",   tr: "Atlas",     de: "Atlas",      ja: "地図" },
-  concepts:  { fr: "Concepts",   en: "Concepts", es: "Conceptos", it: "Concetti",  tr: "Kavramlar", de: "Konzepte",   ja: "概念" },
-};
-
-const NAV_ARIA_LABEL: Record<string, string> = {
-  fr: "Navigation principale",
-  en: "Main navigation",
-  es: "Navegación principal",
-  it: "Navigazione principale",
-  tr: "Ana gezinme",
-  de: "Hauptnavigation",
-  ja: "メインナビゲーション",
-};
+import { NAV_ITEMS, NAV_LABELS, NAV_ARIA_LABEL } from "@/components/home/navConfig";
+import { useFavoritesCount } from "@/lib/useFavoritesCount";
+import type { UILang } from "@/lib/useUILang";
 
 type Props = {
-  uiLang?: string;
+  uiLang?: UILang;
 };
 
 export default function BottomNav({ uiLang = "fr" }: Props) {
   const pathname = usePathname();
+  const favCount = useFavoritesCount();
 
   const itemStyle = (isActive: boolean): React.CSSProperties => ({
     flex: 1,
@@ -55,7 +30,7 @@ export default function BottomNav({ uiLang = "fr" }: Props) {
     transition: "color 120ms ease",
   });
 
-  const label = (id: string) => (
+  const label = (id: keyof typeof NAV_LABELS) => (
     <span style={{ fontSize: 10, fontWeight: 600, fontFamily: "var(--font-body)" }}>
       {NAV_LABELS[id]?.[uiLang] ?? NAV_LABELS[id]?.fr}
     </span>
@@ -80,7 +55,7 @@ export default function BottomNav({ uiLang = "fr" }: Props) {
         {NAV_ITEMS.map((item) => {
           const isActive = item.href !== null && pathname === item.href;
 
-          // Central raised dice button
+          // Central raised dice button — quick game launcher, not a nav destination
           if (item.id === "random") {
             return (
               <Link
@@ -114,7 +89,6 @@ export default function BottomNav({ uiLang = "fr" }: Props) {
             );
           }
 
-
           return (
             <Link
               key={item.id}
@@ -128,12 +102,33 @@ export default function BottomNav({ uiLang = "fr" }: Props) {
               style={itemStyle(isActive)}
             >
               {item.icon && (
-                <item.icon
-                  aria-hidden="true"
-                  size={21}
-                  strokeWidth={1.5}
-                  color={isActive ? "var(--plum)" : "var(--ink-softer)"}
-                />
+                <span style={{ position: "relative", display: "flex" }}>
+                  <item.icon
+                    aria-hidden="true"
+                    size={21}
+                    strokeWidth={1.5}
+                    color={isActive ? "var(--plum)" : "var(--ink-softer)"}
+                  />
+                  {item.id === "collection" && favCount !== undefined && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: -6,
+                        right: -8,
+                        background: "var(--plum)",
+                        color: "white",
+                        fontSize: 9,
+                        fontWeight: 700,
+                        borderRadius: 999,
+                        padding: "1px 5px",
+                        fontFamily: "var(--font-body)",
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {favCount}
+                    </span>
+                  )}
+                </span>
               )}
               {label(item.id)}
             </Link>
