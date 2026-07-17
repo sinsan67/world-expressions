@@ -28,14 +28,12 @@ import {
   clearVoyageSession,
   saveLastFilters,
 } from "@/lib/voyagePersistence";
-import { FLAG, COUNTRY_NAME, HERO_IMAGE_COUNTRIES } from "@/lib/constants";
-import { getTypeLabel } from "@/lib/typeLabels";
-import { EDITORIAL_DOMAINS } from "@/lib/editorialDomains";
+import { HERO_IMAGE_COUNTRIES } from "@/lib/constants";
 import { useUILangContext } from "@/lib/UILangContext";
 import { VOYAGE_SETUP, VOYAGE_PLAY } from "@/lib/voyageLabels";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
-import VoyageSetup, { VoyageFilters } from "@/components/voyage/VoyageSetup";
+import VoyageSetup, { VoyageFilters, formatFiltersSummary } from "@/components/voyage/VoyageSetup";
 import VoyageCard from "@/components/voyage/VoyageCard";
 import VoyageRecap from "@/components/voyage/VoyageRecap";
 import ReportReasonPicker from "@/components/ReportReasonPicker";
@@ -211,16 +209,7 @@ export default function Voyage({ quick }: { quick: boolean }) {
     backScreen();
   }, [backScreen]);
 
-  const domainLabel = (slug: string) => {
-    const d = EDITORIAL_DOMAINS.find((dm) => dm.slug === slug);
-    return d ? `${d.emoji} ${d.labels[uiLang as keyof typeof d.labels] ?? d.labels.en}` : "";
-  };
-
-  const filtersChip = [
-    lastFilters.country ? `${FLAG[lastFilters.country] ?? "🌍"} ${COUNTRY_NAME[lastFilters.country] ?? lastFilters.country}` : `🌍 ${t.allCountries}`,
-    lastFilters.kind ? getTypeLabel(lastFilters.kind, uiLang) : `✨ ${t.allKinds}`,
-    ...(lastFilters.domain ? [domainLabel(lastFilters.domain)] : []),
-  ].join(" · ");
+  const filtersChip = formatFiltersSummary(lastFilters, uiLang, t);
 
   const current = session?.cards[cardIndex];
   const countryCode = current ? (current.country || current.language) : "";
@@ -237,7 +226,7 @@ export default function Voyage({ quick }: { quick: boolean }) {
             initial={lastFilters}
             starting={starting}
             error={error}
-            onStart={(filters) => startGame(filters, false)}
+            onStart={(filters, isQuick) => startGame(filters, !!isQuick)}
           />
         )}
 

@@ -19,6 +19,19 @@ export type VoyageSetupLabels = {
   cards: string;
   empty: string;
   serverError: string;
+  // Presets (Lot S, S210) — one-tap starts above the collapsible composer.
+  presetSurprise: string;
+  presetSurpriseDesc: string;
+  presetDaily: string;
+  presetDailyDesc: (country: string) => string;
+  presetProverbs: string;
+  presetProverbsDesc: string;
+  presetLastTime: string;
+  composeToggle: string;
+  orDivider: string;
+  randomCountryAria: string;
+  randomKindAria: string;
+  randomDomainAria: string;
 };
 
 export type VoyagePlayLabels = {
@@ -64,6 +77,18 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     cards: "cartes",
     empty: "Aucune expression pour ces filtres — essaie une autre combinaison.",
     serverError: "Le serveur ne répond pas — réessaie dans un instant.",
+    presetSurprise: "Surprends-moi",
+    presetSurpriseDesc: "Tout le globe, tout mélangé",
+    presetDaily: "Destination du jour",
+    presetDailyDesc: (country) => `Aujourd'hui : ${country} — demain, un autre pays`,
+    presetProverbs: "Proverbes du monde",
+    presetProverbsDesc: "La sagesse de tous les pays",
+    presetLastTime: "Comme la dernière fois",
+    composeToggle: "Composer mon voyage",
+    orDivider: "ou",
+    randomCountryAria: "Choisir un pays au hasard",
+    randomKindAria: "Choisir un type au hasard",
+    randomDomainAria: "Choisir un thème au hasard",
   },
   en: {
     title: "Voyage",
@@ -77,6 +102,18 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     cards: "cards",
     empty: "No expression for these filters — try another combination.",
     serverError: "The server isn't responding — try again in a moment.",
+    presetSurprise: "Surprise me",
+    presetSurpriseDesc: "The whole globe, all mixed up",
+    presetDaily: "Destination of the day",
+    presetDailyDesc: (country) => `Today: ${country} — tomorrow, a new country`,
+    presetProverbs: "Proverbs of the world",
+    presetProverbsDesc: "Wisdom from every country",
+    presetLastTime: "Same as last time",
+    composeToggle: "Compose your journey",
+    orDivider: "or",
+    randomCountryAria: "Pick a random country",
+    randomKindAria: "Pick a random type",
+    randomDomainAria: "Pick a random theme",
   },
   es: {
     title: "Viaje",
@@ -90,6 +127,18 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     cards: "cartas",
     empty: "No hay expresiones para estos filtros — prueba otra combinación.",
     serverError: "El servidor no responde — inténtalo de nuevo en un momento.",
+    presetSurprise: "Sorpréndeme",
+    presetSurpriseDesc: "Todo el mundo, todo mezclado",
+    presetDaily: "Destino del día",
+    presetDailyDesc: (country) => `Hoy: ${country} — mañana, otro país`,
+    presetProverbs: "Proverbios del mundo",
+    presetProverbsDesc: "La sabiduría de todos los países",
+    presetLastTime: "Como la última vez",
+    composeToggle: "Diseñar mi viaje",
+    orDivider: "o",
+    randomCountryAria: "Elegir un país al azar",
+    randomKindAria: "Elegir un tipo al azar",
+    randomDomainAria: "Elegir un tema al azar",
   },
   it: {
     title: "Viaggio",
@@ -103,6 +152,18 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     cards: "carte",
     empty: "Nessuna espressione per questi filtri — prova un'altra combinazione.",
     serverError: "Il server non risponde — riprova tra un momento.",
+    presetSurprise: "Sorprendimi",
+    presetSurpriseDesc: "Tutto il mondo, tutto mescolato",
+    presetDaily: "Destinazione del giorno",
+    presetDailyDesc: (country) => `Oggi: ${country} — domani, un altro paese`,
+    presetProverbs: "Proverbi del mondo",
+    presetProverbsDesc: "La saggezza di tutti i paesi",
+    presetLastTime: "Come l'ultima volta",
+    composeToggle: "Componi il tuo viaggio",
+    orDivider: "oppure",
+    randomCountryAria: "Scegli un paese a caso",
+    randomKindAria: "Scegli un tipo a caso",
+    randomDomainAria: "Scegli un tema a caso",
   },
   tr: {
     title: "Yolculuk",
@@ -116,6 +177,18 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     cards: "kart",
     empty: "Bu filtreler için deyim yok — başka bir kombinasyon dene.",
     serverError: "Sunucu yanıt vermiyor — birazdan tekrar dene.",
+    presetSurprise: "Beni şaşırt",
+    presetSurpriseDesc: "Tüm dünya, birbirine karışmış",
+    presetDaily: "Günün destinasyonu",
+    presetDailyDesc: (country) => `Bugün: ${country} — yarın başka bir ülke`,
+    presetProverbs: "Dünyanın atasözleri",
+    presetProverbsDesc: "Tüm ülkelerin bilgeliği",
+    presetLastTime: "Geçen sefer gibi",
+    composeToggle: "Yolculuğumu tasarla",
+    orDivider: "ya da",
+    randomCountryAria: "Rastgele bir ülke seç",
+    randomKindAria: "Rastgele bir tür seç",
+    randomDomainAria: "Rastgele bir tema seç",
   },
   de: {
     title: "Reise",
@@ -129,6 +202,18 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     cards: "Karten",
     empty: "Keine Ausdrücke für diese Filter — versuch eine andere Kombination.",
     serverError: "Der Server antwortet nicht — versuch es gleich noch einmal.",
+    presetSurprise: "Überrasch mich",
+    presetSurpriseDesc: "Die ganze Welt, alles gemischt",
+    presetDaily: "Reiseziel des Tages",
+    presetDailyDesc: (country) => `Heute: ${country} — morgen ein anderes Land`,
+    presetProverbs: "Sprichwörter der Welt",
+    presetProverbsDesc: "Die Weisheit aller Länder",
+    presetLastTime: "Wie beim letzten Mal",
+    composeToggle: "Meine Reise zusammenstellen",
+    orDivider: "oder",
+    randomCountryAria: "Zufälliges Land wählen",
+    randomKindAria: "Zufälligen Typ wählen",
+    randomDomainAria: "Zufälliges Thema wählen",
   },
   ja: {
     title: "旅",
@@ -142,6 +227,18 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     cards: "枚",
     empty: "この条件に合う表現がありません — 別の組み合わせを試してみましょう。",
     serverError: "サーバーが応答していません — もう一度お試しください。",
+    presetSurprise: "サプライズにお任せ",
+    presetSurpriseDesc: "世界中をぜんぶミックス",
+    presetDaily: "今日の旅先",
+    presetDailyDesc: (country) => `今日は：${country} — 明日はまた別の国`,
+    presetProverbs: "世界のことわざ",
+    presetProverbsDesc: "すべての国の知恵",
+    presetLastTime: "前回と同じ設定で",
+    composeToggle: "旅をカスタマイズ",
+    orDivider: "または",
+    randomCountryAria: "国をランダムに選ぶ",
+    randomKindAria: "タイプをランダムに選ぶ",
+    randomDomainAria: "テーマをランダムに選ぶ",
   },
 };
 
