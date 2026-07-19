@@ -18,6 +18,7 @@ export type HubLabels = {
   daily: { title: string; hint: string };
   collection: { teaser: string; count: (n: number) => string; empty: string };
   search: { invite: string; title: string };
+  explore: { title: string; atlas: string; concepts: string; countries: string; proverbs: string };
 };
 
 export const HUB_LABELS: Record<Lang, HubLabels> = {
@@ -50,6 +51,13 @@ export const HUB_LABELS: Record<Lang, HubLabels> = {
       invite: "Un mot, une émotion, une idée…",
       title: "Rechercher",
     },
+    explore: {
+      title: "Explorer le monde",
+      atlas: "Atlas",
+      concepts: "Concepts",
+      countries: "Pays",
+      proverbs: "Proverbes",
+    },
   },
   en: {
     title: "What shall we play?",
@@ -79,6 +87,13 @@ export const HUB_LABELS: Record<Lang, HubLabels> = {
     search: {
       invite: "A word, a feeling, an idea…",
       title: "Search",
+    },
+    explore: {
+      title: "Explore the world",
+      atlas: "Atlas",
+      concepts: "Concepts",
+      countries: "Countries",
+      proverbs: "Proverbs",
     },
   },
   es: {
@@ -110,6 +125,13 @@ export const HUB_LABELS: Record<Lang, HubLabels> = {
       invite: "Una palabra, una emoción, una idea…",
       title: "Buscar",
     },
+    explore: {
+      title: "Explora el mundo",
+      atlas: "Atlas",
+      concepts: "Conceptos",
+      countries: "Países",
+      proverbs: "Proverbios",
+    },
   },
   it: {
     title: "A cosa giochiamo?",
@@ -139,6 +161,13 @@ export const HUB_LABELS: Record<Lang, HubLabels> = {
     search: {
       invite: "Una parola, un'emozione, un'idea…",
       title: "Cerca",
+    },
+    explore: {
+      title: "Esplora il mondo",
+      atlas: "Atlas",
+      concepts: "Concetti",
+      countries: "Paesi",
+      proverbs: "Proverbi",
     },
   },
   tr: {
@@ -170,6 +199,13 @@ export const HUB_LABELS: Record<Lang, HubLabels> = {
       invite: "Bir kelime, bir duygu, bir fikir…",
       title: "Ara",
     },
+    explore: {
+      title: "Dünyayı keşfet",
+      atlas: "Atlas",
+      concepts: "Kavramlar",
+      countries: "Ülkeler",
+      proverbs: "Atasözleri",
+    },
   },
   de: {
     title: "Was spielen wir?",
@@ -200,6 +236,13 @@ export const HUB_LABELS: Record<Lang, HubLabels> = {
       invite: "Ein Wort, ein Gefühl, eine Idee…",
       title: "Suchen",
     },
+    explore: {
+      title: "Die Welt erkunden",
+      atlas: "Atlas",
+      concepts: "Konzepte",
+      countries: "Länder",
+      proverbs: "Sprichwörter",
+    },
   },
   ja: {
     title: "何して遊びましょう？",
@@ -229,6 +272,13 @@ export const HUB_LABELS: Record<Lang, HubLabels> = {
     search: {
       invite: "ことば、気持ち、アイデア…",
       title: "検索",
+    },
+    explore: {
+      title: "世界を探索",
+      atlas: "アトラス",
+      concepts: "概念",
+      countries: "国",
+      proverbs: "ことわざ",
     },
   },
 };

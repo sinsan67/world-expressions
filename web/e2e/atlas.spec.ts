@@ -17,20 +17,17 @@ test.describe('Page /atlas', () => {
     await expect(page).toHaveURL(/\/country\//);
   });
 
-  test('#22 "Atlas" est en surbrillance dans la sidebar', async ({ page }) => {
+  // Lot N1 (atelier S208 décision 2) : Atlas est sorti de la nav persistante,
+  // reléguée à la section "Explorer le monde" du hub — #22/#23 vérifiaient sa
+  // surbrillance dans la nav, elles vérifient maintenant son absence.
+  test('#22 "Atlas" est absent de la sidebar (sorti de la nav persistante, Lot N1)', async ({ page }) => {
     await page.goto('/atlas');
-    const atlasLink = page.locator('.wex-sidebar a[href="/atlas"]').first();
-    await atlasLink.waitFor({ timeout: T });
-    const color = await atlasLink.evaluate((el) => getComputedStyle(el).color);
-    expect(color).not.toBe('rgb(92, 79, 58)'); // pas --ink-soft
+    await expect(page.locator('.wex-sidebar a[href="/atlas"]')).toHaveCount(0);
   });
 
-  test('#23 icône Atlas active dans la BottomNav (mobile)', async ({ page }) => {
+  test('#23 "Atlas" est absent de la BottomNav mobile (sorti de la nav persistante, Lot N1)', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/atlas');
-    const bottomNavAtlas = page.locator('[data-testid="bottom-nav"] a[href="/atlas"]');
-    await expect(bottomNavAtlas).toBeVisible({ timeout: T });
-    const color = await bottomNavAtlas.evaluate((el) => getComputedStyle(el).color);
-    expect(color).not.toBe('rgb(92, 79, 58)');
+    await expect(page.locator('[data-testid="bottom-nav"] a[href="/atlas"]')).toHaveCount(0);
   });
 });
