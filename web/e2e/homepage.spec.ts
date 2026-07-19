@@ -184,7 +184,7 @@ test.describe('Hub — navigation sidebar (desktop)', () => {
 
   test('#17b sidebar = 5 items du pivot (Jouer, Collection, 🎲, Chercher, Profil) — Atlas/Concepts en sont sortis', async ({ page }) => {
     const sidebar = page.locator('.wex-sidebar');
-    await expect(sidebar.locator('a[href="/"]')).toBeVisible();
+    await expect(sidebar.locator('nav a[href="/"]')).toBeVisible();
     await expect(sidebar.locator('a[href="/collection"]')).toBeVisible();
     await expect(sidebar.locator('a[href="/voyage?quick=1"]')).toBeVisible();
     await expect(sidebar.locator('a[href="/search"]')).toBeVisible();
