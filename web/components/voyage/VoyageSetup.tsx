@@ -15,6 +15,7 @@ import { getLastFilters } from "@/lib/voyagePersistence";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { getTypeLabel } from "@/lib/typeLabels";
 import { EDITORIAL_DOMAINS } from "@/lib/editorialDomains";
+import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { VOYAGE_SETUP, VoyageSetupLabels } from "@/lib/voyageLabels";
 
 const KINDS = ["idiom", "proverb", "locution"] as const;
@@ -28,7 +29,12 @@ export type VoyageFilters = { country: string; kind: string; domain: string };
 export function formatFiltersSummary(filters: VoyageFilters, uiLang: string, t: VoyageSetupLabels): string {
   const domainLabel = (slug: string) => {
     const d = EDITORIAL_DOMAINS.find((dm) => dm.slug === slug);
-    return d ? `${d.emoji} ${d.labels[uiLang as keyof typeof d.labels] ?? d.labels.en}` : "";
+    if (d) return `${d.emoji} ${d.labels[uiLang as keyof typeof d.labels] ?? d.labels.en}`;
+    // The Concepts page knows 4 domains beyond the 16 editorial ones
+    // (knowledge/justice/change/food) — its "Play with these cards" CTA can
+    // legitimately pre-fill them, so fall back to DOMAIN_DEFS for the label.
+    const def = DOMAIN_DEFS[slug];
+    return def ? `${def.emoji} ${def.labels[uiLang] ?? def.labels.en ?? slug}` : "";
   };
   return [
     filters.country ? `${FLAG[filters.country] ?? "🌍"} ${COUNTRY_NAME[filters.country] ?? filters.country}` : `🌍 ${t.allCountries}`,
@@ -52,7 +58,12 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
   const [domain, setDomain] = useState(initial?.domain ?? "");
   const [countries, setCountries] = useState<CountryInfo[]>([]);
   const [poolCount, setPoolCount] = useState<number | null>(null);
-  const [composerOpen, setComposerOpen] = useState(false);
+  // Pre-filled filters (exploration CTA, or "change filters" after a
+  // composed game) open the composer right away — the whole point of
+  // arriving pre-filled is seeing what's selected.
+  const [composerOpen, setComposerOpen] = useState(
+    !!(initial?.country || initial?.kind || initial?.domain)
+  );
   const [rollingSection, setRollingSection] = useState<"country" | "kind" | "domain" | null>(null);
 
   // Presets: pool badges. Surprends-moi derives from the countries list
@@ -296,6 +307,23 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
               {d.labels[uiLang as keyof typeof d.labels] ?? d.labels.en}
             </button>
           ))}
+          {/* A pre-filled domain outside the 16 editorial ones (the Concepts
+              page also knows knowledge/justice/change/food) still gets a
+              visible, deselectable pill. */}
+          {domain && !EDITORIAL_DOMAINS.some((d) => d.slug === domain) && DOMAIN_DEFS[domain] && (
+            <button
+              onClick={() => setDomain("")}
+              className="chip-on"
+              style={{
+                ...domainPillStyle,
+                background: DOMAIN_COLORS[domain]?.bg ?? "var(--paper-deep)",
+                ...chipSelected,
+              }}
+            >
+              <span style={{ fontSize: 15 }}>{DOMAIN_DEFS[domain].emoji}</span>
+              {DOMAIN_DEFS[domain].labels[uiLang] ?? DOMAIN_DEFS[domain].labels.en}
+            </button>
+          )}
         </div>
 
         <button

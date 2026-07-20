@@ -19,6 +19,9 @@ type Props = {
   uiLang: string;
   cards: GameCardType[];
   keptCards: GameCardType[];
+  // Recap → exploration bridge (lot N2): where "Explore these expressions"
+  // lands, computed by the parent from the game's filters (lib/exploreLink).
+  exploreHref: string;
   onReplay: () => void;
   onChangeFilters: () => void;
 };
@@ -36,7 +39,7 @@ function pickMostSeenCountry(cards: GameCardType[]): string {
   return top[Math.floor(Math.random() * top.length)];
 }
 
-export default function VoyageRecap({ uiLang, cards, keptCards, onReplay, onChangeFilters }: Props) {
+export default function VoyageRecap({ uiLang, cards, keptCards, exploreHref, onReplay, onChangeFilters }: Props) {
   const t = VOYAGE_RECAP[uiLang] ?? VOYAGE_RECAP.en;
   // Frozen at mount so the tie-break doesn't reshuffle on re-render.
   const [heroCountry] = useState(() => pickMostSeenCountry(cards));
@@ -87,6 +90,7 @@ export default function VoyageRecap({ uiLang, cards, keptCards, onReplay, onChan
 
         <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 9, paddingTop: 22 }}>
           <button onClick={onReplay} style={primaryBtnStyle}>{t.replay}</button>
+          <Link href={exploreHref} data-testid="recap-explore" style={secondaryBtnStyle}>{t.explore}</Link>
           <button onClick={onChangeFilters} style={secondaryBtnStyle}>{t.changeFilters}</button>
           <Link href="/collection" style={secondaryBtnStyle}>{t.viewCollection}</Link>
         </div>

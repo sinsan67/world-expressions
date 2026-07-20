@@ -16,6 +16,19 @@ test.describe('Page /country/[code]', () => {
     expect(await cards.count()).toBeGreaterThan(0);
   });
 
+  test('#50 CTA "Jouer avec ces cartes" → /voyage pré-rempli avec le pays (Lot N2)', async ({ page }) => {
+    await page.goto('/country/fr');
+    const cta = page.getByTestId('play-with-cards');
+    await expect(cta).toBeVisible({ timeout: T });
+    // Onglet par défaut = idiomes → contexte pays + type.
+    await expect(cta).toHaveAttribute('href', '/voyage?country=fr&kind=idiom');
+
+    await cta.click();
+    await expect(page).toHaveURL(/\/voyage\?country=fr/, { timeout: T });
+    // Le setup arrive composer ouvert, chip France sélectionné.
+    await expect(page.locator('button.chip-on').filter({ hasText: 'France' })).toBeVisible({ timeout: T });
+  });
+
   test('#48 clic sur un chip concept filtre les expressions (reste sur /country/fr)', async ({ page }) => {
     await page.goto('/country/fr');
     await page.locator('h1, h2').first().waitFor({ timeout: T });

@@ -59,6 +59,7 @@ export type VoyageRecapLabels = {
   kept: (count: number) => string;
   collectionUpdate: string;
   replay: string;
+  explore: string;
   changeFilters: string;
   viewCollection: string;
   emptyKept: string;
@@ -366,6 +367,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 cartes vues — tu as gardé ${n} expression${n > 1 ? "s" : ""}`,
     collectionUpdate: "Ta collection s'agrandit !",
     replay: "Rejouer ▸",
+    explore: "Explorer ces expressions 🧭",
     changeFilters: "Changer les filtres",
     viewCollection: "Voir ma collection ❤️",
     emptyKept: "Aucune carte gardée cette fois — retente ta chance !",
@@ -375,6 +377,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 cards seen — you kept ${n} expression${n > 1 ? "s" : ""}`,
     collectionUpdate: "Your collection is growing!",
     replay: "Replay ▸",
+    explore: "Explore these expressions 🧭",
     changeFilters: "Change filters",
     viewCollection: "View my collection ❤️",
     emptyKept: "No cards kept this time — give it another go!",
@@ -384,6 +387,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 cartas vistas — guardaste ${n} ${n === 1 ? "expresión" : "expresiones"}`,
     collectionUpdate: "¡Tu colección crece!",
     replay: "Jugar de nuevo ▸",
+    explore: "Explorar estas expresiones 🧭",
     changeFilters: "Cambiar filtros",
     viewCollection: "Ver mi colección ❤️",
     emptyKept: "No guardaste ninguna carta esta vez — ¡inténtalo de nuevo!",
@@ -393,6 +397,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 carte viste — hai conservato ${n} ${n === 1 ? "espressione" : "espressioni"}`,
     collectionUpdate: "La tua collezione cresce!",
     replay: "Rigioca ▸",
+    explore: "Esplora queste espressioni 🧭",
     changeFilters: "Cambia filtri",
     viewCollection: "Vedi la mia collezione ❤️",
     emptyKept: "Nessuna carta conservata questa volta — riprova!",
@@ -402,6 +407,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 kart görüldü — ${n} deyim sakladın`,
     collectionUpdate: "Koleksiyonun büyüyor!",
     replay: "Yeniden oyna ▸",
+    explore: "Bu deyimleri keşfet 🧭",
     changeFilters: "Filtreleri değiştir",
     viewCollection: "Koleksiyonumu gör ❤️",
     emptyKept: "Bu sefer hiç kart saklamadın — bir şans daha dene!",
@@ -411,6 +417,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 Karten gesehen — du hast ${n} ${n === 1 ? "Ausdruck" : "Ausdrücke"} behalten`,
     collectionUpdate: "Deine Sammlung wächst!",
     replay: "Nochmal spielen ▸",
+    explore: "Diese Ausdrücke erkunden 🧭",
     changeFilters: "Filter ändern",
     viewCollection: "Meine Sammlung ansehen ❤️",
     emptyKept: "Diesmal keine Karte behalten — versuch's nochmal!",
@@ -420,6 +427,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10枚のカードを見ました — ${n}個の表現を残しました`,
     collectionUpdate: "コレクションが増えていきます！",
     replay: "もう一度遊ぶ ▸",
+    explore: "これらの表現を探索 🧭",
     changeFilters: "フィルターを変更",
     viewCollection: "マイコレクションを見る ❤️",
     emptyKept: "今回は残したカードがありませんでした — もう一度挑戦してみましょう！",

@@ -12,6 +12,16 @@ test.describe('Page /emoji', () => {
     expect(count).toBeGreaterThanOrEqual(10);
   });
 
+  test('#34 CTA "Jouer avec ces cartes" : sans domaine → /voyage ; domaine ouvert → domaine pré-rempli (Lot N2)', async ({ page }) => {
+    await page.goto('/emoji');
+    const cta = page.getByTestId('play-with-cards');
+    await expect(cta).toBeVisible({ timeout: T });
+    await expect(cta).toHaveAttribute('href', '/voyage');
+
+    await page.goto('/emoji?domain=wisdom');
+    await expect(cta).toHaveAttribute('href', '/voyage?domain=wisdom', { timeout: T });
+  });
+
   // Domain cards now navigate to /search?domain= directly (commit 11fa98d).
   // Tests that need concept cards use /emoji?domain=X (URL-based panel still works).
   test('#26 clic domaine → navigue vers /search?domain=', async ({ page }) => {
