@@ -245,10 +245,14 @@ export default function CarnetTab({ session, uiLang, onAuthRequired }: Props) {
 
   const handleRemoveFavorite = useCallback(async (expressionId: string) => {
     if (!userId) return;
+    // keepalive: same pattern as useFavorite.ts (S204 fix) — without it, a
+    // quick navigation right after removing a favorite can abort the request
+    // before it reaches the server.
     await fetch(`${API_URL}/users/${userId}/favorites`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ expression_id: expressionId }),
+      keepalive: true,
     });
     setApiFavorites((prev) => prev.filter((f) => f.expression_id !== expressionId));
   }, [userId]);
