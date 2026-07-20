@@ -38,6 +38,19 @@ test.describe('Page /type/[slug]', () => {
     await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
   });
 
+  test('#T6 CTA "Jouer avec ces cartes" → /voyage?kind=proverb (Lot N2)', async ({ page }) => {
+    await page.goto('/type/proverb');
+    const cta = page.getByTestId('play-with-cards');
+    await expect(cta).toBeVisible({ timeout: T });
+    await expect(cta).toHaveAttribute('href', '/voyage?kind=proverb');
+  });
+
+  test('#T7 pas de CTA sur /type/word (le Voyage exclut les mots)', async ({ page }) => {
+    await page.goto('/type/word');
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
+    await expect(page.getByTestId('play-with-cards')).toHaveCount(0);
+  });
+
   test('#T4 slug invalide redirige vers /', async ({ page }) => {
     await page.goto('/type/slug-invalide');
     await expect(page).toHaveURL('/', { timeout: T });

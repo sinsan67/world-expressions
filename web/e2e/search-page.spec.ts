@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 
 const T = 90_000;
 const CARD = '[data-testid="expression-card"]';
+const SHEET = '[data-testid="expression-sheet"]';
 
 test.describe('Page /search (US-006)', () => {
   // Sidebar and sort/filter features rely on desktop layout — force desktop viewport
@@ -50,12 +51,74 @@ test.describe('Page /search (US-006)', () => {
     await expect(page).toHaveTitle(/argent/i);
   });
 
-  test('#S5 clic sur une carte navigue vers /expression/[id]', async ({ page }) => {
+  // Lot N2 (atelier S208 décision 2) : le clic sur une carte n'emmène plus
+  // sur /expression/[id] — il ouvre une bottom-sheet PAR-DESSUS la liste.
+  // Le chemin vers la fiche complète passe désormais par le lien de la sheet.
+  test('#S5 clic sur une carte ouvre la bottom-sheet ; « fiche complète » navigue vers /expression/[id]', async ({ page }) => {
     await page.goto('/search?q=argent');
     const card = page.locator(CARD).first();
     await card.waitFor({ timeout: T });
     await card.locator('span').first().click();
+
+    const sheet = page.locator(SHEET);
+    await expect(sheet).toBeVisible({ timeout: T });
+    // La liste vit toujours derrière la sheet.
+    await expect(page.locator(CARD).first()).toBeAttached();
+    // L'ouverture est historisée (?sheet=<id>) sans toucher aux params de recherche.
+    await expect(page).toHaveURL(/sheet=/, { timeout: T });
+    await expect(page).toHaveURL(/q=argent/);
+
+    await sheet.getByText('Voir la fiche complète').click();
     await expect(page).toHaveURL(/\/expression\//, { timeout: T });
+  });
+
+  test('#S29 retour navigateur ferme la sheet, la liste et l\'URL de recherche restent intactes', async ({ page }) => {
+    await page.goto('/search?q=argent');
+    const card = page.locator(CARD).first();
+    await card.waitFor({ timeout: T });
+    await card.locator('span').first().click();
+    await expect(page.locator(SHEET)).toBeVisible({ timeout: T });
+
+    await page.goBack();
+    await expect(page.locator(SHEET)).toHaveCount(0, { timeout: T });
+    await expect(page).toHaveURL(/q=argent/);
+    await expect(page).not.toHaveURL(/sheet=/);
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
+  });
+
+  test('#S30 le bouton ✕ de la sheet la ferme sans quitter la recherche', async ({ page }) => {
+    await page.goto('/search?q=argent');
+    const card = page.locator(CARD).first();
+    await card.waitFor({ timeout: T });
+    await card.locator('span').first().click();
+    await expect(page.locator(SHEET)).toBeVisible({ timeout: T });
+
+    await page.getByRole('button', { name: 'Retour aux résultats' }).click();
+    await expect(page.locator(SHEET)).toHaveCount(0, { timeout: T });
+    await expect(page).toHaveURL(/q=argent/);
+    await expect(page.locator(CARD).first()).toBeVisible({ timeout: T });
+  });
+
+  test('#S31 recharger avec ?sheet=<id> rouvre la sheet (deep link), ✕ nettoie l\'URL', async ({ page }) => {
+    await page.goto('/search?q=argent');
+    const card = page.locator(CARD).first();
+    await card.waitFor({ timeout: T });
+    await card.locator('span').first().click();
+    await expect(page.locator(SHEET)).toBeVisible({ timeout: T });
+    await expect(page).toHaveURL(/sheet=/, { timeout: T });
+
+    // Reload : la sheet se rouvre en refetchant l'expression par son id.
+    await page.reload();
+    await expect(page.locator(SHEET)).toBeVisible({ timeout: T });
+    // L'expression finit par se charger dans la sheet (un titre h2 apparaît).
+    await expect(page.locator(SHEET).locator('h2')).toBeVisible({ timeout: T });
+
+    // Fermer depuis un deep link ne doit PAS faire un history.back() (qui
+    // quitterait la recherche) — l'URL est nettoyée en place.
+    await page.getByRole('button', { name: 'Retour aux résultats' }).click();
+    await expect(page.locator(SHEET)).toHaveCount(0, { timeout: T });
+    await expect(page).toHaveURL(/q=argent/);
+    await expect(page).not.toHaveURL(/sheet=/);
   });
 
   // ─── Filtre région ────────────────────────────────────────────────────────────

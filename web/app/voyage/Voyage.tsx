@@ -22,6 +22,7 @@ import {
 } from "@/lib/api";
 import { getCarnet } from "@/lib/carnet";
 import { useScreenHistory } from "@/lib/useScreenHistory";
+import { buildExploreHref } from "@/lib/exploreLink";
 import {
   saveVoyageSession,
   loadVoyageSession,
@@ -42,7 +43,11 @@ type Phase = "setup" | "loading" | "play" | "recap";
 
 const EMPTY_FILTERS: VoyageFilters = { country: "", kind: "", domain: "" };
 
-export default function Voyage({ quick }: { quick: boolean }) {
+// `initialFilters` (lot N2) comes from the exploration pages' "Play with
+// these cards" CTA (?country/?kind/?domain read server-side in page.tsx) —
+// it seeds the setup screen, which VoyageSetup shows pre-filled with its
+// composer expanded.
+export default function Voyage({ quick, initialFilters }: { quick: boolean; initialFilters?: VoyageFilters }) {
   const { uiLang } = useUILangContext();
   const { data: authSession } = useSession();
   const t = VOYAGE_SETUP[uiLang] ?? VOYAGE_SETUP.en;
@@ -50,7 +55,7 @@ export default function Voyage({ quick }: { quick: boolean }) {
 
   const [phase, setPhase] = useState<Phase>(quick ? "loading" : "setup");
   const [session, setSession] = useState<GameSession | null>(null);
-  const [lastFilters, setLastFilters] = useState<VoyageFilters>(EMPTY_FILTERS);
+  const [lastFilters, setLastFilters] = useState<VoyageFilters>(initialFilters ?? EMPTY_FILTERS);
   const [lastQuick, setLastQuick] = useState(quick);
   const [cardIndex, setCardIndex] = useState(0);
   const [keptIds, setKeptIds] = useState<Set<string>>(new Set());
@@ -328,6 +333,7 @@ export default function Voyage({ quick }: { quick: boolean }) {
             uiLang={uiLang}
             cards={session.cards}
             keptCards={keptCards}
+            exploreHref={buildExploreHref(lastFilters, lastQuick)}
             onReplay={handleReplay}
             onChangeFilters={handleChangeFilters}
           />

@@ -57,9 +57,13 @@ type Props = {
   uiLang?: string;
   tagNames?: Record<string, string>;
   fromSearch?: string;
+  // Lot N2: when provided, tapping the card opens it in place (bottom-sheet
+  // on /search) instead of navigating to /expression/[id] — the results
+  // list must never die under the reader.
+  onOpen?: (expression: Expression) => void;
 };
 
-export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr", tagNames = {}, fromSearch }: Props) {
+export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr", tagNames = {}, fromSearch, onOpen }: Props) {
   const [showDetails, setShowDetails] = useState(false);
   const [fav, handleFav] = useFavorite(e.id);
   const { speaking, voiceAvailable, handleListen } = useAudio(e.expression, e.language);
@@ -89,7 +93,10 @@ export default function ExpressionCard({ expression: e, onTagClick, uiLang = "fr
         cursor: "pointer",
         boxShadow: "var(--shadow-card)",
       }}
-      onClick={() => router.push(`/expression/${e.id}?lang=${uiLang}${fromSearch ? `&from_search=${encodeURIComponent(fromSearch)}` : ""}`)}
+      onClick={() => {
+        if (onOpen) onOpen(e);
+        else router.push(`/expression/${e.id}?lang=${uiLang}${fromSearch ? `&from_search=${encodeURIComponent(fromSearch)}` : ""}`);
+      }}
     >
       {/* Top border accent */}
       <div style={{ height: 1, background: "var(--paper-edge)" }} />

@@ -49,6 +49,21 @@ test.describe('Page /voyage', () => {
     // Récap de fin de partie.
     await expect(page.getByText('Belle pioche !')).toBeVisible({ timeout: API_TIMEOUT });
     await expect(page.getByText('tu as gardé 1 expression')).toBeVisible();
+
+    // Pont récap → exploration (Lot N2) : partie sans filtre → Atlas.
+    const exploreLink = page.getByTestId('recap-explore');
+    await expect(exploreLink).toBeVisible();
+    await expect(exploreLink).toHaveAttribute('href', '/atlas');
+  });
+
+  test('(Lot N2) /voyage?country=fr pré-remplit le composer, ouvert d\'office', async ({ page }) => {
+    await page.goto('/voyage?country=fr');
+
+    // Le composer est ouvert sans clic (filtres pré-remplis par l'URL) : son
+    // CTA est visible d'emblée…
+    await expect(page.getByRole('button', { name: "C'est parti !" })).toBeVisible({ timeout: API_TIMEOUT });
+    // …et le chip France est sélectionné (classe chip-on posée par VoyageSetup).
+    await expect(page.locator('button.chip-on').filter({ hasText: 'France' })).toBeVisible({ timeout: API_TIMEOUT });
   });
 
   test('?quick=1 saute l\'écran de filtres et démarre directement la partie', async ({ page }) => {

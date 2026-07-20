@@ -6,6 +6,7 @@ import Link from "next/link";
 import ExpressionCard from "@/components/ExpressionCard";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
+import PlayWithCardsCta from "@/components/PlayWithCardsCta";
 import {
   browseByCountry, searchExpressions, searchByConcept,
   getTopTags, getAllTagNames, getTypeCounts, Expression, TypeCounts,
@@ -688,6 +689,13 @@ function CountryPageContent({ code }: { code: string }) {
           )}
         </div>
       </main>
+
+      {/* Context = this country + the active type tab. Voyage can't play
+          words (backend pool excludes them), so that tab maps to no kind. */}
+      <PlayWithCardsCta
+        uiLang={uiLang}
+        filters={{ country: code, kind: typeFilter && typeFilter !== "word" ? typeFilter : "" }}
+      />
 
       <BottomNav uiLang={uiLang} />
     </div>

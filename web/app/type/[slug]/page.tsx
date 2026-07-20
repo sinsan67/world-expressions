@@ -6,6 +6,7 @@ import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
 import ExpressionCard from "@/components/ExpressionCard";
+import PlayWithCardsCta from "@/components/PlayWithCardsCta";
 import ResultsFilterBar from "@/components/home/ResultsFilterBar";
 import { browseByCountry, getCountries, getAllTagNames, getFacets, Expression, Facets } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
@@ -341,6 +342,16 @@ function TypePageContent() {
           )}
         </div>
       </main>
+
+      {/* Context = this type (+ the country when exactly one is filtered —
+          Voyage takes a single country). No CTA on /type/word: the Voyage
+          pool excludes words, the game would always come back empty. */}
+      {slug !== "word" && (
+        <PlayWithCardsCta
+          uiLang={uiLang}
+          filters={{ kind: slug, country: filterCountries.length === 1 ? filterCountries[0] : "" }}
+        />
+      )}
 
       <BottomNav uiLang={uiLang} />
     </div>

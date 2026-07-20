@@ -10,6 +10,13 @@ test.describe('Page /atlas', () => {
     expect(await cards.count()).toBeGreaterThanOrEqual(1);
   });
 
+  test('#20 CTA "Jouer avec ces cartes" visible, pointe vers /voyage sans filtre (Lot N2)', async ({ page }) => {
+    await page.goto('/atlas');
+    const cta = page.getByTestId('play-with-cards');
+    await expect(cta).toBeVisible({ timeout: 90_000 });
+    await expect(cta).toHaveAttribute('href', '/voyage');
+  });
+
   test('#21 clic sur un pays navigue vers /country/[code]', async ({ page }) => {
     await page.goto('/atlas');
     await page.locator('a[href*="/country/"]').first().waitFor({ timeout: T });
