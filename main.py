@@ -57,6 +57,7 @@ def search_expressions(
     offset: int = Query(0, ge=0, description="Number of results to skip"),
     type_filter: str = Query("", description="Filter by expression type: idiom, proverb, locution, word"),
     locale: str = Query("", description="UI locale for translated meanings, e.g. 'fr', 'en'"),
+    _: None = Depends(_cache_public_1h),
 ):
     """
     Search for expressions related to a word.
@@ -244,6 +245,7 @@ def get_expression(
     expression_id: str,
     lang: str = Query("", description="Target language for translation (en/fr/es/it/tr). Empty = no translation."),
     locale: str = Query("", description="Serve meaning/origin/example/literal localized to this locale (same COALESCE logic as /random). Empty = origin language."),
+    _: None = Depends(_cache_public_1h),
 ):
     """Return the full detail of an expression by its id.
     Pass lang= to include a separate translation block.
