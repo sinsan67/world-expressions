@@ -11,13 +11,21 @@ export function useFavorite(expressionId: string): [boolean, (ev?: React.MouseEv
   const [fav, setFav] = useState(false);
 
   useEffect(() => {
-    setFav(isFavorite(expressionId));
+    // Also re-check on "wex-carnet-updated" — AuthGate's post-login server
+    // sync (carnet.ts's addFavoriteLocal) can update localStorage after this
+    // card has already mounted, so a mount-only check can miss it.
+    const update = () => setFav(isFavorite(expressionId));
+    update();
+    window.addEventListener("wex-carnet-updated", update);
+    return () => window.removeEventListener("wex-carnet-updated", update);
   }, [expressionId]);
 
   function handleFav(ev?: React.MouseEvent) {
     ev?.stopPropagation();
+    // toggleFavorite() dispatches "wex-carnet-updated" synchronously, which
+    // the effect above already catches to re-derive `fav` — no separate
+    // setFav(v => !v) here, or the two updates would double-toggle the state.
     toggleFavorite(expressionId);
-    setFav((v) => !v);
     const userId = session?.user?.id;
     if (userId) {
       // keepalive: same optimistic-update-then-navigate-away pattern as

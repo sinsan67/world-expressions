@@ -160,6 +160,25 @@ export function isFavorite(expressionId: string): boolean {
   return getCarnet().favorites.some((f) => f.expressionId === expressionId);
 }
 
+// Rapatriates a favorite that already exists server-side (e.g. added on
+// another device) into the local carnet. Idempotent — no-ops if already a
+// local favorite, safe to call for every server favorite during AuthGate sync.
+export function addFavoriteLocal(fav: {
+  expressionId: string;
+  savedAt: string;
+  reviewBox: number;
+  reviewedAt: string | null;
+  sessionId: string | null;
+}): void {
+  const c = getCarnet();
+  if (c.favorites.some((f) => f.expressionId === fav.expressionId)) return;
+  c.favorites.push(fav);
+  saveCarnet(c);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("wex-carnet-updated"));
+  }
+}
+
 // Révision (lot D) — records a flashcard answer on an existing favorite.
 // v1 semantics (pivot-lot0-contract §2): "knew" sets box 1, "not yet" resets
 // to box 0. No-ops if the favorite doesn't exist — same precondition as the
