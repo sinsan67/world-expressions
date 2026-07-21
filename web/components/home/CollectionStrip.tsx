@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { getCarnet } from "@/lib/carnet";
+import { useFavoritesCount } from "@/lib/useFavoritesCount";
 
 // Hub collection teaser strip — total favorites count only (per-language
 // breakdown needs /browse?ids= hydration, out of scope for lot A, see
@@ -15,14 +14,7 @@ type Props = {
 };
 
 export default function CollectionStrip({ title, countLabel, emptyLabel }: Props) {
-  const [count, setCount] = useState<number | null>(null);
-
-  useEffect(() => {
-    const update = () => setCount(getCarnet().favorites.length);
-    update();
-    window.addEventListener("wex-carnet-updated", update);
-    return () => window.removeEventListener("wex-carnet-updated", update);
-  }, []);
+  const count = useFavoritesCount();
 
   return (
     <Link
@@ -49,7 +41,7 @@ export default function CollectionStrip({ title, countLabel, emptyLabel }: Props
           {title}
         </span>
         <span style={{ fontSize: 12.5, color: "var(--ink-softer)" }}>
-          {count === null ? "…" : count === 0 ? emptyLabel : countLabel(count)}
+          {count === undefined ? "…" : count === 0 ? emptyLabel : countLabel(count)}
         </span>
       </div>
       <span aria-hidden="true" style={{ color: "var(--ink-faint)", fontSize: 18 }}>›</span>

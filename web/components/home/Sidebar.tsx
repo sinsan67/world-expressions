@@ -148,7 +148,7 @@ export default function Sidebar({ uiLang }: Props) {
                 fill={isActive && item.id === "collection" ? "var(--terra)" : "none"}
               />}
               <span style={{ flex: 1 }}>{NAV_LABELS[item.id]?.[uiLang] ?? NAV_LABELS[item.id]?.en}</span>
-              {count !== undefined && (
+              {count !== undefined && count > 0 && (
                 <span style={{ fontSize: 11, color: "var(--ink-softer)" }}>{count}</span>
               )}
             </>
