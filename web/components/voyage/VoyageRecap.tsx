@@ -70,7 +70,7 @@ export default function VoyageRecap({ uiLang, cards, keptCards, exploreHref, onR
               <div key={c.id} style={keptRowStyle}>
                 <span style={{ color: "var(--terra)" }} aria-hidden="true">❤️</span>
                 <div>
-                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 15 }}>{c.expression}</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 15 }}>{c.literal ?? c.expression}</div>
                   <div style={{ fontSize: 12, color: "var(--ink-softer)" }}>{c.meaning}</div>
                 </div>
               </div>

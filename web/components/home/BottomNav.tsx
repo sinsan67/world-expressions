@@ -109,7 +109,7 @@ export default function BottomNav({ uiLang = "fr" }: Props) {
                     strokeWidth={1.5}
                     color={isActive ? "var(--plum)" : "var(--ink-softer)"}
                   />
-                  {item.id === "collection" && favCount !== undefined && (
+                  {item.id === "collection" && favCount !== undefined && favCount > 0 && (
                     <span
                       style={{
                         position: "absolute",

@@ -17,11 +17,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Volume2, VolumeX } from "lucide-react";
 import type { GameCard as GameCardType } from "@/lib/api";
 import { FLAG, COUNTRY_NAME, COUNTRY_GRADIENT, HERO_IMAGE_COUNTRIES } from "@/lib/constants";
 import { getTypeLabel } from "@/lib/typeLabels";
 import { tagIcon } from "@/lib/tagIcons";
 import { useFavorite } from "@/lib/useFavorite";
+import { useAudio } from "@/lib/useAudio";
 import { VOYAGE_PLAY, VOYAGE_RARE } from "@/lib/voyageLabels";
 
 type Props = {
@@ -40,6 +42,7 @@ export default function VoyageCard({ uiLang, card, onNext, onReport = () => {}, 
   const [originOpen, setOriginOpen] = useState(false);
   const [exampleOpen, setExampleOpen] = useState(false);
   const [fav, handleFavRaw] = useFavorite(card.id);
+  const { speaking, voiceAvailable, handleListen } = useAudio(card.expression, card.language);
 
   const countryCode = card.country || card.language;
   const hintIcons = Array.from(new Set(card.tags.map((tg) => tagIcon(tg)).filter(Boolean))).slice(0, 3);
@@ -69,8 +72,23 @@ export default function VoyageCard({ uiLang, card, onNext, onReport = () => {}, 
         <div style={{ fontSize: 10, letterSpacing: 2, textTransform: "uppercase", opacity: 0.85, fontWeight: 700 }}>
           {getTypeLabel(card.type, uiLang)} · {COUNTRY_NAME[countryCode] ?? countryCode.toUpperCase()}
         </div>
-        <div style={{ fontFamily: "var(--font-display)", fontSize: 27, fontWeight: 600, lineHeight: 1.18, marginTop: 8 }}>
-          {card.expression}
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginTop: 8 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 27, fontWeight: 600, lineHeight: 1.18, flex: 1 }}>
+            {card.expression}
+          </div>
+          <button
+            onClick={voiceAvailable === false ? undefined : handleListen}
+            disabled={voiceAvailable === false}
+            aria-label={t.listenAria}
+            title={t.listenAria}
+            style={{
+              ...listenBtnStyle,
+              opacity: voiceAvailable === false ? 0.4 : 0.85,
+              cursor: voiceAvailable === false ? "not-allowed" : "pointer",
+            }}
+          >
+            {speaking ? <VolumeX size={16} strokeWidth={1.6} /> : <Volume2 size={16} strokeWidth={1.6} />}
+          </button>
         </div>
         {/* Literal translation — always shown (decision #1, no discovery/mastered
             mode data yet to condition on) */}
@@ -261,6 +279,20 @@ const depthLinkStyle: React.CSSProperties = {
   textDecoration: "underline",
   textUnderlineOffset: "3px",
   opacity: 0.9,
+};
+
+const listenBtnStyle: React.CSSProperties = {
+  flexShrink: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "rgba(255,255,255,0.16)",
+  border: "none",
+  borderRadius: "50%",
+  width: 30,
+  height: 30,
+  color: "#fff",
+  marginTop: 2,
 };
 
 const reportBtnStyle: React.CSSProperties = {

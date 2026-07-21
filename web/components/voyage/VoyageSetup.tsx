@@ -57,6 +57,7 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
   const [kind, setKind] = useState(initial?.kind ?? "");
   const [domain, setDomain] = useState(initial?.domain ?? "");
   const [countries, setCountries] = useState<CountryInfo[]>([]);
+  const [countriesFailed, setCountriesFailed] = useState(false);
   const [poolCount, setPoolCount] = useState<number | null>(null);
   // Pre-filled filters (exploration CTA, or "change filters" after a
   // composed game) open the composer right away — the whole point of
@@ -74,8 +75,21 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
   const [lastFilters, setLastFilters] = useState<VoyageFilters | null>(null);
   const [lastPool, setLastPool] = useState<number | null>(null);
 
+  // getCountries() never rejects (retries internally, resolves [] on total
+  // failure — see api.ts) — an empty result after the retries is the only
+  // signal we get, and in practice /countries is never legitimately empty
+  // in prod, so treat it as a failed load and offer a manual retry.
+  function loadCountries() {
+    getCountries()
+      .then((data) => {
+        setCountries(data);
+        setCountriesFailed(data.length === 0);
+      })
+      .catch(() => setCountriesFailed(true));
+  }
+
   useEffect(() => {
-    getCountries().then(setCountries).catch(() => {});
+    loadCountries();
     getRandomCount("", "proverb", "").then(setProverbsPool).catch(() => {});
     const last = getLastFilters();
     if (last) {
@@ -244,6 +258,17 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
             </button>
           ))}
         </div>
+        {countries.length === 0 && countriesFailed && (
+          <p style={{ fontSize: 12.5, color: "var(--terra, #b4552d)", marginTop: 6 }}>
+            {t.countriesError}{" "}
+            <button
+              onClick={loadCountries}
+              style={{ textDecoration: "underline", background: "none", border: "none", color: "inherit", cursor: "pointer", font: "inherit", padding: 0 }}
+            >
+              {t.retry}
+            </button>
+          </p>
+        )}
 
         {/* Kind tiles */}
         <div style={sectionHeadStyle}>
