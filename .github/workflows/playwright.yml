@@ -21,9 +21,19 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    permissions:
-      contents: read
-      deployments: read
+    # Skip entirely on PR → staging: the target commit is never deployed to
+    # the staging alias before merge, so this check can only ever time out
+    # (B2-1). Testing against the PR's own Vercel preview was tried and
+    # technically works (real deployment resolved, real tests executed) but
+    # is blocked by a separate, known issue: the backend's CORS_ORIGINS
+    # allowlist never includes per-PR preview URLs (see env-pitfalls "CORS
+    # preview Vercel"), so almost every test fails on an unrelated CORS
+    # error. An absent check here is more honest than one that's always red
+    # for reasons unrelated to the code under review. Merge criterion for
+    # PR → staging stays: backend-tests green + preview Vercel deployed
+    # (manual/local e2e check). push→staging and PR→main are unaffected —
+    # in both cases the commit is already deployed to staging.
+    if: "!(github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'staging')"
 
     steps:
       - uses: actions/checkout@v5
@@ -42,35 +52,7 @@ jobs:
         run: npx playwright install --with-deps chromium
         working-directory: web
 
-      # On a PR into staging, github.sha is the merge preview commit and the
-      # staging alias never serves the PR branch's HEAD SHA before merge —
-      # resolve the branch's own Vercel preview deployment instead (B2-1).
-      - name: Resolve Vercel preview URL (PR → staging only)
-        id: preview
-        if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'staging'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          echo "Looking up Vercel preview deployment for $HEAD_SHA..."
-          for i in $(seq 1 60); do
-            deployment_id=$(gh api "repos/${{ github.repository }}/deployments?sha=$HEAD_SHA&environment=Preview" --jq '.[0].id // empty')
-            if [ -n "$deployment_id" ]; then
-              url=$(gh api "repos/${{ github.repository }}/deployments/$deployment_id/statuses" --jq '[.[] | select(.state=="success")][0].environment_url // empty')
-              if [ -n "$url" ]; then
-                echo "Preview ready: $url"
-                echo "url=$url" >> "$GITHUB_OUTPUT"
-                exit 0
-              fi
-            fi
-            echo "Attempt $i — not ready yet"
-            sleep 5
-          done
-          echo "Timeout: no successful Vercel preview deployment found for $HEAD_SHA within 5 minutes."
-          exit 1
-
       - name: Wait for Vercel staging to serve this commit
-        if: "!(github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'staging')"
         env:
           # On pull_request, github.sha is the merge preview commit (never deployed).
           # Use the branch HEAD SHA instead, which Vercel staging actually serves.
@@ -110,7 +92,7 @@ jobs:
         run: npx playwright test
         working-directory: web
         env:
-          BASE_URL: ${{ (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'staging') && steps.preview.outputs.url || 'https://world-expressions-git-staging-ssinanusa-gmailcoms-projects.vercel.app' }}
+          BASE_URL: https://world-expressions-git-staging-ssinanusa-gmailcoms-projects.vercel.app
           VERCEL_BYPASS_TOKEN: ${{ secrets.VERCEL_BYPASS_TOKEN }}
           TEST_AUTH_PASSWORD: ${{ secrets.TEST_AUTH_PASSWORD }}
 
