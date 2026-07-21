@@ -35,7 +35,7 @@ export const COLLECTION_LABELS: Record<Lang, CollectionLabels> = {
     mode: {
       discovery: "🧳 découverte",
       mastered: "📚 maîtrisée",
-      prompt: "Comment veux-tu explorer cette langue ?",
+      prompt: "Où en es-tu avec cette langue ?",
       choose: "Choisir un mode",
     },
     setCounter: (fav, total) => `${fav} / ${total}`,
@@ -56,7 +56,7 @@ export const COLLECTION_LABELS: Record<Lang, CollectionLabels> = {
     mode: {
       discovery: "🧳 discovery",
       mastered: "📚 mastered",
-      prompt: "How do you want to explore this language?",
+      prompt: "Where are you with this language?",
       choose: "Choose a mode",
     },
     setCounter: (fav, total) => `${fav} / ${total}`,
@@ -77,7 +77,7 @@ export const COLLECTION_LABELS: Record<Lang, CollectionLabels> = {
     mode: {
       discovery: "🧳 descubrimiento",
       mastered: "📚 dominado",
-      prompt: "¿Cómo quieres explorar este idioma?",
+      prompt: "¿Dónde estás con este idioma?",
       choose: "Elegir un modo",
     },
     setCounter: (fav, total) => `${fav} / ${total}`,
@@ -98,7 +98,7 @@ export const COLLECTION_LABELS: Record<Lang, CollectionLabels> = {
     mode: {
       discovery: "🧳 scoperta",
       mastered: "📚 padronanza",
-      prompt: "Come vuoi esplorare questa lingua?",
+      prompt: "A che punto sei con questa lingua?",
       choose: "Scegli una modalità",
     },
     setCounter: (fav, total) => `${fav} / ${total}`,
@@ -119,7 +119,7 @@ export const COLLECTION_LABELS: Record<Lang, CollectionLabels> = {
     mode: {
       discovery: "🧳 keşif",
       mastered: "📚 ustalık",
-      prompt: "Bu dili nasıl keşfetmek istersin?",
+      prompt: "Bu dilde ne durumdasın?",
       choose: "Bir mod seç",
     },
     setCounter: (fav, total) => `${fav} / ${total}`,
@@ -140,7 +140,7 @@ export const COLLECTION_LABELS: Record<Lang, CollectionLabels> = {
     mode: {
       discovery: "🧳 entdecken",
       mastered: "📚 gemeistert",
-      prompt: "Wie willst du diese Sprache erkunden?",
+      prompt: "Wo stehst du bei dieser Sprache?",
       choose: "Modus wählen",
     },
     setCounter: (fav, total) => `${fav} / ${total}`,
@@ -161,7 +161,7 @@ export const COLLECTION_LABELS: Record<Lang, CollectionLabels> = {
     mode: {
       discovery: "🧳 発見",
       mastered: "📚 マスター済み",
-      prompt: "この言語をどう楽しみますか？",
+      prompt: "この言語、今どのくらい？",
       choose: "モードを選ぶ",
     },
     setCounter: (fav, total) => `${fav} / ${total}`,
