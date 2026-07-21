@@ -21,6 +21,19 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Skip entirely on PR → staging: the target commit is never deployed to
+    # the staging alias before merge, so this check can only ever time out
+    # (B2-1). Testing against the PR's own Vercel preview was tried and
+    # technically works (real deployment resolved, real tests executed) but
+    # is blocked by a separate, known issue: the backend's CORS_ORIGINS
+    # allowlist never includes per-PR preview URLs (see env-pitfalls "CORS
+    # preview Vercel"), so almost every test fails on an unrelated CORS
+    # error. An absent check here is more honest than one that's always red
+    # for reasons unrelated to the code under review. Merge criterion for
+    # PR → staging stays: backend-tests green + preview Vercel deployed
+    # (manual/local e2e check). push→staging and PR→main are unaffected —
+    # in both cases the commit is already deployed to staging.
+    if: "!(github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'staging')"
 
     steps:
       - uses: actions/checkout@v5
