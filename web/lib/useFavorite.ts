@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { toggleFavorite, isFavorite } from "./carnet";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { API_URL } from "./constants";
 
 export function useFavorite(expressionId: string): [boolean, (ev?: React.MouseEvent) => void] {
   const { data: session } = useSession();

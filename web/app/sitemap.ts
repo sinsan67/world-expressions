@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
+import { API_URL as API } from "@/lib/constants";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const SITE = "https://worldexpressions.app";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

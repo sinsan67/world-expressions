@@ -83,7 +83,7 @@ translation_pass AS (
     WHERE EXISTS (
         SELECT 1 FROM content_translations ct
         WHERE ct.expression_id = e.id
-          AND to_tsvector('french', coalesce(ct.meaning,'') || ' ' || coalesce(ct.origin,'') || ' ' || coalesce(ct.example,'')) @@ plainto_tsquery('french', 'argent')
+          AND to_tsvector('simple', coalesce(ct.meaning,'') || ' ' || coalesce(ct.origin,'') || ' ' || coalesce(ct.example,'')) @@ plainto_tsquery('simple', 'argent')
     )
       AND NOT EXISTS (
           SELECT 1 FROM expression_tags et_pb
