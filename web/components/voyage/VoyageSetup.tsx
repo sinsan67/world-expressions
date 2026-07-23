@@ -4,9 +4,11 @@
  * Voyage — setup screen. 4 one-tap presets (decisions-produit.md, atelier
  * S208 Décision 1) above a collapsible "Composer mon voyage" section holding
  * the full country/kind/domain filters + a debounced live pool counter on
- * the CTA. Country chips and domain pills wrap (no hidden horizontal
- * scroll) and each filter section has a "🎲 au hasard" dice — both borrowed
- * from mockup-voyage-setup-C.html per the same decision.
+ * the CTA. Country picker is a compact map (CountryMap.tsx, direction B of
+ * the 3 wireframes, S221/S222) instead of a flag-chip row. Domain pills
+ * wrap (no hidden horizontal scroll) and each filter section has a
+ * "🎲 au hasard" dice — both borrowed from mockup-voyage-setup-C.html per
+ * the same decision.
  */
 
 import { useEffect, useState } from "react";
@@ -17,6 +19,7 @@ import { getTypeLabel } from "@/lib/typeLabels";
 import { EDITORIAL_DOMAINS, DOMAIN_GROUPS, EDITORIAL_DOMAIN_MAP } from "@/lib/editorialDomains";
 import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { VOYAGE_SETUP, VoyageSetupLabels } from "@/lib/voyageLabels";
+import CountryMap from "./CountryMap";
 
 const KINDS = ["idiom", "proverb", "locution"] as const;
 const KIND_EMOJI: Record<string, string> = { idiom: "💬", proverb: "📜", locution: "🧩" };
@@ -231,7 +234,7 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
       </button>
 
       <div style={composerOpen ? { ...collapseStyle, ...collapseOpenStyle } : collapseStyle}>
-        {/* Country chips — wrap, no hidden horizontal scroll */}
+        {/* Country picker — compact map (direction B, S221/S222 wireframes) */}
         <div style={sectionHeadStyle}>
           <span style={sectionLabelStyle}>🌍 {t.countryLabel}</span>
           <button
@@ -244,27 +247,7 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
             🎲
           </button>
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-          <button
-            onClick={() => setCountry("")}
-            className={country === "" ? "chip-on" : undefined}
-            style={{ ...countryChipStyle, ...(country === "" ? chipSelected : {}) }}
-          >
-            <span style={{ fontSize: 22, lineHeight: 1.2 }}>🌍</span>
-            <span style={countryChipName}>{t.allCountries}</span>
-          </button>
-          {countries.map((c) => (
-            <button
-              key={c.code}
-              onClick={() => setCountry(country === c.code ? "" : c.code)}
-              className={country === c.code ? "chip-on" : undefined}
-              style={{ ...countryChipStyle, ...(country === c.code ? chipSelected : {}) }}
-            >
-              <span style={{ fontSize: 22, lineHeight: 1.2 }}>{FLAG[c.code] ?? "🌍"}</span>
-              <span style={countryChipName}>{COUNTRY_NAME[c.code] ?? c.code.toUpperCase()}</span>
-            </button>
-          ))}
-        </div>
+        <CountryMap countries={countries} selected={country} onSelect={setCountry} t={t} />
         {countries.length === 0 && countriesFailed && (
           <p style={{ fontSize: 12.5, color: "var(--terra, #b4552d)", marginTop: 6 }}>
             {t.countriesError}{" "}
@@ -547,29 +530,6 @@ const diceButtonStyle: React.CSSProperties = {
   cursor: "pointer",
   color: "var(--ink-soft)",
   fontFamily: "var(--font-body)",
-};
-
-const countryChipStyle: React.CSSProperties = {
-  flexShrink: 0,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: 3,
-  background: "white",
-  border: "1.5px solid var(--paper-edge)",
-  borderRadius: 14,
-  padding: "8px 10px 6px",
-  cursor: "pointer",
-  minWidth: 60,
-  fontFamily: "var(--font-body)",
-  transition: "transform 0.12s, box-shadow 0.12s",
-};
-
-const countryChipName: React.CSSProperties = {
-  fontSize: 9.5,
-  fontWeight: 600,
-  color: "var(--ink-soft)",
-  whiteSpace: "nowrap",
 };
 
 const kindTileStyle: React.CSSProperties = {
