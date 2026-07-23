@@ -14,7 +14,7 @@ import { getCountries, getRandomCount, CountryInfo } from "@/lib/api";
 import { getLastFilters } from "@/lib/voyagePersistence";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { getTypeLabel } from "@/lib/typeLabels";
-import { EDITORIAL_DOMAINS } from "@/lib/editorialDomains";
+import { EDITORIAL_DOMAINS, DOMAIN_GROUPS, EDITORIAL_DOMAIN_MAP } from "@/lib/editorialDomains";
 import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { VOYAGE_SETUP, VoyageSetupLabels } from "@/lib/voyageLabels";
 
@@ -66,6 +66,11 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
     !!(initial?.country || initial?.kind || initial?.domain)
   );
   const [rollingSection, setRollingSection] = useState<"country" | "kind" | "domain" | null>(null);
+  // Domain accordion (8 curated groups) — auto-open the group holding the
+  // incoming selection, else all collapsed.
+  const [openGroup, setOpenGroup] = useState<string | null>(
+    () => DOMAIN_GROUPS.find((g) => g.children.includes(initial?.domain ?? ""))?.slug ?? null
+  );
 
   // Presets: pool badges. Surprends-moi derives from the countries list
   // already being fetched below (no extra request) — proverbs/last-time
@@ -124,7 +129,9 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
     } else if (section === "kind") {
       setKind(KINDS[Math.floor(Math.random() * KINDS.length)]);
     } else if (section === "domain") {
-      setDomain(EDITORIAL_DOMAINS[Math.floor(Math.random() * EDITORIAL_DOMAINS.length)].slug);
+      const picked = EDITORIAL_DOMAINS[Math.floor(Math.random() * EDITORIAL_DOMAINS.length)].slug;
+      setDomain(picked);
+      setOpenGroup(DOMAIN_GROUPS.find((g) => g.children.includes(picked))?.slug ?? null);
     }
   };
 
@@ -316,40 +323,56 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
             🎲
           </button>
         </div>
-        <div className="wex-domain-grid">
-          {EDITORIAL_DOMAINS.map((d) => (
-            <button
-              key={d.slug}
-              onClick={() => setDomain(domain === d.slug ? "" : d.slug)}
-              className={domain === d.slug ? "chip-on" : undefined}
-              style={{
-                ...domainPillStyle,
-                background: d.bg,
-                ...(domain === d.slug ? chipSelected : {}),
-              }}
-            >
-              <span style={{ fontSize: 15 }}>{d.emoji}</span>
-              {d.labels[uiLang as keyof typeof d.labels] ?? d.labels.en}
-            </button>
-          ))}
-          {/* A pre-filled domain outside the 16 editorial ones (the Concepts
-              page also knows knowledge/justice/change/food) still gets a
-              visible, deselectable pill. */}
-          {domain && !EDITORIAL_DOMAINS.some((d) => d.slug === domain) && DOMAIN_DEFS[domain] && (
-            <button
-              onClick={() => setDomain("")}
-              className="chip-on"
-              style={{
-                ...domainPillStyle,
-                background: DOMAIN_COLORS[domain]?.bg ?? "var(--paper-deep)",
-                ...chipSelected,
-              }}
-            >
-              <span style={{ fontSize: 15 }}>{DOMAIN_DEFS[domain].emoji}</span>
-              {DOMAIN_DEFS[domain].labels[uiLang] ?? DOMAIN_DEFS[domain].labels.en}
-            </button>
-          )}
-        </div>
+        {/* Accordion: 8 curated groups (atelier thèmes 21/07), tap a header
+            to reveal its leaf pills. onStart() always receives a leaf
+            EditorialDomain slug — grouping is purely visual, the /random
+            /search API contract is unchanged. EDITORIAL_DOMAINS now covers
+            all 20 real domain_slugs (the 4 the Concepts page also knows —
+            knowledge/justice/change/food — got folded in), so every
+            pre-filled domain resolves through EDITORIAL_DOMAIN_MAP here;
+            no DOMAIN_DEFS fallback needed in this component anymore. */}
+        {DOMAIN_GROUPS.map((g) => {
+          const isOpen = openGroup === g.slug;
+          const hasSelection = g.children.includes(domain);
+          return (
+            <div key={g.slug} style={{ marginBottom: 7 }}>
+              <button
+                onClick={() => setOpenGroup(isOpen ? null : g.slug)}
+                aria-expanded={isOpen}
+                style={{ ...domainGroupHeaderStyle, ...(hasSelection ? chipSelected : {}) }}
+              >
+                <span style={{ fontSize: 15 }}>{g.emoji}</span>
+                <span style={{ flex: 1, textAlign: "left" }}>
+                  {g.labels[uiLang as keyof typeof g.labels] ?? g.labels.en}
+                </span>
+                <span aria-hidden="true" style={{ fontSize: 11, color: "var(--ink-faint)" }}>{isOpen ? "▲" : "▼"}</span>
+              </button>
+              {isOpen && (
+                <div className="wex-domain-grid" style={{ marginTop: 7 }}>
+                  {g.children.map((slug) => {
+                    const d = EDITORIAL_DOMAIN_MAP[slug];
+                    if (!d) return null;
+                    return (
+                      <button
+                        key={d.slug}
+                        onClick={() => setDomain(domain === d.slug ? "" : d.slug)}
+                        className={domain === d.slug ? "chip-on" : undefined}
+                        style={{
+                          ...domainPillStyle,
+                          background: d.bg,
+                          ...(domain === d.slug ? chipSelected : {}),
+                        }}
+                      >
+                        <span style={{ fontSize: 15 }}>{d.emoji}</span>
+                        {d.labels[uiLang as keyof typeof d.labels] ?? d.labels.en}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
 
         <button
           onClick={() => onStart({ country, kind, domain })}
@@ -581,6 +604,23 @@ const domainPillStyle: React.CSSProperties = {
   fontFamily: "var(--font-body)",
   lineHeight: 1.25,
   textAlign: "left",
+  transition: "transform 0.12s, box-shadow 0.12s",
+};
+
+const domainGroupHeaderStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  width: "100%",
+  background: "white",
+  border: "1.5px solid var(--paper-edge)",
+  borderRadius: 14,
+  padding: "9px 12px",
+  cursor: "pointer",
+  fontSize: 12.5,
+  fontWeight: 600,
+  color: "var(--ink-soft)",
+  fontFamily: "var(--font-body)",
   transition: "transform 0.12s, box-shadow 0.12s",
 };
 
