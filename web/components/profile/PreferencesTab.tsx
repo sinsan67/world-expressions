@@ -205,7 +205,7 @@ export default function PreferencesTab({ session, uiLang, onLangChange }: Props)
         </button>
       </div>
 
-      {authModal && <AuthModal onClose={() => setAuthModal(false)} />}
+      {authModal && <AuthModal onClose={() => setAuthModal(false)} uiLang={uiLang} />}
     </>
   );
 }

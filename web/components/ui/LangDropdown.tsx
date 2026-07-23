@@ -59,6 +59,14 @@ export default function LangDropdown({ uiLang, onLangChange }: Props) {
     }
   }, [open, isMobile]);
 
+  // Escape closes the mobile sheet (desktop dropdown already closes via outside-click).
+  useEffect(() => {
+    if (!open || !isMobile) return;
+    const onKey = (ev: KeyboardEvent) => { if (ev.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, isMobile]);
+
   const handlePick = (code: UILang) => {
     onLangChange(code);
     setOpen(false);
@@ -171,6 +179,7 @@ export default function LangDropdown({ uiLang, onLangChange }: Props) {
           <div
             onClick={(e) => e.stopPropagation()}
             role="dialog"
+            aria-modal="true"
             aria-label={SHEET_TITLE[uiLang] ?? SHEET_TITLE.en}
             style={{
               width: "100%",

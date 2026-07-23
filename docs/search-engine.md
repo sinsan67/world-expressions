@@ -13,8 +13,8 @@
 | **Tag** | Étiquette thématique attachée à une expression. Toujours stockée en anglais sous forme de slug. Ex : `money`, `work`, `love`, `fear`. Une expression peut avoir plusieurs tags. |
 | **Tag name** | Traduction affichable d'un slug de tag dans une langue donnée. Ex : slug `money` → FR `argent`, ES `dinero`, TR `para`. Stocké dans la table `tag_names`. |
 | **Concept** | Synonyme de tag dans le contexte de la recherche. Un "concept" est un slug de tag utilisé comme pivot multilingue pour relier des expressions de langues différentes. |
-| **FTS** | *Full-Text Search* — index SQLite (FTS5) qui permet de chercher un mot dans plusieurs colonnes texte simultanément, avec tolérance aux fautes légères. Plus rapide qu'un `LIKE '%mot%'`. |
-| **match_type** | Champ retourné par l'API sur chaque résultat, indiquant comment l'expression a été trouvée : `exact`, `semantic`, `fts`, `concept`, `translation`. |
+| **FTS / trigramme** | Technologie PostgreSQL utilisée *sous le capot* par les passes 1 à 3 — pas une passe à part. Pour le texte latin : `tsvector`/`ts_rank`/`websearch_to_tsquery`, avec un dictionnaire de stemming par langue (français, anglais, espagnol...). Pour les requêtes japonaises/chinoises/coréennes (tokenisation par espace inopérante) : repli sur `pg_trgm`/`ILIKE` (similarité de trigrammes). |
+| **match_type** | Champ retourné par l'API sur chaque résultat, indiquant comment l'expression a été trouvée : `exact`, `semantic`, `translation`, `concept`. |
 | **Region** | Code pays de l'expression (`fr`, `uk`, `us`, `au`, `es`, `it`, `tr`). Une expression en anglais peut être `uk` (britannique) ou `us` (américaine). |
 | **Language** | Langue source de l'expression (`fr`, `en`, `es`, `it`, `tr`). Plus général que region : toutes les expressions en anglais ont `language = "en"`, qu'elles soient UK ou US. |
 
@@ -39,13 +39,13 @@ Quand l'utilisateur tape un mot et appuie sur Rechercher, la fonction `search_ex
 - Capture les expressions où le mot cherché *décrit* l'expression sans apparaître dans son texte
 - Match type : `semantic`
 
-### Passe 3 — Full-Text Search (FTS)
+### Passe 3 — Traduction (cross-langue)
 
-> Index FTS5 SQLite : recherche floue dans tous les champs texte.
+> Cherche le mot dans les **traductions** d'une expression vers d'autres langues, stockées dans `content_translations` (sens, origine, exemple traduits — pensé pour un lecteur qui ne connaît pas la langue d'origine).
 
-- Tolère les variantes morphologiques et les recherches partielles
-- Filet de sécurité pour les cas non couverts par les passes 1 et 2
-- Match type : `fts`
+- Exemple : une expression turque n'ayant pas le mot cherché dans son texte ni dans son sens natif peut remonter si sa traduction française stockée dans `content_translations` contient ce mot
+- Complémentaire à la passe 2 : celle-ci ne regarde que le contenu natif de l'expression, la passe 3 regarde son contenu *traduit*, dans toutes les langues cibles
+- Match type : `translation`
 
 ### Passe 4 — Concepts multilingues (cross-language)
 
@@ -65,7 +65,7 @@ GET /search?q=argent&limit=100
 
 Passe 1 : 18 expressions FR contenant "argent" dans leur texte
 Passe 2 : 4 expressions FR supplémentaires avec "argent" dans le sens
-Passe 3 : quelques résultats FTS additionnels
+Passe 3 : quelques expressions supplémentaires dont une traduction (dans une langue cible) mentionne "argent"
 Passe 4 : ~59 expressions EN/TR/ES/IT tagguées "money" (non encore trouvées)
 ```
 

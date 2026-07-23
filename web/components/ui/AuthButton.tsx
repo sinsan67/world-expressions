@@ -3,6 +3,7 @@
 import { useSession, signIn } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 import AuthModal from "@/components/profile/AuthModal";
+import type { UILang } from "@/lib/useUILang";
 
 type Props = { uiLang?: string };
 
@@ -159,7 +160,7 @@ export default function AuthButton({ uiLang = "en" }: Props) {
         </div>
 
         {showModal && (
-          <AuthModal defaultView={modalView} onClose={() => setShowModal(false)} />
+          <AuthModal defaultView={modalView} onClose={() => setShowModal(false)} uiLang={uiLang as UILang} />
         )}
       </>
     );

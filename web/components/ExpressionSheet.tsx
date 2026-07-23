@@ -89,6 +89,7 @@ export default function ExpressionSheet({ id, expression, uiLang, onClose, fromS
       <div
         role="dialog"
         aria-modal="true"
+        aria-labelledby="expr-sheet-title"
         data-testid="expression-sheet"
         onClick={(ev) => ev.stopPropagation()}
         style={{
@@ -175,7 +176,7 @@ export default function ExpressionSheet({ id, expression, uiLang, onClose, fromS
               </span>
             </div>
 
-            <h2 style={{ fontFamily: "var(--font-display)", fontSize: 21, fontWeight: 700, color: "var(--ink)", margin: "0 0 2px", lineHeight: 1.25 }}>
+            <h2 id="expr-sheet-title" style={{ fontFamily: "var(--font-display)", fontSize: 21, fontWeight: 700, color: "var(--ink)", margin: "0 0 2px", lineHeight: 1.25 }}>
               {cap(expr.expression)}
             </h2>
             {expr.literal && expr.language !== uiLang && (
