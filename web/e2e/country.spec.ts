@@ -25,8 +25,8 @@ test.describe('Page /country/[code]', () => {
 
     await cta.click();
     await expect(page).toHaveURL(/\/voyage\?country=fr/, { timeout: T });
-    // Le setup arrive composer ouvert, chip France sélectionné.
-    await expect(page.locator('button.chip-on').filter({ hasText: 'France' })).toBeVisible({ timeout: T });
+    // Le setup arrive composer ouvert, pin France de la carte pays sélectionné.
+    await expect(page.getByRole('button', { name: 'France', pressed: true })).toBeVisible({ timeout: T });
   });
 
   test('#48 clic sur un chip concept filtre les expressions (reste sur /country/fr)', async ({ page }) => {

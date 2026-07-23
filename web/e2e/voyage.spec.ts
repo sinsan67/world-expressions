@@ -62,8 +62,8 @@ test.describe('Page /voyage', () => {
     // Le composer est ouvert sans clic (filtres pré-remplis par l'URL) : son
     // CTA est visible d'emblée…
     await expect(page.getByRole('button', { name: "C'est parti !" })).toBeVisible({ timeout: API_TIMEOUT });
-    // …et le chip France est sélectionné (classe chip-on posée par VoyageSetup).
-    await expect(page.locator('button.chip-on').filter({ hasText: 'France' })).toBeVisible({ timeout: API_TIMEOUT });
+    // …et le pin France de la carte pays est sélectionné (aria-pressed, CountryMap.tsx).
+    await expect(page.getByRole('button', { name: 'France', pressed: true })).toBeVisible({ timeout: API_TIMEOUT });
   });
 
   test('?quick=1 saute l\'écran de filtres et démarre directement la partie', async ({ page }) => {
