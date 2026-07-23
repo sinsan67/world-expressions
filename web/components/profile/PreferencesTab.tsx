@@ -5,10 +5,10 @@ import { Session } from "next-auth";
 import Eyebrow from "@/components/home/Eyebrow";
 import AuthModal from "@/components/profile/AuthModal";
 import type { UILang } from "@/lib/useUILang";
+import { API_URL } from "@/lib/constants";
+
 type ExploreMode = "multilingual" | "single";
 type ContentType = "all" | "proverbs" | "everyday" | "slang";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 const LANG_OPTIONS: { code: UILang; label: string; flag: string }[] = [
   { code: "en", label: "English",  flag: "🇬🇧" },

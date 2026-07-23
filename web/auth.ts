@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
+import { API_URL as apiUrl } from "@/lib/constants";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -15,7 +16,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
         try {
           const res = await fetch(`${apiUrl}/auth/login`, {
             method: "POST",
@@ -50,7 +50,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (account.provider === "google") {
           // First Google sign-in: upsert user in FastAPI DB
           try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
             const res = await fetch(`${apiUrl}/users/upsert`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },

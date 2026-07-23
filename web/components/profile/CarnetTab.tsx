@@ -14,11 +14,9 @@ import ExportCard from "@/components/carnet/ExportCard";
 import AuthModal from "@/components/profile/AuthModal";
 import { getCarnet, getStats, getProgressByCountry } from "@/lib/carnet";
 import { getExpression, getCountries, getAllTagNames, Expression, CountryInfo } from "@/lib/api";
-import { FLAG, COUNTRY_NAME } from "@/lib/constants";
+import { FLAG, COUNTRY_NAME, API_URL } from "@/lib/constants";
 import { tagIcon } from "@/lib/tagIcons";
 import type { UILang } from "@/lib/useUILang";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 const T: Record<UILang, {
   memberSince: (d: string) => string;

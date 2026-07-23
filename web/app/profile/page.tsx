@@ -12,8 +12,8 @@ import PreferencesTab from "@/components/profile/PreferencesTab";
 import AuthModal from "@/components/profile/AuthModal";
 import { useUILangContext } from "@/lib/UILangContext";
 import type { UILang } from "@/lib/useUILang";
+import { API_URL } from "@/lib/constants";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 type TopTab = "carnet" | "preferences" | "account" | "about";
 
 const TOP_TABS: { id: TopTab; label: Record<UILang, string> }[] = [

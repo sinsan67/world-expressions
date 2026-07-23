@@ -4,8 +4,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import OnboardingModal from "./OnboardingModal";
 import { getCarnet, markSynced, addFavoriteLocal } from "@/lib/carnet";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { API_URL } from "@/lib/constants";
 
 const UI_LANGS = ["fr", "en", "es", "it", "tr", "de", "ja"] as const;
 type UILang = (typeof UI_LANGS)[number];

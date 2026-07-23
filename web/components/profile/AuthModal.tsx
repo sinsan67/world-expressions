@@ -2,6 +2,7 @@
 
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { API_URL } from "@/lib/constants";
 
 type View = "login" | "register" | "forgot";
 
@@ -9,8 +10,6 @@ interface Props {
   onClose: () => void;
   defaultView?: View;
 }
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
