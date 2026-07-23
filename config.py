@@ -21,7 +21,7 @@ DATABASE_URL = os.environ.get(
     "postgresql://localhost/expressions_dev"  # fallback : DB locale (start.sh, dev sans .env)
 )
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine)
 
 

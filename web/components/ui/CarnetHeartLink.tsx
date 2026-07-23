@@ -7,9 +7,8 @@
  */
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
-import { getCarnet } from "@/lib/carnet";
+import { useFavoritesCount } from "@/lib/useFavoritesCount";
 
 const ARIA_LABEL: Record<string, string> = {
   fr: "Mon carnet",
@@ -28,14 +27,7 @@ type Props = {
 };
 
 export default function CarnetHeartLink({ uiLang = "fr", color = "var(--ink-soft)" }: Props) {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    const update = () => setCount(getCarnet().favorites.length);
-    update();
-    window.addEventListener("wex-carnet-updated", update);
-    return () => window.removeEventListener("wex-carnet-updated", update);
-  }, []);
+  const count = useFavoritesCount() ?? 0;
 
   return (
     <Link

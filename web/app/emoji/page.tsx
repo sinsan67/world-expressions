@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
+import PlayWithCardsCta from "@/components/PlayWithCardsCta";
 import { tagIcon } from "@/lib/tagIcons";
 import { getConcepts, ConceptItem } from "@/lib/api";
 import { DOMAIN_DEFS, DOMAIN_COLORS, DomainDef } from "@/lib/domainDefs";
@@ -806,6 +807,9 @@ export default function ConceptsPage() {
 
         </div>
       </main>
+
+      {/* Context = the open domain (nothing when browsing the full grid). */}
+      <PlayWithCardsCta uiLang={uiLang} filters={{ domain: activeDomain ?? "" }} />
 
       <BottomNav uiLang={uiLang} />
     </div>

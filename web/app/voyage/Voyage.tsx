@@ -5,8 +5,10 @@
  * docs/mockups/pivot-jeu-decouverte.html). Absorbs Random mode.
  *
  * Single client route holding all 3 phases in-component state (no separate
- * URLs per phase): setup (filters) → play (10 cards) → recap.
- * `?quick=1` (read server-side in page.tsx) skips setup entirely.
+ * URLs per phase, but the phase is mirrored into a `?screen=` query param —
+ * see the history/persistence block below): setup (filters) → play (10
+ * cards) → recap. `?quick=1` (read server-side in page.tsx) skips setup
+ * entirely.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -19,14 +21,20 @@ import {
   GameSessionFilters,
 } from "@/lib/api";
 import { getCarnet } from "@/lib/carnet";
-import { FLAG, COUNTRY_NAME, HERO_IMAGE_COUNTRIES } from "@/lib/constants";
-import { getTypeLabel } from "@/lib/typeLabels";
-import { EDITORIAL_DOMAINS } from "@/lib/editorialDomains";
+import { useScreenHistory } from "@/lib/useScreenHistory";
+import { buildExploreHref } from "@/lib/exploreLink";
+import {
+  saveVoyageSession,
+  loadVoyageSession,
+  clearVoyageSession,
+  saveLastFilters,
+} from "@/lib/voyagePersistence";
+import { HERO_IMAGE_COUNTRIES } from "@/lib/constants";
 import { useUILangContext } from "@/lib/UILangContext";
 import { VOYAGE_SETUP, VOYAGE_PLAY } from "@/lib/voyageLabels";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
-import VoyageSetup, { VoyageFilters } from "@/components/voyage/VoyageSetup";
+import VoyageSetup, { VoyageFilters, formatFiltersSummary } from "@/components/voyage/VoyageSetup";
 import VoyageCard from "@/components/voyage/VoyageCard";
 import VoyageRecap from "@/components/voyage/VoyageRecap";
 import ReportReasonPicker from "@/components/ReportReasonPicker";
@@ -35,7 +43,11 @@ type Phase = "setup" | "loading" | "play" | "recap";
 
 const EMPTY_FILTERS: VoyageFilters = { country: "", kind: "", domain: "" };
 
-export default function Voyage({ quick }: { quick: boolean }) {
+// `initialFilters` (lot N2) comes from the exploration pages' "Play with
+// these cards" CTA (?country/?kind/?domain read server-side in page.tsx) —
+// it seeds the setup screen, which VoyageSetup shows pre-filled with its
+// composer expanded.
+export default function Voyage({ quick, initialFilters }: { quick: boolean; initialFilters?: VoyageFilters }) {
   const { uiLang } = useUILangContext();
   const { data: authSession } = useSession();
   const t = VOYAGE_SETUP[uiLang] ?? VOYAGE_SETUP.en;
@@ -43,7 +55,7 @@ export default function Voyage({ quick }: { quick: boolean }) {
 
   const [phase, setPhase] = useState<Phase>(quick ? "loading" : "setup");
   const [session, setSession] = useState<GameSession | null>(null);
-  const [lastFilters, setLastFilters] = useState<VoyageFilters>(EMPTY_FILTERS);
+  const [lastFilters, setLastFilters] = useState<VoyageFilters>(initialFilters ?? EMPTY_FILTERS);
   const [lastQuick, setLastQuick] = useState(quick);
   const [cardIndex, setCardIndex] = useState(0);
   const [keptIds, setKeptIds] = useState<Set<string>>(new Set());
@@ -55,6 +67,19 @@ export default function Voyage({ quick }: { quick: boolean }) {
   // stale `starting` closure otherwise, silently no-op'ing every later call
   // (e.g. "Rejouer"). A ref is always current regardless of closure staleness.
   const startingRef = useRef(false);
+  // Guards the history/sessionStorage writes in startGame's success branch:
+  // if the player navigates away while postGameSession is in flight, those
+  // raw DOM/storage calls don't get silently dropped like a stale setState
+  // would — without this they'd rewrite the address bar for a screen the
+  // player already left.
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    // Must reset to true here, not just to false in the cleanup — React
+    // Strict Mode's dev-mode mount→unmount→remount dance would otherwise
+    // leave this stuck at false forever after the simulated unmount.
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   // expression_id currently flagged, if the ReportReasonPicker is open.
   const [reportingId, setReportingId] = useState<string | null>(null);
@@ -63,7 +88,20 @@ export default function Voyage({ quick }: { quick: boolean }) {
     setReportingId(expressionId);
   }, []);
 
-  const startGame = useCallback(async (filters: VoyageFilters, isQuick: boolean) => {
+  // Mirrors the phase into a `?screen=` history entry (raw History API, not
+  // router.push/replace — see useScreenHistory) so the Android/browser back
+  // button steps back through the game instead of leaving /voyage entirely.
+  const handleScreenPop = useCallback((value: string | null) => {
+    if (value === "play" || value === "recap") {
+      setPhase(value);
+    } else {
+      setPhase("setup");
+      clearVoyageSession();
+    }
+  }, []);
+  const { push: pushScreen, replace: replaceScreen, back: backScreen } = useScreenHistory("screen", handleScreenPop);
+
+  const startGame = useCallback(async (filters: VoyageFilters, isQuick: boolean, historyAction: "push" | "replace" = "push") => {
     if (startingRef.current) return;
     startingRef.current = true;
     setStarting(true);
@@ -80,6 +118,7 @@ export default function Voyage({ quick }: { quick: boolean }) {
             locale: uiLang,
           };
       const s = await postGameSession("voyage", clientId, apiFilters, userId);
+      if (!mountedRef.current) return;
       if (s.cards.length === 0) {
         setError("empty");
         setPhase((p) => (p === "loading" ? "setup" : p));
@@ -91,20 +130,58 @@ export default function Voyage({ quick }: { quick: boolean }) {
       setCardIndex(0);
       setKeptIds(new Set());
       setPhase("play");
+      if (!isQuick) saveLastFilters(filters);
+      if (historyAction === "push") pushScreen("play"); else replaceScreen("play");
     } catch {
+      if (!mountedRef.current) return;
       setError("server");
       setPhase((p) => (p === "loading" ? "setup" : p));
     } finally {
       startingRef.current = false;
       setStarting(false);
     }
-  }, [uiLang, authSession]);
+  }, [uiLang, authSession, pushScreen, replaceScreen]);
 
-  // Quick mode: fire the session request immediately on mount, no setup screen.
+  // On mount: either resume a game in progress (Android killed the WebView
+  // process and Next.js restarted fresh on /voyage?screen=play|recap — read
+  // the persisted round back from sessionStorage) or, for a genuine fresh
+  // quick-mode launch, fire the session request immediately (no setup
+  // screen). Folded into one effect so the two cases can't race each other.
   useEffect(() => {
-    if (quick) startGame(EMPTY_FILTERS, true);
+    const screenParam = new URLSearchParams(window.location.search).get("screen");
+    if (screenParam !== "play" && screenParam !== "recap") {
+      if (quick) startGame(EMPTY_FILTERS, true);
+      return;
+    }
+    const persisted = loadVoyageSession();
+    if (!persisted) {
+      // Stale/direct link: no game to resume — clean the URL and fall back.
+      replaceScreen(null);
+      if (quick) startGame(EMPTY_FILTERS, true);
+      return;
+    }
+    setSession(persisted.session);
+    setCardIndex(persisted.cardIndex);
+    setKeptIds(new Set(persisted.keptIds));
+    setLastFilters(persisted.lastFilters);
+    setLastQuick(persisted.lastQuick);
+    setPhase(persisted.phase);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Persist the in-progress round so it survives an Android process kill —
+  // cleared as soon as the player is back at setup (handleScreenPop above).
+  useEffect(() => {
+    if ((phase !== "play" && phase !== "recap") || !session) return;
+    saveVoyageSession({
+      phase,
+      session,
+      cardIndex,
+      keptIds: Array.from(keptIds),
+      lastFilters,
+      lastQuick,
+    });
+  }, [phase, session, cardIndex, keptIds, lastFilters, lastQuick]);
 
   const handleKeepToggle = useCallback((expressionId: string, kept: boolean) => {
     setKeptIds((prev) => {
@@ -124,26 +201,20 @@ export default function Voyage({ quick }: { quick: boolean }) {
     // without waiting for the network round-trip.
     patchGameSession(session.id, Array.from(keptIds)).catch(() => {});
     setPhase("recap");
-  }, [session, cardIndex, keptIds]);
+    replaceScreen("recap");
+  }, [session, cardIndex, keptIds, replaceScreen]);
 
   const handleReplay = useCallback(() => {
-    startGame(lastFilters, lastQuick);
+    startGame(lastFilters, lastQuick, "replace");
   }, [startGame, lastFilters, lastQuick]);
 
   const handleChangeFilters = useCallback(() => {
-    setPhase("setup");
-  }, []);
+    // Same mechanism as a real back-button press (handleScreenPop sets
+    // phase to "setup" once the popstate fires), so both stay in sync.
+    backScreen();
+  }, [backScreen]);
 
-  const domainLabel = (slug: string) => {
-    const d = EDITORIAL_DOMAINS.find((dm) => dm.slug === slug);
-    return d ? `${d.emoji} ${d.labels[uiLang as keyof typeof d.labels] ?? d.labels.en}` : "";
-  };
-
-  const filtersChip = [
-    lastFilters.country ? `${FLAG[lastFilters.country] ?? "🌍"} ${COUNTRY_NAME[lastFilters.country] ?? lastFilters.country}` : `🌍 ${t.allCountries}`,
-    lastFilters.kind ? getTypeLabel(lastFilters.kind, uiLang) : `✨ ${t.allKinds}`,
-    ...(lastFilters.domain ? [domainLabel(lastFilters.domain)] : []),
-  ].join(" · ");
+  const filtersChip = formatFiltersSummary(lastFilters, uiLang, t);
 
   const current = session?.cards[cardIndex];
   const countryCode = current ? (current.country || current.language) : "";
@@ -160,7 +231,7 @@ export default function Voyage({ quick }: { quick: boolean }) {
             initial={lastFilters}
             starting={starting}
             error={error}
-            onStart={(filters) => startGame(filters, false)}
+            onStart={(filters, isQuick) => startGame(filters, !!isQuick)}
           />
         )}
 
@@ -183,6 +254,7 @@ export default function Voyage({ quick }: { quick: boolean }) {
             }}>
               <Link
                 href="/"
+                onClick={() => clearVoyageSession()}
                 aria-label={playT.quitAria}
                 title={playT.quitAria}
                 style={{ color: "var(--ink-softer)", fontSize: 17, textDecoration: "none" }}
@@ -261,6 +333,7 @@ export default function Voyage({ quick }: { quick: boolean }) {
             uiLang={uiLang}
             cards={session.cards}
             keptCards={keptCards}
+            exploreHref={buildExploreHref(lastFilters, lastQuick)}
             onReplay={handleReplay}
             onChangeFilters={handleChangeFilters}
           />

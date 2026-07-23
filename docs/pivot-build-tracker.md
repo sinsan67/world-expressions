@@ -442,3 +442,21 @@ personal notes on favorites · SVG game build (see spike) · pairing & quiz.
   noting for the eventual PR: Codex's local `web/lib/api.ts` changes and
   Lot D's `web/lib/api.ts` changes (adds `reviewFavorite`) both touch the
   same file — a real merge point to watch once Codex's work is committed.
+- **2026-07-16 (S206)** — **Lot D (Révision) shipped to prod — games-hub
+  pivot complete.** PR #100 (`pivot/lot-d-revision` → `staging`) opened
+  and merged (`5f03bac`): `backend-tests` green, Vercel preview deployed,
+  the "test" check red was the known structural false-red on PRs targeting
+  staging (same as lots A/B/C/E/F). Staging QA: `/api/version` sha match,
+  `e2e/revision.spec.ts` 3/3 against staging (empty/locked/full playthrough
+  vs live backend), smoke HTTP 200 on `/`, `/revision`, `/collection`,
+  `/voyage`. Sinan's go → release PR #101 (`staging` → `main`) merged
+  clean (`85df05d`), all checks green (on PRs to main the "test" check
+  can pass since staging already serves the commit). Prod verified:
+  `/api/version` serves `85df05d`, smoke 200 on the same four pages.
+  **V-jeu-3 is live — the entire games-hub pivot started S194 (V-jeu-1
+  S199, V-jeu-2 S204, V-jeu-3 S206) is now closed.** Cleanup: worktree
+  `wex-lot-d-revision` removed, branch `pivot/lot-d-revision` deleted
+  (local + remote). Note: this tracker entry was committed from the
+  worktree via a direct push to `staging` — the main repo's working tree
+  still holds Sinan's uncommitted Codex phonetic changes (untouched) and
+  its local `staging` is behind origin until those are resolved.

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
+import PlayWithCardsCta from "@/components/PlayWithCardsCta";
 import { getCountries, CountryInfo } from "@/lib/api";
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
 import { useUILangContext } from "@/lib/UILangContext";
@@ -313,6 +314,9 @@ export default function AtlasPage() {
           )}
         </div>
       </main>
+
+      {/* Whole-globe context: no filters — /voyage opens on its presets. */}
+      <PlayWithCardsCta uiLang={uiLang} />
 
       <BottomNav uiLang={uiLang} />
     </div>

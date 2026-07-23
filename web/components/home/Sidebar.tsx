@@ -2,37 +2,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Home, Globe, Lightbulb, Search, Heart } from "lucide-react";
-import { getCarnet } from "@/lib/carnet";
+import { NAV_ITEMS, NAV_LABELS, NAV_ARIA_LABEL } from "@/components/home/navConfig";
+import { useFavoritesCount } from "@/lib/useFavoritesCount";
 import { getCountries, getGlobalStats, GlobalStats } from "@/lib/api";
-
-const BASE_NAV_ITEMS = [
-  { id: "home",      icon: Home,       href: "/",            count: undefined as number | undefined },
-  { id: "atlas",     icon: Globe,      href: "/atlas",       count: undefined as number | undefined },
-  { id: "random",    icon: null,       href: "/voyage?quick=1", count: undefined as number | undefined },
-  { id: "concepts",  icon: Lightbulb,  href: "/emoji",       count: undefined as number | undefined },
-  { id: "search",    icon: Search,     href: "/search",      count: undefined as number | undefined },
-  { id: "carnet",    icon: Heart,      href: "/collection",  count: undefined as number | undefined },
-];
-
-const NAV_LABELS: Record<string, Record<string, string>> = {
-  home:      { fr: "Accueil",      en: "Home",       es: "Inicio",      it: "Home",               tr: "Ana sayfa", de: "Startseite",     ja: "ホーム" },
-  atlas:     { fr: "Atlas",        en: "Atlas",       es: "Atlas",       it: "Atlante",            tr: "Atlas",     de: "Atlas",           ja: "地図" },
-  random:    { fr: "Au hasard !",  en: "Random mode", es: "Modo aleatorio", it: "Modalità casuale", tr: "Rastgele mod", de: "Zufallsmodus", ja: "ランダムモード" },
-  concepts:  { fr: "Concepts",     en: "Concepts",    es: "Conceptos",   it: "Concetti",           tr: "Kavramlar", de: "Konzepte",        ja: "概念" },
-  search:    { fr: "Rechercher",   en: "Search",      es: "Buscar",      it: "Cerca",              tr: "Ara",       de: "Suchen",          ja: "検索" },
-  carnet:    { fr: "Mon carnet",   en: "My notebook", es: "Mi cuaderno", it: "Il mio taccuino",    tr: "Defterim",  de: "Mein Notizbuch",  ja: "ノート" },
-};
-
-const NAV_ARIA_LABEL: Record<string, string> = {
-  fr: "Navigation principale",
-  en: "Main navigation",
-  es: "Navegación principal",
-  it: "Navigazione principale",
-  tr: "Ana gezinme",
-  de: "Hauptnavigation",
-  ja: "メインナビゲーション",
-};
+import type { UILang } from "@/lib/useUILang";
 
 const TAGLINE: Record<string, string> = {
   fr: "Chaque langue a sa propre folie.",
@@ -44,7 +17,7 @@ const TAGLINE: Record<string, string> = {
   ja: "沈黙は金、雄弁は銀。",
 };
 
-// Footer stat line — counts come live from the API (single source of truth).
+// Stat line — counts come live from the API (single source of truth).
 const STATS_LABEL: Record<string, { expressions: (n: string) => string; languages: (n: string) => string; countries: (n: string) => string }> = {
   fr: { expressions: (n) => `${n} expressions`,  languages: (n) => `${n} langues`,   countries: (n) => `${n} pays` },
   en: { expressions: (n) => `${n} expressions`,  languages: (n) => `${n} languages`, countries: (n) => `${n} countries` },
@@ -56,34 +29,19 @@ const STATS_LABEL: Record<string, { expressions: (n: string) => string; language
 };
 
 type Props = {
-  uiLang: string;
+  uiLang: UILang;
 };
 
 export default function Sidebar({ uiLang }: Props) {
   const pathname = usePathname();
-  const [favCount, setFavCount] = useState<number | undefined>(undefined);
+  const favCount = useFavoritesCount();
   const [countryCount, setCountryCount] = useState<number | undefined>(undefined);
   const [globalStats, setGlobalStats] = useState<GlobalStats | null>(null);
-
-  useEffect(() => {
-    const update = () => {
-      const n = getCarnet().favorites.length;
-      setFavCount(n > 0 ? n : undefined);
-    };
-    update();
-    window.addEventListener("wex-carnet-updated", update);
-    return () => window.removeEventListener("wex-carnet-updated", update);
-  }, []);
 
   useEffect(() => {
     getCountries().then((countries) => setCountryCount(countries.length));
     getGlobalStats().then(setGlobalStats).catch(() => {});
   }, []);
-
-  const navItems = BASE_NAV_ITEMS.map((item) => {
-    if (item.id === "favorites") return { ...item, count: favCount };
-    return item;
-  });
 
   return (
     <aside
@@ -118,7 +76,7 @@ export default function Sidebar({ uiLang }: Props) {
         aria-label={NAV_ARIA_LABEL[uiLang] ?? NAV_ARIA_LABEL.en}
         style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}
       >
-        {navItems.map((item) => {
+        {NAV_ITEMS.map((item) => {
           const isActive = item.href !== null && pathname === item.href;
 
           // Random mode: plum action button — it launches an experience,
@@ -161,6 +119,7 @@ export default function Sidebar({ uiLang }: Props) {
               </Link>
             );
           }
+          const count = item.id === "collection" ? favCount : undefined;
           const sharedStyle = {
             display: "flex",
             alignItems: "center",
@@ -177,7 +136,7 @@ export default function Sidebar({ uiLang }: Props) {
             textAlign: "left" as const,
           };
           const iconColor = isActive
-            ? (item.id === "favorites" ? "var(--terra)" : "var(--plum)")
+            ? (item.id === "collection" ? "var(--terra)" : "var(--plum)")
             : "var(--ink-soft)";
           const inner = (
             <>
@@ -186,11 +145,11 @@ export default function Sidebar({ uiLang }: Props) {
                 size={17}
                 strokeWidth={1.5}
                 color={iconColor}
-                fill={isActive && item.id === "favorites" ? "var(--terra)" : "none"}
+                fill={isActive && item.id === "collection" ? "var(--terra)" : "none"}
               />}
               <span style={{ flex: 1 }}>{NAV_LABELS[item.id]?.[uiLang] ?? NAV_LABELS[item.id]?.en}</span>
-              {item.count !== undefined && (
-                <span style={{ fontSize: 11, color: "var(--ink-softer)" }}>{item.count}</span>
+              {count !== undefined && count > 0 && (
+                <span style={{ fontSize: 11, color: "var(--ink-softer)" }}>{count}</span>
               )}
             </>
           );
@@ -218,22 +177,8 @@ export default function Sidebar({ uiLang }: Props) {
       <div style={{ flex: 1 }} />
       <div style={{ margin: "1rem 0 0.5rem", height: 1, background: "var(--paper-edge)" }} />
 
-      {/* Footer */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-        <a href="mailto:worldsexpressions@proton.me" style={{ fontSize: 12, color: "var(--ink-softer)", textDecoration: "none", fontFamily: "var(--font-body)" }}>
-          Contact
-        </a>
-        <a href="https://www.instagram.com/world.expressions" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: "var(--ink-softer)", textDecoration: "none", fontFamily: "var(--font-body)" }}>
-          Instagram
-        </a>
-        <a href="/about" style={{ fontSize: 12, color: "var(--ink-softer)", textDecoration: "none", fontFamily: "var(--font-body)" }}>
-          About
-        </a>
-        <a href="/emoji-map" style={{ fontSize: 12, color: "var(--ink-softer)", textDecoration: "none", fontFamily: "var(--font-body)" }}>
-          Emoji map
-        </a>
-      </div>
-      <p style={{ fontSize: 11, color: "var(--ink-softer)", marginTop: "0.75rem", fontFamily: "var(--font-body)", lineHeight: 1.5 }}>
+      {/* Stats — Contact/Instagram/About/Emoji map moved to Profil (Lot N1) */}
+      <p style={{ fontSize: 11, color: "var(--ink-softer)", fontFamily: "var(--font-body)", lineHeight: 1.5 }}>
         {(() => {
           const s = STATS_LABEL[uiLang] ?? STATS_LABEL.en;
           const fmt = (n: number | undefined) => n !== undefined ? n.toLocaleString(uiLang) : "…";

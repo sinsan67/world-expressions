@@ -394,8 +394,202 @@ export const EDITORIAL_DOMAINS: EditorialDomain[] = [
       ja: "稼ぐ、失う、値する、無駄にする",
     },
   },
+  {
+    slug: "knowledge",
+    emoji: "📖",
+    bg: "linear-gradient(135deg, #eff6ff 0%, #bfdbfe 100%)",
+    border: "#93c5fd",
+    labels: {
+      fr: "Le savoir & la vérité",
+      en: "Knowledge & truth",
+      es: "El saber & la verdad",
+      it: "Il sapere & la verità",
+      tr: "Bilgi & gerçek",
+      de: "Wissen & Wahrheit",
+      ja: "知恵と真実",
+    },
+    desc: {
+      fr: "Apprendre, comprendre, se tromper, retenir la leçon",
+      en: "Learn, understand, be wrong, remember the lesson",
+      es: "Aprender, comprender, equivocarse, recordar la lección",
+      it: "Imparare, capire, sbagliare, ricordare la lezione",
+      tr: "Öğrenmek, anlamak, yanılmak, dersi hatırlamak",
+      de: "Lernen, verstehen, sich irren, die Lehre behalten",
+      ja: "学ぶ、理解する、間違える、教訓を胸に刻む",
+    },
+  },
+  {
+    slug: "justice",
+    emoji: "⚖️",
+    bg: "linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%)",
+    border: "#94a3b8",
+    labels: {
+      fr: "La justice & le jugement",
+      en: "Justice & judgment",
+      es: "La justicia & el juicio",
+      it: "La giustizia & il giudizio",
+      tr: "Adalet & yargı",
+      de: "Gerechtigkeit & Urteil",
+      ja: "正義と裁き",
+    },
+    desc: {
+      fr: "Juger, punir, réparer, rendre des comptes",
+      en: "Judge, punish, make amends, answer for it",
+      es: "Juzgar, castigar, reparar, rendir cuentas",
+      it: "Giudicare, punire, riparare, renderne conto",
+      tr: "Yargılamak, cezalandırmak, telafi etmek, hesap vermek",
+      de: "Richten, bestrafen, wiedergutmachen, Rechenschaft ablegen",
+      ja: "裁く、罰する、償う、責任を取る",
+    },
+  },
+  {
+    slug: "change",
+    emoji: "🦋",
+    bg: "linear-gradient(135deg, #f0fdfa 0%, #99f6e4 100%)",
+    border: "#5eead4",
+    labels: {
+      fr: "Le changement & la métamorphose",
+      en: "Change & transformation",
+      es: "El cambio & la metamorfosis",
+      it: "Il cambiamento & la metamorfosi",
+      tr: "Değişim & dönüşüm",
+      de: "Wandel & Verwandlung",
+      ja: "変化と変容",
+    },
+    desc: {
+      fr: "Se transformer, s'adapter, tourner la page",
+      en: "Transform, adapt, turn the page",
+      es: "Transformarse, adaptarse, pasar página",
+      it: "Trasformarsi, adattarsi, voltare pagina",
+      tr: "Dönüşmek, uyum sağlamak, sayfayı çevirmek",
+      de: "Sich wandeln, sich anpassen, ein neues Kapitel aufschlagen",
+      ja: "変わる、適応する、新しいページをめくる",
+    },
+  },
+  {
+    slug: "food",
+    emoji: "🍽️",
+    bg: "linear-gradient(135deg, #fef6e4 0%, #f3d9a4 100%)",
+    border: "#e0b978",
+    labels: {
+      fr: "Le pain & la table",
+      en: "Bread & the table",
+      es: "El pan & la mesa",
+      it: "Il pane & la tavola",
+      tr: "Ekmek & sofra",
+      de: "Brot & Tisch",
+      ja: "パンと食卓",
+    },
+    desc: {
+      fr: "Manger, partager, cuisiner, se nourrir",
+      en: "Eat, share, cook, nourish yourself",
+      es: "Comer, compartir, cocinar, alimentarse",
+      it: "Mangiare, condividere, cucinare, nutrirsi",
+      tr: "Yemek, paylaşmak, pişirmek, beslenmek",
+      de: "Essen, teilen, kochen, sich nähren",
+      ja: "食べる、分かち合う、料理する、育む",
+    },
+  },
 ];
+
+// Native-speaker proofreading welcome for the 4 domains above (knowledge,
+// justice, change, food), especially tr/ja — same convention as voyageLabels.ts.
+// They already exist as plain entries in domainDefs.ts (used by the Concepts
+// page's full 20-domain browse grid + /search?domain=) — these are their
+// editorial/poetic counterparts, curated for the Voyage picker specifically,
+// same pattern as the other 16. Emoji kept aligned with domainDefs.ts
+// (knowledge 📖, food 🍽️) so the same domain doesn't wear two different
+// icons depending on which page a user arrives from.
 
 export const EDITORIAL_DOMAIN_MAP: Record<string, EditorialDomain> = Object.fromEntries(
   EDITORIAL_DOMAINS.map((d) => [d.slug, d])
 );
+
+// Second level: purely presentational grouping for the Voyage composer's
+// accordion (Lot "carte pays" — QA session 21/07). The filter value sent to
+// the API is always a leaf EditorialDomain slug, exactly as before — grouping
+// only changes how the 20 pills are chunked visually, nothing in the backend
+// or the /random /search contract changes.
+export type DomainGroup = {
+  slug: string;
+  emoji: string;
+  labels: Record<UILang, string>;
+  children: string[];
+};
+
+export const DOMAIN_GROUPS: DomainGroup[] = [
+  {
+    slug: "wisdom-time",
+    emoji: "🧠",
+    labels: {
+      fr: "Sagesse, savoir & temps", en: "Wisdom, knowledge & time",
+      es: "Sabiduría, saber & tiempo", it: "Saggezza, sapere & tempo",
+      tr: "Bilgelik, bilgi & zaman", de: "Weisheit, Wissen & Zeit", ja: "知恵・知識と時間",
+    },
+    children: ["wisdom", "knowledge", "time", "change"],
+  },
+  {
+    slug: "words-conflict",
+    emoji: "🗣️",
+    labels: {
+      fr: "Mots, mensonges, rires & conflits", en: "Words, lies, laughter & conflict",
+      es: "Palabras, mentiras, risas & conflictos", it: "Parole, bugie, risate & conflitti",
+      tr: "Sözler, yalanlar, gülüş & çatışma", de: "Worte, Lügen, Lachen & Konflikt", ja: "言葉・嘘・笑いと争い",
+    },
+    children: ["speech", "morality", "humor", "conflict", "justice"],
+  },
+  {
+    slug: "emotions",
+    emoji: "💛",
+    labels: {
+      fr: "Tempêtes intérieures", en: "Inner storms", es: "Tormentas interiores",
+      it: "Tempeste interiori", tr: "İç fırtınalar", de: "Innere Stürme", ja: "心の嵐",
+    },
+    children: ["emotions"],
+  },
+  {
+    slug: "effort-ambition",
+    emoji: "👑",
+    labels: {
+      fr: "Effort & ambition", en: "Effort & ambition", es: "Esfuerzo & ambición",
+      it: "Sforzo & ambizione", tr: "Çaba & hırs", de: "Mühe & Ehrgeiz", ja: "努力と野心",
+    },
+    children: ["work", "ambition"],
+  },
+  {
+    slug: "money-luck",
+    emoji: "💰",
+    labels: {
+      fr: "Argent & hasard", en: "Money & luck", es: "Dinero & suerte",
+      it: "Soldi & fortuna", tr: "Para & şans", de: "Geld & Glück", ja: "お金と運",
+    },
+    children: ["money", "luck"],
+  },
+  {
+    slug: "pleasure-love",
+    emoji: "❤️",
+    labels: {
+      fr: "Plaisirs, amour & saveurs", en: "Pleasure, love & flavors", es: "Placeres, amor & sabores",
+      it: "Piaceri, amore & sapori", tr: "Zevkler, aşk & lezzetler", de: "Genuss, Liebe & Genüsse", ja: "喜び・愛と味わい",
+    },
+    children: ["relations", "pleasure", "food"],
+  },
+  {
+    slug: "body-nature",
+    emoji: "🌿",
+    labels: {
+      fr: "Corps & nature", en: "Body & nature", es: "Cuerpo & naturaleza",
+      it: "Corpo & natura", tr: "Beden & doğa", de: "Körper & Natur", ja: "体と自然",
+    },
+    children: ["body", "nature"],
+  },
+  {
+    slug: "travel",
+    emoji: "🌍",
+    labels: {
+      fr: "Chemins du monde", en: "Roads of the world", es: "Caminos del mundo",
+      it: "Cammini del mondo", tr: "Dünyanın yolları", de: "Wege der Welt", ja: "世界の道",
+    },
+    children: ["travel"],
+  },
+];

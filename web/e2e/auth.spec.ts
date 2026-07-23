@@ -90,3 +90,20 @@ test.describe('Auth — register / login / logout', () => {
     await expect(page.getByTestId('auth-btn-main')).toBeVisible({ timeout: T });
   });
 });
+
+// Lot N1 (atelier S208 décision 3): Instagram/About/Contact moved from the
+// Sidebar footer into a new "about" tab on /profile — auth-agnostic (renders
+// logged out), so no login step needed here.
+test.describe('Profile — onglet À propos (Lot N1)', () => {
+  test('#A6 /profile#about affiche les liens About/Instagram/Contact, sans connexion requise', async ({ page }) => {
+    await page.goto('/profile#about');
+    await expect(page.locator('a[href="/about"]')).toBeVisible({ timeout: T });
+    await expect(page.locator('a[href="https://www.instagram.com/world.expressions"]')).toBeVisible({ timeout: T });
+    await expect(page.locator('a[href="mailto:worldsexpressions@proton.me"]')).toBeVisible({ timeout: T });
+  });
+
+  test('#A7 /instagram redirige vers /profile#about', async ({ page }) => {
+    await page.goto('/instagram');
+    await expect(page).toHaveURL(/\/profile#about/, { timeout: T });
+  });
+});

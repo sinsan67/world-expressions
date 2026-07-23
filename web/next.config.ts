@@ -17,6 +17,10 @@ const nextConfig: NextConfig = {
       // /emojis was one letter away from /emoji (Concepts) — renamed to match its nav label "Emoji map"
       { source: "/emojis", destination: "/emoji-map", permanent: true },
       { source: "/random-mode", destination: "/voyage", permanent: true },
+      // Lot N1 archival (atelier S208 décision 3):
+      { source: "/emoji-map", destination: "/emoji", permanent: true },
+      { source: "/instagram", destination: "/profile#about", permanent: true },
+      { source: "/regions", destination: "/country/fr", permanent: true },
     ];
   },
 };

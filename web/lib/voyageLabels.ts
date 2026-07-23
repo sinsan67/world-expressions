@@ -19,6 +19,21 @@ export type VoyageSetupLabels = {
   cards: string;
   empty: string;
   serverError: string;
+  countriesError: string;
+  retry: string;
+  // Presets (Lot S, S210) — one-tap starts above the collapsible composer.
+  presetSurprise: string;
+  presetSurpriseDesc: string;
+  presetDaily: string;
+  presetDailyDesc: (country: string) => string;
+  presetProverbs: string;
+  presetProverbsDesc: string;
+  presetLastTime: string;
+  composeToggle: string;
+  orDivider: string;
+  randomCountryAria: string;
+  randomKindAria: string;
+  randomDomainAria: string;
 };
 
 export type VoyagePlayLabels = {
@@ -34,6 +49,7 @@ export type VoyagePlayLabels = {
   keptBtn: string;
   nextBtn: string;
   reportAria: string;
+  listenAria: string;
   cardCounter: (current: number, total: number) => string;
 };
 
@@ -46,6 +62,7 @@ export type VoyageRecapLabels = {
   kept: (count: number) => string;
   collectionUpdate: string;
   replay: string;
+  explore: string;
   changeFilters: string;
   viewCollection: string;
   emptyKept: string;
@@ -64,6 +81,20 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     cards: "cartes",
     empty: "Aucune expression pour ces filtres — essaie une autre combinaison.",
     serverError: "Le serveur ne répond pas — réessaie dans un instant.",
+    countriesError: "Impossible de charger les pays.",
+    retry: "Réessayer",
+    presetSurprise: "Surprends-moi",
+    presetSurpriseDesc: "Tout le globe, tout mélangé",
+    presetDaily: "Destination du jour",
+    presetDailyDesc: (country) => `Aujourd'hui : ${country} — demain, un autre pays`,
+    presetProverbs: "Proverbes du monde",
+    presetProverbsDesc: "La sagesse de tous les pays",
+    presetLastTime: "Comme la dernière fois",
+    composeToggle: "Composer mon voyage",
+    orDivider: "ou",
+    randomCountryAria: "Choisir un pays au hasard",
+    randomKindAria: "Choisir un type au hasard",
+    randomDomainAria: "Choisir un thème au hasard",
   },
   en: {
     title: "Voyage",
@@ -77,6 +108,20 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     cards: "cards",
     empty: "No expression for these filters — try another combination.",
     serverError: "The server isn't responding — try again in a moment.",
+    countriesError: "Couldn't load countries.",
+    retry: "Retry",
+    presetSurprise: "Surprise me",
+    presetSurpriseDesc: "The whole globe, all mixed up",
+    presetDaily: "Destination of the day",
+    presetDailyDesc: (country) => `Today: ${country} — tomorrow, a new country`,
+    presetProverbs: "Proverbs of the world",
+    presetProverbsDesc: "Wisdom from every country",
+    presetLastTime: "Same as last time",
+    composeToggle: "Compose your journey",
+    orDivider: "or",
+    randomCountryAria: "Pick a random country",
+    randomKindAria: "Pick a random type",
+    randomDomainAria: "Pick a random theme",
   },
   es: {
     title: "Viaje",
@@ -90,6 +135,20 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     cards: "cartas",
     empty: "No hay expresiones para estos filtros — prueba otra combinación.",
     serverError: "El servidor no responde — inténtalo de nuevo en un momento.",
+    countriesError: "No se pudieron cargar los países.",
+    retry: "Reintentar",
+    presetSurprise: "Sorpréndeme",
+    presetSurpriseDesc: "Todo el mundo, todo mezclado",
+    presetDaily: "Destino del día",
+    presetDailyDesc: (country) => `Hoy: ${country} — mañana, otro país`,
+    presetProverbs: "Proverbios del mundo",
+    presetProverbsDesc: "La sabiduría de todos los países",
+    presetLastTime: "Como la última vez",
+    composeToggle: "Diseñar mi viaje",
+    orDivider: "o",
+    randomCountryAria: "Elegir un país al azar",
+    randomKindAria: "Elegir un tipo al azar",
+    randomDomainAria: "Elegir un tema al azar",
   },
   it: {
     title: "Viaggio",
@@ -103,6 +162,20 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     cards: "carte",
     empty: "Nessuna espressione per questi filtri — prova un'altra combinazione.",
     serverError: "Il server non risponde — riprova tra un momento.",
+    countriesError: "Impossibile caricare i paesi.",
+    retry: "Riprova",
+    presetSurprise: "Sorprendimi",
+    presetSurpriseDesc: "Tutto il mondo, tutto mescolato",
+    presetDaily: "Destinazione del giorno",
+    presetDailyDesc: (country) => `Oggi: ${country} — domani, un altro paese`,
+    presetProverbs: "Proverbi del mondo",
+    presetProverbsDesc: "La saggezza di tutti i paesi",
+    presetLastTime: "Come l'ultima volta",
+    composeToggle: "Componi il tuo viaggio",
+    orDivider: "oppure",
+    randomCountryAria: "Scegli un paese a caso",
+    randomKindAria: "Scegli un tipo a caso",
+    randomDomainAria: "Scegli un tema a caso",
   },
   tr: {
     title: "Yolculuk",
@@ -116,6 +189,20 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     cards: "kart",
     empty: "Bu filtreler için deyim yok — başka bir kombinasyon dene.",
     serverError: "Sunucu yanıt vermiyor — birazdan tekrar dene.",
+    countriesError: "Ülkeler yüklenemedi.",
+    retry: "Tekrar dene",
+    presetSurprise: "Beni şaşırt",
+    presetSurpriseDesc: "Tüm dünya, birbirine karışmış",
+    presetDaily: "Günün destinasyonu",
+    presetDailyDesc: (country) => `Bugün: ${country} — yarın başka bir ülke`,
+    presetProverbs: "Dünyanın atasözleri",
+    presetProverbsDesc: "Tüm ülkelerin bilgeliği",
+    presetLastTime: "Geçen sefer gibi",
+    composeToggle: "Yolculuğumu tasarla",
+    orDivider: "ya da",
+    randomCountryAria: "Rastgele bir ülke seç",
+    randomKindAria: "Rastgele bir tür seç",
+    randomDomainAria: "Rastgele bir tema seç",
   },
   de: {
     title: "Reise",
@@ -129,6 +216,20 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     cards: "Karten",
     empty: "Keine Ausdrücke für diese Filter — versuch eine andere Kombination.",
     serverError: "Der Server antwortet nicht — versuch es gleich noch einmal.",
+    countriesError: "Länder konnten nicht geladen werden.",
+    retry: "Erneut versuchen",
+    presetSurprise: "Überrasch mich",
+    presetSurpriseDesc: "Die ganze Welt, alles gemischt",
+    presetDaily: "Reiseziel des Tages",
+    presetDailyDesc: (country) => `Heute: ${country} — morgen ein anderes Land`,
+    presetProverbs: "Sprichwörter der Welt",
+    presetProverbsDesc: "Die Weisheit aller Länder",
+    presetLastTime: "Wie beim letzten Mal",
+    composeToggle: "Meine Reise zusammenstellen",
+    orDivider: "oder",
+    randomCountryAria: "Zufälliges Land wählen",
+    randomKindAria: "Zufälligen Typ wählen",
+    randomDomainAria: "Zufälliges Thema wählen",
   },
   ja: {
     title: "旅",
@@ -142,6 +243,20 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     cards: "枚",
     empty: "この条件に合う表現がありません — 別の組み合わせを試してみましょう。",
     serverError: "サーバーが応答していません — もう一度お試しください。",
+    countriesError: "国の一覧を読み込めませんでした。",
+    retry: "再試行",
+    presetSurprise: "サプライズにお任せ",
+    presetSurpriseDesc: "世界中をぜんぶミックス",
+    presetDaily: "今日の旅先",
+    presetDailyDesc: (country) => `今日は：${country} — 明日はまた別の国`,
+    presetProverbs: "世界のことわざ",
+    presetProverbsDesc: "すべての国の知恵",
+    presetLastTime: "前回と同じ設定で",
+    composeToggle: "旅をカスタマイズ",
+    orDivider: "または",
+    randomCountryAria: "国をランダムに選ぶ",
+    randomKindAria: "タイプをランダムに選ぶ",
+    randomDomainAria: "テーマをランダムに選ぶ",
   },
 };
 
@@ -159,6 +274,7 @@ export const VOYAGE_PLAY: Record<Lang, VoyagePlayLabels> = {
     keptBtn: "❤️ Gardée !",
     nextBtn: "Suivante ⏭",
     reportAria: "Signaler cette expression",
+    listenAria: "Écouter la prononciation",
     cardCounter: (c, t) => `carte ${c}/${t}`,
   },
   en: {
@@ -174,6 +290,7 @@ export const VOYAGE_PLAY: Record<Lang, VoyagePlayLabels> = {
     keptBtn: "❤️ Kept!",
     nextBtn: "Next ⏭",
     reportAria: "Report this expression",
+    listenAria: "Listen to the pronunciation",
     cardCounter: (c, t) => `card ${c}/${t}`,
   },
   es: {
@@ -189,6 +306,7 @@ export const VOYAGE_PLAY: Record<Lang, VoyagePlayLabels> = {
     keptBtn: "❤️ ¡Guardada!",
     nextBtn: "Siguiente ⏭",
     reportAria: "Reportar esta expresión",
+    listenAria: "Escuchar la pronunciación",
     cardCounter: (c, t) => `carta ${c}/${t}`,
   },
   it: {
@@ -204,6 +322,7 @@ export const VOYAGE_PLAY: Record<Lang, VoyagePlayLabels> = {
     keptBtn: "❤️ Conservata!",
     nextBtn: "Successiva ⏭",
     reportAria: "Segnala questa espressione",
+    listenAria: "Ascolta la pronuncia",
     cardCounter: (c, t) => `carta ${c}/${t}`,
   },
   tr: {
@@ -219,6 +338,7 @@ export const VOYAGE_PLAY: Record<Lang, VoyagePlayLabels> = {
     keptBtn: "❤️ Saklandı!",
     nextBtn: "Sonraki ⏭",
     reportAria: "Bu deyimi bildir",
+    listenAria: "Telaffuzu dinle",
     cardCounter: (c, t) => `kart ${c}/${t}`,
   },
   de: {
@@ -234,6 +354,7 @@ export const VOYAGE_PLAY: Record<Lang, VoyagePlayLabels> = {
     keptBtn: "❤️ Behalten!",
     nextBtn: "Weiter ⏭",
     reportAria: "Diesen Ausdruck melden",
+    listenAria: "Aussprache anhören",
     cardCounter: (c, t) => `Karte ${c}/${t}`,
   },
   ja: {
@@ -249,6 +370,7 @@ export const VOYAGE_PLAY: Record<Lang, VoyagePlayLabels> = {
     keptBtn: "❤️ 残しました！",
     nextBtn: "次へ ⏭",
     reportAria: "この表現を報告",
+    listenAria: "発音を聞く",
     cardCounter: (c, t) => `カード ${c}/${t}`,
   },
 };
@@ -269,6 +391,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 cartes vues — tu as gardé ${n} expression${n > 1 ? "s" : ""}`,
     collectionUpdate: "Ta collection s'agrandit !",
     replay: "Rejouer ▸",
+    explore: "Explorer ces expressions 🧭",
     changeFilters: "Changer les filtres",
     viewCollection: "Voir ma collection ❤️",
     emptyKept: "Aucune carte gardée cette fois — retente ta chance !",
@@ -278,6 +401,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 cards seen — you kept ${n} expression${n > 1 ? "s" : ""}`,
     collectionUpdate: "Your collection is growing!",
     replay: "Replay ▸",
+    explore: "Explore these expressions 🧭",
     changeFilters: "Change filters",
     viewCollection: "View my collection ❤️",
     emptyKept: "No cards kept this time — give it another go!",
@@ -287,6 +411,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 cartas vistas — guardaste ${n} ${n === 1 ? "expresión" : "expresiones"}`,
     collectionUpdate: "¡Tu colección crece!",
     replay: "Jugar de nuevo ▸",
+    explore: "Explorar estas expresiones 🧭",
     changeFilters: "Cambiar filtros",
     viewCollection: "Ver mi colección ❤️",
     emptyKept: "No guardaste ninguna carta esta vez — ¡inténtalo de nuevo!",
@@ -296,6 +421,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 carte viste — hai conservato ${n} ${n === 1 ? "espressione" : "espressioni"}`,
     collectionUpdate: "La tua collezione cresce!",
     replay: "Rigioca ▸",
+    explore: "Esplora queste espressioni 🧭",
     changeFilters: "Cambia filtri",
     viewCollection: "Vedi la mia collezione ❤️",
     emptyKept: "Nessuna carta conservata questa volta — riprova!",
@@ -305,6 +431,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 kart görüldü — ${n} deyim sakladın`,
     collectionUpdate: "Koleksiyonun büyüyor!",
     replay: "Yeniden oyna ▸",
+    explore: "Bu deyimleri keşfet 🧭",
     changeFilters: "Filtreleri değiştir",
     viewCollection: "Koleksiyonumu gör ❤️",
     emptyKept: "Bu sefer hiç kart saklamadın — bir şans daha dene!",
@@ -314,6 +441,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 Karten gesehen — du hast ${n} ${n === 1 ? "Ausdruck" : "Ausdrücke"} behalten`,
     collectionUpdate: "Deine Sammlung wächst!",
     replay: "Nochmal spielen ▸",
+    explore: "Diese Ausdrücke erkunden 🧭",
     changeFilters: "Filter ändern",
     viewCollection: "Meine Sammlung ansehen ❤️",
     emptyKept: "Diesmal keine Karte behalten — versuch's nochmal!",
@@ -323,6 +451,7 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10枚のカードを見ました — ${n}個の表現を残しました`,
     collectionUpdate: "コレクションが増えていきます！",
     replay: "もう一度遊ぶ ▸",
+    explore: "これらの表現を探索 🧭",
     changeFilters: "フィルターを変更",
     viewCollection: "マイコレクションを見る ❤️",
     emptyKept: "今回は残したカードがありませんでした — もう一度挑戦してみましょう！",

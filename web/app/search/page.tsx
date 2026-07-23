@@ -4,6 +4,8 @@ import { useState, useCallback, useEffect, useRef, useMemo, Suspense } from "rea
 import { useRouter, useSearchParams } from "next/navigation";
 import EmptyStateRebound from "@/components/home/EmptyStateRebound";
 import ExpressionCard from "@/components/ExpressionCard";
+import ExpressionSheet from "@/components/ExpressionSheet";
+import { useScreenHistory } from "@/lib/useScreenHistory";
 import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
 import SearchBar from "@/components/ui/SearchBar";
@@ -324,6 +326,57 @@ function SearchPageContent() {
     };
   }, [results, detectedSearchLang, displayMode, sortMode]);
 
+  // ─── Expression bottom-sheet (lot N2) ───
+  // Opening a result card slides a sheet OVER the list instead of navigating
+  // away — the results list must never die (atelier S208, décision 2). The
+  // open card is mirrored into a `?sheet=` history entry via the same helper
+  // as /voyage's `?screen=`, so browser/Android back closes the sheet, never
+  // the search. Raw History API on purpose: the search effects key off
+  // useSearchParams(), which pushState doesn't touch, so results and scroll
+  // survive untouched.
+
+  const [sheetId, setSheetId] = useState<string | null>(null);
+  const [sheetExpr, setSheetExpr] = useState<Expression | null>(null);
+  // Whether the current sheet entry was pushed by a tap — a deep link lands
+  // with ?sheet= already in the URL, closing it must replace, not back()
+  // (back() would leave /search entirely).
+  const sheetPushedRef = useRef(false);
+
+  const handleSheetPop = useCallback((value: string | null) => {
+    setSheetId(value);
+    setSheetExpr((prev) => (value && prev && prev.id === value ? prev : null));
+    sheetPushedRef.current = !!value;
+  }, []);
+  const { push: pushSheet, replace: replaceSheet, back: backSheet } = useScreenHistory("sheet", handleSheetPop);
+
+  const openSheet = useCallback((expr: Expression) => {
+    setSheetExpr(expr);
+    setSheetId(expr.id);
+    sheetPushedRef.current = true;
+    pushSheet(expr.id);
+  }, [pushSheet]);
+
+  const closeSheet = useCallback(() => {
+    if (sheetPushedRef.current) {
+      // Unwind the entry we pushed — the popstate → handleSheetPop(null)
+      // path does the actual closing, identical to a real back press.
+      backSheet();
+    } else {
+      replaceSheet(null);
+      setSheetId(null);
+      setSheetExpr(null);
+    }
+  }, [backSheet, replaceSheet]);
+
+  // Deep link / reload with ?sheet=<id>: reopen it (the sheet fetches by id).
+  useEffect(() => {
+    const v = new URLSearchParams(window.location.search).get("sheet");
+    if (v) {
+      setSheetId(v);
+      sheetPushedRef.current = false;
+    }
+  }, []);
+
   // ─── Handlers ───
 
   const runSearch = useCallback(async (q: string, concept: string, domain: string, rf: string[], _allCodes: string[], lang: UILang, tf: string | null = null) => {
@@ -512,7 +565,7 @@ function SearchPageContent() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
           {exprs.map((expr, i) => (
             <div key={expr.id} style={{ height: "100%", animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
-              <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} />
+              <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} onOpen={openSheet} />
             </div>
           ))}
         </div>
@@ -707,7 +760,7 @@ function SearchPageContent() {
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
                           {bridgeExprs.map((expr, i) => (
                             <div key={expr.id} style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
-                              <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} />
+                              <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} onOpen={openSheet} />
                             </div>
                           ))}
                         </div>
@@ -738,7 +791,7 @@ function SearchPageContent() {
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
                       {exprs.map((expr, i) => (
                         <div key={expr.id} style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
-                          <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} />
+                          <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} onOpen={openSheet} />
                         </div>
                       ))}
                     </div>
@@ -755,7 +808,7 @@ function SearchPageContent() {
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
                       {exprs.map((expr, i) => (
                         <div key={expr.id} style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i, 8) * 45}ms` }}>
-                          <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} />
+                          <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} onOpen={openSheet} />
                         </div>
                       ))}
                     </div>
@@ -765,7 +818,7 @@ function SearchPageContent() {
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
                   {results.map((expr, i) => (
                     <div key={expr.id} style={{ animation: "fadeSlideUp 0.35s ease-out both", animationDelay: `${Math.min(i % LIMIT, 8) * 45}ms` }}>
-                      <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} />
+                      <ExpressionCard expression={expr} onTagClick={handleTagClick} uiLang={uiLang} tagNames={tagNames} fromSearch={qParam || undefined} onOpen={openSheet} />
                     </div>
                   ))}
                 </div>
@@ -812,6 +865,16 @@ function SearchPageContent() {
           )}
         </div>
       </main>
+
+      {sheetId && (
+        <ExpressionSheet
+          id={sheetId}
+          expression={sheetExpr ?? undefined}
+          uiLang={uiLang}
+          onClose={closeSheet}
+          fromSearch={qParam || undefined}
+        />
+      )}
 
       <BottomNav uiLang={uiLang} />
     </div>

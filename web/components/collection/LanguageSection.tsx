@@ -65,8 +65,7 @@ export default function LanguageSection({ language, items, totalFavorited, mode,
         <span style={{ fontSize: 20, lineHeight: 1 }} aria-hidden="true">{flag}</span>
         <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 15, color: "var(--ink)" }}>{name}</span>
         <span style={{ fontSize: 12, color: "var(--ink-softer)", fontWeight: 600 }}>
-          {totalFavorited}
-          {setCountTotal !== null && <> · {t.setCounter(totalFavorited, setCountTotal)}</>}
+          {setCountTotal !== null ? t.setCounter(totalFavorited, setCountTotal) : totalFavorited}
         </span>
 
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }} onClick={(e) => e.stopPropagation()}>

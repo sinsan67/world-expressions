@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import OnboardingModal from "./OnboardingModal";
-import { getCarnet, markSynced } from "@/lib/carnet";
+import { getCarnet, markSynced, addFavoriteLocal } from "@/lib/carnet";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -27,7 +27,10 @@ export default function AuthGate() {
     }
   }, [status, session?.user?.id]);
 
-  // Sync localStorage favorites → server (once per account per device)
+  // Sync favorites bidirectionally (once per account per device): push
+  // local-only favorites to the server, and pull server-only favorites
+  // (e.g. added from another device) into this device's localStorage —
+  // otherwise a fresh device never learns about favorites saved elsewhere.
   useEffect(() => {
     if (status !== "authenticated" || !session?.user?.id) return;
     const userId = session.user.id;
@@ -35,17 +38,22 @@ export default function AuthGate() {
     if (carnet.user.syncedAccountId === userId) return;
 
     const localFavorites = carnet.favorites;
-    if (localFavorites.length === 0) {
-      markSynced(userId);
-      return;
-    }
+    const localIds = new Set(localFavorites.map((f) => f.expressionId));
+
+    type ServerFavorite = {
+      expression_id: string;
+      saved_at: string;
+      review_box: number;
+      reviewed_at: string | null;
+      game_session_id: string | null;
+    };
 
     fetch(`${API_URL}/users/${userId}/favorites`)
       .then((r) => r.json())
       .then(async (data) => {
-        const serverIds = new Set(
-          (data.favorites ?? []).map((f: { expression_id: string }) => f.expression_id)
-        );
+        const serverFavorites: ServerFavorite[] = data.favorites ?? [];
+        const serverIds = new Set(serverFavorites.map((f) => f.expression_id));
+
         const toSync = localFavorites.filter((f) => !serverIds.has(f.expressionId));
         for (const fav of toSync) {
           await fetch(`${API_URL}/users/${userId}/favorites`, {
@@ -54,6 +62,18 @@ export default function AuthGate() {
             body: JSON.stringify({ expression_id: fav.expressionId }),
           }).catch(() => {});
         }
+
+        const toPull = serverFavorites.filter((f) => !localIds.has(f.expression_id));
+        for (const fav of toPull) {
+          addFavoriteLocal({
+            expressionId: fav.expression_id,
+            savedAt: fav.saved_at,
+            reviewBox: fav.review_box,
+            reviewedAt: fav.reviewed_at,
+            sessionId: fav.game_session_id,
+          });
+        }
+
         markSynced(userId);
         if (toSync.length > 0) {
           setSyncToast(toSync.length);
