@@ -1596,22 +1596,6 @@ def get_domain_tags(domain: str) -> set[str]:
         return {r.tag_id for r in result.fetchall()}
 
 
-def subscribe_newsletter(email: str, language: str) -> dict:
-    """
-    Enregistre un abonné à la newsletter.
-    Retourne {"status": "created"} ou {"status": "already_subscribed"}.
-    """
-    sql_insert = text("""
-        INSERT INTO newsletter_subscribers (id, email, language, created_at)
-        VALUES (gen_random_uuid(), :email, :language, NOW())
-        ON CONFLICT (email) DO NOTHING
-        RETURNING id
-    """)
-    with engine.begin() as conn:
-        row = conn.execute(sql_insert, {"email": email, "language": language}).fetchone()
-    return {"status": "created" if row else "already_subscribed"}
-
-
 # ---------------------------------------------------------------------------
 # Email / password auth
 # ---------------------------------------------------------------------------
