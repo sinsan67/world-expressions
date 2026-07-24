@@ -26,7 +26,7 @@ import {
   Expression,
   UserPreferences,
 } from "@/lib/api";
-import { getCarnet, setLanguageMode, LanguageMode } from "@/lib/carnet";
+import { getCarnet, setLanguageMode, resolveLanguageMode, LanguageMode } from "@/lib/carnet";
 import { useUILangContext } from "@/lib/UILangContext";
 import { COLLECTION_LABELS } from "@/lib/collectionLabels";
 import Sidebar from "@/components/home/Sidebar";
@@ -224,13 +224,10 @@ export default function Collection() {
     return groups;
   }, [filtered, sortBy]);
 
-  const resolveMode = useCallback((language: string): LanguageMode | null => {
-    const m = languageModes[language];
-    if (m === "discovery" || m === "mastered") return m;
-    // Contract default: UI language = mastered, others asked at first favorite.
-    if (language === uiLang) return "mastered";
-    return null;
-  }, [languageModes, uiLang]);
+  const resolveMode = useCallback(
+    (language: string): LanguageMode | null => resolveLanguageMode(languageModes, language, uiLang),
+    [languageModes, uiLang]
+  );
 
   const handleSetMode = useCallback((language: string, mode: LanguageMode) => {
     setLanguageModesState((prev) => ({ ...prev, [language]: mode }));

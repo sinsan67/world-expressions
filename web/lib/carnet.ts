@@ -208,6 +208,21 @@ export function getLanguageModes(): Record<string, LanguageMode> {
   return getCarnet().languageModes;
 }
 
+// Shared by Collection.tsx (mode badge/picker) and Voyage.tsx (conditions the
+// literal-translation hint, S227 L8) — contract default: the UI language is
+// presumed "mastered" until the visitor says otherwise, every other language
+// is undecided (null) until picked from the collection's mode picker.
+export function resolveLanguageMode(
+  modes: Record<string, string>,
+  language: string,
+  uiLang: string
+): LanguageMode | null {
+  const m = modes[language];
+  if (m === "discovery" || m === "mastered") return m;
+  if (language === uiLang) return "mastered";
+  return null;
+}
+
 function updateStreak(c: Carnet): void {
   const today = new Date().toISOString().slice(0, 10);
   if (c.stats.lastActiveDate === today) return;
