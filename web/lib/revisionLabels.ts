@@ -34,6 +34,7 @@ export type RevisionLabels = {
   meaningLabel: string;
   originLabel: string;
   exampleLabel: string;
+  listenAria: string;
 };
 
 export const REVISION_LABELS: Record<Lang, RevisionLabels> = {
@@ -68,6 +69,7 @@ export const REVISION_LABELS: Record<Lang, RevisionLabels> = {
     meaningLabel: "Signification",
     originLabel: "D'où ça vient ?",
     exampleLabel: "Exemple + traduction",
+    listenAria: "Écouter la prononciation",
   },
   en: {
     quitAria: "Quit revision",
@@ -100,5 +102,6 @@ export const REVISION_LABELS: Record<Lang, RevisionLabels> = {
     meaningLabel: "Meaning",
     originLabel: "Where does it come from?",
     exampleLabel: "Example + translation",
+    listenAria: "Listen to the pronunciation",
   },
 };
