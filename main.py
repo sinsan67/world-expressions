@@ -503,25 +503,10 @@ def review_favorite(user_id: str, expression_id: str, body: ReviewRequest):
     return result
 
 
-class SubscribeRequest(BaseModel):
-    email: str
-    language: str = "en"
-
-
 @app.get("/slugs")
 def get_slugs(_: None = Depends(_cache_public_1h)):
     """Return all expression IDs — used for sitemap generation only."""
     return {"slugs": database.get_all_slugs()}
-
-
-@app.post("/newsletter/subscribe")
-def newsletter_subscribe(body: SubscribeRequest):
-    email = body.email.strip().lower()
-    if not _EMAIL_RE.match(email):
-        raise HTTPException(status_code=422, detail="Invalid email address")
-    lang = body.language if body.language in _VALID_LANGS else "en"
-    result = database.subscribe_newsletter(email, lang)
-    return result
 
 
 # ---------------------------------------------------------------------------
