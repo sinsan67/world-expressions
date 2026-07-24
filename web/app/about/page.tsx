@@ -55,7 +55,7 @@ const CONTENT: Record<string, Content> = {
     title: "A love letter\nto idioms.",
     subtitle: "Every language has expressions that refuse to translate. They carry too much — history, humour, the texture of daily life. This is where World Expressions starts.",
     intro: [
-      "World Expressions is a free, open-source database of idiomatic expressions from around the world. You type a word, a feeling, or an idea — and discover how different languages name the same thing. The results are not just translations: they are windows into how different cultures think, argue, love, and joke.",
+      "World Expressions is a free, open-source way to play with idioms from around the world. Pick a game: draw ten cards on Voyage and keep the ones that surprise you, or flip through your own collection in Révision and see what still sticks. Looking for something specific instead? Type a word, a feeling, or an idea into search, and discover how other languages name the same thing. Either way, the results are never just translations — they are windows into how different cultures think, argue, love, and joke.",
       "The database currently holds over 14,000 expressions across 7 languages — French, Turkish, Italian, English, Spanish, German, and Japanese — plus several regional Spanish variants (Mexico, Argentina, Colombia, Peru). Every entry includes a meaning; most also carry an origin story, a usage example, and cross-language equivalents wherever they exist. The project is open source, continuously expanding, and entirely free.",
     ],
     sectionPWA: "An app without an App Store",
@@ -172,8 +172,8 @@ const CONTENT: Record<string, Content> = {
       },
       {
         emoji: "🎮",
-        title: "A game",
-        body: "Long-term: emojis as riddles. Choose a language, click an emoji, guess which expressions it could represent — then reveal the answers. The very ambiguity of the image is the game mechanic. Built on the same concept system that already powers the search engine — no separate database needed.",
+        title: "A third game",
+        body: "Voyage and Révision are the first two. Next: explore expressions on a world map… or navigate emoji constellations, where the ambiguity of the image is the game itself. Built on the same concept system that already powers search — no separate database needed.",
       },
     ],
     sectionContact: "Get in touch",
@@ -186,7 +186,7 @@ const CONTENT: Record<string, Content> = {
     title: "Une lettre d'amour\naux expressions du monde.",
     subtitle: "Chaque langue possède des expressions qui résistent à la traduction. Elles portent trop de choses — de l'histoire, de l'humour, la texture du quotidien. C'est là que World Expressions commence.",
     intro: [
-      "World Expressions est une base de données libre et open source d'expressions idiomatiques du monde entier. Vous tapez un mot, un sentiment ou une idée — et vous découvrez comment différentes langues nomment la même chose. Les résultats ne sont pas de simples traductions : ce sont des fenêtres sur la façon dont différentes cultures pensent, se disputent, aiment et plaisantent.",
+      "World Expressions est une façon libre et open source de jouer avec les expressions idiomatiques du monde entier. Choisissez un jeu : tirez dix cartes en Voyage et gardez celles qui vous surprennent, ou parcourez votre collection en Révision pour voir ce qui reste gravé. Vous cherchez quelque chose de précis ? Tapez un mot, un sentiment ou une idée dans la recherche, et découvrez comment d'autres langues nomment la même chose. Dans tous les cas, les résultats ne sont jamais de simples traductions — ce sont des fenêtres sur la façon dont différentes cultures pensent, se disputent, aiment et plaisantent.",
       "La base de données contient plus de 14 000 expressions réparties sur 7 langues — français, turc, italien, anglais, espagnol, allemand, japonais — plus plusieurs variantes régionales de l'espagnol (Mexique, Argentine, Colombie, Pérou). Chaque entrée comprend une définition ; la plupart offrent aussi une histoire d'origine, un exemple d'utilisation et des équivalents dans d'autres langues. Le projet est open source, en constante expansion et entièrement gratuit.",
     ],
     sectionPWA: "Une appli sans App Store",
@@ -303,8 +303,8 @@ const CONTENT: Record<string, Content> = {
       },
       {
         emoji: "🎮",
-        title: "Un jeu",
-        body: "Vision long terme : les emojis comme énigmes. Choisir une langue, cliquer sur un emoji, deviner quelles expressions il pourrait représenter — puis révéler les réponses. L'ambiguïté même de l'image est le mécanisme de jeu. Construit sur le même système de concepts qui alimente déjà le moteur de recherche — aucune base de données séparée n'est nécessaire.",
+        title: "Un troisième jeu",
+        body: "Voyage et Révision sont les deux premiers. La suite : explorer les expressions sur une carte du monde… ou naviguer dans des constellations d'emojis, où l'ambiguïté de l'image est le jeu lui-même. Construit sur le même système de concepts qui alimente déjà la recherche — aucune base de données séparée n'est nécessaire.",
       },
     ],
     sectionContact: "Nous contacter",
@@ -317,7 +317,7 @@ const CONTENT: Record<string, Content> = {
     title: "Una carta de amor\na los modismos.",
     subtitle: "Cada lengua tiene expresiones que se resisten a la traducción. Llevan demasiado — historia, humor, la textura de la vida cotidiana. Aquí es donde comienza World Expressions.",
     intro: [
-      "World Expressions es una base de datos gratuita y de código abierto de expresiones idiomáticas de todo el mundo. Escribe una palabra, un sentimiento o una idea — y descubre cómo diferentes idiomas nombran lo mismo. Los resultados no son simples traducciones: son ventanas a cómo diferentes culturas piensan, discuten, aman y bromean.",
+      "World Expressions es una forma gratuita y de código abierto de jugar con modismos de todo el mundo. Elige un juego: saca diez cartas en Voyage y quédate con las que te sorprendan, o repasa tu propia colección en Révision y comprueba qué se te ha quedado grabado. ¿Buscas algo concreto? Escribe una palabra, un sentimiento o una idea en el buscador, y descubre cómo otros idiomas nombran lo mismo. En cualquier caso, los resultados nunca son simples traducciones — son ventanas a cómo diferentes culturas piensan, discuten, aman y bromean.",
       "La base de datos contiene más de 14,000 expresiones en 7 idiomas — francés, turco, italiano, inglés, español, alemán y japonés — además de varias variantes regionales del español (México, Argentina, Colombia, Perú). Cada entrada incluye un significado; la mayoría también ofrece una historia de origen, un ejemplo de uso y equivalentes en otros idiomas. El proyecto es de código abierto, se expande continuamente y es completamente gratuito.",
     ],
     sectionPWA: "Una app sin App Store",
@@ -434,8 +434,8 @@ const CONTENT: Record<string, Content> = {
       },
       {
         emoji: "🎮",
-        title: "Un juego",
-        body: "Visión a largo plazo: emojis como acertijos. Elegir un idioma, hacer clic en un emoji, adivinar qué expresiones podría representar — luego revelar las respuestas. La ambigüedad de la imagen es el mecanismo del juego. Construido sobre el mismo sistema de conceptos que ya impulsa el motor de búsqueda.",
+        title: "Un tercer juego",
+        body: "Voyage y Révision son los dos primeros. Lo que sigue: explorar expresiones en un mapa del mundo… o navegar por constelaciones de emojis, donde la ambigüedad de la imagen es el propio juego. Construido sobre el mismo sistema de conceptos que ya impulsa la búsqueda — no hace falta una base de datos aparte.",
       },
     ],
     sectionContact: "Contacto",
@@ -448,7 +448,7 @@ const CONTENT: Record<string, Content> = {
     title: "Una lettera d'amore\nai modi di dire.",
     subtitle: "Ogni lingua ha espressioni che rifiutano di farsi tradurre. Portano con sé troppe cose — storia, umorismo, la trama della vita quotidiana. È da qui che parte World Expressions.",
     intro: [
-      "World Expressions è una banca dati gratuita e open source di espressioni idiomatiche da tutto il mondo. Digiti una parola, un sentimento o un'idea — e scopri come lingue diverse danno un nome alla stessa cosa. I risultati non sono semplici traduzioni: sono finestre su come culture diverse pensano, litigano, amano e scherzano.",
+      "World Expressions è un modo gratuito e open source di giocare con i modi di dire di tutto il mondo. Scegli un gioco: pesca dieci carte in Voyage e tieni quelle che ti sorprendono, oppure sfoglia la tua collezione in Révision e scopri cosa ti è rimasto impresso. Cerchi qualcosa di preciso? Digita una parola, un sentimento o un'idea nella ricerca, e scopri come altre lingue chiamano la stessa cosa. In ogni caso, i risultati non sono mai semplici traduzioni — sono finestre su come culture diverse pensano, litigano, amano e scherzano.",
       "La banca dati contiene oggi oltre 14.000 espressioni in 7 lingue — francese, turco, italiano, inglese, spagnolo, tedesco e giapponese — più diverse varianti regionali dello spagnolo (Messico, Argentina, Colombia, Perù). Ogni voce include un significato; la maggior parte offre anche una storia d'origine, un esempio d'uso ed equivalenti in altre lingue. Il progetto è open source, in continua espansione e completamente gratuito.",
     ],
     sectionPWA: "Un'app senza App Store",
@@ -565,8 +565,8 @@ const CONTENT: Record<string, Content> = {
       },
       {
         emoji: "🎮",
-        title: "Un gioco",
-        body: "A lungo termine: gli emoji come indovinelli. Scegli una lingua, clicca un emoji, indovina quali espressioni potrebbe rappresentare — poi scopri le risposte. L'ambiguità stessa dell'immagine è il meccanismo di gioco. Costruito sullo stesso sistema di concetti che alimenta già il motore di ricerca.",
+        title: "Un terzo gioco",
+        body: "Voyage e Révision sono i primi due. La prossima tappa: esplorare le espressioni su una mappa del mondo… o navigare tra costellazioni di emoji, dove l'ambiguità dell'immagine è essa stessa il gioco. Costruito sullo stesso sistema di concetti che alimenta già la ricerca — nessun database separato necessario.",
       },
     ],
     sectionContact: "Contatti",
@@ -579,7 +579,7 @@ const CONTENT: Record<string, Content> = {
     title: "Deyimlere yazılmış\nbir aşk mektubu.",
     subtitle: "Her dilde çeviriye direnen ifadeler vardır. Taşıdıkları çok şey var — tarih, mizah, gündelik hayatın dokusu. World Expressions tam burada başlıyor.",
     intro: [
-      "World Expressions, dünyanın dört bir yanından deyimleri bir araya getiren ücretsiz ve açık kaynaklı bir veritabanıdır. Bir kelime, bir duygu ya da bir fikir yazarsınız — ve farklı dillerin aynı şeyi nasıl adlandırdığını keşfedersiniz. Sonuçlar basit çeviriler değildir: farklı kültürlerin nasıl düşündüğüne, tartıştığına, sevdiğine ve şakalaştığına açılan pencerelerdir.",
+      "World Expressions, dünyanın dört bir yanındaki deyimlerle oynamanın ücretsiz ve açık kaynaklı bir yoludur. Bir oyun seçin: Voyage'da on kart çekin ve sizi şaşırtanları saklayın, ya da Révision'da kendi koleksiyonunuzu gözden geçirin ve aklınızda ne kaldığını görün. Belirli bir şey mi arıyorsunuz? Aramaya bir kelime, bir duygu ya da bir fikir yazın ve farklı dillerin aynı şeyi nasıl adlandırdığını keşfedin. Her iki durumda da sonuçlar asla basit çeviriler değildir — farklı kültürlerin nasıl düşündüğüne, tartıştığına, sevdiğine ve şakalaştığına açılan pencerelerdir.",
       "Veritabanında şu anda 7 dilde 14.000'den fazla ifade var — Fransızca, Türkçe, İtalyanca, İngilizce, İspanyolca, Almanca ve Japonca — artı İspanyolcanın birkaç bölgesel çeşidi (Meksika, Arjantin, Kolombiya, Peru). Her kayıtta bir anlam bulunur; çoğunda ayrıca bir köken hikâyesi, bir kullanım örneği ve diğer dillerdeki karşılıklar da vardır. Proje açık kaynaklıdır, sürekli büyümektedir ve tamamen ücretsizdir.",
     ],
     sectionPWA: "App Store'suz bir uygulama",
@@ -696,8 +696,8 @@ const CONTENT: Record<string, Content> = {
       },
       {
         emoji: "🎮",
-        title: "Bir oyun",
-        body: "Uzun vadede: bilmece olarak emojiler. Bir dil seçin, bir emojiye tıklayın, hangi ifadeleri temsil edebileceğini tahmin edin — sonra cevapları görün. Görselin muğlaklığının ta kendisi oyun mekaniğidir. Arama motorunu zaten çalıştıran kavram sisteminin üzerine kurulur.",
+        title: "Üçüncü bir oyun",
+        body: "Voyage ve Révision ilk ikisi. Sırada: ifadeleri bir dünya haritasında keşfetmek… ya da görüntünün belirsizliğinin oyunun kendisi olduğu emoji takımyıldızlarında gezinmek. Aramayı zaten çalıştıran aynı kavram sisteminin üzerine kurulu — ayrı bir veritabanına gerek yok.",
       },
     ],
     sectionContact: "Bize ulaşın",
@@ -710,7 +710,7 @@ const CONTENT: Record<string, Content> = {
     title: "Ein Liebesbrief\nan die Redewendungen.",
     subtitle: "Jede Sprache hat Ausdrücke, die sich der Übersetzung verweigern. Sie tragen zu viel in sich — Geschichte, Humor, die Textur des Alltags. Genau hier beginnt World Expressions.",
     intro: [
-      "World Expressions ist eine freie, quelloffene Datenbank idiomatischer Ausdrücke aus aller Welt. Sie tippen ein Wort, ein Gefühl oder eine Idee ein — und entdecken, wie verschiedene Sprachen dasselbe benennen. Die Ergebnisse sind keine bloßen Übersetzungen: Sie sind Fenster in die Art, wie verschiedene Kulturen denken, streiten, lieben und scherzen.",
+      "World Expressions ist eine freie, quelloffene Art, mit Redewendungen aus aller Welt zu spielen. Wählen Sie ein Spiel: Ziehen Sie zehn Karten bei Voyage und behalten Sie die, die Sie überraschen, oder blättern Sie bei Révision durch Ihre eigene Sammlung und sehen Sie, was hängen geblieben ist. Suchen Sie etwas Bestimmtes? Tippen Sie ein Wort, ein Gefühl oder eine Idee in die Suche ein und entdecken Sie, wie andere Sprachen dasselbe benennen. So oder so: Die Ergebnisse sind nie bloße Übersetzungen — sie sind Fenster in die Art, wie verschiedene Kulturen denken, streiten, lieben und scherzen.",
       "Die Datenbank umfasst derzeit über 14.000 Ausdrücke in 7 Sprachen — Französisch, Türkisch, Italienisch, Englisch, Spanisch, Deutsch und Japanisch — plus mehrere regionale Varianten des Spanischen (Mexiko, Argentinien, Kolumbien, Peru). Jeder Eintrag enthält eine Bedeutung; die meisten bieten außerdem eine Herkunftsgeschichte, ein Anwendungsbeispiel und Entsprechungen in anderen Sprachen. Das Projekt ist Open Source, wächst ständig und ist völlig kostenlos.",
     ],
     sectionPWA: "Eine App ohne App Store",
@@ -827,8 +827,8 @@ const CONTENT: Record<string, Content> = {
       },
       {
         emoji: "🎮",
-        title: "Ein Spiel",
-        body: "Langfristig: Emojis als Rätsel. Eine Sprache wählen, ein Emoji anklicken, raten, welche Ausdrücke es darstellen könnte — dann die Antworten aufdecken. Gerade die Mehrdeutigkeit des Bildes ist die Spielmechanik. Gebaut auf demselben Konzeptsystem, das schon die Suche antreibt.",
+        title: "Ein drittes Spiel",
+        body: "Voyage und Révision sind die ersten beiden. Als Nächstes: Ausdrücke auf einer Weltkarte erkunden … oder durch Emoji-Konstellationen navigieren, bei denen die Mehrdeutigkeit des Bildes das Spiel selbst ist. Gebaut auf demselben Konzeptsystem, das schon die Suche antreibt — keine separate Datenbank nötig.",
       },
     ],
     sectionContact: "Kontakt",
@@ -841,7 +841,7 @@ const CONTENT: Record<string, Content> = {
     title: "世界の言い回しへの\nラブレター。",
     subtitle: "どの言語にも、翻訳を拒む表現があります。歴史、ユーモア、日々の暮らしの手ざわり——抱えているものが多すぎるのです。World Expressions はそこから始まります。",
     intro: [
-      "World Expressions は、世界中の慣用表現を集めた無料・オープンソースのデータベースです。単語や気持ち、アイデアを入力すると、さまざまな言語が同じものをどう名づけているかを発見できます。検索結果は単なる翻訳ではありません。異なる文化がどう考え、どう議論し、どう愛し、どう笑うのかを覗く窓なのです。",
+      "World Expressions は、世界中の慣用表現で遊べる無料・オープンソースの仕組みです。ゲームを選んでください。Voyage で10枚のカードを引いて、驚いたものを手元に残す。あるいは Révision で自分のコレクションをめくり返し、頭に残っているかどうかを確かめる。何か特定のものを探しているなら?検索に単語や気持ち、アイデアを入力すれば、さまざまな言語が同じものをどう名づけているかを発見できます。どちらの道でも、結果は単なる翻訳ではありません——異なる文化がどう考え、どう議論し、どう愛し、どう笑うのかを覗く窓なのです。",
       "データベースには現在、7言語で14,000以上の表現が収録されています——フランス語、トルコ語、イタリア語、英語、スペイン語、ドイツ語、日本語——さらにスペイン語の地域変種(メキシコ、アルゼンチン、コロンビア、ペルー)も。どの項目にも意味があり、多くには由来の物語、使用例、他言語での対応表現も付いています。プロジェクトはオープンソースで、拡大を続け、完全に無料です。",
     ],
     sectionPWA: "App Store のいらないアプリ",
@@ -958,8 +958,8 @@ const CONTENT: Record<string, Content> = {
       },
       {
         emoji: "🎮",
-        title: "ゲーム",
-        body: "長期構想:なぞなぞとしての絵文字。言語を選び、絵文字をクリックし、どんな表現を表しているか当てる——そして答え合わせ。画像の曖昧さそのものがゲームのメカニクスです。検索エンジンをすでに動かしている概念システムの上に築かれます。",
+        title: "3つ目のゲーム",
+        body: "Voyage と Révision が最初の2つ。次にくるのは、世界地図で表現を探索すること……あるいは、画像の曖昧さそのものがゲームになる絵文字の星座をめぐること。検索エンジンをすでに動かしている概念システムの上に築かれます——別のデータベースは必要ありません。",
       },
     ],
     sectionContact: "お問い合わせ",
