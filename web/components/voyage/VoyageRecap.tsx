@@ -13,7 +13,7 @@ import { useState } from "react";
 import Link from "next/link";
 import type { GameCard as GameCardType } from "@/lib/api";
 import { FLAG, COUNTRY_NAME, COUNTRY_GRADIENT, HERO_IMAGE_COUNTRIES } from "@/lib/constants";
-import { VOYAGE_RECAP } from "@/lib/voyageLabels";
+import { VOYAGE_RECAP, VOYAGE_SETUP } from "@/lib/voyageLabels";
 
 type Props = {
   uiLang: string;
@@ -41,6 +41,7 @@ function pickMostSeenCountry(cards: GameCardType[]): string {
 
 export default function VoyageRecap({ uiLang, cards, keptCards, exploreHref, onReplay, onChangeFilters }: Props) {
   const t = VOYAGE_RECAP[uiLang] ?? VOYAGE_RECAP.en;
+  const orLabel = (VOYAGE_SETUP[uiLang] ?? VOYAGE_SETUP.en).orDivider;
   // Frozen at mount so the tie-break doesn't reshuffle on re-render.
   const [heroCountry] = useState(() => pickMostSeenCountry(cards));
 
@@ -89,10 +90,27 @@ export default function VoyageRecap({ uiLang, cards, keptCards, exploreHref, onR
         )}
 
         <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 9, paddingTop: 22 }}>
-          <button onClick={onReplay} style={primaryBtnStyle}>{t.replay}</button>
-          <Link href={exploreHref} data-testid="recap-explore" style={secondaryBtnStyle}>{t.explore}</Link>
-          <button onClick={onChangeFilters} style={secondaryBtnStyle}>{t.changeFilters}</button>
-          <Link href="/collection" style={secondaryBtnStyle}>{t.viewCollection}</Link>
+          <button onClick={onReplay} style={primaryBtnStyle}>
+            <span aria-hidden="true">🔁</span> {t.replay}
+          </button>
+          <div style={clusterStyle}>
+            <Link href={exploreHref} data-testid="recap-explore" style={clusterBtnStyle}>
+              <span style={clusterIconStyle} aria-hidden="true">🔍</span>
+              {t.explore}
+            </Link>
+            <button onClick={onChangeFilters} style={clusterBtnStyle}>
+              <span style={clusterIconStyle} aria-hidden="true">🎛️</span>
+              {t.changeFilters}
+            </button>
+          </div>
+          <div style={orRowStyle}>
+            <span style={orLineStyle} />
+            {orLabel}
+            <span style={orLineStyle} />
+          </div>
+          <Link href="/collection" style={exitBtnStyle}>
+            <span aria-hidden="true">❤️</span> {t.viewCollection}
+          </Link>
         </div>
       </div>
     </div>
@@ -141,18 +159,66 @@ const primaryBtnStyle: React.CSSProperties = {
   fontFamily: "var(--font-body)",
   cursor: "pointer",
   boxShadow: "0 3px 0 var(--plum-deep)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
 };
 
-const secondaryBtnStyle: React.CSSProperties = {
-  background: "none",
-  border: "none",
-  color: "var(--ink-soft)",
-  fontSize: 14,
+const clusterStyle: React.CSSProperties = {
+  display: "flex",
+  gap: 8,
+};
+
+const clusterBtnStyle: React.CSSProperties = {
+  flex: 1,
+  background: "var(--plum-bg)",
+  color: "var(--plum-deep)",
+  border: "1.5px solid var(--plum-soft)",
+  borderRadius: 14,
+  padding: "10px 6px",
+  fontSize: 12.5,
   fontWeight: 700,
   fontFamily: "var(--font-body)",
   cursor: "pointer",
-  textDecoration: "underline",
-  textUnderlineOffset: "3px",
-  display: "block",
-  textAlign: "center",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 4,
+  textDecoration: "none",
+};
+
+const clusterIconStyle: React.CSSProperties = {
+  fontSize: 18,
+};
+
+const orRowStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+  margin: "7px 0 2px",
+  color: "var(--ink-faint)",
+  fontSize: 11,
+};
+
+const orLineStyle: React.CSSProperties = {
+  flex: 1,
+  borderTop: "1.5px dashed var(--paper-edge)",
+};
+
+const exitBtnStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
+  background: "none",
+  border: "2px solid var(--terra)",
+  color: "var(--terra-deep)",
+  borderRadius: 999,
+  padding: 12,
+  fontSize: 14.5,
+  fontWeight: 800,
+  fontFamily: "var(--font-body)",
+  cursor: "pointer",
+  textDecoration: "none",
 };
