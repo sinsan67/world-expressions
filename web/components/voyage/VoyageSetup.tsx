@@ -306,12 +306,13 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
             🎲
           </button>
         </div>
-        {/* Accordion: 8 curated groups (atelier thèmes 21/07), tap a header
-            to reveal its leaf pills. onStart() always receives a leaf
-            EditorialDomain slug — grouping is purely visual, the /random
-            /search API contract is unchanged. EDITORIAL_DOMAINS now covers
-            all 20 real domain_slugs (the 4 the Concepts page also knows —
-            knowledge/justice/change/food — got folded in), so every
+        {/* Accordion: 10 curated groups (atelier thèmes 21/07, rebalanced
+            S229 — split the 2 oversized groups in two to even out volume),
+            tap a header to reveal its leaf pills. onStart() always receives
+            a leaf EditorialDomain slug — grouping is purely visual, the
+            /random /search API contract is unchanged. EDITORIAL_DOMAINS
+            covers all 20 real domain_slugs (the 4 the Concepts page also
+            knows — knowledge/justice/change/food — got folded in), so every
             pre-filled domain resolves through EDITORIAL_DOMAIN_MAP here;
             no DOMAIN_DEFS fallback needed in this component anymore. */}
         {DOMAIN_GROUPS.map((g) => {
