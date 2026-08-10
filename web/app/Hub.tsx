@@ -9,6 +9,7 @@ import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
 import GameCard from "@/components/home/GameCard";
 import DailyPostcard from "@/components/home/DailyPostcard";
+import ColdStartCard from "@/components/home/ColdStartCard";
 import CollectionStrip from "@/components/home/CollectionStrip";
 import CarnetHeartLink from "@/components/ui/CarnetHeartLink";
 import LangDropdown from "@/components/ui/LangDropdown";
@@ -92,6 +93,20 @@ export default function Hub() {
       .finally(() => { if (!cancelled) setDailyLoading(false); });
     return () => { cancelled = true; };
   }, [uiLang]);
+
+  // Render cold start (free tier, up to ~60s after sleep) — /daily has no
+  // client-side timeout, so a slow backend just leaves dailyLoading stuck at
+  // true. Past 5s, swap the skeleton for a real proverb + progress bar
+  // instead of a silent stuck postcard.
+  const [coldStart, setColdStart] = useState(false);
+  useEffect(() => {
+    if (!dailyLoading) {
+      setColdStart(false);
+      return;
+    }
+    const timer = setTimeout(() => setColdStart(true), 5000);
+    return () => clearTimeout(timer);
+  }, [dailyLoading]);
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
@@ -190,13 +205,19 @@ export default function Hub() {
         {/* Collection teaser + daily postcard */}
         <div style={{ maxWidth: 640, margin: "0 auto" }}>
           <CollectionStrip title={t.collection.teaser} countLabel={t.collection.count} emptyLabel={t.collection.empty} />
-          <DailyPostcard
-            expression={daily}
-            loading={dailyLoading}
-            uiLang={uiLang}
-            label={t.daily.title}
-            hint={t.daily.hint}
-          />
+          {coldStart ? (
+            <div style={{ padding: "1.1rem 1rem 0.5rem" }}>
+              <ColdStartCard uiLang={uiLang} />
+            </div>
+          ) : (
+            <DailyPostcard
+              expression={daily}
+              loading={dailyLoading}
+              uiLang={uiLang}
+              label={t.daily.title}
+              hint={t.daily.hint}
+            />
+          )}
 
           {/* Explorer le monde — Atlas/Concepts/Pays/Proverbes left the
               persistent nav in Lot N1, demoted to this hub section. */}
