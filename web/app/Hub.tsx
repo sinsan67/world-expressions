@@ -43,6 +43,7 @@ export default function Hub() {
   const [showWelcome, setShowWelcome] = useState<boolean | null>(null);
   const [daily, setDaily] = useState<DailyExpression | null>(null);
   const [dailyLoading, setDailyLoading] = useState(true);
+  const [dailyError, setDailyError] = useState(false);
   // Révision chip counts (lot D) — total favorites + how many are due for
   // review. Loaded the same anon-local/logged-in-server dual path as
   // Collection.tsx; classification logic lives once in lib/reviewQueue.ts.
@@ -87,17 +88,19 @@ export default function Hub() {
   useEffect(() => {
     let cancelled = false;
     setDailyLoading(true);
+    setDailyError(false);
     getDailyExpression(uiLang)
       .then((expr) => { if (!cancelled) setDaily(expr); })
-      .catch(() => {})
+      .catch(() => { if (!cancelled) setDailyError(true); })
       .finally(() => { if (!cancelled) setDailyLoading(false); });
     return () => { cancelled = true; };
   }, [uiLang]);
 
-  // Render cold start (free tier, up to ~60s after sleep) — /daily has no
-  // client-side timeout, so a slow backend just leaves dailyLoading stuck at
-  // true. Past 5s, swap the skeleton for a real proverb + progress bar
-  // instead of a silent stuck postcard.
+  // Render cold start (free tier, up to ~60s after sleep). Past 5s of
+  // loading, swap the skeleton for a real proverb + progress bar instead of
+  // a silent stuck postcard. getDailyExpression() now has a 60s timeout, so
+  // a genuinely broken /daily (not just a slow wake-up) surfaces as
+  // dailyError instead of hanging forever — see render below.
   const [coldStart, setColdStart] = useState(false);
   useEffect(() => {
     if (!dailyLoading) {
@@ -205,9 +208,9 @@ export default function Hub() {
         {/* Collection teaser + daily postcard */}
         <div style={{ maxWidth: 640, margin: "0 auto" }}>
           <CollectionStrip title={t.collection.teaser} countLabel={t.collection.count} emptyLabel={t.collection.empty} />
-          {coldStart ? (
+          {(coldStart || dailyError) ? (
             <div style={{ padding: "1.1rem 1rem 0.5rem" }}>
-              <ColdStartCard uiLang={uiLang} />
+              <ColdStartCard uiLang={uiLang} failed={dailyError} />
             </div>
           ) : (
             <DailyPostcard

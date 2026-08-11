@@ -303,15 +303,26 @@ export async function patchGameSession(
 // GET /daily — deterministic expression of the day, same for everyone on the
 // same UTC date. Backend-side cache (1h) — no client-side date/session logic
 // needed here, unlike the old getRandomExpression() sessionStorage pattern.
+// Timeout bounds a hung backend handler (not just a slow cold start, which
+// resolves on its own within this window) so the promise always settles —
+// see docs/prd-coldstart-card.md §7.
+const DAILY_TIMEOUT_MS = 60_000;
+
 export async function getDailyExpression(
   locale = ""
 ): Promise<Expression & { meaning_locale: string; literal: string | null; date: string }> {
   const params = new URLSearchParams();
   if (locale) params.set("locale", locale);
   const qs = params.toString();
-  const res = await fetch(`${API}/daily${qs ? `?${qs}` : ""}`);
-  if (!res.ok) throw new Error("API error");
-  return res.json();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), DAILY_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${API}/daily${qs ? `?${qs}` : ""}`, { signal: controller.signal });
+    if (!res.ok) throw new Error("API error");
+    return res.json();
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export async function getRandomCount(country = "", kind = "", domain = "", language = ""): Promise<number> {

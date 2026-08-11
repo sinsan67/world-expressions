@@ -14,41 +14,48 @@ import coldStartProverbs from "@/lib/coldStartProverbs.json";
 const UI_LANGS = ["fr", "en", "es", "it", "tr", "de", "ja"] as const;
 type L = (typeof UI_LANGS)[number];
 
-const UI: Record<L, { label: string; literalPrefix: string; hint: string }> = {
+const UI: Record<L, { label: string; literalPrefix: string; hint: string; hintFailed: string }> = {
   fr: {
     label: "Proverbe du jour",
     literalPrefix: "Mot à mot",
     hint: "Notre serveur (plan gratuit) sort de sa sieste — environ 30 secondes",
+    hintFailed: "Toujours indisponible — réessaie un peu plus tard.",
   },
   en: {
     label: "Proverb of the day",
     literalPrefix: "Literally",
     hint: "Our server (free tier) is waking up — about 30 seconds",
+    hintFailed: "Still not responding — try again in a bit.",
   },
   es: {
     label: "Proverbio del día",
     literalPrefix: "Literalmente",
     hint: "Nuestro servidor (plan gratuito) se despierta — unos 30 segundos",
+    hintFailed: "Sigue sin responder — inténtalo de nuevo en un rato.",
   },
   it: {
     label: "Proverbio del giorno",
     literalPrefix: "Letteralmente",
     hint: "Il nostro server (piano gratuito) si sveglia — circa 30 secondi",
+    hintFailed: "Ancora non risponde — riprova tra un po'.",
   },
   tr: {
     label: "Günün atasözü",
     literalPrefix: "Kelimesi kelimesine",
     hint: "Sunucumuz (ücretsiz plan) uyanıyor — yaklaşık 30 saniye",
+    hintFailed: "Hâlâ yanıt vermiyor — birazdan tekrar dene.",
   },
   de: {
     label: "Sprichwort des Tages",
     literalPrefix: "Wörtlich",
     hint: "Unser Server (kostenloser Plan) erwacht — ca. 30 Sekunden",
+    hintFailed: "Reagiert immer noch nicht — versuch es gleich noch mal.",
   },
   ja: {
     label: "今日のことわざ",
     literalPrefix: "直訳",
     hint: "サーバー（無料プラン）が起動中 — 約30秒",
+    hintFailed: "まだ応答がありません — しばらくしてからもう一度お試しください。",
   },
 };
 
@@ -71,7 +78,7 @@ function dayOfYearUTC(): number {
   return Math.floor((today - start) / 86400000);
 }
 
-export default function ColdStartCard({ uiLang = "en" }: { uiLang?: string }) {
+export default function ColdStartCard({ uiLang = "en", failed = false }: { uiLang?: string; failed?: boolean }) {
   const [progress, setProgress] = useState(0);
   const lang = (UI_LANGS.includes(uiLang as L) ? uiLang : "en") as L;
   const ui = UI[lang];
@@ -82,11 +89,14 @@ export default function ColdStartCard({ uiLang = "en" }: { uiLang?: string }) {
   const showLiteral = Boolean(translation?.literal) && entry.sourceLang !== lang;
 
   useEffect(() => {
+    // Once we know /daily has genuinely failed (timeout/error, not just a
+    // slow wake-up), freeze the bar instead of pretending progress continues.
+    if (failed) return;
     const interval = setInterval(() => {
       setProgress((p) => Math.min(p + 100 / 45, 96));
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [failed]);
 
   return (
     <Postcard tilt={-0.4} large>
@@ -168,7 +178,7 @@ export default function ColdStartCard({ uiLang = "en" }: { uiLang?: string }) {
         marginBottom: "0.75rem",
         fontStyle: "italic",
       }}>
-        {ui.hint}
+        {failed ? ui.hintFailed : ui.hint}
       </p>
 
       {/* Progress bar */}
