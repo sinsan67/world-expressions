@@ -34,6 +34,13 @@ export type VoyageSetupLabels = {
   randomCountryAria: string;
   randomKindAria: string;
   randomDomainAria: string;
+  // Country map preview panel (S235) — non-blocking example shown after a
+  // manual pin tap, alongside the existing 1-tap selection.
+  previewLabel: string;
+  previewLoading: string;
+  previewEmpty: string;
+  previewAnother: string;
+  previewClose: string;
 };
 
 export type VoyagePlayLabels = {
@@ -95,6 +102,11 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     randomCountryAria: "Choisir un pays au hasard",
     randomKindAria: "Choisir un type au hasard",
     randomDomainAria: "Choisir un thème au hasard",
+    previewLabel: "🎲 Exemple depuis ce pays",
+    previewLoading: "Chargement…",
+    previewEmpty: "Pas d'exemple disponible pour cette combinaison.",
+    previewAnother: "🔁 Un autre exemple",
+    previewClose: "Fermer l'aperçu",
   },
   en: {
     title: "Voyage",
@@ -122,6 +134,11 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     randomCountryAria: "Pick a random country",
     randomKindAria: "Pick a random type",
     randomDomainAria: "Pick a random theme",
+    previewLabel: "🎲 Example from this country",
+    previewLoading: "Loading…",
+    previewEmpty: "No example available for this combination.",
+    previewAnother: "🔁 Another example",
+    previewClose: "Close preview",
   },
   es: {
     title: "Viaje",
@@ -149,6 +166,11 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     randomCountryAria: "Elegir un país al azar",
     randomKindAria: "Elegir un tipo al azar",
     randomDomainAria: "Elegir un tema al azar",
+    previewLabel: "🎲 Ejemplo de este país",
+    previewLoading: "Cargando…",
+    previewEmpty: "No hay ningún ejemplo disponible para esta combinación.",
+    previewAnother: "🔁 Otro ejemplo",
+    previewClose: "Cerrar vista previa",
   },
   it: {
     title: "Viaggio",
@@ -176,6 +198,11 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     randomCountryAria: "Scegli un paese a caso",
     randomKindAria: "Scegli un tipo a caso",
     randomDomainAria: "Scegli un tema a caso",
+    previewLabel: "🎲 Esempio da questo paese",
+    previewLoading: "Caricamento…",
+    previewEmpty: "Nessun esempio disponibile per questa combinazione.",
+    previewAnother: "🔁 Un altro esempio",
+    previewClose: "Chiudi anteprima",
   },
   tr: {
     title: "Yolculuk",
@@ -203,6 +230,11 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     randomCountryAria: "Rastgele bir ülke seç",
     randomKindAria: "Rastgele bir tür seç",
     randomDomainAria: "Rastgele bir tema seç",
+    previewLabel: "🎲 Bu ülkeden örnek",
+    previewLoading: "Yükleniyor…",
+    previewEmpty: "Bu kombinasyon için örnek yok.",
+    previewAnother: "🔁 Başka bir örnek",
+    previewClose: "Önizlemeyi kapat",
   },
   de: {
     title: "Reise",
@@ -230,6 +262,11 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     randomCountryAria: "Zufälliges Land wählen",
     randomKindAria: "Zufälligen Typ wählen",
     randomDomainAria: "Zufälliges Thema wählen",
+    previewLabel: "🎲 この国からの例",
+    previewLoading: "読み込み中…",
+    previewEmpty: "この組み合わせの例はありません。",
+    previewAnother: "🔁 別の例",
+    previewClose: "プレビューを閉じる",
   },
   ja: {
     title: "旅",
@@ -257,6 +294,11 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     randomCountryAria: "国をランダムに選ぶ",
     randomKindAria: "タイプをランダムに選ぶ",
     randomDomainAria: "テーマをランダムに選ぶ",
+    previewLabel: "🎲 この国からの例",
+    previewLoading: "読み込み中…",
+    previewEmpty: "この組み合わせの例はありません。",
+    previewAnother: "🔁 別の例",
+    previewClose: "プレビューを閉じる",
   },
 };
 

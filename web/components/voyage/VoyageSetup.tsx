@@ -20,9 +20,10 @@ import { EDITORIAL_DOMAINS, DOMAIN_GROUPS, EDITORIAL_DOMAIN_MAP } from "@/lib/ed
 import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { VOYAGE_SETUP, VoyageSetupLabels } from "@/lib/voyageLabels";
 import CountryMap from "./CountryMap";
+import CountryPreview from "./CountryPreview";
 
 const KINDS = ["idiom", "proverb", "locution"] as const;
-const KIND_EMOJI: Record<string, string> = { idiom: "💬", proverb: "📜", locution: "🧩" };
+export const KIND_EMOJI: Record<string, string> = { idiom: "💬", proverb: "📜", locution: "🧩" };
 const EMPTY: VoyageFilters = { country: "", kind: "", domain: "" };
 
 export type VoyageFilters = { country: string; kind: string; domain: string };
@@ -69,6 +70,11 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
     !!(initial?.country || initial?.kind || initial?.domain)
   );
   const [rollingSection, setRollingSection] = useState<"country" | "kind" | "domain" | null>(null);
+  // Non-blocking example panel (S235) — set only from a manual pin tap
+  // (CountryMap's onPreview), never from the `initial`/URL-prefilled
+  // selection above, so deep links like /voyage?country=fr keep opening
+  // straight to a selected pin without the panel popping up unasked.
+  const [previewCountry, setPreviewCountry] = useState<string | null>(null);
   // Domain accordion (8 curated groups) — auto-open the group holding the
   // incoming selection, else all collapsed.
   const [openGroup, setOpenGroup] = useState<string | null>(
@@ -116,6 +122,13 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
     }, 200);
     return () => { cancelled = true; clearTimeout(timer); };
   }, [country, kind, domain]);
+
+  // Clearing the country (reset chip, deselect-by-retapping, dice landing
+  // back on "") always closes the preview too — it should never point at a
+  // country that's no longer selected.
+  useEffect(() => {
+    if (!country) setPreviewCountry(null);
+  }, [country]);
 
   // Same country for everyone on the same UTC day — /countries is sorted by
   // count DESC server-side (database.py get_countries), so the array order
@@ -247,7 +260,16 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
             🎲
           </button>
         </div>
-        <CountryMap countries={countries} selected={country} onSelect={setCountry} t={t} />
+        <CountryMap countries={countries} selected={country} onSelect={setCountry} onPreview={setPreviewCountry} t={t} />
+        {previewCountry && (
+          <CountryPreview
+            uiLang={uiLang}
+            country={previewCountry}
+            kind={kind}
+            domain={domain}
+            onClose={() => setPreviewCountry(null)}
+          />
+        )}
         {countries.length === 0 && countriesFailed && (
           <p style={{ fontSize: 12.5, color: "var(--terra, #b4552d)", marginTop: 6 }}>
             {t.countriesError}{" "}
