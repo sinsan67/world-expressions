@@ -1,6 +1,8 @@
 # Jeu 3 — Constellation de proverbes — Lot 0 Contract
 
-**Status: DRAFT — awaiting Sinan validation before any build (S234, 2026-08-12).**
+**Status: VALIDATED by Sinan (S234, 2026-08-12) — this contract is frozen.**
+Any change to routes, table shapes, or API signatures below must come back
+through this file first (same rule as `pivot-lot0-contract.md`).
 
 Upstream: 2 wireframes de comparaison (S233, `scratchpad/wireframe-game3-*.html`,
 détail dans la mémoire `game3-wireframes.md`) → piste **Constellation** retenue
@@ -49,19 +51,17 @@ d'un seul petit jeu.
 - **JA exclu** des pools de ce jeu, comme tous les jeux (règle existante,
   jusqu'à correction Luke L3).
 
-### Ouvert — à trancher avec Sinan avant ou pendant le build (pas bloquant pour ce contrat)
+### Tranché S234 (validé par Sinan)
 
-1. **Nom final du jeu.** Placeholder ci-dessous : route `/constellation`, nom
-   interne « Constellation ». Wording FR définitif + déclinaison 7 langues
-   différés au lot i18n, même séquençage que Voyage/Révision (nom tranché
-   après un passage mockup/test, pas à ce stade).
-2. **❤️ Garder écrit-il dans les favoris existants ?** Reco par défaut : oui,
-   réutilise `POST /users/{id}/favorites/{expression_id}` sans rien de neuf.
-3. **Trace-t-on une "partie" en DB (`game_sessions`) ?** Reco par défaut :
-   **non** — ce jeu est une exploration libre sans début/fin de partie
-   définis (contrairement à Voyage/Révision), plus proche d'Atlas/Explorer
-   (jamais tracé) que d'une partie à 10 cartes. Seul le ❤️ compte comme
-   signal.
+1. **Nom du jeu** : placeholder route `/constellation`, nom interne
+   « Constellation ». Wording FR définitif + déclinaison 7 langues différés
+   au lot i18n, même séquençage que Voyage/Révision (nom tranché après un
+   passage mockup/test, pas à ce stade).
+2. **❤️ Garder réutilise les favoris existants** — `POST
+   /users/{id}/favorites/{expression_id}`, aucun nouvel endpoint.
+3. **Pas de `game_sessions` pour ce jeu** — exploration libre sans début/fin
+   de partie définis (contrairement à Voyage/Révision), même statut
+   qu'Atlas/Explorer (jamais tracé). Seul le ❤️ compte comme signal.
 
 ---
 
@@ -69,7 +69,7 @@ d'un seul petit jeu.
 
 | Route | Écran | Changement |
 |---|---|---|
-| `/constellation` | Jeu 3 — constellation de proverbes (nom d'affichage FR final TBD) | **Nouveau** |
+| `/constellation` | Jeu 3 — constellation de proverbes (nom d'affichage FR final au lot i18n) | **Nouveau** |
 | `/` (hub) | La carte « bientôt » du jeu SVG, déjà prévue au hub depuis le pivot (S194), devient une vraie carte jouable → lien vers `/constellation` | Changement mineur (carte existante, lien à activer) |
 
 Pas de redirection à gérer — aucune route existante n'est absorbée
@@ -79,9 +79,8 @@ Pas de redirection à gérer — aucune route existante n'est absorbée
 
 ## 2. Data model
 
-**Additif uniquement — pas de migration Alembic pour ce lot** (sous réserve
-des réponses aux points ouverts 2 et 3 ci-dessus, tous deux réutilisent
-l'existant par défaut).
+**Additif uniquement — pas de migration Alembic pour ce lot** (favoris et
+sessions de jeu réutilisent l'existant tel quel, cf. §0).
 
 Le graphe (liste des ~44 tags-nœuds + positions x/y + arêtes) n'est **pas une
 table DB** : c'est un artefact statique versionné dans le repo
@@ -109,8 +108,7 @@ Deux nouveaux endpoints, aucune migration :
 | `GET /constellation/tag/{tag}` | `locale=` | `{tag, emoji, label, examples: [{expression_id, text, language, meaning, country}]}` — 2-3 proverbes du tag, langues distinctes tirées parmi celles disponibles, JA exclu | Tap sur un nœud |
 
 Réutilise le favori existant (`POST /users/{user_id}/favorites/{expression_id}`)
-pour « ❤️ Garder » — aucun changement à cet endpoint (sous réserve du point
-ouvert 2).
+pour « ❤️ Garder » — aucun changement à cet endpoint.
 
 ---
 
@@ -118,8 +116,7 @@ ouvert 2).
 
 `constellationLabels.ts` — même pattern que les autres jeux (`hubLabels.ts`,
 `voyageLabels.ts`...) : EN + FR remplis au lot de build, es/it/tr/de/ja
-complétés + wording arbitré avec Sinan au lot i18n (nom final compris, cf.
-point ouvert 1).
+complétés + wording arbitré avec Sinan au lot i18n (nom final compris).
 
 Clés : `title` · `hint` (description du geste pan/zoom/tap, pas de jargon
 technique) · `reveal` · `keepBtn` · `close` · `placeholder` (nœud sans contenu
@@ -138,7 +135,7 @@ lot suffit**, pas de "Lot API" séparé (pas de migration) :
 | **Graphe** | Script `build_constellation_graph.py` + JSON figé dans le repo | Sonnet 5 |
 | **Jeu** | Route `/constellation`, moteur pan/zoom (repris du wireframe, sans `backdrop-filter`), overlay devinette/révélation branché sur les 2 endpoints, bouton ❤️ | Sonnet 5 |
 | **Nav** | Activer la carte « bientôt » du hub → lien réel vers `/constellation` | Haiku |
-| **i18n** | `constellationLabels.ts` 7 langues, wording final du nom arbitré avec Sinan | Haiku, après le point ouvert 1 |
+| **i18n** | `constellationLabels.ts` 7 langues, wording final du nom arbitré avec Sinan | Haiku |
 
 Les 2 endpoints (§3) peuvent être ajoutés dans le même PR que le lot « Jeu »
 — pas besoin d'un lot API séparé mergé en amont comme pour le pivot (aucune
