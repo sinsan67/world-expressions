@@ -3,13 +3,17 @@ import { test, expect } from '@playwright/test';
 // "/" is now the games hub (docs/pivot-lot0-contract.md §1, lot A). The old
 // inline search UI moved to /search — its own e2e coverage lives in
 // search-page.spec.ts. These tests assert the Hub's own DOM: game cards,
-// teaser, collection strip, daily postcard, and that the first-visit
-// WelcomeModal gate still works.
+// collection strip, daily postcard, and that the first-visit WelcomeModal
+// gate still works.
+//
+// The 3rd card used to be a static non-clickable "coming soon" teaser
+// (game-card-teaser) — replaced by a real Jeu 3 (Constellation) GameCard
+// once that game shipped (docs/game3-constellation-lot0-contract.md).
 
 const T = 90_000;
 const VOYAGE_CARD = '[data-testid="game-card-voyage"]';
 const REVISION_CARD = '[data-testid="game-card-revision"]';
-const TEASER_CARD = '[data-testid="game-card-teaser"]';
+const CONSTELLATION_CARD = '[data-testid="game-card-constellation"]';
 const COLLECTION_STRIP = '[data-testid="collection-strip"]';
 const DAILY_POSTCARD = '[data-testid="daily-postcard"]';
 const EXPLORE_GRID = '[data-testid="explore-grid"]';
@@ -65,13 +69,18 @@ test.describe('Hub — sections & navigation', () => {
     await page.locator(VOYAGE_CARD).first().waitFor({ timeout: T });
   });
 
-  test('#5 rend le titre + les 2 cartes de jeu + le teaser + la collection + la carte du jour', async ({ page }) => {
+  test('#5 rend le titre + les 3 cartes de jeu + la collection + la carte du jour', async ({ page }) => {
     await expect(page.locator('h1')).toBeVisible({ timeout: T });
     await expect(page.locator(VOYAGE_CARD)).toBeVisible({ timeout: T });
     await expect(page.locator(REVISION_CARD)).toBeVisible({ timeout: T });
-    await expect(page.locator(TEASER_CARD)).toBeVisible({ timeout: T });
+    await expect(page.locator(CONSTELLATION_CARD)).toBeVisible({ timeout: T });
     await expect(page.locator(COLLECTION_STRIP)).toBeVisible({ timeout: T });
     await expect(page.locator(DAILY_POSTCARD)).toBeVisible({ timeout: T });
+  });
+
+  test('#5c la carte Constellation navigue vers /constellation', async ({ page }) => {
+    await page.locator(CONSTELLATION_CARD).click();
+    await expect(page).toHaveURL(/\/constellation/, { timeout: T });
   });
 
   test('#5b section "Explorer le monde" avec ses 4 cartes (Atlas, Concepts, Pays, Proverbes)', async ({ page }) => {

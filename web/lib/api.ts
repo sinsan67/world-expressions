@@ -497,6 +497,43 @@ export async function reportExpression(payload: {
   return res.json();
 }
 
+// ─── Jeu 3 — Constellation (docs/game3-constellation-lot0-contract.md §3) ───
+
+export type ConstellationNode = { tag: string; emoji: string; label: string; x: number; y: number };
+export type ConstellationGraph = { nodes: ConstellationNode[]; edges: [number, number][] };
+
+export async function getConstellationGraph(locale = ""): Promise<ConstellationGraph> {
+  const params = new URLSearchParams();
+  if (locale) params.set("locale", locale);
+  const qs = params.toString();
+  const res = await fetch(`${API}/constellation/graph${qs ? `?${qs}` : ""}`);
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
+export type ConstellationExample = {
+  expression_id: string;
+  text: string;
+  language: string;
+  meaning: string;
+  country: string;
+};
+export type ConstellationTag = {
+  tag: string;
+  emoji: string;
+  label: string;
+  examples: ConstellationExample[];
+};
+
+export async function getConstellationTag(tag: string, locale = ""): Promise<ConstellationTag> {
+  const params = new URLSearchParams();
+  if (locale) params.set("locale", locale);
+  const qs = params.toString();
+  const res = await fetch(`${API}/constellation/tag/${tag}${qs ? `?${qs}` : ""}`);
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
 export async function updateUserName(userId: string, name: string): Promise<{ name: string | null }> {
   const res = await fetch(`${API}/users/${userId}/name`, {
     method: "PUT",

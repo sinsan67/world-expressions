@@ -19,6 +19,7 @@ import urllib.error
 import urllib.request
 import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Optional
 
 import bcrypt
@@ -1784,3 +1785,101 @@ def send_transactional_email(to: str, subject: str, html_body: str) -> None:
     except urllib.error.HTTPError as e:
         body = e.read().decode(errors="replace")
         raise RuntimeError(f"Resend API error {e.code}: {body}") from e
+
+
+# ── Jeu 3 — Constellation de proverbes (docs/game3-constellation-lot0-contract.md) ──
+
+_CONSTELLATION_GRAPH_PATH = Path(__file__).parent / "data" / "constellation_graph.json"
+_constellation_graph_cache: Optional[dict] = None
+
+
+def _load_constellation_graph() -> dict:
+    """Lu une fois puis mis en cache pour la durée du process (contract §3 : lecture
+    fichier, pas de requête SQL par appel). Un redéploiement recharge au 1er appel suivant."""
+    global _constellation_graph_cache
+    if _constellation_graph_cache is None:
+        with open(_CONSTELLATION_GRAPH_PATH, encoding="utf-8") as f:
+            _constellation_graph_cache = json.load(f)
+    return _constellation_graph_cache
+
+
+def get_constellation_graph(locale: str = "en") -> dict:
+    """GET /constellation/graph. Pure lecture du JSON en cache — aucune requête SQL."""
+    graph = _load_constellation_graph()
+    loc = locale if locale in graph.get("locales", []) else "en"
+    nodes = [
+        {
+            "tag": n["tag"],
+            "emoji": n["emoji"],
+            "label": n["labels"].get(loc) or n["labels"]["en"],
+            "x": n["x"],
+            "y": n["y"],
+        }
+        for n in graph["nodes"]
+    ]
+    return {"nodes": nodes, "edges": graph["edges"]}
+
+
+def get_constellation_tag(tag: str, locale: str = "en") -> Optional[dict]:
+    """
+    GET /constellation/tag/{tag}. Volontairement PAS limité à l'ensemble des nœuds
+    du graphe curé : fonctionne pour n'importe quel slug de tag réel, pour que cet
+    endpoint (et ses tests) restent indépendants des choix de curation faits par
+    scripts/build_constellation_graph.py. emoji/label viennent du graphe en cache
+    quand ce tag y figure ; sinon repli sur tag_names/slug (même forme que
+    get_top_tags). Retourne None (-> 404) seulement si le slug n'existe pas du tout
+    dans `tags`.
+    2-3 exemples, langues distinctes, JA exclu (Luke L3 — même règle que tous les
+    pools de jeu, cf. get_daily_expression / create_game_session : jamais fondue
+    dans _RANDOM_POOL_WHERE, toujours une ligne séparée et commentée).
+    """
+    with engine.connect() as conn:
+        tag_row = conn.execute(text("""
+            SELECT t.id, t.slug, COALESCE(tn.name, t.slug) AS label
+            FROM tags t
+            LEFT JOIN tag_names tn ON tn.tag_id = t.id AND tn.locale = :locale
+            WHERE t.slug = :tag
+        """), {"tag": tag, "locale": locale}).fetchone()
+        if tag_row is None:
+            return None
+
+        rows = conn.execute(text("""
+            SELECT DISTINCT ON (e.language)
+                   e.id, e.text, e.language, e.country,
+                   COALESCE(ec_pref.meaning, ct_pref.meaning, ec_orig.meaning) AS meaning
+            FROM expressions e
+            JOIN expression_tags et ON et.expression_id = e.id
+            LEFT JOIN expression_content ec_orig
+                ON ec_orig.expression_id = e.id AND ec_orig.locale = e.language
+            LEFT JOIN expression_content ec_pref
+                ON ec_pref.expression_id = e.id AND ec_pref.locale = :locale
+            LEFT JOIN content_translations ct_pref
+                ON ct_pref.expression_id = e.id AND ct_pref.target_lang = :locale
+            WHERE et.tag_id = :tag_id
+              AND e.kind = 'proverb'
+              AND e.language != 'ja'
+            ORDER BY e.language, RANDOM()
+        """), {"tag_id": tag_row.id, "locale": locale}).fetchall()
+
+    rows = list(rows)
+    random.shuffle(rows)  # varie les langues montrées d'un appel à l'autre (contract §3 : "tirées")
+    examples = [
+        {
+            "expression_id": r.id,
+            "text": r.text,
+            "language": r.language,
+            "meaning": r.meaning or "",
+            "country": r.country,
+        }
+        for r in rows[:3]
+    ]
+
+    graph = _load_constellation_graph()
+    node = next((n for n in graph["nodes"] if n["tag"] == tag), None)
+    if node:
+        loc = locale if locale in graph.get("locales", []) else "en"
+        emoji, label = node["emoji"], (node["labels"].get(loc) or node["labels"]["en"])
+    else:
+        emoji, label = "", tag_row.label
+
+    return {"tag": tag_row.slug, "emoji": emoji, "label": label, "examples": examples}
