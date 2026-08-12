@@ -182,27 +182,21 @@ export default function Hub() {
             ]}
           />
 
-          {/* Teaser — 3rd game, static & non-clickable (S196 decision) */}
-          <div
-            data-testid="game-card-teaser"
-            style={{
-              background: "transparent",
-              border: "2px dashed var(--ink-faint)",
-              borderRadius: "var(--r-lg)",
-              padding: "0.85rem 1.1rem",
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              cursor: "default",
-            }}
-          >
-            <span style={{ fontSize: 26, filter: "grayscale(0.4)" }} aria-hidden="true">🗺️</span>
-            <div style={{ fontSize: 13, color: "var(--ink-softer)", lineHeight: 1.35 }}>
-              <strong style={{ color: "var(--ink-soft)" }}>{t.comingSoon.title}</strong>
-              <br />
-              {t.comingSoon.body}
-            </div>
-          </div>
+          {/* Jeu 3 — Constellation (docs/game3-constellation-lot0-contract.md).
+              Replaces the static "coming soon" teaser (S196) now that the
+              game is real. Emoji swapped from the teaser's 🗺️ (world-map
+              track) to ✨ — that track was the one *rejected* at S234 in
+              favor of the emoji-constellation track, so keeping 🗺️ here
+              would now be actively misleading. */}
+          <GameCard
+            variant="constellation"
+            emoji="✨"
+            title={t.constellation.title}
+            subtitle={t.constellation.tagline}
+            ctaLabel={t.constellation.cta}
+            href="/constellation"
+            testId="game-card-constellation"
+          />
         </div>
 
         {/* Collection teaser + daily postcard */}

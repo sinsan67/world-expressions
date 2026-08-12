@@ -14,6 +14,7 @@ export type HubLabels = {
   title: string;
   voyage: { title: string; tagline: string; cta: string };
   revision: { title: string; tagline: string; cta: string };
+  constellation: { title: string; tagline: string; cta: string };
   comingSoon: { title: string; body: string };
   daily: { title: string; hint: string };
   collection: { teaser: string; count: (n: number) => string; empty: string };
@@ -33,6 +34,11 @@ export const HUB_LABELS: Record<Lang, HubLabels> = {
       title: "Révision",
       tagline: "Ne pioche que dans ta collection. Retourne la carte — tu la savais, ou pas encore ?",
       cta: "Réviser ▸",
+    },
+    constellation: {
+      title: "Constellation",
+      tagline: "Touche un nœud, découvre 2-3 proverbes du monde. Garde ceux qui te parlent ❤️",
+      cta: "Explorer ▸",
     },
     comingSoon: {
       title: "Bientôt — un 3e jeu",
@@ -71,6 +77,11 @@ export const HUB_LABELS: Record<Lang, HubLabels> = {
       tagline: "Draws only from your collection. Flip the card — did you know it, or not yet?",
       cta: "Review ▸",
     },
+    constellation: {
+      title: "Constellation",
+      tagline: "Tap a node, discover 2-3 proverbs from around the world. Keep the ones that speak to you ❤️",
+      cta: "Explore ▸",
+    },
     comingSoon: {
       title: "Coming soon — a 3rd game",
       body: "Explore expressions on a world map… or in emoji constellations ✨",
@@ -107,6 +118,11 @@ export const HUB_LABELS: Record<Lang, HubLabels> = {
       title: "Repaso",
       tagline: "Solo saca cartas de tu colección. Dale la vuelta: ¿la sabías, o todavía no?",
       cta: "Repasar ▸",
+    },
+    constellation: { // TODO(i18n lot)
+      title: "Constellation",
+      tagline: "Tap a node, discover 2-3 proverbs from around the world. Keep the ones that speak to you ❤️",
+      cta: "Explore ▸",
     },
     comingSoon: {
       title: "Muy pronto — un 3er juego",
@@ -145,6 +161,11 @@ export const HUB_LABELS: Record<Lang, HubLabels> = {
       tagline: "Pesca solo dalla tua collezione. Gira la carta: la sapevi, o non ancora?",
       cta: "Ripassa ▸",
     },
+    constellation: { // TODO(i18n lot)
+      title: "Constellation",
+      tagline: "Tap a node, discover 2-3 proverbs from around the world. Keep the ones that speak to you ❤️",
+      cta: "Explore ▸",
+    },
     comingSoon: {
       title: "Prossimamente — un 3° gioco",
       body: "Esplora le espressioni su una mappa del mondo… o in costellazioni di emoji ✨",
@@ -181,6 +202,11 @@ export const HUB_LABELS: Record<Lang, HubLabels> = {
       title: "Tekrar",
       tagline: "Sadece senin koleksiyonundan çeker. Kartı çevir — biliyor muydun, yoksa henüz mü?",
       cta: "Tekrar et ▸",
+    },
+    constellation: { // TODO(i18n lot)
+      title: "Constellation",
+      tagline: "Tap a node, discover 2-3 proverbs from around the world. Keep the ones that speak to you ❤️",
+      cta: "Explore ▸",
     },
     comingSoon: {
       title: "Yakında — 3. bir oyun",
@@ -219,6 +245,11 @@ export const HUB_LABELS: Record<Lang, HubLabels> = {
       tagline: "Zieht nur aus deiner Sammlung. Dreh die Karte um — wusstest du sie, oder noch nicht?",
       cta: "Wiederholen ▸",
     },
+    constellation: { // TODO(i18n lot)
+      title: "Constellation",
+      tagline: "Tap a node, discover 2-3 proverbs from around the world. Keep the ones that speak to you ❤️",
+      cta: "Explore ▸",
+    },
     comingSoon: {
       title: "Bald — ein 3. Spiel",
       body: "Entdecke Ausdrücke auf einer Weltkarte… oder in Emoji-Konstellationen ✨",
@@ -255,6 +286,11 @@ export const HUB_LABELS: Record<Lang, HubLabels> = {
       title: "復習",
       tagline: "あなたのコレクションからだけ出題。カードをめくって——覚えていましたか、まだですか？",
       cta: "復習する ▸",
+    },
+    constellation: { // TODO(i18n lot)
+      title: "Constellation",
+      tagline: "Tap a node, discover 2-3 proverbs from around the world. Keep the ones that speak to you ❤️",
+      cta: "Explore ▸",
     },
     comingSoon: {
       title: "近日公開 — 3つ目のゲーム",
