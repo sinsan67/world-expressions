@@ -156,3 +156,81 @@ où Render = prod unique imposait l'ordre).
 - Tester `gesturestart` sur Safari mobile réel avant merge.
 - Lot owner : lire `web/AGENTS.md` avant tout code Next.js (breaking changes
   vs training data).
+
+---
+
+## 7. Addendum S239 (2026-08-13) — Atelier UX overlay + parcourir/filtrer
+
+**Status : VALIDÉ par Sinan (S239) — s'ajoute au contrat, ne remplace aucune
+section précédente.** Fait suite au retour de Sinan après test réel du jeu
+sur staging (S238) : le flux devinette/révélation de `ConstellationOverlay.tsx`
+n'apportait pas grand-chose, et il manquait un moyen de parcourir les
+proverbes across-thèmes par langue/pays (la constellation n'organise que
+par thème, pas par langue).
+
+### 7.1 Flux tap → reveal : suppression du bouton "Révéler"
+
+Le clic "Révéler" disparaît. Au tap sur un nœud :
+1. emoji + nom du thème s'affichent immédiatement (déjà le cas pendant le
+   `loading` actuel) ;
+2. dès que `GET /constellation/tag/{tag}` répond, fondu automatique
+   (~0.4s) vers les proverbes — **aucun clic requis**, juste un temps de
+   respiration avant l'apparition (garde un peu de théâtralité, principe
+   Playfulness du projet, sans le geste creux de l'ancien bouton).
+
+Impact code (prochain lot, pas cette session) : `ConstellationOverlay.tsx`
+perd la prop `revealed`/`onReveal` et le bouton `primaryBtnStyle`
+(`data-testid="constellation-reveal"`) ; `Constellation.tsx` perd le state
+`revealed`/`setRevealed` ; le rendu des `ExampleRow` devient conditionné à
+`!loading && hasExamples` avec une classe/animation CSS de fondu au lieu de
+`revealed`. `constellationLabels.ts` : la clé `reveal` devient orpheline
+(à retirer avec le reste du lot, comme `comingSoon` dans `hubLabels.ts`
+S237).
+
+### 7.2 Nouvelle vue "Parcourir/Filtrer" — réutilise `ExpressionCard` + `ResultsFilterBar`
+
+**Pas de tableau, pas de nouvel onglet navigateur.** Réutilisation directe
+du pattern déjà utilisé identiquement sur 4 pages existantes (`/search`,
+`/domain/[slug]`, `/country/[code]`, `/type/[slug]`) : grille responsive de
+`ExpressionCard` (`repeat(auto-fill, minmax(300px, 1fr))`, déjà 1 colonne
+sur mobile) + `ResultsFilterBar` (déjà doté d'un filtre pays natif,
+`data-testid="filter-country-{code}"`, et d'un filtre type incluant
+`"proverb"`). Zéro nouveau composant visuel à inventer.
+
+- **Entrée** : bouton (ex. 🔍) sur `ConstellationStage.tsx`, coin de l'écran
+  — à définir précisément au lot de build (ne bloque pas ce cadrage).
+- **Route** : nouvelle vue dédiée, ex. `/constellation/browse` (nom
+  définitif au lot de build). Pas de panneau superposé, pas de vrai onglet
+  navigateur — une navigation SPA classique comme `/domain/[slug]`.
+- **Champs de filtre : langue/pays uniquement.** Pas de filtre thème (la
+  constellation *est* déjà l'exploration par thème — redondant) ; pas de
+  recherche texte libre (existe déjà ailleurs dans l'app, `/search`).
+- **Portée des résultats** : `kind='proverb'`, restreint aux tags-nœuds de
+  la constellation (les ~151 tags du graphe, pas tous les tags DB) — pour
+  que chaque carte affichée pointe vers un nœud réel et cliquable en
+  retour (§7.3). Nécessite un moyen de filtrer côté API par ensemble de
+  tags-nœuds (soit un nouveau paramètre, soit un filtrage client sur les
+  tags connus de `constellation_graph.json`) — à trancher au lot de build.
+
+### 7.3 Lien retour : carte → nœud
+
+Cliquer une carte dans la vue "Parcourir/Filtrer" :
+1. ferme la vue, retour à `/constellation` ;
+2. centre/pan la caméra sur le nœud (tag) correspondant ;
+3. ouvre directement l'overlay de ce nœud, avec le nouveau flux instantané
+   du §7.1 (l'utilisateur arrive directement sur "trouvé, et voilà son
+   thème", pas besoin de re-taper le nœud).
+
+**Détail non bloquant** : si une expression retournée a plusieurs tags qui
+sont chacun un nœud éligible de la constellation, on retient le premier
+match (ordre du tableau `tags` de l'expression) pour le retour — pas de
+logique de désambiguïsation à construire.
+
+### 7.4 Hors périmètre de cet addendum
+
+- Pas de changement à la sélection des nœuds (§0.2), au layout (clustering
+  3 niveaux — toujours en dette, voir `game3-wireframes.md` S238), ni au
+  moteur pan/zoom.
+- Équivalent mobile de l'entrée "Parcourir/Filtrer" : le bouton 🔍 fonctionne
+  nativement sur mobile (même route, même composants responsives) — pas de
+  variante séparée à concevoir.
