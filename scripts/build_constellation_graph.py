@@ -4,10 +4,12 @@ Génère data/constellation_graph.json — Jeu 3 "Constellation de proverbes"
 (docs/game3-constellation-lot0-contract.md §2).
 
 Sélectionne les tags portés par >=3 langues et >=10 proverbes (kind='proverb'),
-calcule un layout déterministe (force-directed, pur Python) + des arêtes
-(2 plus proches voisins), embarque les labels localisés (tag_names, 7 langues)
-et écrit un artefact JSON statique versionné dans le repo — pas de calcul
-serveur à la volée (contract §2).
+calcule un layout hiérarchique déterministe à 3 niveaux — groupe thématique
+(DOMAIN_TO_GROUP, via concept_domains) -> sous-grappe géométrique -> nœud
+individuel, pur Python sans dépendance (S240) — + des arêtes (2 plus proches
+voisins au sein d'une même sous-grappe), embarque les labels localisés
+(tag_names, 7 langues) et écrit un artefact JSON statique versionné dans le
+repo — pas de calcul serveur à la volée (contract §2).
 
 Usage:
     python3 scripts/build_constellation_graph.py            # DB dev
@@ -19,8 +21,10 @@ import sys
 import json
 import math
 import random
+import hashlib
 import argparse
 from pathlib import Path
+from collections import defaultdict
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -98,6 +102,24 @@ TAG_EMOJI: dict[str, str] = {
     "appreciation": "🙌", "empathy": "🫶",
 }
 
+# Layout hiérarchique (S240) — groupe thématique (niveau 1) auquel rattacher
+# chaque tag via son premier domaine (concept_domains), fallback "misc" pour
+# les tags sans domaine mappé ici. Porté tel quel depuis le prototype S238/239
+# (scripts/_prototype_clustered_layout.py, supprimé après intégration).
+DOMAIN_TO_GROUP = {
+    "wisdom": "wisdom-knowledge", "knowledge": "wisdom-knowledge",
+    "time": "time-change", "change": "time-change",
+    "morality": "morality-justice", "justice": "morality-justice",
+    "speech": "speech-conflict", "humor": "speech-conflict", "conflict": "speech-conflict",
+    "relations": "pleasure-love", "pleasure": "pleasure-love", "food": "pleasure-love",
+    "work": "effort-ambition", "ambition": "effort-ambition",
+    "money": "money-luck", "luck": "money-luck",
+    "body": "body-nature", "nature": "body-nature",
+    "emotions": "emotions", "travel": "travel",
+}
+TARGET_SUBCLUSTER_SIZE = 6
+SPLIT_THRESHOLD = 8  # groupes <= ce seuil : pas de sous-grappe (niveau 2 = niveau 3)
+
 
 def fetch_candidate_tags(min_langs: int = 3, min_proverbs: int = 10) -> list[dict]:
     sql = """
@@ -135,19 +157,84 @@ def fetch_labels(tag_ids: list[str]) -> dict[str, dict[str, str]]:
     return labels
 
 
-def force_directed_layout(n: int, seed: int = 42, iterations: int = 500) -> list[tuple[float, float]]:
-    """Sans dépendance, déterministe. Répulsion O(n²) entre tous les nœuds
-    (n≈150-250 -> quelques dizaines de milliers de paires, trivial) + légère
-    attraction vers le centre, refroidissement linéaire. Canvas mis à l'échelle
-    pour garder une densité ~constante par rapport à la référence du wireframe
-    (1600x1000 pour 41 nœuds)."""
+def fetch_tag_domains(tag_ids: list[str]) -> dict[str, list[str]]:
+    """slug -> [domain_slug, ...] (0-2 domaines par tag, populés via Mistral —
+    voir populate_concept_domains.py). ORDER BY cd.domain_slug pour que
+    domains[0] soit reproductible d'un run à l'autre pour les tags multi-
+    domaines (sans ce tri, l'ordre de retour de Postgres n'est pas garanti et
+    le groupe assigné à ces tags varierait d'un run à l'autre)."""
+    if not tag_ids:
+        return {}
+    sql = """
+        SELECT t.slug, cd.domain_slug
+        FROM tags t JOIN concept_domains cd ON cd.tag_id = t.id
+        WHERE t.id = ANY(:ids)
+        ORDER BY cd.domain_slug
+    """
+    with engine.connect() as conn:
+        rows = conn.execute(text(sql), {"ids": tag_ids}).fetchall()
+    domains: dict[str, list[str]] = {}
+    for r in rows:
+        domains.setdefault(r.slug, []).append(r.domain_slug)
+    return domains
+
+
+def nearest_neighbor_edges(
+    positions: list[tuple[float, float]],
+    k: int = 2,
+    groups: list | None = None,
+) -> list[list[int]]:
+    """Même logique que le wireframe : 2 plus proches voisins, dédupliqué.
+    Purement visuel (effet constellation), aucune signification sémantique.
+
+    `groups` (optionnel, même longueur que `positions`) restreint la recherche
+    de voisins aux nœuds partageant la même valeur de groupe — utilisé par le
+    layout hiérarchique (S240) pour ne tracer des arêtes qu'au sein d'une même
+    sous-grappe `(group, sub_id)`, au lieu de dupliquer cette logique dans une
+    fonction séparée. Sans `groups` : comportement inchangé (k plus proches
+    voisins sur l'ensemble des positions)."""
+    n = len(positions)
+    edges = set()
+    for i in range(n):
+        pool = [
+            j for j in range(n)
+            if j != i and (groups is None or groups[j] == groups[i])
+        ]
+        order = sorted(
+            pool,
+            key=lambda j: math.hypot(positions[i][0] - positions[j][0], positions[i][1] - positions[j][1]),
+        )
+        for j in order[:k]:
+            edges.add((min(i, j), max(i, j)))
+    return [list(e) for e in edges]
+
+
+def stable_seed(*parts) -> int:
+    """Seed déterministe entre process à partir d'un nom de groupe/sous-grappe.
+    hash() natif sur des str est randomisé par process (PYTHONHASHSEED non fixé
+    par défaut) — MD5 sur la représentation str() est stable, condition
+    nécessaire pour que le layout hiérarchique reste reproductible d'un run à
+    l'autre (docstring du module : "Sans dépendance, déterministe")."""
+    key = "|".join(str(p) for p in parts)
+    return int(hashlib.md5(key.encode()).hexdigest(), 16) % (2**32)
+
+
+def repulsion_center_layout(
+    n: int, width: float, height: float, center_coef: float, seed: int, iterations: int = 300
+) -> list[tuple[float, float]]:
+    """Force-directed générique (répulsion O(n²) + rappel centre + refroidissement
+    linéaire) paramétré par la taille de canvas, le coefficient de rappel et la
+    seed — réutilisable à toute échelle (groupe, sous-grappe, membres) pour le
+    layout hiérarchique à 3 niveaux (S240). Remplace l'ancien force_directed_layout()
+    (single-level, supprimé S241 — plus appelé depuis l'intégration du clustering)."""
+    if n == 0:
+        return []
+    if n == 1:
+        return [(width / 2, height / 2)]
     rng = random.Random(seed)
-    scale = math.sqrt(n / 41)
-    width, height = 1600 * scale, 1000 * scale
     cx, cy = width / 2, height / 2
     pos = [[rng.uniform(0, width), rng.uniform(0, height)] for _ in range(n)]
-    k = math.sqrt(width * height / max(n, 1))
-
+    k = math.sqrt(width * height / n)
     for it in range(iterations):
         step = 1.0 - it / iterations
         disp = [[0.0, 0.0] for _ in range(n)]
@@ -161,31 +248,122 @@ def force_directed_layout(n: int, seed: int = 42, iterations: int = 500) -> list
                 disp[i][1] += fy
                 disp[j][0] -= fx
                 disp[j][1] -= fy
+        # Centering pull must be ~O(k), not a small fixed fraction of distance —
+        # too weak and it's dwarfed by the O(n) aggregate repulsion any node
+        # near the boundary receives from every other node, so nothing pulls
+        # nodes back off the walls once they reach them and they pile up along
+        # the 4 edges. Every call site here passes center_coef=8.0 — keeps
+        # nodes off the boundary while preserving an even, non-overlapping
+        # spread (tuned empirically, verified at n=151 with an empty-interior
+        # regression before the fix).
         for i in range(n):
-            disp[i][0] += (cx - pos[i][0]) * 0.01
-            disp[i][1] += (cy - pos[i][1]) * 0.01
+            disp[i][0] += (cx - pos[i][0]) * center_coef
+            disp[i][1] += (cy - pos[i][1]) * center_coef
         max_disp = k * 0.5 * step + 0.1
         for i in range(n):
             dlen = math.hypot(*disp[i]) or 0.01
             capped = min(dlen, max_disp)
-            pos[i][0] = min(max(pos[i][0] + disp[i][0] / dlen * capped, 40), width - 40)
-            pos[i][1] = min(max(pos[i][1] + disp[i][1] / dlen * capped, 40), height - 40)
-    return [(round(x, 1), round(y, 1)) for x, y in pos]
+            pos[i][0] = min(max(pos[i][0] + disp[i][0] / dlen * capped, 20), width - 20)
+            pos[i][1] = min(max(pos[i][1] + disp[i][1] / dlen * capped, 20), height - 20)
+    return [(x, y) for x, y in pos]
 
 
-def nearest_neighbor_edges(positions: list[tuple[float, float]], k: int = 2) -> list[list[int]]:
-    """Même logique que le wireframe : 2 plus proches voisins, dédupliqué.
-    Purement visuel (effet constellation), aucune signification sémantique."""
-    n = len(positions)
-    edges = set()
-    for i in range(n):
-        order = sorted(
-            (j for j in range(n) if j != i),
-            key=lambda j: math.hypot(positions[i][0] - positions[j][0], positions[i][1] - positions[j][1]),
+def layout_members(members: list, span_fn, seed: int) -> tuple[list[tuple[float, float]], float]:
+    """Force-directed local centré sur (0,0) — span (taille de canvas local)
+    dépend du nombre de membres via span_fn."""
+    m = len(members)
+    span = span_fn(m)
+    raw = repulsion_center_layout(m, span, span, center_coef=8.0, seed=seed, iterations=250)
+    return [(x - span / 2, y - span / 2) for x, y in raw], span
+
+
+def hierarchical_layout(
+    candidates: list[dict], tag_domains: dict[str, list[str]]
+) -> tuple[list[dict], list[tuple[float, float]], list[str], list[tuple[str, int]]]:
+    """Layout 3 niveaux : groupe thématique (DOMAIN_TO_GROUP, fallback "misc")
+    -> sous-grappe géométrique (~TARGET_SUBCLUSTER_SIZE nœuds, seulement si le
+    groupe dépasse SPLIT_THRESHOLD membres — pur partitionnement spatial sans
+    nouvelle donnée) -> nœud individuel. Porté depuis le prototype S238/S239
+    (scripts/_prototype_clustered_layout.py, supprimé après intégration), avec
+    2 corrections : seeds déterministes entre process (stable_seed, pas hash()
+    natif) et canvas de niveau 1 proportionné à len(candidates) au lieu d'une
+    constante fixe (pour que --top N reste sain à petite échelle).
+
+    Retourne les candidats réordonnés (groupés par groupe/sous-grappe — l'ordre
+    de `candidates` n'est PAS préservé, il n'a pas de sens produit) alignés
+    avec positions/groupes/clés de sous-grappe — cette dernière liste est faite
+    pour nearest_neighbor_edges(..., groups=...) afin de ne tracer des arêtes
+    qu'au sein d'une même sous-grappe."""
+    n_total = len(candidates)
+    groups: dict[str, list[dict]] = defaultdict(list)
+    for c in candidates:
+        doms = tag_domains.get(c["slug"], [])
+        group = DOMAIN_TO_GROUP.get(doms[0], "misc") if doms else "misc"
+        groups[group].append(c)
+
+    group_slugs = sorted(groups, key=lambda g: -len(groups[g]))
+
+    # Niveau 1 : centres des groupes. Canvas proportionnel à len(candidates)
+    # (scale = sqrt(n/référence), même technique que l'ancien single-level
+    # force_directed_layout), avec comme référence n=151 (taille type du jeu
+    # complet de candidats, écart discuté contract §0) -> 3600x2300 (tunées
+    # empiriquement au prototype) : évite un canvas surdimensionné et des
+    # groupes épars quand --top réduit fortement n.
+    outer_scale = math.sqrt(max(n_total, 1) / 151)
+    outer_w, outer_h = 3600 * outer_scale, 2300 * outer_scale
+    group_centers = repulsion_center_layout(
+        len(group_slugs), outer_w, outer_h, center_coef=8.0, seed=1, iterations=400
+    )
+
+    ordered_candidates: list[dict] = []
+    positions: list[tuple[float, float]] = []
+    node_groups: list[str] = []
+    subcluster_keys: list[tuple[str, int]] = []
+
+    for group, (gx, gy) in zip(group_slugs, group_centers):
+        members = groups[group]
+        m = len(members)
+
+        if m <= SPLIT_THRESHOLD:
+            # Pas de niveau 2 : un seul amas pour tout le groupe.
+            local, _ = layout_members(members, lambda mm: 130 + 55 * math.sqrt(mm), seed=stable_seed(group))
+            for c, (lx, ly) in zip(members, local):
+                ordered_candidates.append(c)
+                positions.append((gx + lx, gy + ly))
+                node_groups.append(group)
+                subcluster_keys.append((group, 0))
+            continue
+
+        # Niveau 2 : sous-grappes géométriques (~TARGET_SUBCLUSTER_SIZE nœuds).
+        # Découpage arbitraire (aucune similarité sémantique entre tags d'un
+        # même domaine dans les données actuelles) — pur chunking visuel.
+        n_sub = max(2, round(m / TARGET_SUBCLUSTER_SIZE))
+        rng = random.Random(stable_seed(group, "shuffle"))
+        shuffled = members[:]
+        rng.shuffle(shuffled)
+        sub_members = [s for s in (shuffled[i::n_sub] for i in range(n_sub)) if s]
+
+        group_span = 260 + 210 * math.sqrt(len(sub_members))
+        sub_centers = repulsion_center_layout(
+            len(sub_members), group_span, group_span, center_coef=8.0,
+            seed=stable_seed(group, "subcenters"), iterations=300,
         )
-        for j in order[:k]:
-            edges.add((min(i, j), max(i, j)))
-    return [list(e) for e in edges]
+        sub_centers = [(x - group_span / 2, y - group_span / 2) for x, y in sub_centers]
+
+        for sub_id, (sub, (scx, scy)) in enumerate(zip(sub_members, sub_centers)):
+            local, _ = layout_members(sub, lambda mm: 120 + 50 * math.sqrt(mm), seed=stable_seed(group, sub_id))
+            for c, (lx, ly) in zip(sub, local):
+                ordered_candidates.append(c)
+                positions.append((gx + scx + lx, gy + scy + ly))
+                node_groups.append(group)
+                subcluster_keys.append((group, sub_id))
+
+    # Normalise dans le cadre positif (mêmes marges que le prototype).
+    min_x = min(x for x, _ in positions)
+    min_y = min(y for _, y in positions)
+    positions = [(round(x - min_x + 60, 1), round(y - min_y + 60, 1)) for x, y in positions]
+
+    return ordered_candidates, positions, node_groups, subcluster_keys
 
 
 def main():
@@ -215,8 +393,9 @@ def main():
         print(f"--top {args.top} appliqué -> {len(candidates)} nœuds")
 
     labels = fetch_labels([c["id"] for c in candidates])
-    positions = force_directed_layout(len(candidates))
-    edges = nearest_neighbor_edges(positions)
+    tag_domains = fetch_tag_domains([c["id"] for c in candidates])
+    ordered_candidates, positions, node_groups, subcluster_keys = hierarchical_layout(candidates, tag_domains)
+    edges = nearest_neighbor_edges(positions, groups=subcluster_keys)
 
     nodes = [
         {
@@ -225,8 +404,9 @@ def main():
             "labels": {loc: labels.get(c["slug"], {}).get(loc) or c["slug"] for loc in UI_LOCALES},
             "x": x,
             "y": y,
+            "group": group,
         }
-        for c, (x, y) in zip(candidates, positions)
+        for c, (x, y), group in zip(ordered_candidates, positions, node_groups)
     ]
     graph = {"locales": UI_LOCALES, "nodes": nodes, "edges": edges}
 
