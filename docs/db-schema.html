@@ -12,6 +12,8 @@
     --terra: #c1543a; --terra-bg: #f7e3d8;
     --ochre: #8b6b1c; --ochre-bg: #faf2cf;
     --slate: #4a6274; --slate-bg: #e3ebf1;
+    --sage: #5f7a52; --sage-bg: #e6ede0;
+    --rose: #a24d68; --rose-bg: #f5e2e8;
   }
   * { box-sizing: border-box; }
   body {
@@ -58,6 +60,8 @@
   .plum-h { background: var(--plum); } .plum-t { color: var(--plum); }
   .ochre-h { background: #b08a2e; } .ochre-t { color: var(--ochre); }
   .slate-h { background: var(--slate); } .slate-t { color: var(--slate); }
+  .sage-h { background: var(--sage); } .sage-t { color: var(--sage); }
+  .rose-h { background: var(--rose); } .rose-t { color: var(--rose); }
 
   .rel {
     background: var(--paper-deep); border: 1px solid var(--paper-edge); border-radius: 10px;
@@ -84,8 +88,8 @@
 <div class="wrap">
 
   <h1>Database schema</h1>
-  <p class="sub">World Expressions — PostgreSQL (Neon) · 12 tables · managed with SQLAlchemy + Alembic</p>
-  <p class="meta">Generated 2026-06-12 from <code>models.py</code> + Alembic migrations (the live DB is the source of truth). Indicative volume: ~15,000 expressions, 7 UI languages, 14+ countries.</p>
+  <p class="sub">World Expressions — PostgreSQL (Neon) · 17 tables · managed with SQLAlchemy + Alembic</p>
+  <p class="meta">Regenerated 2026-07-23 from <code>models.py</code> HEAD + Alembic migrations (the live DB is the source of truth). Indicative volume: ~15,000 expressions, 7 UI languages, 14+ countries.</p>
 
   <p class="legend">
     <span class="badge pk">PK</span> primary key &nbsp;·&nbsp;
@@ -109,8 +113,8 @@
           <tr><td class="cname">id <span class="badge pk">PK</span></td><td class="ctype">varchar(120)</td><td class="cnote">kebab-case slug, e.g. <code>avoir-le-cafard</code></td></tr>
           <tr><td class="cname">text</td><td class="ctype">text</td><td class="cnote">original text — never translated</td></tr>
           <tr><td class="cname">language</td><td class="ctype">varchar(10)</td><td class="cnote">ISO 639-1: fr, en, es, it, tr, de, ja…</td></tr>
-          <tr><td class="cname">country</td><td class="ctype">varchar(20)</td><td class="cnote">fr, tr, mx, pe… (indexed, added S114)</td></tr>
-          <tr><td class="cname">region</td><td class="ctype">varchar(10)</td><td class="cnote">sub-region only (alsace, bretagne)</td></tr>
+          <tr><td class="cname">country <span class="badge fk">FK</span></td><td class="ctype">varchar(20) → countries</td><td class="cnote">fr, tr, mx, pe… (added S114; FK added 2026-06-10, see zone 4)</td></tr>
+          <tr><td class="cname">region <span class="badge fk">FK</span></td><td class="ctype">varchar(10) → regions</td><td class="cnote">sub-region only (alsace, bretagne), nullable</td></tr>
           <tr><td class="cname">kind</td><td class="ctype">varchar(20)</td><td class="cnote">idiom | word | proverb | locution</td></tr>
           <tr><td class="cname">register</td><td class="ctype">varchar(20)</td><td class="cnote">standard | informal | slang | vulgar | formal</td></tr>
           <tr><td class="cname">concept_id <span class="badge fk">FK</span></td><td class="ctype">uuid → concepts</td><td class="cnote">"Same idea" bridge (nullable)</td></tr>
@@ -245,6 +249,7 @@
           <tr><td class="cname">explore_mode</td><td class="ctype">varchar(20)</td><td class="cnote">multilingual | mono</td></tr>
           <tr><td class="cname">learning_langs</td><td class="ctype">varchar(10)[]</td><td class="cnote">multi-select</td></tr>
           <tr><td class="cname">content_type</td><td class="ctype">varchar(20)</td><td class="cnote">all | proverbs | …</td></tr>
+          <tr><td class="cname">language_modes</td><td class="ctype">jsonb</td><td class="cnote">per-language 🧳 discovery / 📚 mastered profile — games hub pivot (2026-07-10)</td></tr>
           <tr><td class="cname">created_at</td><td class="ctype">timestamptz</td><td class="cnote"></td></tr>
         </table>
       </div>
@@ -258,6 +263,9 @@
           <tr><td class="cname">user_id <span class="badge pk">PK</span><span class="badge fk">FK</span></td><td class="ctype">uuid</td><td class="cnote">CASCADE on delete</td></tr>
           <tr><td class="cname">expression_id <span class="badge pk">PK</span><span class="badge fk">FK</span></td><td class="ctype">varchar(120)</td><td class="cnote">CASCADE on delete</td></tr>
           <tr><td class="cname">saved_at</td><td class="ctype">timestamptz</td><td class="cnote"></td></tr>
+          <tr><td class="cname">review_box</td><td class="ctype">smallint</td><td class="cnote">Révision game: 0 = to review, ≥1 = known</td></tr>
+          <tr><td class="cname">reviewed_at</td><td class="ctype">timestamptz</td><td class="cnote">nullable — NULL = never reviewed</td></tr>
+          <tr><td class="cname">game_session_id <span class="badge fk">FK</span></td><td class="ctype">uuid → game_sessions</td><td class="cnote">nullable, SET NULL on delete</td></tr>
         </table>
       </div>
 
@@ -279,9 +287,94 @@
     </div>
   </div>
 
-  <!-- ZONE 4 : MISC -->
+  <!-- ZONE 4 : GEOGRAPHY -->
   <div class="zone">
-    <div class="zone-title slate-t">4 · Standalone</div>
+    <div class="zone-title sage-t">4 · Geography</div>
+    <p class="zone-desc">Added 2026-06-10 (migration <code>e1f2a3b4c5d6</code>) to back the country map and country filters. <code>expressions.country</code> and <code>expressions.region</code> (zone 1) are foreign keys into this zone.</p>
+    <div class="grid">
+
+      <div class="table-card">
+        <div class="table-head sage-h">
+          <div class="tname">countries</div>
+          <div class="tdesc">Country reference (ISO 3166-1 alpha-2)</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">code <span class="badge pk">PK</span></td><td class="ctype">varchar(10)</td><td class="cnote">e.g. <code>fr</code>, <code>uk</code>, <code>us</code></td></tr>
+          <tr><td class="cname">name_en</td><td class="ctype">varchar(100)</td><td class="cnote"></td></tr>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <div class="table-head sage-h">
+          <div class="tname">country_languages</div>
+          <div class="tdesc">Join: languages spoken in a country</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">country_code <span class="badge pk">PK</span><span class="badge fk">FK</span></td><td class="ctype">varchar(10)</td><td class="cnote">CASCADE on delete</td></tr>
+          <tr><td class="cname">language_code <span class="badge pk">PK</span></td><td class="ctype">varchar(10)</td><td class="cnote">e.g. Canada → fr, en</td></tr>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <div class="table-head sage-h">
+          <div class="tname">regions</div>
+          <div class="tdesc">Sub-regions within a country</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">code <span class="badge pk">PK</span></td><td class="ctype">varchar(50)</td><td class="cnote">e.g. <code>alsace</code>, <code>bretagne</code></td></tr>
+          <tr><td class="cname">country_code <span class="badge fk">FK</span></td><td class="ctype">varchar(10) → countries</td><td class="cnote">nullable, SET NULL on delete</td></tr>
+          <tr><td class="cname">name_en</td><td class="ctype">varchar(100)</td><td class="cnote"></td></tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ZONE 5 : GAMES HUB -->
+  <div class="zone">
+    <div class="zone-title rose-t">5 · Games hub</div>
+    <p class="zone-desc">Added 2026-07-10 (migration <code>c4d5e6f7a8b9</code>, "pivot games hub" S196) to back the Voyage and Révision games. <code>user_favorites</code> gained 3 columns in the same migration (see zone 3).</p>
+    <div class="grid">
+
+      <div class="table-card">
+        <div class="table-head rose-h">
+          <div class="tname">game_sessions</div>
+          <div class="tdesc">One row per game played — Voyage or Révision</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">id <span class="badge pk">PK</span></td><td class="ctype">uuid</td><td class="cnote"></td></tr>
+          <tr><td class="cname">user_id <span class="badge fk">FK</span></td><td class="ctype">uuid → users</td><td class="cnote">nullable (anonymous play), SET NULL on delete</td></tr>
+          <tr><td class="cname">client_id</td><td class="ctype">varchar(64)</td><td class="cnote">device/browser id — links anonymous sessions</td></tr>
+          <tr><td class="cname">game</td><td class="ctype">varchar(20)</td><td class="cnote">voyage | revision</td></tr>
+          <tr><td class="cname">filters</td><td class="ctype">jsonb</td><td class="cnote">country/kind/domain filters chosen at setup</td></tr>
+          <tr><td class="cname">cards</td><td class="ctype">jsonb</td><td class="cnote">ordered list of expression ids dealt</td></tr>
+          <tr><td class="cname">kept_ids</td><td class="ctype">jsonb</td><td class="cnote">ids kept ("favorited") during play</td></tr>
+          <tr><td class="cname">started_at / ended_at</td><td class="ctype">timestamptz</td><td class="cnote">ended_at NULL = abandoned session</td></tr>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <div class="table-head rose-h">
+          <div class="tname">expression_reports</div>
+          <div class="tdesc">User-flagged 🚩 content issues on an expression</div>
+        </div>
+        <table class="cols">
+          <tr><td class="cname">id <span class="badge pk">PK</span></td><td class="ctype">uuid</td><td class="cnote"></td></tr>
+          <tr><td class="cname">expression_id <span class="badge fk">FK</span></td><td class="ctype">varchar(120) → expressions</td><td class="cnote">CASCADE on delete</td></tr>
+          <tr><td class="cname">reason</td><td class="ctype">varchar(30)</td><td class="cnote">fabricated | wrong-translation | duplicate | other</td></tr>
+          <tr><td class="cname">comment</td><td class="ctype">text</td><td class="cnote">nullable free text</td></tr>
+          <tr><td class="cname">user_id / client_id</td><td class="ctype">uuid / varchar(64)</td><td class="cnote">no auth required — one of the two identifies the reporter</td></tr>
+          <tr><td class="cname">status</td><td class="ctype">varchar(20)</td><td class="cnote">open | resolved | dismissed</td></tr>
+          <tr><td class="cname">created_at</td><td class="ctype">timestamptz</td><td class="cnote"></td></tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ZONE 6 : MISC -->
+  <div class="zone">
+    <div class="zone-title slate-t">6 · Standalone</div>
     <div class="grid">
       <div class="table-card">
         <div class="table-head slate-h">
@@ -306,15 +399,10 @@
       <li><code>expressions</code> <span class="arrow">N ↔ N</span> <code>tags</code> via <code>expression_tags</code> · each tag has localized names in <code>tag_names</code> and 1–2 domains in <code>concept_domains</code></li>
       <li><code>expressions</code> <span class="arrow">N → 1</span> <code>concepts</code> (nullable, with <code>concept_confidence</code>) — expressions sharing a concept appear in each other's "Same idea" section</li>
       <li><code>users</code> <span class="arrow">1 → N</span> <code>user_favorites</code> and <span class="arrow">1 → N</span> <code>email_tokens</code></li>
-      <li>Search (4 passes) runs on this schema with PostgreSQL FTS — see <code>docs/search-engine.md</code></li>
+      <li><code>expressions</code> <span class="arrow">N → 1</span> <code>countries</code> and <span class="arrow">N → 1</span> <code>regions</code> (both nullable, SET NULL on delete — zone 4)</li>
+      <li><code>users</code> <span class="arrow">1 → N</span> <code>game_sessions</code> (nullable — anonymous play uses <code>client_id</code> instead) · <code>user_favorites</code> <span class="arrow">N → 1</span> <code>game_sessions</code> via <code>game_session_id</code> (zone 5)</li>
+      <li>Search runs 4 passes — exact → semantic → translation → concept — using PostgreSQL full-text search (<code>tsvector</code>/<code>ts_rank</code>) plus <code>pg_trgm</code> for CJK queries — see <code>docs/search-engine.md</code></li>
     </ul>
-  </div>
-
-  <div class="note">
-    <strong>Known drift:</strong> <code>models.py</code> is partially out of date vs. the live database — migrations added
-    <code>expressions.country / literal_fr / concept_confidence / rationale</code>, <code>concepts.name_fr</code>,
-    7 user columns and the <code>email_tokens</code> table without updating the SQLAlchemy models.
-    The Alembic migration chain is the source of truth. Tracked in tech debt (2026-06-12).
   </div>
 
 </div>

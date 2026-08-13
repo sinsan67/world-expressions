@@ -519,33 +519,53 @@ export type DomainGroup = {
 
 export const DOMAIN_GROUPS: DomainGroup[] = [
   {
-    slug: "wisdom-time",
-    emoji: "🧠",
+    slug: "wisdom-knowledge",
+    emoji: "🦉",
     labels: {
-      fr: "Sagesse, savoir & temps", en: "Wisdom, knowledge & time",
-      es: "Sabiduría, saber & tiempo", it: "Saggezza, sapere & tempo",
-      tr: "Bilgelik, bilgi & zaman", de: "Weisheit, Wissen & Zeit", ja: "知恵・知識と時間",
+      fr: "Sagesse & savoir", en: "Wisdom & knowledge",
+      es: "Sabiduría & saber", it: "Saggezza & sapere",
+      tr: "Bilgelik & bilgi", de: "Weisheit & Wissen", ja: "知恵と知識",
     },
-    children: ["wisdom", "knowledge", "time", "change"],
+    children: ["wisdom", "knowledge"],
   },
   {
-    slug: "words-conflict",
+    slug: "time-change",
+    emoji: "⏳",
+    labels: {
+      fr: "Temps & mutation", en: "Time & change",
+      es: "Tiempo & cambio", it: "Tempo & cambiamento",
+      tr: "Zaman & değişim", de: "Zeit & Wandel", ja: "時間と変化",
+    },
+    children: ["time", "change"],
+  },
+  {
+    slug: "morality-justice",
+    emoji: "⚖️",
+    labels: {
+      fr: "Morale & justice", en: "Morality & justice",
+      es: "Moral & justicia", it: "Morale & giustizia",
+      tr: "Ahlak & adalet", de: "Moral & Gerechtigkeit", ja: "道徳と正義",
+    },
+    children: ["morality", "justice"],
+  },
+  {
+    slug: "speech-conflict",
     emoji: "🗣️",
     labels: {
-      fr: "Mots, mensonges, rires & conflits", en: "Words, lies, laughter & conflict",
-      es: "Palabras, mentiras, risas & conflictos", it: "Parole, bugie, risate & conflitti",
-      tr: "Sözler, yalanlar, gülüş & çatışma", de: "Worte, Lügen, Lachen & Konflikt", ja: "言葉・嘘・笑いと争い",
+      fr: "Mots & conflits", en: "Words & conflict",
+      es: "Palabras & conflicto", it: "Parole & conflitto",
+      tr: "Sözler & çatışma", de: "Worte & Konflikt", ja: "言葉と争い",
     },
-    children: ["speech", "morality", "humor", "conflict", "justice"],
+    children: ["speech", "humor", "conflict"],
   },
   {
-    slug: "emotions",
-    emoji: "💛",
+    slug: "pleasure-love",
+    emoji: "❤️",
     labels: {
-      fr: "Tempêtes intérieures", en: "Inner storms", es: "Tormentas interiores",
-      it: "Tempeste interiori", tr: "İç fırtınalar", de: "Innere Stürme", ja: "心の嵐",
+      fr: "Amour & plaisirs", en: "Love & pleasure", es: "Amor & placeres",
+      it: "Amore & piaceri", tr: "Aşk & zevkler", de: "Liebe & Genuss", ja: "愛と喜び",
     },
-    children: ["emotions"],
+    children: ["relations", "pleasure", "food"],
   },
   {
     slug: "effort-ambition",
@@ -566,15 +586,6 @@ export const DOMAIN_GROUPS: DomainGroup[] = [
     children: ["money", "luck"],
   },
   {
-    slug: "pleasure-love",
-    emoji: "❤️",
-    labels: {
-      fr: "Plaisirs, amour & saveurs", en: "Pleasure, love & flavors", es: "Placeres, amor & sabores",
-      it: "Piaceri, amore & sapori", tr: "Zevkler, aşk & lezzetler", de: "Genuss, Liebe & Genüsse", ja: "喜び・愛と味わい",
-    },
-    children: ["relations", "pleasure", "food"],
-  },
-  {
     slug: "body-nature",
     emoji: "🌿",
     labels: {
@@ -584,11 +595,20 @@ export const DOMAIN_GROUPS: DomainGroup[] = [
     children: ["body", "nature"],
   },
   {
+    slug: "emotions",
+    emoji: "💛",
+    labels: {
+      fr: "Émotions", en: "Emotions", es: "Emociones",
+      it: "Emozioni", tr: "Duygular", de: "Gefühle", ja: "感情",
+    },
+    children: ["emotions"],
+  },
+  {
     slug: "travel",
     emoji: "🌍",
     labels: {
-      fr: "Chemins du monde", en: "Roads of the world", es: "Caminos del mundo",
-      it: "Cammini del mondo", tr: "Dünyanın yolları", de: "Wege der Welt", ja: "世界の道",
+      fr: "Voyage", en: "Travel", es: "Viaje",
+      it: "Viaggio", tr: "Seyahat", de: "Reise", ja: "旅",
     },
     children: ["travel"],
   },

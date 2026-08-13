@@ -2,15 +2,26 @@
 
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { API_URL } from "@/lib/constants";
+import type { UILang } from "@/lib/useUILang";
 
 type View = "login" | "register" | "forgot";
 
 interface Props {
   onClose: () => void;
   defaultView?: View;
+  uiLang?: UILang;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const AUTH_ARIA: Record<UILang, string> = {
+  en: "Authentication",
+  fr: "Authentification",
+  es: "Autenticación",
+  it: "Autenticazione",
+  tr: "Kimlik doğrulama",
+  de: "Authentifizierung",
+  ja: "認証",
+};
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
@@ -64,7 +75,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
-export default function AuthModal({ onClose, defaultView = "login" }: Props) {
+export default function AuthModal({ onClose, defaultView = "login", uiLang = "en" }: Props) {
   const [view, setView] = useState<View>(defaultView);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -155,7 +166,7 @@ export default function AuthModal({ onClose, defaultView = "login" }: Props) {
         data-testid="auth-modal"
         role="dialog"
         aria-modal="true"
-        aria-label="Authentication"
+        aria-label={AUTH_ARIA[uiLang] ?? AUTH_ARIA.en}
         style={{
           background: "var(--paper)",
           borderRadius: "var(--r-lg)",

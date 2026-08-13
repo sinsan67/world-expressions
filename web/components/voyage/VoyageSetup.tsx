@@ -20,9 +20,10 @@ import { EDITORIAL_DOMAINS, DOMAIN_GROUPS, EDITORIAL_DOMAIN_MAP } from "@/lib/ed
 import { DOMAIN_DEFS, DOMAIN_COLORS } from "@/lib/domainDefs";
 import { VOYAGE_SETUP, VoyageSetupLabels } from "@/lib/voyageLabels";
 import CountryMap from "./CountryMap";
+import CountryPreview from "./CountryPreview";
 
 const KINDS = ["idiom", "proverb", "locution"] as const;
-const KIND_EMOJI: Record<string, string> = { idiom: "💬", proverb: "📜", locution: "🧩" };
+export const KIND_EMOJI: Record<string, string> = { idiom: "💬", proverb: "📜", locution: "🧩" };
 const EMPTY: VoyageFilters = { country: "", kind: "", domain: "" };
 
 export type VoyageFilters = { country: string; kind: string; domain: string };
@@ -69,6 +70,11 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
     !!(initial?.country || initial?.kind || initial?.domain)
   );
   const [rollingSection, setRollingSection] = useState<"country" | "kind" | "domain" | null>(null);
+  // Non-blocking example panel (S235) — set only from a manual pin tap
+  // (CountryMap's onPreview), never from the `initial`/URL-prefilled
+  // selection above, so deep links like /voyage?country=fr keep opening
+  // straight to a selected pin without the panel popping up unasked.
+  const [previewCountry, setPreviewCountry] = useState<string | null>(null);
   // Domain accordion (8 curated groups) — auto-open the group holding the
   // incoming selection, else all collapsed.
   const [openGroup, setOpenGroup] = useState<string | null>(
@@ -116,6 +122,13 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
     }, 200);
     return () => { cancelled = true; clearTimeout(timer); };
   }, [country, kind, domain]);
+
+  // Clearing the country (reset chip, deselect-by-retapping, dice landing
+  // back on "") always closes the preview too — it should never point at a
+  // country that's no longer selected.
+  useEffect(() => {
+    if (!country) setPreviewCountry(null);
+  }, [country]);
 
   // Same country for everyone on the same UTC day — /countries is sorted by
   // count DESC server-side (database.py get_countries), so the array order
@@ -247,7 +260,16 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
             🎲
           </button>
         </div>
-        <CountryMap countries={countries} selected={country} onSelect={setCountry} t={t} />
+        <CountryMap countries={countries} selected={country} onSelect={setCountry} onPreview={setPreviewCountry} t={t} />
+        {previewCountry && (
+          <CountryPreview
+            uiLang={uiLang}
+            country={previewCountry}
+            kind={kind}
+            domain={domain}
+            onClose={() => setPreviewCountry(null)}
+          />
+        )}
         {countries.length === 0 && countriesFailed && (
           <p style={{ fontSize: 12.5, color: "var(--terra, #b4552d)", marginTop: 6 }}>
             {t.countriesError}{" "}
@@ -306,12 +328,13 @@ export default function VoyageSetup({ uiLang, initial, onStart, starting, error 
             🎲
           </button>
         </div>
-        {/* Accordion: 8 curated groups (atelier thèmes 21/07), tap a header
-            to reveal its leaf pills. onStart() always receives a leaf
-            EditorialDomain slug — grouping is purely visual, the /random
-            /search API contract is unchanged. EDITORIAL_DOMAINS now covers
-            all 20 real domain_slugs (the 4 the Concepts page also knows —
-            knowledge/justice/change/food — got folded in), so every
+        {/* Accordion: 10 curated groups (atelier thèmes 21/07, rebalanced
+            S229 — split the 2 oversized groups in two to even out volume),
+            tap a header to reveal its leaf pills. onStart() always receives
+            a leaf EditorialDomain slug — grouping is purely visual, the
+            /random /search API contract is unchanged. EDITORIAL_DOMAINS
+            covers all 20 real domain_slugs (the 4 the Concepts page also
+            knows — knowledge/justice/change/food — got folded in), so every
             pre-filled domain resolves through EDITORIAL_DOMAIN_MAP here;
             no DOMAIN_DEFS fallback needed in this component anymore. */}
         {DOMAIN_GROUPS.map((g) => {
@@ -527,6 +550,11 @@ const diceButtonStyle: React.CSSProperties = {
   borderRadius: 999,
   fontSize: 12,
   padding: "3px 10px",
+  minWidth: 44,
+  minHeight: 44,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
   cursor: "pointer",
   color: "var(--ink-soft)",
   fontFamily: "var(--font-body)",

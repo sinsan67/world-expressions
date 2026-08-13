@@ -16,7 +16,7 @@
     --ink:          #1c1410;
     --ink-soft:     #5c4f47;
     --ink-softer:   #8b7d72;
-    --ink-faint:    #b8aa9b;
+    --ink-faint:    #6e6156;
     --plum:         #6b4d8f;
     --plum-deep:    #4a3565;
     --plum-soft:    #c9b8d9;
@@ -164,6 +164,30 @@
     padding-top: 32px;
   }
 
+  /* ── OPINION BANNER ── */
+  .opinion {
+    background: white;
+    border: 1.5px solid var(--plum-soft);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .opinion .badge {
+    flex-shrink: 0;
+    background: var(--plum);
+    color: white;
+    font-size: 9px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 3px 9px; border-radius: 999px;
+    margin-top: 1px;
+    white-space: nowrap;
+  }
+  .opinion b { color: var(--ink); }
+
   /* ── BOTTOM GRID ── */
   .bottom {
     display: grid;
@@ -259,7 +283,7 @@
 <div class="header">
   <div class="header-left">
     <h1>World <span>Expressions</span></h1>
-    <div class="tagline">Every language has its own madness. — Carte produit · Juin 2026 · Sprint S59 : Bretagne 🦞 + Search Reactor</div>
+    <div class="tagline">Every language has its own madness. — Carte produit · Août 2026 · Session S229 — rééquilibrage thèmes Voyage + cadrage qualité data</div>
   </div>
   <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
     <div style="display:flex; gap:10px; align-items:center;">
@@ -271,12 +295,12 @@
       </div>
     </div>
     <div class="stats-bar">
-      <div class="stat"><div class="stat-n">2 075</div><div class="stat-label">expressions</div></div>
-      <div class="stat"><div class="stat-n">5</div><div class="stat-label">langues</div></div>
-      <div class="stat"><div class="stat-n">20</div><div class="stat-label">paires traductions</div></div>
-      <div class="stat"><div class="stat-n">1 050</div><div class="stat-label">tags normalisés</div></div>
-      <div class="stat"><div class="stat-n">2</div><div class="stat-label">régions FR</div></div>
-      <div class="stat"><div class="stat-n">@world.expressions</div><div class="stat-label">Instagram · créé</div></div>
+      <div class="stat"><div class="stat-n">14 432</div><div class="stat-label">expressions</div></div>
+      <div class="stat"><div class="stat-n">7</div><div class="stat-label">langues</div></div>
+      <div class="stat"><div class="stat-n">13</div><div class="stat-label">pays</div></div>
+      <div class="stat"><div class="stat-n">2</div><div class="stat-label">jeux en prod</div></div>
+      <div class="stat"><div class="stat-n">10</div><div class="stat-label">thèmes Voyage</div></div>
+      <div class="stat"><div class="stat-n">@world.expressions</div><div class="stat-label">Instagram</div></div>
     </div>
   </div>
 </div>
@@ -286,14 +310,14 @@
 
   <div class="phase done">
     <div class="phase-label">Terminé</div>
-    <div class="phase-title">V1–V3H · Fondations + Navigabilité</div>
-    <span class="phase-badge">janv–mai 2026</span>
+    <div class="phase-title">Pivot Hub de jeux</div>
+    <span class="phase-badge">S194–S207 · juil. 2026</span>
     <ul>
-      <li>FastAPI → Next.js 15 + PostgreSQL Neon</li>
-      <li>5 langues · 2 075 expr · 20 paires trad. IA</li>
-      <li>5 tables normalisées + 1 050 tags anglais</li>
-      <li>Vercel (front) + Render (API) · déployés</li>
-      <li>LangBar + Sidebar + BottomNav + SEO layouts</li>
+      <li>Home devient hub : « À quoi on joue ? »</li>
+      <li>Jeu Voyage (découverte) + Jeu Révision (favoris)</li>
+      <li>Collection, carnet 2.0, i18n 7 langues</li>
+      <li>Audit Bob #2 : CI, gates, dette tests</li>
+      <li>Ancien mode recherche → outil secondaire</li>
     </ul>
   </div>
 
@@ -301,61 +325,68 @@
 
   <div class="phase done">
     <div class="phase-label">Terminé</div>
-    <div class="phase-title">Features V3 · Compte + Concepts + Régions</div>
-    <span class="phase-badge">mai–juin 2026 · S13–S58</span>
+    <div class="phase-title">Ateliers UX + Audits qualité</div>
+    <span class="phase-badge">S208–S228 · juil. 2026</span>
     <ul>
-      <li>Compte Google OAuth · favoris sync · Mon profil</li>
-      <li>/concepts · 20 domaines · bubble cloud toggle</li>
-      <li>/carnet + /atlas + /country redesign</li>
-      <li>/regions/alsace 🥨 · 1ʳᵉ page région FR en prod</li>
-      <li>Instagram @world.expressions · 7 posts prêts</li>
+      <li>4 lots UX (presets, nav, ponts, historique) en prod</li>
+      <li>Audit John #2 : 30 findings, quasi tous résolus</li>
+      <li>Audit Luke #2 : 30 findings, tous résolus</li>
+      <li>Bug favoris multi-appareils corrigé (J2-1)</li>
+      <li>Carte pays SVG + accordéon thèmes shippés</li>
     </ul>
   </div>
 
   <div class="arrow">→</div>
 
   <div class="phase current">
-    <div class="phase-label">Sprint actuel — S59</div>
-    <div class="phase-title">Bretagne 🦞 + Search Reactor</div>
-    <span class="phase-badge">juin 2026</span>
+    <div class="phase-label">Aujourd'hui — S229</div>
+    <div class="phase-title">Thèmes Voyage 16→10 + 1ᵉʳ pas qualité data</div>
+    <span class="phase-badge">05/08/2026</span>
     <ul>
-      <li>Généraliser page région → regionDefs.ts</li>
-      <li>seed_bretagne.py · 40+ expr · 4 sections brt-*</li>
-      <li>Page /regions · liste régions FR depuis /country/fr</li>
-      <li>Search Reactor : atelier logique cross-lingue + 2 bugs</li>
+      <li>10 groupes de thèmes rééquilibrés, libellés raccourcis</li>
+      <li>Constat : fiches expression souvent sous-remplies</li>
+      <li>Cadrage lancé : sourcing FR de qualité (pas de gros sites)</li>
+      <li>expressio.fr requalifié : absorbé par Reverso</li>
     </ul>
   </div>
 
   <div class="arrow">→</div>
 
   <div class="phase next">
-    <div class="phase-label">Prochainement</div>
-    <div class="phase-title">Enrichissement data + Croissance</div>
-    <span class="phase-badge">été 2026</span>
+    <div class="phase-label">Ma reco #1 — priorité</div>
+    <div class="phase-title">Qualité & sourcing des données</div>
+    <span class="phase-badge">≈ 6–8 prochaines sessions</span>
     <ul>
-      <li>IT + TR · objectif 200+ expressions chacune</li>
-      <li>Dataset LN-fr · 3 127 expressions FR à importer</li>
-      <li>Analytics Vercel · activer dans Dashboard</li>
-      <li>OG meta tags · vignette WhatsApp / réseaux sociaux</li>
-      <li>Évaluation qualité traductions · score humain</li>
+      <li>Finir le cadrage sources FR + méthode de détection des trous</li>
+      <li>Enrichir origin/example sur les fiches vides</li>
+      <li>Retriage doublons ES (L11, 17 groupes)</li>
+      <li>Contenu JA : cadrer l'aide d'un locuteur natif</li>
     </ul>
   </div>
 
   <div class="arrow">→</div>
 
   <div class="phase future">
-    <div class="phase-label">Vision long terme</div>
-    <div class="phase-title">Mode Jeu + Carte + PWA</div>
-    <span class="phase-badge">exploratoire</span>
+    <div class="phase-label">Ma reco #2/#3 — ensuite</div>
+    <div class="phase-title">Fondations techniques + polish</div>
+    <span class="phase-badge">≈ 6–10 sessions suivantes</span>
     <ul>
-      <li>Quiz emojis → deviner l'expression</li>
-      <li>Carte SVG France / Monde interactive</li>
-      <li>Nouvelles langues : PT / DE / AR / ZH</li>
-      <li>PWA · offline, installation mobile</li>
-      <li>Illustrations SVG par expression</li>
+      <li>SSR fiche expression (SEO, plus gros chantier tech-debt)</li>
+      <li>Session a11y groupée (focus trap, aria-pressed)</li>
+      <li>Palette des groupes de thèmes (signalé aujourd'hui)</li>
+      <li>Activer analytics → prioriser sur données réelles</li>
     </ul>
   </div>
 
+</div>
+
+<!-- OPINION -->
+<div class="opinion">
+  <span class="badge">Mon avis</span>
+  <div>
+    <b>Renforcer avant d'étendre, comme toujours — mais cette fois sur la donnée plus que sur le code.</b>
+    Les deux audits (John #2, Luke #2) ont nettoyé l'essentiel de la dette technique et produit récente ; ce qui reste ouvert et le plus visible pour un visiteur, c'est la <b>profondeur du contenu</b> — la fiche « papillons dans le ventre » vue aujourd'hui (origin et example vides) n'est probablement pas un cas isolé. Je recommande de <b>ne pas démarrer de nouvelle feature majeure</b> dans les 10–20 prochaines sessions (carte monde, illustrations, nouvelles langues) et de concentrer l'effort sur la qualité éditoriale du FR d'abord (le sourcing qu'on vient d'amorcer), puis les fondations SEO/a11y qui rendent ce contenu réellement découvrable une fois qu'il est bon.
+  </div>
 </div>
 
 <!-- BOTTOM -->
@@ -363,194 +394,168 @@
 
   <!-- COL 1 — DATA -->
   <div class="panel">
-    <div class="panel-title">Base de données — état prod</div>
-    <div class="lang-row">
-      <span class="lang-flag">🇫🇷</span>
-      <span class="lang-name">Français</span>
-      <div class="lang-bar-wrap"><div class="lang-bar" style="width:100%"></div></div>
-      <span class="lang-count">1 378</span>
-    </div>
-    <div class="lang-row">
-      <span class="lang-flag">🇬🇧</span>
-      <span class="lang-name">English</span>
-      <div class="lang-bar-wrap"><div class="lang-bar" style="width:36%"></div></div>
-      <span class="lang-count">499</span>
-    </div>
+    <div class="panel-title">Base de données — état prod (live, 05/08)</div>
     <div class="lang-row">
       <span class="lang-flag">🇪🇸</span>
       <span class="lang-name">Español</span>
-      <div class="lang-bar-wrap"><div class="lang-bar" style="width:9%"></div></div>
-      <span class="lang-count">120</span>
-    </div>
-    <div class="lang-row">
-      <span class="lang-flag">🇮🇹</span>
-      <span class="lang-name">Italiano</span>
-      <div class="lang-bar-wrap"><div class="lang-bar" style="width:3%"></div></div>
-      <span class="lang-count">40</span>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:100%"></div></div>
+      <span class="lang-count">2 897</span>
     </div>
     <div class="lang-row">
       <span class="lang-flag">🇹🇷</span>
       <span class="lang-name">Türkçe</span>
-      <div class="lang-bar-wrap"><div class="lang-bar" style="width:2.7%"></div></div>
-      <span class="lang-count">38</span>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:88%"></div></div>
+      <span class="lang-count">2 551</span>
+    </div>
+    <div class="lang-row">
+      <span class="lang-flag">🇮🇹</span>
+      <span class="lang-name">Italiano</span>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:84%"></div></div>
+      <span class="lang-count">2 431</span>
+    </div>
+    <div class="lang-row">
+      <span class="lang-flag">🇫🇷</span>
+      <span class="lang-name">Français</span>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:77%"></div></div>
+      <span class="lang-count">2 245</span>
+    </div>
+    <div class="lang-row">
+      <span class="lang-flag">🇬🇧</span>
+      <span class="lang-name">English</span>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:61%"></div></div>
+      <span class="lang-count">1 755</span>
+    </div>
+    <div class="lang-row">
+      <span class="lang-flag">🇩🇪</span>
+      <span class="lang-name">Deutsch</span>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:49%"></div></div>
+      <span class="lang-count">1 420</span>
+    </div>
+    <div class="lang-row">
+      <span class="lang-flag">🇯🇵</span>
+      <span class="lang-name">日本語</span>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:39%; background:#a78bda"></div></div>
+      <span class="lang-count">1 133</span>
     </div>
     <hr class="sep">
     <div class="lang-row" style="margin-bottom:5px">
       <span class="lang-flag">🗺️</span>
-      <span class="lang-name" style="color:var(--terra)">Régions FR</span>
-      <div class="lang-bar-wrap"><div class="lang-bar" style="width:10%; background:var(--terra)"></div></div>
-      <span class="lang-count" style="color:var(--terra)">2</span>
+      <span class="lang-name" style="color:var(--terra)">Pays couverts</span>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:65%; background:var(--terra)"></div></div>
+      <span class="lang-count" style="color:var(--terra)">13</span>
     </div>
     <div class="lang-row" style="margin-bottom:0">
-      <span class="lang-flag">💡</span>
-      <span class="lang-name" style="color:var(--plum-deep)">Concepts</span>
-      <div class="lang-bar-wrap"><div class="lang-bar" style="width:60%; background:var(--plum-soft)"></div></div>
-      <span class="lang-count" style="color:var(--plum-deep)">20 dom.</span>
+      <span class="lang-flag">🎨</span>
+      <span class="lang-name" style="color:var(--plum-deep)">Thèmes Voyage</span>
+      <div class="lang-bar-wrap"><div class="lang-bar" style="width:50%; background:var(--plum-soft)"></div></div>
+      <span class="lang-count" style="color:var(--plum-deep)">10 grp.</span>
     </div>
-    <div class="section-note">Objectif moyen terme : 200+ par langue<br>IT et TR : enrichissement prioritaire<br>LN-fr (3 127 expressions FR) · dataset académique prêt</div>
+    <div class="section-note">ES devenu la 1ʳᵉ langue en volume, devant TR/IT/FR.<br>Croissance ×7 depuis la dernière Product Map (juin 2026, 2 075 expr.).<br>Reste connu : beaucoup de fiches sous-remplies (origin/example vides).</div>
   </div>
 
-  <!-- COL 2 — CHALLENGES -->
+  <!-- COL 2 — PRIORITÉS -->
   <div class="panel">
-    <div class="panel-title">Défis principaux</div>
+    <div class="panel-title">Priorités recommandées — prochaines sessions</div>
 
     <div class="challenge-group">
-      <div class="challenge-group-title">Données — asymétrie et qualité</div>
+      <div class="challenge-group-title">Tier 1 — qualité & sourcing des données (≈ 6-8 sessions)</div>
       <div class="challenge">
-        <div class="challenge-icon">📊</div>
+        <div class="challenge-icon">📚</div>
         <div style="flex:1">
-          <div class="challenge-name">Asymétrie linguistique forte</div>
-          <div class="challenge-desc">FR (1 378) domine massivement IT (40) et TR (38). L'app se ressent comme "française par défaut". Risque pour la proposition de valeur cross-lingue. Enrichir IT+TR avant toute nouvelle langue.</div>
+          <div class="challenge-name">Sourcing FR — cadrage amorcé S229</div>
+          <div class="challenge-desc">Trouver de vraies sources "pépites" (pas de gros trafic) pour enrichir origin/example. expressio.fr requalifié (absorbé par Reverso) ; CNRTL, Un mot par jour, expressions-francaises.fr à évaluer. En pause volontaire, à reprendre.</div>
         </div>
-        <span class="c-tag c-now">actif</span>
+        <span class="c-tag c-now">en pause — Sinan prépare</span>
       </div>
       <div class="challenge">
-        <div class="challenge-icon">🧪</div>
+        <div class="challenge-icon">🈴</div>
         <div style="flex:1">
-          <div class="challenge-name">Qualité des traductions IA jamais évaluée formellement</div>
-          <div class="challenge-desc">20 paires générées par Mistral Small — zéro validation humaine structurée. 1 erreur connue identifiée (WR) : "avoir le cœur sur la main" ≠ "wear heart on sleeve" (générosité ≠ émotivité). Déclencheur : score humain sur échantillon avant enrichissement massif.</div>
+          <div class="challenge-name">Contenu japonais — 605/1133 meanings en anglais</div>
+          <div class="challenge-desc">Signalé depuis l'audit Luke #1, reconfirmé Luke #2 — NON délégable, nécessite un locuteur natif JA. Impossible d'avancer seul ; à cadrer avec Sinan (qui/comment).</div>
         </div>
-        <span class="c-tag c-soon">déclencheur: enrichissement</span>
+        <span class="c-tag c-now">bloqué sans locuteur natif</span>
       </div>
       <div class="challenge">
-        <div class="challenge-icon">🏷️</div>
+        <div class="challenge-icon">🇪🇸</div>
         <div style="flex:1">
-          <div class="challenge-name">Coverage des tags incomplète</div>
-          <div class="challenge-desc">1 050 tags normalisés mais nombreuses expressions sans tags ou sous-taguées. Détériore la navigation /concepts et la recherche sémantique. À adresser avec chaque vague d'import.</div>
+          <div class="challenge-name">Doublons ES — 17 groupes à retrianger</div>
+          <div class="challenge-desc">Dataset quasi doublé depuis l'audit #1 (L11, Luke #2) — retriage nécessaire avant tout fix de masse, mais délégable une fois fait.</div>
         </div>
-        <span class="c-tag c-soon">après enrichissement</span>
+        <span class="c-tag c-soon">délégable après triage</span>
       </div>
     </div>
 
     <div class="challenge-group">
-      <div class="challenge-group-title">Recherche — logique et cohérence</div>
+      <div class="challenge-group-title">Tier 2 — fondations techniques (≈ 4-6 sessions)</div>
       <div class="challenge">
-        <div class="challenge-icon">🌉</div>
+        <div class="challenge-icon">🔍</div>
         <div style="flex:1">
-          <div class="challenge-name">Concept cross-lingue non défini (Search Reactor)</div>
-          <div class="challenge-desc">Question ouverte : chercher "argent" doit-il trouver "para" (TR) via le pont concept ? La réponse détermine toute l'architecture de recherche multilingue. Atelier planifié S59.</div>
+          <div class="challenge-name">Fiche expression non server-rendue</div>
+          <div class="challenge-desc">Le plus gros item de dette technique ouvert : contenu non indexable par les crawlers, contredit le principe "Navigability". Impact haut, effort gros — mérite un atelier de conception dédié.</div>
         </div>
-        <span class="c-tag c-now">S59 — atelier</span>
+        <span class="c-tag c-soon">atelier de conception d'abord</span>
       </div>
       <div class="challenge">
-        <div class="challenge-icon">🐛</div>
+        <div class="challenge-icon">♿</div>
         <div style="flex:1">
-          <div class="challenge-name">2 bugs frontend identifiés (bloqués jusqu'à l'atelier)</div>
-          <div class="challenge-desc">Documentés dans search-rethink-workshop.md. Non corrigés volontairement — patcher sans stratégie = risque de régression. Résolution liée à la décision sur le concept cross-lingue.</div>
+          <div class="challenge-name">Session a11y groupée</div>
+          <div class="challenge-desc">Focus trap absent sur 5 dialogues + aria-pressed absent app-wide sur les chips (Voyage notamment). Deux findings John #2 encore ouverts, se traitent bien ensemble.</div>
         </div>
-        <span class="c-tag c-now">S59 — avec atelier</span>
-      </div>
-    </div>
-
-    <div class="challenge-group">
-      <div class="challenge-group-title">Infrastructure — dette technique</div>
-      <div class="challenge">
-        <div class="challenge-icon">⏱️</div>
-        <div style="flex:1">
-          <div class="challenge-name">Cold start Render (~15s de latence)</div>
-          <div class="challenge-desc">Render free tier "freeze" l'API après inactivité. Premier hit de la journée : ~15s de latence visible par l'utilisateur. Solution : upgrade Render ($7/mois) ou keep-alive pinger (cron toutes les 5 min).</div>
-        </div>
-        <span class="c-tag c-watch">UX dégradée</span>
-      </div>
-      <div class="challenge">
-        <div class="challenge-icon">📄</div>
-        <div style="flex:1">
-          <div class="challenge-name">Pagination encore Python (pas SQL native)</div>
-          <div class="challenge-desc">LIMIT/OFFSET côté Python = requête complète chargée en mémoire. Bloquant dès que la base dépasse 3 000 expressions. Migration SQL native à faire avant d'importer LN-fr (3 127 entrées).</div>
-        </div>
-        <span class="c-tag c-soon">déclencheur: 3k expressions</span>
-      </div>
-      <div class="challenge">
-        <div class="challenge-icon">🛢️</div>
-        <div style="flex:1">
-          <div class="challenge-name">Colonne `type` = mot réservé PostgreSQL</div>
-          <div class="challenge-desc">Guillemets forcés partout dans le code. Fragile à la maintenance. Migration de renommage `type` → `kind` : courte mais à planifier dans un sprint calme.</div>
-        </div>
-        <span class="c-tag c-later">petite migration</span>
+        <span class="c-tag c-soon">1 session dédiée</span>
       </div>
     </div>
 
     <div class="challenge-group">
-      <div class="challenge-group-title">Produit — croissance et expérience</div>
+      <div class="challenge-group-title">Tier 3 — polish (≈ 2-4 sessions, pas urgent)</div>
+      <div class="challenge">
+        <div class="challenge-icon">🎨</div>
+        <div style="flex:1">
+          <div class="challenge-name">Palette des groupes de thèmes</div>
+          <div class="challenge-desc">Signalé par Sinan S229 : les couleurs des 10 groupes semblent en décalage avec le reste de la palette app. À traiter après consolidation des priorités data.</div>
+        </div>
+        <span class="c-tag c-later">signalé S229</span>
+      </div>
       <div class="challenge">
         <div class="challenge-icon">📈</div>
         <div style="flex:1">
-          <div class="challenge-name">Analytics intégrées mais pas activées</div>
-          <div class="challenge-desc">Vercel Analytics est dans le code (commit f751a8b) mais pas encore activé dans le Dashboard Vercel. Sans données d'usage réel, impossible de prioriser les features par impact. 1 clic manquant.</div>
+          <div class="challenge-name">Activer analytics</div>
+          <div class="challenge-desc">Vercel Analytics dans le code mais pas activé côté Dashboard. Sans données d'usage réel, toute priorisation reste une intuition — y compris celle de cette page.</div>
         </div>
-        <span class="c-tag c-now">1 clic · Dashboard Vercel</span>
-      </div>
-      <div class="challenge">
-        <div class="challenge-icon">📱</div>
-        <div style="flex:1">
-          <div class="challenge-name">Bubble cloud = desktop only</div>
-          <div class="challenge-desc">Vue bulles dans /concepts uniquement sur écrans larges. Fallback pills sur mobile. Feature B-rate documentée comme limitation. À généraliser quand la priorité mobile monte.</div>
-        </div>
-        <span class="c-tag c-later">après core features</span>
-      </div>
-      <div class="challenge">
-        <div class="challenge-icon">📣</div>
-        <div style="flex:1">
-          <div class="challenge-name">Contenu réseaux sociaux sans pipeline</div>
-          <div class="challenge-desc">@world.expressions créé (2026-06-02), 7 posts prêts à publier. Mais pas de rythme de publication défini, pas de process pour générer les visuels régulièrement. Croissance organique lente sans cadence.</div>
-        </div>
-        <span class="c-tag c-soon">après Bretagne</span>
+        <span class="c-tag c-later">1 clic Dashboard Vercel</span>
       </div>
     </div>
+
+    <div class="section-note" style="margin-top:10px">Volontairement absent de cette liste : nouvelles features majeures (carte monde, illustrations par expression, nouvelles langues, mode jeu 3). Le principe "renforcer avant d'étendre" s'applique aussi aux 2 jeux tout juste stabilisés.</div>
   </div>
 
   <!-- COL 3 — Sources + Principes -->
   <div style="display:flex; flex-direction:column; gap:12px;">
 
     <div class="panel">
-      <div class="panel-title">Sources de données</div>
+      <div class="panel-title">Sources de données FR (piste S229)</div>
       <div class="sources">
         <div class="source-row">
-          <span class="source-name">kaikki.org — Wiktionary JSON (FR)</span>
-          <span class="source-tag s-done">978 importées ✓</span>
+          <span class="source-name">expressio.fr (par Reverso)</span>
+          <span class="source-tag s-medium">requalifié — plus indé</span>
         </div>
         <div class="source-row">
-          <span class="source-name">Mistral Small (traductions IA)</span>
-          <span class="source-tag s-done">20 paires ✓</span>
+          <span class="source-name">CNRTL / TLFi (CNRS)</span>
+          <span class="source-tag s-contact">autorité · script à écrire</span>
         </div>
         <div class="source-row">
-          <span class="source-name">Dataset LN-fr (3 127 expressions FR)</span>
-          <span class="source-tag s-easy">facile · académique</span>
+          <span class="source-name">Un mot par jour (blog perso)</span>
+          <span class="source-tag s-easy">candidat pépite</span>
         </div>
         <div class="source-row">
-          <span class="source-name">kaikki.org — autres langues (IT/TR/PT…)</span>
-          <span class="source-tag s-medium">moyen terme</span>
+          <span class="source-name">expressions-francaises.fr</span>
+          <span class="source-tag s-easy">candidat pépite</span>
         </div>
         <div class="source-row">
-          <span class="source-name">Littré — SQLite CC-BY-SA</span>
-          <span class="source-tag s-medium">historique · riche</span>
-        </div>
-        <div class="source-row">
-          <span class="source-name">CNRTL / TLFi (CNRS) + Expressio.fr</span>
-          <span class="source-tag s-contact">V4+ · partenariat</span>
+          <span class="source-name">Rey & Chantreau, Larousse (livres)</span>
+          <span class="source-tag s-medium">Sinan possède les livres</span>
         </div>
       </div>
-      <div class="section-note">Priorité : sources humaines vérifiées · URL source cliquable par expression</div>
+      <div class="section-note">Cadrage en pause (S229) — Sinan prépare de son côté avant de reprendre.</div>
     </div>
 
     <div class="panel">

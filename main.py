@@ -11,6 +11,13 @@ def _cache_public_1h(response: Response) -> None:
     """Dependency: marks a GET response as publicly cacheable for 1 h (CDN + browser)."""
     response.headers["Cache-Control"] = "public, max-age=3600, stale-while-revalidate=86400"
 
+
+def _cache_public_24h(response: Response) -> None:
+    """Dependency: 24h public cache — for content that only changes when a one-shot
+    script is re-run and re-committed (contract game3-constellation-lot0 §3), not
+    on every deploy. No existing cache constant covers this duration."""
+    response.headers["Cache-Control"] = "public, max-age=86400, stale-while-revalidate=604800"
+
 app = FastAPI(title="Expressions du Monde API")
 
 _default_origins = "https://world-expressions.vercel.app,http://localhost:3000"
@@ -316,6 +323,29 @@ def get_facets(
     return database.get_facets(countries, query, type_f, domain_f, loc, concept_f)
 
 
+@app.get("/constellation/graph")
+def get_constellation_graph_endpoint(
+    locale: str = Query("en", description="Locale for node labels: fr, en, es, it, tr, de, ja."),
+    _: None = Depends(_cache_public_24h),
+):
+    """Jeu 3 — graphe statique de la constellation (contract game3-constellation-lot0 §3).
+    Lecture fichier en cache, pas de requête SQL."""
+    return database.get_constellation_graph(locale.strip() or "en")
+
+
+@app.get("/constellation/tag/{tag}")
+def get_constellation_tag_endpoint(
+    tag: str,
+    locale: str = Query("en", description="Locale for the tag label and translated meaning."),
+):
+    """Jeu 3 — tap sur un nœud (contract game3-constellation-lot0 §3). 2-3 proverbes,
+    langues distinctes, JA exclu."""
+    result = database.get_constellation_tag(tag, locale.strip() or "en")
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"Unknown tag '{tag}'")
+    return result
+
+
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 _VALID_LANGS = {"fr", "en", "es", "it", "tr"}
 
@@ -503,25 +533,10 @@ def review_favorite(user_id: str, expression_id: str, body: ReviewRequest):
     return result
 
 
-class SubscribeRequest(BaseModel):
-    email: str
-    language: str = "en"
-
-
 @app.get("/slugs")
 def get_slugs(_: None = Depends(_cache_public_1h)):
     """Return all expression IDs — used for sitemap generation only."""
     return {"slugs": database.get_all_slugs()}
-
-
-@app.post("/newsletter/subscribe")
-def newsletter_subscribe(body: SubscribeRequest):
-    email = body.email.strip().lower()
-    if not _EMAIL_RE.match(email):
-        raise HTTPException(status_code=422, detail="Invalid email address")
-    lang = body.language if body.language in _VALID_LANGS else "en"
-    result = database.subscribe_newsletter(email, lang)
-    return result
 
 
 # ---------------------------------------------------------------------------

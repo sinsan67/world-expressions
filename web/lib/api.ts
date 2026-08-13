@@ -303,15 +303,26 @@ export async function patchGameSession(
 // GET /daily — deterministic expression of the day, same for everyone on the
 // same UTC date. Backend-side cache (1h) — no client-side date/session logic
 // needed here, unlike the old getRandomExpression() sessionStorage pattern.
+// Timeout bounds a hung backend handler (not just a slow cold start, which
+// resolves on its own within this window) so the promise always settles —
+// see docs/prd-coldstart-card.md §7.
+const DAILY_TIMEOUT_MS = 60_000;
+
 export async function getDailyExpression(
   locale = ""
 ): Promise<Expression & { meaning_locale: string; literal: string | null; date: string }> {
   const params = new URLSearchParams();
   if (locale) params.set("locale", locale);
   const qs = params.toString();
-  const res = await fetch(`${API}/daily${qs ? `?${qs}` : ""}`);
-  if (!res.ok) throw new Error("API error");
-  return res.json();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), DAILY_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${API}/daily${qs ? `?${qs}` : ""}`, { signal: controller.signal });
+    if (!res.ok) throw new Error("API error");
+    return res.json();
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export async function getRandomCount(country = "", kind = "", domain = "", language = ""): Promise<number> {
@@ -482,6 +493,43 @@ export async function reportExpression(payload: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
+// ─── Jeu 3 — Constellation (docs/game3-constellation-lot0-contract.md §3) ───
+
+export type ConstellationNode = { tag: string; emoji: string; label: string; x: number; y: number };
+export type ConstellationGraph = { nodes: ConstellationNode[]; edges: [number, number][] };
+
+export async function getConstellationGraph(locale = ""): Promise<ConstellationGraph> {
+  const params = new URLSearchParams();
+  if (locale) params.set("locale", locale);
+  const qs = params.toString();
+  const res = await fetch(`${API}/constellation/graph${qs ? `?${qs}` : ""}`);
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
+export type ConstellationExample = {
+  expression_id: string;
+  text: string;
+  language: string;
+  meaning: string;
+  country: string;
+};
+export type ConstellationTag = {
+  tag: string;
+  emoji: string;
+  label: string;
+  examples: ConstellationExample[];
+};
+
+export async function getConstellationTag(tag: string, locale = ""): Promise<ConstellationTag> {
+  const params = new URLSearchParams();
+  if (locale) params.set("locale", locale);
+  const qs = params.toString();
+  const res = await fetch(`${API}/constellation/tag/${tag}${qs ? `?${qs}` : ""}`);
   if (!res.ok) throw new Error("API error");
   return res.json();
 }

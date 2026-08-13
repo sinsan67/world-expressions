@@ -34,6 +34,13 @@ export type VoyageSetupLabels = {
   randomCountryAria: string;
   randomKindAria: string;
   randomDomainAria: string;
+  // Country map preview panel (S235) — non-blocking example shown after a
+  // manual pin tap, alongside the existing 1-tap selection.
+  previewLabel: string;
+  previewLoading: string;
+  previewEmpty: string;
+  previewAnother: string;
+  previewClose: string;
 };
 
 export type VoyagePlayLabels = {
@@ -95,6 +102,11 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     randomCountryAria: "Choisir un pays au hasard",
     randomKindAria: "Choisir un type au hasard",
     randomDomainAria: "Choisir un thème au hasard",
+    previewLabel: "🎲 Exemple depuis ce pays",
+    previewLoading: "Chargement…",
+    previewEmpty: "Pas d'exemple disponible pour cette combinaison.",
+    previewAnother: "🔁 Un autre exemple",
+    previewClose: "Fermer l'aperçu",
   },
   en: {
     title: "Voyage",
@@ -122,6 +134,11 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     randomCountryAria: "Pick a random country",
     randomKindAria: "Pick a random type",
     randomDomainAria: "Pick a random theme",
+    previewLabel: "🎲 Example from this country",
+    previewLoading: "Loading…",
+    previewEmpty: "No example available for this combination.",
+    previewAnother: "🔁 Another example",
+    previewClose: "Close preview",
   },
   es: {
     title: "Viaje",
@@ -149,6 +166,11 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     randomCountryAria: "Elegir un país al azar",
     randomKindAria: "Elegir un tipo al azar",
     randomDomainAria: "Elegir un tema al azar",
+    previewLabel: "🎲 Ejemplo de este país",
+    previewLoading: "Cargando…",
+    previewEmpty: "No hay ningún ejemplo disponible para esta combinación.",
+    previewAnother: "🔁 Otro ejemplo",
+    previewClose: "Cerrar vista previa",
   },
   it: {
     title: "Viaggio",
@@ -176,6 +198,11 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     randomCountryAria: "Scegli un paese a caso",
     randomKindAria: "Scegli un tipo a caso",
     randomDomainAria: "Scegli un tema a caso",
+    previewLabel: "🎲 Esempio da questo paese",
+    previewLoading: "Caricamento…",
+    previewEmpty: "Nessun esempio disponibile per questa combinazione.",
+    previewAnother: "🔁 Un altro esempio",
+    previewClose: "Chiudi anteprima",
   },
   tr: {
     title: "Yolculuk",
@@ -203,6 +230,11 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     randomCountryAria: "Rastgele bir ülke seç",
     randomKindAria: "Rastgele bir tür seç",
     randomDomainAria: "Rastgele bir tema seç",
+    previewLabel: "🎲 Bu ülkeden örnek",
+    previewLoading: "Yükleniyor…",
+    previewEmpty: "Bu kombinasyon için örnek yok.",
+    previewAnother: "🔁 Başka bir örnek",
+    previewClose: "Önizlemeyi kapat",
   },
   de: {
     title: "Reise",
@@ -230,6 +262,11 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     randomCountryAria: "Zufälliges Land wählen",
     randomKindAria: "Zufälligen Typ wählen",
     randomDomainAria: "Zufälliges Thema wählen",
+    previewLabel: "🎲 この国からの例",
+    previewLoading: "読み込み中…",
+    previewEmpty: "この組み合わせの例はありません。",
+    previewAnother: "🔁 別の例",
+    previewClose: "プレビューを閉じる",
   },
   ja: {
     title: "旅",
@@ -257,6 +294,11 @@ export const VOYAGE_SETUP: Record<Lang, VoyageSetupLabels> = {
     randomCountryAria: "国をランダムに選ぶ",
     randomKindAria: "タイプをランダムに選ぶ",
     randomDomainAria: "テーマをランダムに選ぶ",
+    previewLabel: "🎲 この国からの例",
+    previewLoading: "読み込み中…",
+    previewEmpty: "この組み合わせの例はありません。",
+    previewAnother: "🔁 別の例",
+    previewClose: "プレビューを閉じる",
   },
 };
 
@@ -391,9 +433,9 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 cartes vues — tu as gardé ${n} expression${n > 1 ? "s" : ""}`,
     collectionUpdate: "Ta collection s'agrandit !",
     replay: "Rejouer ▸",
-    explore: "Explorer ces expressions 🧭",
+    explore: "Explorer ces expressions",
     changeFilters: "Changer les filtres",
-    viewCollection: "Voir ma collection ❤️",
+    viewCollection: "Voir ma collection",
     emptyKept: "Aucune carte gardée cette fois — retente ta chance !",
   },
   en: {
@@ -401,9 +443,9 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 cards seen — you kept ${n} expression${n > 1 ? "s" : ""}`,
     collectionUpdate: "Your collection is growing!",
     replay: "Replay ▸",
-    explore: "Explore these expressions 🧭",
+    explore: "Explore these expressions",
     changeFilters: "Change filters",
-    viewCollection: "View my collection ❤️",
+    viewCollection: "View my collection",
     emptyKept: "No cards kept this time — give it another go!",
   },
   es: {
@@ -411,9 +453,9 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 cartas vistas — guardaste ${n} ${n === 1 ? "expresión" : "expresiones"}`,
     collectionUpdate: "¡Tu colección crece!",
     replay: "Jugar de nuevo ▸",
-    explore: "Explorar estas expresiones 🧭",
+    explore: "Explorar estas expresiones",
     changeFilters: "Cambiar filtros",
-    viewCollection: "Ver mi colección ❤️",
+    viewCollection: "Ver mi colección",
     emptyKept: "No guardaste ninguna carta esta vez — ¡inténtalo de nuevo!",
   },
   it: {
@@ -421,9 +463,9 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 carte viste — hai conservato ${n} ${n === 1 ? "espressione" : "espressioni"}`,
     collectionUpdate: "La tua collezione cresce!",
     replay: "Rigioca ▸",
-    explore: "Esplora queste espressioni 🧭",
+    explore: "Esplora queste espressioni",
     changeFilters: "Cambia filtri",
-    viewCollection: "Vedi la mia collezione ❤️",
+    viewCollection: "Vedi la mia collezione",
     emptyKept: "Nessuna carta conservata questa volta — riprova!",
   },
   tr: {
@@ -431,9 +473,9 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 kart görüldü — ${n} deyim sakladın`,
     collectionUpdate: "Koleksiyonun büyüyor!",
     replay: "Yeniden oyna ▸",
-    explore: "Bu deyimleri keşfet 🧭",
+    explore: "Bu deyimleri keşfet",
     changeFilters: "Filtreleri değiştir",
-    viewCollection: "Koleksiyonumu gör ❤️",
+    viewCollection: "Koleksiyonumu gör",
     emptyKept: "Bu sefer hiç kart saklamadın — bir şans daha dene!",
   },
   de: {
@@ -441,9 +483,9 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10 Karten gesehen — du hast ${n} ${n === 1 ? "Ausdruck" : "Ausdrücke"} behalten`,
     collectionUpdate: "Deine Sammlung wächst!",
     replay: "Nochmal spielen ▸",
-    explore: "Diese Ausdrücke erkunden 🧭",
+    explore: "Diese Ausdrücke erkunden",
     changeFilters: "Filter ändern",
-    viewCollection: "Meine Sammlung ansehen ❤️",
+    viewCollection: "Meine Sammlung ansehen",
     emptyKept: "Diesmal keine Karte behalten — versuch's nochmal!",
   },
   ja: {
@@ -451,9 +493,9 @@ export const VOYAGE_RECAP: Record<Lang, VoyageRecapLabels> = {
     kept: (n) => `10枚のカードを見ました — ${n}個の表現を残しました`,
     collectionUpdate: "コレクションが増えていきます！",
     replay: "もう一度遊ぶ ▸",
-    explore: "これらの表現を探索 🧭",
+    explore: "これらの表現を探索",
     changeFilters: "フィルターを変更",
-    viewCollection: "マイコレクションを見る ❤️",
+    viewCollection: "マイコレクションを見る",
     emptyKept: "今回は残したカードがありませんでした — もう一度挑戦してみましょう！",
   },
 };

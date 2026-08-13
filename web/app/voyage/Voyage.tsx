@@ -17,10 +17,11 @@ import { useSession } from "next-auth/react";
 import {
   postGameSession,
   patchGameSession,
+  getUserPreferences,
   GameSession,
   GameSessionFilters,
 } from "@/lib/api";
-import { getCarnet } from "@/lib/carnet";
+import { getCarnet, getLanguageModes, resolveLanguageMode } from "@/lib/carnet";
 import { useScreenHistory } from "@/lib/useScreenHistory";
 import { buildExploreHref } from "@/lib/exploreLink";
 import {
@@ -49,9 +50,10 @@ const EMPTY_FILTERS: VoyageFilters = { country: "", kind: "", domain: "" };
 // composer expanded.
 export default function Voyage({ quick, initialFilters }: { quick: boolean; initialFilters?: VoyageFilters }) {
   const { uiLang } = useUILangContext();
-  const { data: authSession } = useSession();
+  const { data: authSession, status: authStatus } = useSession();
   const t = VOYAGE_SETUP[uiLang] ?? VOYAGE_SETUP.en;
   const playT = VOYAGE_PLAY[uiLang] ?? VOYAGE_PLAY.en;
+  const [languageModes, setLanguageModes] = useState<Record<string, string>>({});
 
   const [phase, setPhase] = useState<Phase>(quick ? "loading" : "setup");
   const [session, setSession] = useState<GameSession | null>(null);
@@ -80,6 +82,22 @@ export default function Voyage({ quick, initialFilters }: { quick: boolean; init
     mountedRef.current = true;
     return () => { mountedRef.current = false; };
   }, []);
+
+  // Language modes (S227 L8) — same source as Collection.tsx's mode
+  // picker (server preferences while logged in, local carnet mirror
+  // otherwise), read-only here: only used to condition the literal-
+  // translation hint below, never written back from this screen.
+  useEffect(() => {
+    if (authStatus === "loading") return;
+    const userId = authSession?.user?.id;
+    if (authStatus === "authenticated" && userId) {
+      getUserPreferences(userId).then((p) => {
+        if (p) setLanguageModes(p.language_modes ?? {});
+      }).catch(() => {});
+    } else {
+      setLanguageModes(getLanguageModes());
+    }
+  }, [authStatus, authSession]);
 
   // expression_id currently flagged, if the ReportReasonPicker is open.
   const [reportingId, setReportingId] = useState<string | null>(null);
@@ -219,6 +237,7 @@ export default function Voyage({ quick, initialFilters }: { quick: boolean; init
   const current = session?.cards[cardIndex];
   const countryCode = current ? (current.country || current.language) : "";
   const keptCards = session ? session.cards.filter((c) => keptIds.has(c.id)) : [];
+  const currentMode = current ? resolveLanguageMode(languageModes, current.language, uiLang) : null;
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
@@ -320,6 +339,7 @@ export default function Voyage({ quick, initialFilters }: { quick: boolean; init
                 key={current.id}
                 uiLang={uiLang}
                 card={current}
+                mode={currentMode}
                 onNext={handleNext}
                 onReport={handleReport}
                 onKeepToggle={handleKeepToggle}

@@ -8,6 +8,10 @@
  * closest evolution of the existing single-page composer, no new page/panel
  * paradigm. Mono-selection semantics are unchanged: tap a pin to select,
  * tap it again (or the "all countries" chip) to clear.
+ *
+ * `onPreview` (S235) — fired alongside `onSelect` only when a tap results in
+ * a NEW selection (never on deselect/reset), so VoyageSetup can surface a
+ * non-blocking example panel without gating the 1-tap selection contract.
  */
 
 import { FLAG, COUNTRY_NAME } from "@/lib/constants";
@@ -79,10 +83,11 @@ type Props = {
   countries: CountryInfo[];
   selected: string;
   onSelect: (code: string) => void;
+  onPreview?: (code: string) => void;
   t: VoyageSetupLabels;
 };
 
-export default function CountryMap({ countries, selected, onSelect, t }: Props) {
+export default function CountryMap({ countries, selected, onSelect, onPreview, t }: Props) {
   // Countries the API returns without a hand-placed coordinate (shouldn't
   // happen with the current 16 — belt-and-suspenders if a new one ships
   // before this map is updated) fall back to a small chip row underneath,
@@ -100,7 +105,11 @@ export default function CountryMap({ countries, selected, onSelect, t }: Props) 
           return (
             <button
               key={c.code}
-              onClick={() => onSelect(isSelected ? "" : c.code)}
+              onClick={() => {
+                const next = isSelected ? "" : c.code;
+                onSelect(next);
+                if (next) onPreview?.(next);
+              }}
               aria-label={COUNTRY_NAME[c.code] ?? c.code.toUpperCase()}
               aria-pressed={isSelected}
               title={COUNTRY_NAME[c.code] ?? c.code.toUpperCase()}
@@ -122,7 +131,11 @@ export default function CountryMap({ countries, selected, onSelect, t }: Props) 
           {offMap.map((c) => (
             <button
               key={c.code}
-              onClick={() => onSelect(selected === c.code ? "" : c.code)}
+              onClick={() => {
+                const next = selected === c.code ? "" : c.code;
+                onSelect(next);
+                if (next) onPreview?.(next);
+              }}
               style={{
                 display: "flex", alignItems: "center", gap: 5, background: "white",
                 border: "1.5px solid var(--paper-edge)", borderRadius: 999, padding: "5px 10px",

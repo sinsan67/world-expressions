@@ -9,6 +9,7 @@ import Sidebar from "@/components/home/Sidebar";
 import BottomNav from "@/components/home/BottomNav";
 import GameCard from "@/components/home/GameCard";
 import DailyPostcard from "@/components/home/DailyPostcard";
+import ColdStartCard from "@/components/home/ColdStartCard";
 import CollectionStrip from "@/components/home/CollectionStrip";
 import CarnetHeartLink from "@/components/ui/CarnetHeartLink";
 import LangDropdown from "@/components/ui/LangDropdown";
@@ -42,6 +43,7 @@ export default function Hub() {
   const [showWelcome, setShowWelcome] = useState<boolean | null>(null);
   const [daily, setDaily] = useState<DailyExpression | null>(null);
   const [dailyLoading, setDailyLoading] = useState(true);
+  const [dailyError, setDailyError] = useState(false);
   // Révision chip counts (lot D) — total favorites + how many are due for
   // review. Loaded the same anon-local/logged-in-server dual path as
   // Collection.tsx; classification logic lives once in lib/reviewQueue.ts.
@@ -86,12 +88,28 @@ export default function Hub() {
   useEffect(() => {
     let cancelled = false;
     setDailyLoading(true);
+    setDailyError(false);
     getDailyExpression(uiLang)
       .then((expr) => { if (!cancelled) setDaily(expr); })
-      .catch(() => {})
+      .catch(() => { if (!cancelled) setDailyError(true); })
       .finally(() => { if (!cancelled) setDailyLoading(false); });
     return () => { cancelled = true; };
   }, [uiLang]);
+
+  // Render cold start (free tier, up to ~60s after sleep). Past 5s of
+  // loading, swap the skeleton for a real proverb + progress bar instead of
+  // a silent stuck postcard. getDailyExpression() now has a 60s timeout, so
+  // a genuinely broken /daily (not just a slow wake-up) surfaces as
+  // dailyError instead of hanging forever — see render below.
+  const [coldStart, setColdStart] = useState(false);
+  useEffect(() => {
+    if (!dailyLoading) {
+      setColdStart(false);
+      return;
+    }
+    const timer = setTimeout(() => setColdStart(true), 5000);
+    return () => clearTimeout(timer);
+  }, [dailyLoading]);
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--paper)" }}>
@@ -164,39 +182,39 @@ export default function Hub() {
             ]}
           />
 
-          {/* Teaser — 3rd game, static & non-clickable (S196 decision) */}
-          <div
-            data-testid="game-card-teaser"
-            style={{
-              background: "transparent",
-              border: "2px dashed var(--ink-faint)",
-              borderRadius: "var(--r-lg)",
-              padding: "0.85rem 1.1rem",
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              cursor: "default",
-            }}
-          >
-            <span style={{ fontSize: 26, filter: "grayscale(0.4)" }} aria-hidden="true">🗺️</span>
-            <div style={{ fontSize: 13, color: "var(--ink-softer)", lineHeight: 1.35 }}>
-              <strong style={{ color: "var(--ink-soft)" }}>{t.comingSoon.title}</strong>
-              <br />
-              {t.comingSoon.body}
-            </div>
-          </div>
+          {/* Jeu 3 — Constellation (docs/game3-constellation-lot0-contract.md).
+              Replaces the static "coming soon" teaser (S196) now that the
+              game is real. Emoji swapped from the teaser's 🗺️ (world-map
+              track) to ✨ — that track was the one *rejected* at S234 in
+              favor of the emoji-constellation track, so keeping 🗺️ here
+              would now be actively misleading. */}
+          <GameCard
+            variant="constellation"
+            emoji="✨"
+            title={t.constellation.title}
+            subtitle={t.constellation.tagline}
+            ctaLabel={t.constellation.cta}
+            href="/constellation"
+            testId="game-card-constellation"
+          />
         </div>
 
         {/* Collection teaser + daily postcard */}
         <div style={{ maxWidth: 640, margin: "0 auto" }}>
           <CollectionStrip title={t.collection.teaser} countLabel={t.collection.count} emptyLabel={t.collection.empty} />
-          <DailyPostcard
-            expression={daily}
-            loading={dailyLoading}
-            uiLang={uiLang}
-            label={t.daily.title}
-            hint={t.daily.hint}
-          />
+          {(coldStart || dailyError) ? (
+            <div style={{ padding: "1.1rem 1rem 0.5rem" }}>
+              <ColdStartCard uiLang={uiLang} failed={dailyError} />
+            </div>
+          ) : (
+            <DailyPostcard
+              expression={daily}
+              loading={dailyLoading}
+              uiLang={uiLang}
+              label={t.daily.title}
+              hint={t.daily.hint}
+            />
+          )}
 
           {/* Explorer le monde — Atlas/Concepts/Pays/Proverbes left the
               persistent nav in Lot N1, demoted to this hub section. */}

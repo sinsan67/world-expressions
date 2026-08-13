@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 
-// Hub game card — two visual variants matching docs/mockups/pivot-hub.html
+// Hub game card — three visual variants matching docs/mockups/pivot-hub.html
 // (.game-card.discover / .game-card.review). "discover" = Voyage (plum),
-// "review" = Révision (terra). See docs/pivot-lot0-contract.md §1/§5 (lot A).
+// "review" = Révision (terra), "constellation" = Jeu 3 (ochre — see
+// docs/game3-constellation-lot0-contract.md). See docs/pivot-lot0-contract.md
+// §1/§5 (lot A) for discover/review's original spec.
 
-type Variant = "discover" | "review";
+type Variant = "discover" | "review" | "constellation";
 
 type Chip = { label: string; tone?: "default" | "warn" };
 
@@ -34,6 +36,11 @@ const VARIANT_STYLES: Record<Variant, { background: string; border: string; cta:
     background: "linear-gradient(135deg, var(--terra-bg), #fbf1ea 70%)",
     border: "var(--terra-soft)",
     cta: "var(--terra)",
+  },
+  constellation: {
+    background: "linear-gradient(135deg, var(--ochre-bg), #fbf6e2 70%)",
+    border: "var(--ochre-soft)",
+    cta: "var(--ochre-deep)",
   },
 };
 

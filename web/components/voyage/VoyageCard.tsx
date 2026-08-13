@@ -24,18 +24,24 @@ import { getTypeLabel } from "@/lib/typeLabels";
 import { tagIcon } from "@/lib/tagIcons";
 import { useFavorite } from "@/lib/useFavorite";
 import { useAudio } from "@/lib/useAudio";
+import type { LanguageMode } from "@/lib/carnet";
 import { VOYAGE_PLAY, VOYAGE_RARE } from "@/lib/voyageLabels";
 
 type Props = {
   uiLang: string;
   card: GameCardType;
+  // Collection's Découverte/Maîtrisée mode for this card's language (S227
+  // L8) — null when undecided. Only conditions the literal-translation
+  // hint below: "mastered" hides it pre-reveal for a real challenge,
+  // "discovery"/undecided keep it as a guessing aid (prior behaviour).
+  mode?: LanguageMode | null;
   onNext: () => void;
   // TODO(Report lot): wire to POST /reports (expression_id, reason?, comment?, client_id?, ui_lang?)
   onReport?: (expressionId: string) => void;
   onKeepToggle?: (expressionId: string, kept: boolean) => void;
 };
 
-export default function VoyageCard({ uiLang, card, onNext, onReport = () => {}, onKeepToggle }: Props) {
+export default function VoyageCard({ uiLang, card, mode = null, onNext, onReport = () => {}, onKeepToggle }: Props) {
   const t = VOYAGE_PLAY[uiLang] ?? VOYAGE_PLAY.en;
   const rareT = VOYAGE_RARE[uiLang] ?? VOYAGE_RARE.en;
   const [revealed, setRevealed] = useState(false);
@@ -90,9 +96,11 @@ export default function VoyageCard({ uiLang, card, onNext, onReport = () => {}, 
             {speaking ? <VolumeX size={16} strokeWidth={1.6} /> : <Volume2 size={16} strokeWidth={1.6} />}
           </button>
         </div>
-        {/* Literal translation — always shown (decision #1, no discovery/mastered
-            mode data yet to condition on) */}
-        {card.literal && (
+        {/* Literal translation — shown by default; hidden pre-reveal in
+            "mastered" mode for a real challenge (S227 L8, resolves the old
+            decision #1 TODO). Reappears once revealed regardless of mode,
+            same as the rest of the answer. */}
+        {card.literal && (revealed || mode !== "mastered") && (
           <div style={{ fontFamily: "var(--font-hand)", fontSize: 20, opacity: 0.95, marginTop: 6 }}>
             “{card.literal}”
           </div>
