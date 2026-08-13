@@ -25,12 +25,23 @@ def test_constellation_graph_shape(api):
     assert isinstance(data.get("edges"), list)
     assert len(data["nodes"]) > 0
     node = data["nodes"][0]
-    assert set(node.keys()) == {"tag", "emoji", "label", "x", "y"}
+    assert set(node.keys()) == {"tag", "emoji", "label", "x", "y", "group"}
     assert isinstance(node["tag"], str) and node["tag"]
     assert isinstance(node["emoji"], str) and node["emoji"]
     assert isinstance(node["label"], str) and node["label"]
     assert isinstance(node["x"], (int, float))
     assert isinstance(node["y"], (int, float))
+    assert isinstance(node["group"], str) and node["group"]
+
+
+def test_constellation_graph_no_misc_group(api):
+    # QA Review 6 (S243) : les 18 tags sans domaine mappé (fallback "misc")
+    # ont été rattachés manuellement aux 10 groupes existants
+    # (TAG_GROUP_OVERRIDE, scripts/build_constellation_graph.py) pour que le
+    # frontend puisse afficher une zone nommée pour 100% des nœuds.
+    r = api.get("/constellation/graph")
+    groups = {n["group"] for n in r.json()["nodes"]}
+    assert "misc" not in groups
 
 
 def test_constellation_graph_edges_reference_valid_node_indices(api):

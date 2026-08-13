@@ -1814,6 +1814,7 @@ def get_constellation_graph(locale: str = "en") -> dict:
             "label": n["labels"].get(loc) or n["labels"]["en"],
             "x": n["x"],
             "y": n["y"],
+            "group": n["group"],
         }
         for n in graph["nodes"]
     ]

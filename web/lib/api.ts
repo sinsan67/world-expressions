@@ -499,7 +499,7 @@ export async function reportExpression(payload: {
 
 // ─── Jeu 3 — Constellation (docs/game3-constellation-lot0-contract.md §3) ───
 
-export type ConstellationNode = { tag: string; emoji: string; label: string; x: number; y: number };
+export type ConstellationNode = { tag: string; emoji: string; label: string; x: number; y: number; group: string };
 export type ConstellationGraph = { nodes: ConstellationNode[]; edges: [number, number][] };
 
 export async function getConstellationGraph(locale = ""): Promise<ConstellationGraph> {
