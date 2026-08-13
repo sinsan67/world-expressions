@@ -18,6 +18,10 @@
  *   matching the app-wide "one expression_id at a time" favoriting pattern
  *   used everywhere else (e.g. VoyageCard.tsx). No new endpoint, no new
  *   api.ts favorites function — this hook is reused exactly as-is.
+ * - No "Révéler" button (removed S240, addendum §7.1) — examples fade in
+ *   automatically as soon as `detail` resolves, no click required. Reuses
+ *   the app's existing `fadeSlideUp` keyframe (globals.css) rather than a
+ *   new animation, same ~0.4s used elsewhere (e.g. type/[slug]/page.tsx).
  */
 
 import { FLAG } from "@/lib/constants";
@@ -29,13 +33,11 @@ type Props = {
   open: boolean;
   loading: boolean;
   detail: ConstellationTag | null;
-  revealed: boolean;
-  onReveal: () => void;
   onClose: () => void;
   labels: ConstellationLabels;
 };
 
-export default function ConstellationOverlay({ open, loading, detail, revealed, onReveal, onClose, labels }: Props) {
+export default function ConstellationOverlay({ open, loading, detail, onClose, labels }: Props) {
   if (!open) return null;
 
   const hasExamples = !!detail && detail.examples.length > 0;
@@ -60,21 +62,13 @@ export default function ConstellationOverlay({ open, loading, detail, revealed, 
           <p style={placeholderStyle}>{labels.placeholder}</p>
         )}
 
-        {!loading && hasExamples && revealed && (
-          <div>
+        {!loading && hasExamples && (
+          <div style={examplesFadeInStyle}>
             {detail!.examples.map((example) => (
               <ExampleRow key={example.expression_id} example={example} labels={labels} />
             ))}
           </div>
         )}
-
-        <div style={actionsStyle}>
-          {!loading && hasExamples && !revealed && (
-            <button type="button" onClick={onReveal} style={primaryBtnStyle} data-testid="constellation-reveal">
-              {labels.reveal}
-            </button>
-          )}
-        </div>
 
         <button type="button" onClick={onClose} style={closeStyle} data-testid="constellation-close">
           {labels.close}
@@ -167,23 +161,12 @@ const meaningStyle: React.CSSProperties = {
   margin: "0 0 0.5rem",
 };
 
-const actionsStyle: React.CSSProperties = {
-  display: "flex",
-  gap: "0.6rem",
-  flexWrap: "wrap",
-  justifyContent: "center",
-  marginTop: "0.4rem",
-};
-
-const primaryBtnStyle: React.CSSProperties = {
-  padding: "0.65rem 1.2rem",
-  borderRadius: 999,
-  border: "none",
-  background: "var(--plum)",
-  color: "#fff",
-  fontWeight: 600,
-  fontSize: "0.88rem",
-  cursor: "pointer",
+// Auto-reveal fade-in (S240, addendum §7.1) — reuses globals.css'
+// `fadeSlideUp` keyframe (opacity 0→1, translateY 10px→0) instead of
+// inventing a new one, same ~0.4s timing used elsewhere in the app (e.g.
+// type/[slug]/page.tsx's header block).
+const examplesFadeInStyle: React.CSSProperties = {
+  animation: "fadeSlideUp 0.4s cubic-bezier(0.2, 0.7, 0.3, 1) both",
 };
 
 const closeStyle: React.CSSProperties = {
