@@ -27,15 +27,25 @@
  * no `backdrop-filter` on `.node` (mobile compositing cost at 150+
  * simultaneous nodes — the wireframe's blur is replaced by a plain
  * semi-transparent fill).
+ *
+ * `centerTag` (S240, addendum §7.3): when set and matching a node in
+ * `graph`, the mount-time tx/ty are computed to center that node in the
+ * viewport instead of the hardcoded INITIAL_TX/INITIAL_TY. Only needs a
+ * one-time calc at mount — `/constellation?tag=X` is a full route change
+ * from `/constellation/browse`, so this component always remounts fresh,
+ * no live re-centering/imperative ref required.
  */
 
 import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import type { ConstellationGraph } from "@/lib/api";
 
 type Props = {
   graph: ConstellationGraph;
   hint: string;
+  browseLabel: string;
   onNodeTap: (tag: string) => void;
+  centerTag?: string;
 };
 
 const MARGIN = 80;
@@ -48,7 +58,8 @@ const MAX_SCALE = 2.5;
 // as a tap rather than a drag — see the tap-detection note below.
 const TAP_THRESHOLD = 8;
 
-export default function ConstellationStage({ graph, hint, onNodeTap }: Props) {
+export default function ConstellationStage({ graph, hint, browseLabel, onNodeTap, centerTag }: Props) {
+  const router = useRouter();
   const viewportRef = useRef<HTMLDivElement>(null);
   const worldRef = useRef<HTMLDivElement>(null);
   const zoomInRef = useRef<HTMLButtonElement>(null);
@@ -77,6 +88,21 @@ export default function ConstellationStage({ graph, hint, onNodeTap }: Props) {
     let scale = INITIAL_SCALE;
     let tx = INITIAL_TX;
     let ty = INITIAL_TY;
+
+    // §7.3 deep-link centering — world-point (x,y) maps to screen position
+    // tx + x*scale, ty + y*scale under the translate()/scale() transform
+    // below, so centering the node at the viewport's midpoint is just the
+    // inverse of that. Falls back to the hardcoded initial values above if
+    // centerTag isn't set or doesn't match any node (e.g. stale/typo'd tag).
+    if (centerTag) {
+      const node = graph.nodes.find((n) => n.tag === centerTag);
+      if (node) {
+        const rect = viewport.getBoundingClientRect();
+        tx = rect.width / 2 - node.x * scale;
+        ty = rect.height / 2 - node.y * scale;
+      }
+    }
+
     const pointers = new Map<number, { x: number; y: number }>();
     // Down position per pointerId, kept separately from `pointers` (which
     // tracks the LATEST position) so tap detection can measure total
@@ -202,7 +228,9 @@ export default function ConstellationStage({ graph, hint, onNodeTap }: Props) {
       zoomResetBtn?.removeEventListener("click", zoomReset);
     };
     // Runs once on mount only — `graph` is fetched once and never changes
-    // for the component's lifetime (Constellation.tsx never re-fetches it).
+    // for the component's lifetime (Constellation.tsx never re-fetches it),
+    // and `centerTag` is only ever meaningful at the very first mount after
+    // a `/constellation?tag=X` route change (§7.3 above).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -290,6 +318,20 @@ export default function ConstellationStage({ graph, hint, onNodeTap }: Props) {
           ))}
         </div>
       </div>
+
+      {/* "Parcourir/Filtrer" entry (§7.2/§7.3) — top-right corner: the two
+          bottom corners are already taken by the zoom controls and the hint
+          chip, placement confirmed by Sinan (addendum §7.2). Same floating
+          style as the zoom controls below. */}
+      <button
+        type="button"
+        aria-label={browseLabel}
+        data-testid="constellation-browse-entry"
+        onClick={() => router.push("/constellation/browse")}
+        style={{ position: "absolute", top: "1rem", right: "1rem", zIndex: 15, ...zoomBtnStyle }}
+      >
+        🔍
+      </button>
 
       <div
         style={{

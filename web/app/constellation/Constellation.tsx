@@ -4,8 +4,9 @@
  * Jeu 3 — Constellation (docs/game3-constellation-lot0-contract.md).
  * Orchestration only: loads CONSTELLATION_LABELS[uiLang], fetches the graph
  * once via getConstellationGraph(uiLang) on mount, holds selectedTag/detail/
- * loading/revealed state, fetches tag detail on demand via
- * getConstellationTag(tag, uiLang) when a node is tapped.
+ * loading state, fetches tag detail on demand via getConstellationTag(tag,
+ * uiLang) when a node is tapped — examples fade in automatically once that
+ * resolves (S240, addendum §7.1 — no more "Révéler" click/reveal state).
  *
  * Renders a slim dark top bar (title + back-to-hub link, no Sidebar/
  * BottomNav) over a full-bleed 100dvh stage — deliberately different from
@@ -18,6 +19,13 @@
  * No `game_sessions` tracking for this game (contract §0.3) — free
  * exploration without a defined start/end, same status as Atlas/Explorer.
  * Only the ❤️ (inside ConstellationOverlay) is a tracked signal.
+ *
+ * `initialTag` (S240, addendum §7.3): set when arriving via the "Parcourir/
+ * Filtrer" view's card-to-node link (`/constellation?tag=X`, read by
+ * app/constellation/page.tsx). Once the graph has loaded, an effect opens
+ * the overlay for that tag directly (reusing handleNodeTap as-is) and
+ * ConstellationStage centers the camera on it at mount — no imperative ref,
+ * this route change always remounts the component fresh.
  */
 
 import { useEffect, useState } from "react";
@@ -28,7 +36,11 @@ import { useUILangContext } from "@/lib/UILangContext";
 import ConstellationStage from "@/components/constellation/ConstellationStage";
 import ConstellationOverlay from "@/components/constellation/ConstellationOverlay";
 
-export default function Constellation() {
+type Props = {
+  initialTag?: string;
+};
+
+export default function Constellation({ initialTag }: Props) {
   const { uiLang } = useUILangContext();
   const t = CONSTELLATION_LABELS[uiLang] ?? CONSTELLATION_LABELS.en;
 
@@ -38,7 +50,6 @@ export default function Constellation() {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [detail, setDetail] = useState<ConstellationTag | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
-  const [revealed, setRevealed] = useState(false);
 
   // Graph loads once per uiLang change (labels are baked per-locale server-
   // side — see database.get_constellation_graph — so a language switch needs
@@ -54,7 +65,6 @@ export default function Constellation() {
 
   function handleNodeTap(tag: string) {
     setSelectedTag(tag);
-    setRevealed(false);
     setDetail(null);
     setDetailLoading(true);
     getConstellationTag(tag, uiLang)
@@ -74,8 +84,14 @@ export default function Constellation() {
   function handleClose() {
     setSelectedTag(null);
     setDetail(null);
-    setRevealed(false);
   }
+
+  // Deep-link entry from "Parcourir/Filtrer" (§7.3) — fires once the graph is
+  // in hand so handleNodeTap can resolve the node's emoji/label immediately.
+  useEffect(() => {
+    if (initialTag && graph) handleNodeTap(initialTag);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [graph]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100dvh", background: "var(--ink)" }}>
@@ -122,15 +138,19 @@ export default function Constellation() {
       )}
 
       {!graphError && graph && (
-        <ConstellationStage graph={graph} hint={t.hint} onNodeTap={handleNodeTap} />
+        <ConstellationStage
+          graph={graph}
+          hint={t.hint}
+          browseLabel={t.browseEntryAria}
+          onNodeTap={handleNodeTap}
+          centerTag={initialTag}
+        />
       )}
 
       <ConstellationOverlay
         open={!!selectedTag}
         loading={detailLoading}
         detail={detail}
-        revealed={revealed}
-        onReveal={() => setRevealed(true)}
         onClose={handleClose}
         labels={t}
       />
