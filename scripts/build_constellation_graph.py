@@ -100,6 +100,12 @@ TAG_EMOJI: dict[str, str] = {
     "uncertainty": "❓", "passion": "💘", "moderation": "🎛️", "stability": "⚓",
     "words": "📝", "compassion": "💗", "authority": "👮", "charity": "🥫",
     "appreciation": "🙌", "empathy": "🫶",
+    # --- ajoutés S242, tags DB prod entrant dans le top 150 par n_proverbes ---
+    "advice": "💡", "fear": "😨", "deception": "🃏", "folly": "🤡",
+    "humor": "😂", "hospitality": "🛎️", "frugality": "🪙", "ethics": "🧭",
+    "homesickness": "🏡", "rural-life": "🚜", "freedom": "🕊️", "perception": "👁️",
+    "transience": "🌬️", "inevitability": "⏳", "criticism": "🗯️", "cunning": "🦊",
+    "irony": "🙃", "hypocrisy": "🎭", "metaphor": "🖼️",
 }
 
 # Layout hiérarchique (S240) — groupe thématique (niveau 1) auquel rattacher
@@ -383,14 +389,16 @@ def main():
         f"docs/game3-constellation-lot0-contract.md §0 (écart discuté et validé avec Sinan, S235)"
     )
 
+    if args.top:
+        candidates = candidates[: args.top]
+        print(f"--top {args.top} appliqué -> {len(candidates)} nœuds")
+
+    # Vérifié seulement sur les candidats retenus après --top (S242) : un tag
+    # capé hors sélection n'a pas besoin d'emoji, inutile de bloquer dessus.
     missing = [c["slug"] for c in candidates if c["slug"] not in TAG_EMOJI]
     if missing:
         print(f"ERREUR : {len(missing)} tags sans entrée TAG_EMOJI : {missing}")
         sys.exit(1)
-
-    if args.top:
-        candidates = candidates[: args.top]
-        print(f"--top {args.top} appliqué -> {len(candidates)} nœuds")
 
     labels = fetch_labels([c["id"] for c in candidates])
     tag_domains = fetch_tag_domains([c["id"] for c in candidates])
