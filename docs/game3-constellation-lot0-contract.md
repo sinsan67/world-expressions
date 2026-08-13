@@ -234,3 +234,32 @@ logique de désambiguïsation à construire.
 - Équivalent mobile de l'entrée "Parcourir/Filtrer" : le bouton 🔍 fonctionne
   nativement sur mobile (même route, même composants responsives) — pas de
   variante séparée à concevoir.
+
+---
+
+## 8. Addendum S243 (2026-08-13) — Zones de groupe visibles (QA Review 6)
+
+Retour QA : la logique de regroupement des nœuds (clustering physique à 3
+niveaux, S240/S241) n'était visible nulle part côté joueur — aucune zone,
+aucun nom. Le générateur calculait déjà un `group` par nœud (macro-groupe
+thématique, `DOMAIN_TO_GROUP`) mais ce champ était filtré par
+`database.py::get_constellation_graph()` avant d'atteindre l'API.
+
+**Changement de forme d'API (§3)** : `GET /constellation/graph` retourne
+désormais `{nodes: [{tag, emoji, label, x, y, group}], edges: [[i,j]]}` —
+ajout additif du champ `group` (string, un des 10 slugs de `DOMAIN_GROUPS`,
+`web/lib/editorialDomains.ts`).
+
+**Rattachement des 18 tags orphelins** : `TAG_GROUP_OVERRIDE`
+(`scripts/build_constellation_graph.py`) rattache manuellement, avec
+Sinan, les 18 tags qui tombaient dans le fallback `"misc"` (aucune entrée
+`concept_domains`) vers les 10 groupes existants — `"misc"` n'apparaît plus
+dans le graphe généré. Le groupe `travel` (0 nœud jusqu'ici) en récupère 2
+(`exile`, `homeland`).
+
+**Frontend** : `ConstellationStage.tsx` calcule une bounding-box par groupe
+(padding 48px autour des nœuds) et affiche un rectangle discret + libellé
+(langue courante, fallback EN) en fond de chaque zone, dans le `<svg>`
+existant, avant les arêtes — z-order "zones → arêtes → nœuds" obtenu
+gratuitement par l'ordre du DOM. Purement décoratif (`pointer-events: none`),
+n'intercepte jamais un tap/pan.

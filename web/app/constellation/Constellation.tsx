@@ -152,6 +152,7 @@ export default function Constellation({ initialTag }: Props) {
           browseLabel={t.browseEntryAria}
           onNodeTap={handleNodeTap}
           centerTag={initialTag}
+          uiLang={uiLang}
         />
       )}
 

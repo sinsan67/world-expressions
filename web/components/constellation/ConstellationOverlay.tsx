@@ -121,6 +121,13 @@ const cardStyle: React.CSSProperties = {
   padding: "1.6rem 1.4rem",
   maxWidth: 400,
   width: "100%",
+  // Nodes can carry 2-3 example rows with long meaning paragraphs (proverb
+  // content, longer on average than idiom cards) — without a cap the card
+  // can exceed the viewport height and push "Fermer" out of reach with no
+  // way to scroll to it. maxHeight + scroll keeps the close button always
+  // reachable regardless of content length or viewport size.
+  maxHeight: "85vh",
+  overflowY: "auto",
   textAlign: "center",
   boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
 };

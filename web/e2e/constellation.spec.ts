@@ -24,6 +24,21 @@ test.describe('Page /constellation', () => {
     await expect(page.getByRole('dialog')).not.toBeVisible();
   });
 
+  test('group zones render behind the nodes (QA Review 6, S243)', async ({ page }) => {
+    await page.goto('/constellation');
+
+    const node = page.locator('[data-testid^="constellation-node-"]').first();
+    await expect(node).toBeVisible({ timeout: 30_000 });
+
+    const zones = page.locator('[data-testid^="constellation-zone-"]');
+    await expect(zones.first()).toBeVisible();
+    // Coupled to the current data/constellation_graph.json snapshot (10
+    // named groups, "misc" eliminated — see TAG_GROUP_OVERRIDE) rather than
+    // DB content, same rationale as the graph-shape tests in
+    // tests/test_constellation.py: a versioned asset, not a live query.
+    await expect(zones).toHaveCount(10);
+  });
+
   test('browse entry navigates to /constellation/browse and back link returns with overlay open', async ({ page }) => {
     await page.goto('/constellation');
 

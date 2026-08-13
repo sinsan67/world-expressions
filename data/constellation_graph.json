@@ -10,115 +10,19 @@
   ],
   "nodes": [
     {
-      "tag": "prudence",
-      "emoji": "🧐",
+      "tag": "injustice",
+      "emoji": "🚫",
       "labels": {
-        "fr": "prudence",
-        "en": "prudence",
-        "es": "prudencia",
-        "it": "prudenza",
-        "tr": "tedbirlilik",
-        "de": "Vorsicht",
-        "ja": "慎重"
+        "fr": "injustice",
+        "en": "Injustice",
+        "es": "injusticia",
+        "it": "ingiustizia",
+        "tr": "adaletsizlik",
+        "de": "Ungerechtigkeit",
+        "ja": "不正"
       },
-      "x": 1635.1,
-      "y": 731.2,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "balance",
-      "emoji": "☯️",
-      "labels": {
-        "fr": "équilibre",
-        "en": "balance",
-        "es": "equilibrio",
-        "it": "equilibrio",
-        "tr": "denge",
-        "de": "Balance",
-        "ja": "バランス"
-      },
-      "x": 1597.1,
-      "y": 629.6,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "diligence",
-      "emoji": "🐝",
-      "labels": {
-        "fr": "diligence",
-        "en": "diligence",
-        "es": "diligencia",
-        "it": "diligenza",
-        "tr": "çalışkanlık",
-        "de": "Fleiß",
-        "ja": "勤勉"
-      },
-      "x": 1655.8,
-      "y": 606.7,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "judgment",
-      "emoji": "⚖️",
-      "labels": {
-        "fr": "jugement",
-        "en": "judgment",
-        "es": "juicio",
-        "it": "giudizio",
-        "tr": "yargı",
-        "de": "Urteil",
-        "ja": "判断"
-      },
-      "x": 1694.5,
-      "y": 709.6,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "spirituality",
-      "emoji": "🕉️",
-      "labels": {
-        "fr": "spiritualité",
-        "en": "spirituality",
-        "es": "espiritualidad",
-        "it": "spiritualità",
-        "tr": "maneviyat",
-        "de": "Spiritualität",
-        "ja": "精神性"
-      },
-      "x": 1586.0,
-      "y": 691.5,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "tradition",
-      "emoji": "🏺",
-      "labels": {
-        "fr": "tradition",
-        "en": "tradition",
-        "es": "tradición",
-        "it": "tradizione",
-        "tr": "gelenek",
-        "de": "Tradition",
-        "ja": "伝統"
-      },
-      "x": 1704.4,
-      "y": 646.8,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "solidarity",
-      "emoji": "🤲",
-      "labels": {
-        "fr": "solidarité",
-        "en": "solidarity",
-        "es": "solidaridad",
-        "it": "solidarietà",
-        "tr": "dayanışma",
-        "de": "Solidarität",
-        "ja": "連帯"
-      },
-      "x": 1645.8,
-      "y": 669.5,
+      "x": 1804.5,
+      "y": 456.2,
       "group": "morality-justice"
     },
     {
@@ -133,200 +37,8 @@
         "de": "Rat",
         "ja": "助言"
       },
-      "x": 1710.9,
-      "y": 372.2,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "practicality",
-      "emoji": "🔧",
-      "labels": {
-        "fr": "praticité",
-        "en": "practicality",
-        "es": "practicidad",
-        "it": "praticità",
-        "tr": "pratiklik",
-        "de": "Praktikabilität",
-        "ja": "実用性"
-      },
-      "x": 1820.2,
-      "y": 367.6,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "freedom",
-      "emoji": "🕊️",
-      "labels": {
-        "fr": "liberté",
-        "en": "freedom",
-        "es": "libertad",
-        "it": "libertà",
-        "tr": "özgürlük",
-        "de": "Freiheit",
-        "ja": "自由"
-      },
-      "x": 1766.7,
-      "y": 401.1,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "equality",
-      "emoji": "🟰",
-      "labels": {
-        "fr": "égalité",
-        "en": "equality",
-        "es": "igualdad",
-        "it": "uguaglianza",
-        "tr": "eşitlik",
-        "de": "Gleichheit",
-        "ja": "平等"
-      },
-      "x": 1714.0,
-      "y": 435.5,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "work",
-      "emoji": "💼",
-      "labels": {
-        "fr": "travail",
-        "en": "work",
-        "es": "trabajo",
-        "it": "lavoro",
-        "tr": "çalışma",
-        "de": "Arbeit",
-        "ja": "仕事"
-      },
-      "x": 1770.1,
-      "y": 464.4,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "virtue",
-      "emoji": "😇",
-      "labels": {
-        "fr": "vertu",
-        "en": "virtue",
-        "es": "virtud",
-        "it": "virtù",
-        "tr": "erdem",
-        "de": "Tugend",
-        "ja": "美徳"
-      },
-      "x": 1822.9,
-      "y": 430.2,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "betrayal",
-      "emoji": "🗡️",
-      "labels": {
-        "fr": "trahison",
-        "en": "betrayal",
-        "es": "traición",
-        "it": "tradimento",
-        "tr": "ihanet",
-        "de": "Verrat",
-        "ja": "裏切り"
-      },
-      "x": 1764.3,
-      "y": 338.2,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "integrity",
-      "emoji": "🪨",
-      "labels": {
-        "fr": "intégrité",
-        "en": "integrity",
-        "es": "integridad",
-        "it": "integrità",
-        "tr": "dürüstlük",
-        "de": "Integrität",
-        "ja": "誠実"
-      },
-      "x": 1525.3,
-      "y": 513.0,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "karma",
-      "emoji": "☸️",
-      "labels": {
-        "fr": "karma",
-        "en": "karma",
-        "es": "karma",
-        "it": "karma",
-        "tr": "karma",
-        "de": "Karma",
-        "ja": "カルマ"
-      },
-      "x": 1594.2,
-      "y": 531.5,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "honesty",
-      "emoji": "🫡",
-      "labels": {
-        "fr": "honnêteté",
-        "en": "honesty",
-        "es": "honestidad",
-        "it": "onestà",
-        "tr": "dürüstlük",
-        "de": "Ehrlichkeit",
-        "ja": "正直"
-      },
-      "x": 1522.0,
-      "y": 441.6,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "trust",
-      "emoji": "🫱",
-      "labels": {
-        "fr": "confiance",
-        "en": "trust",
-        "es": "confianza",
-        "it": "fiducia",
-        "tr": "güven",
-        "de": "Vertrauen",
-        "ja": "信頼"
-      },
-      "x": 1588.9,
-      "y": 416.6,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "ethics",
-      "emoji": "🧭",
-      "labels": {
-        "fr": "éthique",
-        "en": "ethics",
-        "es": "ética",
-        "it": "etica",
-        "tr": "etik",
-        "de": "Ethik",
-        "ja": "倫理"
-      },
-      "x": 1633.2,
-      "y": 472.2,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "justice",
-      "emoji": "⚖️",
-      "labels": {
-        "fr": "justice",
-        "en": "Justice",
-        "es": "justicia",
-        "it": "giustizia",
-        "tr": "adalet",
-        "de": "Gerechtigkeit",
-        "ja": "正義"
-      },
-      "x": 1572.4,
-      "y": 475.2,
+      "x": 1734.9,
+      "y": 364.7,
       "group": "morality-justice"
     },
     {
@@ -341,72 +53,136 @@
         "de": "Respekt",
         "ja": "尊敬"
       },
-      "x": 1861.8,
-      "y": 539.3,
+      "x": 1802.0,
+      "y": 341.5,
       "group": "morality-justice"
     },
     {
-      "tag": "marriage",
-      "emoji": "💒",
+      "tag": "spirituality",
+      "emoji": "🕉️",
       "labels": {
-        "fr": "mariage",
-        "en": "marriage",
-        "es": "matrimonio",
-        "it": "matrimonio",
-        "tr": "evlilik",
-        "de": "Ehe",
-        "ja": "結婚"
+        "fr": "spiritualité",
+        "en": "spirituality",
+        "es": "espiritualidad",
+        "it": "spiritualità",
+        "tr": "maneviyat",
+        "de": "Spiritualität",
+        "ja": "精神性"
       },
-      "x": 1793.3,
-      "y": 557.4,
+      "x": 1845.1,
+      "y": 398.0,
       "group": "morality-justice"
     },
     {
-      "tag": "morality",
-      "emoji": "🧭",
+      "tag": "work",
+      "emoji": "💼",
       "labels": {
-        "fr": "moralité",
-        "en": "Morality",
-        "es": "moralidad",
-        "it": "moralità",
-        "tr": "ahlak",
-        "de": "Moral",
-        "ja": "道徳"
+        "fr": "travail",
+        "en": "work",
+        "es": "trabajo",
+        "it": "lavoro",
+        "tr": "çalışma",
+        "de": "Arbeit",
+        "ja": "仕事"
       },
-      "x": 1840.3,
-      "y": 596.5,
+      "x": 1736.3,
+      "y": 436.2,
       "group": "morality-justice"
     },
     {
-      "tag": "responsibility",
-      "emoji": "🎯",
-      "labels": {
-        "fr": "responsabilité",
-        "en": "responsibility",
-        "es": "responsabilidad",
-        "it": "responsabilità",
-        "tr": "sorumluluk",
-        "de": "Verantwortung",
-        "ja": "責任"
-      },
-      "x": 1855.8,
-      "y": 654.7,
-      "group": "morality-justice"
-    },
-    {
-      "tag": "consequences",
+      "tag": "justice",
       "emoji": "⚖️",
       "labels": {
-        "fr": "conséquences",
-        "en": "consequences",
-        "es": "consecuencias",
-        "it": "conseguenze",
-        "tr": "sonuçlar",
-        "de": "Konsequenzen",
-        "ja": "結果"
+        "fr": "justice",
+        "en": "Justice",
+        "es": "justicia",
+        "it": "giustizia",
+        "tr": "adalet",
+        "de": "Gerechtigkeit",
+        "ja": "正義"
       },
-      "x": 1788.8,
-      "y": 628.5,
+      "x": 1784.3,
+      "y": 399.1,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "integrity",
+      "emoji": "🪨",
+      "labels": {
+        "fr": "intégrité",
+        "en": "integrity",
+        "es": "integridad",
+        "it": "integrità",
+        "tr": "dürüstlük",
+        "de": "Integrität",
+        "ja": "誠実"
+      },
+      "x": 1611.7,
+      "y": 332.4,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "prudence",
+      "emoji": "🧐",
+      "labels": {
+        "fr": "prudence",
+        "en": "prudence",
+        "es": "prudencia",
+        "it": "prudenza",
+        "tr": "tedbirlilik",
+        "de": "Vorsicht",
+        "ja": "慎重"
+      },
+      "x": 1576.5,
+      "y": 438.1,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "trust",
+      "emoji": "🫱",
+      "labels": {
+        "fr": "confiance",
+        "en": "trust",
+        "es": "confianza",
+        "it": "fiducia",
+        "tr": "güven",
+        "de": "Vertrauen",
+        "ja": "信頼"
+      },
+      "x": 1557.8,
+      "y": 345.0,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "honesty",
+      "emoji": "🫡",
+      "labels": {
+        "fr": "honnêteté",
+        "en": "honesty",
+        "es": "honestidad",
+        "it": "onestà",
+        "tr": "dürüstlük",
+        "de": "Ehrlichkeit",
+        "ja": "正直"
+      },
+      "x": 1539.1,
+      "y": 397.1,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "judgment",
+      "emoji": "⚖️",
+      "labels": {
+        "fr": "jugement",
+        "en": "judgment",
+        "es": "juicio",
+        "it": "giudizio",
+        "tr": "yargı",
+        "de": "Urteil",
+        "ja": "判断"
+      },
+      "x": 1631.0,
+      "y": 427.8,
       "group": "morality-justice"
     },
     {
@@ -421,41 +197,281 @@
         "de": "Loyalität",
         "ja": "忠誠"
       },
-      "x": 1901.0,
-      "y": 598.8,
+      "x": 1647.0,
+      "y": 375.1,
       "group": "morality-justice"
     },
     {
-      "tag": "money",
-      "emoji": "💰",
+      "tag": "marriage",
+      "emoji": "💒",
       "labels": {
-        "fr": "argent",
-        "en": "money",
-        "es": "dinero",
-        "it": "denaro",
-        "tr": "para",
-        "de": "Geld",
-        "ja": "お金"
+        "fr": "mariage",
+        "en": "marriage",
+        "es": "matrimonio",
+        "it": "matrimonio",
+        "tr": "evlilik",
+        "de": "Ehe",
+        "ja": "結婚"
       },
-      "x": 1212.3,
-      "y": 1338.4,
-      "group": "money-luck"
+      "x": 1621.8,
+      "y": 725.6,
+      "group": "morality-justice"
     },
     {
-      "tag": "caution",
-      "emoji": "⚠️",
+      "tag": "practicality",
+      "emoji": "🔧",
       "labels": {
-        "fr": "prudence",
-        "en": "caution",
-        "es": "precaución",
-        "it": "prudenza",
-        "tr": "tedbir",
-        "de": "Vorsicht",
-        "ja": "注意"
+        "fr": "praticité",
+        "en": "practicality",
+        "es": "practicidad",
+        "it": "praticità",
+        "tr": "pratiklik",
+        "de": "Praktikabilität",
+        "ja": "実用性"
       },
-      "x": 1241.8,
-      "y": 1285.6,
-      "group": "money-luck"
+      "x": 1690.7,
+      "y": 744.1,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "solidarity",
+      "emoji": "🤲",
+      "labels": {
+        "fr": "solidarité",
+        "en": "solidarity",
+        "es": "solidaridad",
+        "it": "solidarietà",
+        "tr": "dayanışma",
+        "de": "Solidarität",
+        "ja": "連帯"
+      },
+      "x": 1618.5,
+      "y": 654.2,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "karma",
+      "emoji": "☸️",
+      "labels": {
+        "fr": "karma",
+        "en": "karma",
+        "es": "karma",
+        "it": "karma",
+        "tr": "karma",
+        "de": "Karma",
+        "ja": "カルマ"
+      },
+      "x": 1685.4,
+      "y": 629.1,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "consequences",
+      "emoji": "⚖️",
+      "labels": {
+        "fr": "conséquences",
+        "en": "consequences",
+        "es": "consecuencias",
+        "it": "conseguenze",
+        "tr": "sonuçlar",
+        "de": "Konsequenzen",
+        "ja": "結果"
+      },
+      "x": 1729.7,
+      "y": 684.7,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "reciprocity",
+      "emoji": "↔️",
+      "labels": {
+        "fr": "réciprocité",
+        "en": "reciprocity",
+        "es": "reciprocidad",
+        "it": "reciprocità",
+        "tr": "karşılıklılık",
+        "de": "Reziprozität",
+        "ja": "相互性"
+      },
+      "x": 1669.0,
+      "y": 687.7,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "freedom",
+      "emoji": "🕊️",
+      "labels": {
+        "fr": "liberté",
+        "en": "freedom",
+        "es": "libertad",
+        "it": "libertà",
+        "tr": "özgürlük",
+        "de": "Freiheit",
+        "ja": "自由"
+      },
+      "x": 1544.0,
+      "y": 507.8,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "virtue",
+      "emoji": "😇",
+      "labels": {
+        "fr": "vertu",
+        "en": "virtue",
+        "es": "virtud",
+        "it": "virtù",
+        "tr": "erdem",
+        "de": "Tugend",
+        "ja": "美徳"
+      },
+      "x": 1475.5,
+      "y": 526.0,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "balance",
+      "emoji": "☯️",
+      "labels": {
+        "fr": "équilibre",
+        "en": "balance",
+        "es": "equilibrio",
+        "it": "equilibrio",
+        "tr": "denge",
+        "de": "Balance",
+        "ja": "バランス"
+      },
+      "x": 1522.5,
+      "y": 565.1,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "responsibility",
+      "emoji": "🎯",
+      "labels": {
+        "fr": "responsabilité",
+        "en": "responsibility",
+        "es": "responsabilidad",
+        "it": "responsabilità",
+        "tr": "sorumluluk",
+        "de": "Verantwortung",
+        "ja": "責任"
+      },
+      "x": 1538.0,
+      "y": 623.2,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "tradition",
+      "emoji": "🏺",
+      "labels": {
+        "fr": "tradition",
+        "en": "tradition",
+        "es": "tradición",
+        "it": "tradizione",
+        "tr": "gelenek",
+        "de": "Tradition",
+        "ja": "伝統"
+      },
+      "x": 1470.9,
+      "y": 597.1,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "betrayal",
+      "emoji": "🗡️",
+      "labels": {
+        "fr": "trahison",
+        "en": "betrayal",
+        "es": "traición",
+        "it": "tradimento",
+        "tr": "ihanet",
+        "de": "Verrat",
+        "ja": "裏切り"
+      },
+      "x": 1583.2,
+      "y": 567.4,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "equality",
+      "emoji": "🟰",
+      "labels": {
+        "fr": "égalité",
+        "en": "equality",
+        "es": "igualdad",
+        "it": "uguaglianza",
+        "tr": "eşitlik",
+        "de": "Gleichheit",
+        "ja": "平等"
+      },
+      "x": 1859.3,
+      "y": 635.7,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "inequality",
+      "emoji": "📊",
+      "labels": {
+        "fr": "inégalité",
+        "en": "inequality",
+        "es": "desigualdad",
+        "it": "disuguaglianza",
+        "tr": "eşitsizlik",
+        "de": "Ungleichheit",
+        "ja": "不平等"
+      },
+      "x": 1780.9,
+      "y": 612.9,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "morality",
+      "emoji": "🧭",
+      "labels": {
+        "fr": "moralité",
+        "en": "Morality",
+        "es": "moralidad",
+        "it": "moralità",
+        "tr": "ahlak",
+        "de": "Moral",
+        "ja": "道徳"
+      },
+      "x": 1882.3,
+      "y": 557.1,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "diligence",
+      "emoji": "🐝",
+      "labels": {
+        "fr": "diligence",
+        "en": "diligence",
+        "es": "diligencia",
+        "it": "diligenza",
+        "tr": "çalışkanlık",
+        "de": "Fleiß",
+        "ja": "勤勉"
+      },
+      "x": 1831.9,
+      "y": 585.0,
+      "group": "morality-justice"
+    },
+    {
+      "tag": "ethics",
+      "emoji": "🧭",
+      "labels": {
+        "fr": "éthique",
+        "en": "ethics",
+        "es": "ética",
+        "it": "etica",
+        "tr": "etik",
+        "de": "Ethik",
+        "ja": "倫理"
+      },
+      "x": 1803.4,
+      "y": 534.5,
+      "group": "morality-justice"
     },
     {
       "tag": "destiny",
@@ -469,8 +485,8 @@
         "de": "Schicksal",
         "ja": "宿命"
       },
-      "x": 1170.1,
-      "y": 1295.6,
+      "x": 1186.9,
+      "y": 1328.4,
       "group": "money-luck"
     },
     {
@@ -485,184 +501,8 @@
         "de": "Kritik",
         "ja": "批判"
       },
-      "x": 1158.3,
-      "y": 1366.6,
-      "group": "money-luck"
-    },
-    {
-      "tag": "resignation",
-      "emoji": "🤷",
-      "labels": {
-        "fr": "résignation",
-        "en": "resignation",
-        "es": "resignación",
-        "it": "rassegnazione",
-        "tr": "teslimiyet",
-        "de": "Resignation",
-        "ja": "辞職"
-      },
-      "x": 1272.0,
-      "y": 1350.5,
-      "group": "money-luck"
-    },
-    {
-      "tag": "acceptance",
-      "emoji": "🤗",
-      "labels": {
-        "fr": "acceptation",
-        "en": "acceptance",
-        "es": "aceptación",
-        "it": "accettazione",
-        "tr": "kabul",
-        "de": "Akzeptanz",
-        "ja": "受け入れ"
-      },
-      "x": 1221.1,
-      "y": 1399.1,
-      "group": "money-luck"
-    },
-    {
-      "tag": "failure",
-      "emoji": "❌",
-      "labels": {
-        "fr": "échec",
-        "en": "failure",
-        "es": "fracaso",
-        "it": "fallimento",
-        "tr": "başarısızlık",
-        "de": "Scheitern",
-        "ja": "失敗"
-      },
-      "x": 1197.5,
-      "y": 1682.7,
-      "group": "money-luck"
-    },
-    {
-      "tag": "reward",
-      "emoji": "🏅",
-      "labels": {
-        "fr": "récompense",
-        "en": "Reward",
-        "es": "recompensa",
-        "it": "ricompensa",
-        "tr": "ödül",
-        "de": "Belohnung",
-        "ja": "報酬"
-      },
-      "x": 1236.0,
-      "y": 1574.6,
-      "group": "money-luck"
-    },
-    {
-      "tag": "religion",
-      "emoji": "🛐",
-      "labels": {
-        "fr": "religion",
-        "en": "religion",
-        "es": "religión",
-        "it": "religione",
-        "tr": "din",
-        "de": "Religion",
-        "ja": "宗教"
-      },
-      "x": 1235.5,
-      "y": 1635.6,
-      "group": "money-luck"
-    },
-    {
-      "tag": "value",
-      "emoji": "💎",
-      "labels": {
-        "fr": "valeur",
-        "en": "value",
-        "es": "valor",
-        "it": "valore",
-        "tr": "değer",
-        "de": "Wert",
-        "ja": "価値"
-      },
-      "x": 1269.1,
-      "y": 1685.4,
-      "group": "money-luck"
-    },
-    {
-      "tag": "generosity",
-      "emoji": "🎁",
-      "labels": {
-        "fr": "générosité",
-        "en": "generosity",
-        "es": "generosidad",
-        "it": "generosità",
-        "tr": "cömertlik",
-        "de": "Großzügigkeit",
-        "ja": "寛容"
-      },
-      "x": 1293.0,
-      "y": 1617.4,
-      "group": "money-luck"
-    },
-    {
-      "tag": "inevitability",
-      "emoji": "⏳",
-      "labels": {
-        "fr": "inévitabilité",
-        "en": "inevitability",
-        "es": "inevitabilidad",
-        "it": "inevitabilità",
-        "tr": "kaçınılmazlık",
-        "de": "Unvermeidlichkeit",
-        "ja": "避けられないこと"
-      },
-      "x": 1178.0,
-      "y": 1614.7,
-      "group": "money-luck"
-    },
-    {
-      "tag": "preparation",
-      "emoji": "🎒",
-      "labels": {
-        "fr": "préparation",
-        "en": "preparation",
-        "es": "preparación",
-        "it": "preparazione",
-        "tr": "hazırlık",
-        "de": "Vorbereitung",
-        "ja": "準備"
-      },
-      "x": 1016.9,
-      "y": 1493.7,
-      "group": "money-luck"
-    },
-    {
-      "tag": "opportunity",
-      "emoji": "🚪",
-      "labels": {
-        "fr": "opportunité",
-        "en": "opportunity",
-        "es": "oportunidad",
-        "it": "opportunità",
-        "tr": "fırsat",
-        "de": "Gelegenheit",
-        "ja": "機会"
-      },
-      "x": 1054.3,
-      "y": 1554.0,
-      "group": "money-luck"
-    },
-    {
-      "tag": "wealth",
-      "emoji": "💰",
-      "labels": {
-        "fr": "richesse",
-        "en": "Wealth",
-        "es": "riqueza",
-        "it": "ricchezza",
-        "tr": "zenginlik",
-        "de": "Reichtum",
-        "ja": "富"
-      },
-      "x": 1062.9,
-      "y": 1439.1,
+      "x": 1245.4,
+      "y": 1305.8,
       "group": "money-luck"
     },
     {
@@ -677,88 +517,24 @@
         "de": "Täuschung",
         "ja": "欺瞞"
       },
-      "x": 1123.2,
-      "y": 1537.6,
+      "x": 1196.5,
+      "y": 1266.0,
       "group": "money-luck"
     },
     {
-      "tag": "fate",
-      "emoji": "🎲",
+      "tag": "wealth",
+      "emoji": "💰",
       "labels": {
-        "fr": "destin",
-        "en": "fate",
-        "es": "destino",
-        "it": "destino",
-        "tr": "kader",
-        "de": "Schicksal",
-        "ja": "運命"
+        "fr": "richesse",
+        "en": "Wealth",
+        "es": "riqueza",
+        "it": "ricchezza",
+        "tr": "zenginlik",
+        "de": "Reichtum",
+        "ja": "富"
       },
-      "x": 1129.3,
-      "y": 1466.2,
-      "group": "money-luck"
-    },
-    {
-      "tag": "risk",
-      "emoji": "⚠️",
-      "labels": {
-        "fr": "risque",
-        "en": "risk",
-        "es": "riesgo",
-        "it": "rischio",
-        "tr": "risk",
-        "de": "Risiko",
-        "ja": "リスク"
-      },
-      "x": 1077.7,
-      "y": 1497.6,
-      "group": "money-luck"
-    },
-    {
-      "tag": "luck",
-      "emoji": "🍀",
-      "labels": {
-        "fr": "chance",
-        "en": "luck",
-        "es": "suerte",
-        "it": "fortuna",
-        "tr": "şans",
-        "de": "Glück",
-        "ja": "幸運"
-      },
-      "x": 1414.2,
-      "y": 1510.6,
-      "group": "money-luck"
-    },
-    {
-      "tag": "survival",
-      "emoji": "🏕️",
-      "labels": {
-        "fr": "survie",
-        "en": "survival",
-        "es": "supervivencia",
-        "it": "sopravvivenza",
-        "tr": "hayatta kalma",
-        "de": "Überleben",
-        "ja": "生存"
-      },
-      "x": 1421.3,
-      "y": 1455.8,
-      "group": "money-luck"
-    },
-    {
-      "tag": "faith",
-      "emoji": "🙏",
-      "labels": {
-        "fr": "foi",
-        "en": "Faith",
-        "es": "fe",
-        "it": "fede",
-        "tr": "inanç",
-        "de": "Glaube",
-        "ja": "信仰"
-      },
-      "x": 1378.0,
-      "y": 1421.4,
+      "x": 1137.8,
+      "y": 1288.5,
       "group": "money-luck"
     },
     {
@@ -773,8 +549,8 @@
         "de": "Dankbarkeit",
         "ja": "感謝"
       },
-      "x": 1318.3,
-      "y": 1496.9,
+      "x": 1235.4,
+      "y": 1368.1,
       "group": "money-luck"
     },
     {
@@ -789,8 +565,8 @@
         "de": "Armut",
         "ja": "貧困"
       },
-      "x": 1326.8,
-      "y": 1442.2,
+      "x": 1176.2,
+      "y": 1390.7,
       "group": "money-luck"
     },
     {
@@ -805,40 +581,312 @@
         "de": "Sparsamkeit",
         "ja": "倹約"
       },
-      "x": 1362.4,
-      "y": 1530.9,
+      "x": 1127.5,
+      "y": 1350.5,
       "group": "money-luck"
     },
     {
-      "tag": "healing",
-      "emoji": "🩹",
+      "tag": "reward",
+      "emoji": "🏅",
       "labels": {
-        "fr": "guérison",
-        "en": "Healing",
-        "es": "curación",
-        "it": "guarigione",
-        "tr": "iyileşme",
-        "de": "Heilung",
-        "ja": "癒し"
+        "fr": "récompense",
+        "en": "Reward",
+        "es": "recompensa",
+        "it": "ricompensa",
+        "tr": "ödül",
+        "de": "Belohnung",
+        "ja": "報酬"
       },
-      "x": 1068.8,
-      "y": 752.0,
-      "group": "body-nature"
+      "x": 1171.4,
+      "y": 1671.6,
+      "group": "money-luck"
     },
     {
-      "tag": "youth",
-      "emoji": "🌸",
+      "tag": "caution",
+      "emoji": "⚠️",
       "labels": {
-        "fr": "jeunesse",
-        "en": "youth",
-        "es": "juventud",
-        "it": "giovinezza",
-        "tr": "gençlik",
-        "de": "Jugend",
-        "ja": "若さ"
+        "fr": "prudence",
+        "en": "caution",
+        "es": "precaución",
+        "it": "prudenza",
+        "tr": "tedbir",
+        "de": "Vorsicht",
+        "ja": "注意"
       },
-      "x": 1141.5,
-      "y": 663.3,
+      "x": 1209.8,
+      "y": 1563.6,
+      "group": "money-luck"
+    },
+    {
+      "tag": "survival",
+      "emoji": "🏕️",
+      "labels": {
+        "fr": "survie",
+        "en": "survival",
+        "es": "supervivencia",
+        "it": "sopravvivenza",
+        "tr": "hayatta kalma",
+        "de": "Überleben",
+        "ja": "生存"
+      },
+      "x": 1209.4,
+      "y": 1624.5,
+      "group": "money-luck"
+    },
+    {
+      "tag": "faith",
+      "emoji": "🙏",
+      "labels": {
+        "fr": "foi",
+        "en": "Faith",
+        "es": "fe",
+        "it": "fede",
+        "tr": "inanç",
+        "de": "Glaube",
+        "ja": "信仰"
+      },
+      "x": 1243.0,
+      "y": 1674.3,
+      "group": "money-luck"
+    },
+    {
+      "tag": "resignation",
+      "emoji": "🤷",
+      "labels": {
+        "fr": "résignation",
+        "en": "resignation",
+        "es": "resignación",
+        "it": "rassegnazione",
+        "tr": "teslimiyet",
+        "de": "Resignation",
+        "ja": "辞職"
+      },
+      "x": 1266.9,
+      "y": 1606.4,
+      "group": "money-luck"
+    },
+    {
+      "tag": "acceptance",
+      "emoji": "🤗",
+      "labels": {
+        "fr": "acceptation",
+        "en": "acceptance",
+        "es": "aceptación",
+        "it": "accettazione",
+        "tr": "kabul",
+        "de": "Akzeptanz",
+        "ja": "受け入れ"
+      },
+      "x": 1151.8,
+      "y": 1603.7,
+      "group": "money-luck"
+    },
+    {
+      "tag": "opportunity",
+      "emoji": "🚪",
+      "labels": {
+        "fr": "opportunité",
+        "en": "opportunity",
+        "es": "oportunidad",
+        "it": "opportunità",
+        "tr": "fırsat",
+        "de": "Gelegenheit",
+        "ja": "機会"
+      },
+      "x": 990.8,
+      "y": 1482.6,
+      "group": "money-luck"
+    },
+    {
+      "tag": "religion",
+      "emoji": "🛐",
+      "labels": {
+        "fr": "religion",
+        "en": "religion",
+        "es": "religión",
+        "it": "religione",
+        "tr": "din",
+        "de": "Religion",
+        "ja": "宗教"
+      },
+      "x": 1028.1,
+      "y": 1542.9,
+      "group": "money-luck"
+    },
+    {
+      "tag": "preparation",
+      "emoji": "🎒",
+      "labels": {
+        "fr": "préparation",
+        "en": "preparation",
+        "es": "preparación",
+        "it": "preparazione",
+        "tr": "hazırlık",
+        "de": "Vorbereitung",
+        "ja": "準備"
+      },
+      "x": 1036.8,
+      "y": 1428.0,
+      "group": "money-luck"
+    },
+    {
+      "tag": "value",
+      "emoji": "💎",
+      "labels": {
+        "fr": "valeur",
+        "en": "value",
+        "es": "valor",
+        "it": "valore",
+        "tr": "değer",
+        "de": "Wert",
+        "ja": "価値"
+      },
+      "x": 1097.1,
+      "y": 1526.5,
+      "group": "money-luck"
+    },
+    {
+      "tag": "inevitability",
+      "emoji": "⏳",
+      "labels": {
+        "fr": "inévitabilité",
+        "en": "inevitability",
+        "es": "inevitabilidad",
+        "it": "inevitabilità",
+        "tr": "kaçınılmazlık",
+        "de": "Unvermeidlichkeit",
+        "ja": "避けられないこと"
+      },
+      "x": 1103.2,
+      "y": 1455.2,
+      "group": "money-luck"
+    },
+    {
+      "tag": "abundance",
+      "emoji": "🌻",
+      "labels": {
+        "fr": "abondance",
+        "en": "abundance",
+        "es": "abundancia",
+        "it": "abbondanza",
+        "tr": "bolluk",
+        "de": "Fülle",
+        "ja": "豊富"
+      },
+      "x": 1051.6,
+      "y": 1486.5,
+      "group": "money-luck"
+    },
+    {
+      "tag": "money",
+      "emoji": "💰",
+      "labels": {
+        "fr": "argent",
+        "en": "money",
+        "es": "dinero",
+        "it": "denaro",
+        "tr": "para",
+        "de": "Geld",
+        "ja": "お金"
+      },
+      "x": 1388.0,
+      "y": 1499.6,
+      "group": "money-luck"
+    },
+    {
+      "tag": "luck",
+      "emoji": "🍀",
+      "labels": {
+        "fr": "chance",
+        "en": "luck",
+        "es": "suerte",
+        "it": "fortuna",
+        "tr": "şans",
+        "de": "Glück",
+        "ja": "幸運"
+      },
+      "x": 1395.1,
+      "y": 1444.8,
+      "group": "money-luck"
+    },
+    {
+      "tag": "failure",
+      "emoji": "❌",
+      "labels": {
+        "fr": "échec",
+        "en": "failure",
+        "es": "fracaso",
+        "it": "fallimento",
+        "tr": "başarısızlık",
+        "de": "Scheitern",
+        "ja": "失敗"
+      },
+      "x": 1351.9,
+      "y": 1410.4,
+      "group": "money-luck"
+    },
+    {
+      "tag": "generosity",
+      "emoji": "🎁",
+      "labels": {
+        "fr": "générosité",
+        "en": "generosity",
+        "es": "generosidad",
+        "it": "generosità",
+        "tr": "cömertlik",
+        "de": "Großzügigkeit",
+        "ja": "寛容"
+      },
+      "x": 1292.2,
+      "y": 1485.9,
+      "group": "money-luck"
+    },
+    {
+      "tag": "fate",
+      "emoji": "🎲",
+      "labels": {
+        "fr": "destin",
+        "en": "fate",
+        "es": "destino",
+        "it": "destino",
+        "tr": "kader",
+        "de": "Schicksal",
+        "ja": "運命"
+      },
+      "x": 1300.6,
+      "y": 1431.1,
+      "group": "money-luck"
+    },
+    {
+      "tag": "risk",
+      "emoji": "⚠️",
+      "labels": {
+        "fr": "risque",
+        "en": "risk",
+        "es": "riesgo",
+        "it": "rischio",
+        "tr": "risk",
+        "de": "Risiko",
+        "ja": "リスク"
+      },
+      "x": 1336.2,
+      "y": 1519.9,
+      "group": "money-luck"
+    },
+    {
+      "tag": "emotions",
+      "emoji": "🎭",
+      "labels": {
+        "fr": "émotions",
+        "en": "emotions",
+        "es": "emociones",
+        "it": "emozioni",
+        "tr": "duygular",
+        "de": "Emotionen",
+        "ja": "感情"
+      },
+      "x": 1109.4,
+      "y": 640.1,
       "group": "body-nature"
     },
     {
@@ -853,24 +901,8 @@
         "de": "Natur",
         "ja": "自然"
       },
-      "x": 1137.4,
-      "y": 733.0,
-      "group": "body-nature"
-    },
-    {
-      "tag": "animals",
-      "emoji": "🐾",
-      "labels": {
-        "fr": "animaux",
-        "en": "animals",
-        "es": "animales",
-        "it": "animali",
-        "tr": "hayvanlar",
-        "de": "Tiere",
-        "ja": "動物"
-      },
-      "x": 1029.7,
-      "y": 690.9,
+      "x": 1125.3,
+      "y": 701.2,
       "group": "body-nature"
     },
     {
@@ -885,152 +917,8 @@
         "de": "Wetter",
         "ja": "天気"
       },
-      "x": 1089.1,
-      "y": 695.8,
-      "group": "body-nature"
-    },
-    {
-      "tag": "rural-life",
-      "emoji": "🚜",
-      "labels": {
-        "fr": "vie rurale",
-        "en": "rural life",
-        "es": "vida rural",
-        "it": "vita rurale",
-        "tr": "kırsal yaşam",
-        "de": "Landleben",
-        "ja": "田舎の生活"
-      },
-      "x": 1076.4,
-      "y": 636.2,
-      "group": "body-nature"
-    },
-    {
-      "tag": "hunger",
-      "emoji": "🍚",
-      "labels": {
-        "fr": "faim",
-        "en": "Hunger",
-        "es": "hambre",
-        "it": "fame",
-        "tr": "açlık",
-        "de": "Hunger",
-        "ja": "空腹"
-      },
-      "x": 1239.3,
-      "y": 932.3,
-      "group": "body-nature"
-    },
-    {
-      "tag": "old-age",
-      "emoji": "👴",
-      "labels": {
-        "fr": "vieillesse",
-        "en": "Old Age",
-        "es": "vejez",
-        "it": "vecchiaia",
-        "tr": "yaşlılık",
-        "de": "Alter",
-        "ja": "老年"
-      },
-      "x": 1169.9,
-      "y": 920.1,
-      "group": "body-nature"
-    },
-    {
-      "tag": "emotions",
-      "emoji": "🎭",
-      "labels": {
-        "fr": "émotions",
-        "en": "emotions",
-        "es": "emociones",
-        "it": "emozioni",
-        "tr": "duygular",
-        "de": "Emotionen",
-        "ja": "感情"
-      },
-      "x": 1273.5,
-      "y": 869.5,
-      "group": "body-nature"
-    },
-    {
-      "tag": "hardship",
-      "emoji": "⛰️",
-      "labels": {
-        "fr": "difficulté",
-        "en": "hardship",
-        "es": "dificultad",
-        "it": "difficoltà",
-        "tr": "zorluk",
-        "de": "Härte",
-        "ja": "困難"
-      },
-      "x": 1223.2,
-      "y": 817.8,
-      "group": "body-nature"
-    },
-    {
-      "tag": "health",
-      "emoji": "💊",
-      "labels": {
-        "fr": "santé",
-        "en": "health",
-        "es": "salud",
-        "it": "salute",
-        "tr": "sağlık",
-        "de": "Gesundheit",
-        "ja": "健康"
-      },
-      "x": 1213.4,
-      "y": 877.2,
-      "group": "body-nature"
-    },
-    {
-      "tag": "body",
-      "emoji": "🫀",
-      "labels": {
-        "fr": "corps",
-        "en": "body",
-        "es": "cuerpo",
-        "it": "corpo",
-        "tr": "vücut",
-        "de": "Körper",
-        "ja": "体"
-      },
-      "x": 1159.3,
-      "y": 849.9,
-      "group": "body-nature"
-    },
-    {
-      "tag": "fear",
-      "emoji": "😨",
-      "labels": {
-        "fr": "peur",
-        "en": "fear",
-        "es": "miedo",
-        "it": "paura",
-        "tr": "korku",
-        "de": "Angst",
-        "ja": "恐怖"
-      },
-      "x": 1311.2,
-      "y": 679.4,
-      "group": "body-nature"
-    },
-    {
-      "tag": "strength",
-      "emoji": "💪",
-      "labels": {
-        "fr": "force",
-        "en": "Strength",
-        "es": "fuerza",
-        "it": "forza",
-        "tr": "güç",
-        "de": "Stärke",
-        "ja": "強さ"
-      },
-      "x": 1366.8,
-      "y": 701.1,
+      "x": 1049.2,
+      "y": 623.2,
       "group": "body-nature"
     },
     {
@@ -1045,24 +933,56 @@
         "de": "Alter",
         "ja": "年齢"
       },
-      "x": 1306.4,
-      "y": 740.0,
+      "x": 1064.4,
+      "y": 684.4,
       "group": "body-nature"
     },
     {
-      "tag": "home",
-      "emoji": "🏠",
+      "tag": "healing",
+      "emoji": "🩹",
       "labels": {
-        "fr": "maison",
-        "en": "home",
-        "es": "hogar",
-        "it": "casa",
-        "tr": "ev",
-        "de": "Zuhause",
-        "ja": "家"
+        "fr": "guérison",
+        "en": "Healing",
+        "es": "curación",
+        "it": "guarigione",
+        "tr": "iyileşme",
+        "de": "Heilung",
+        "ja": "癒し"
       },
-      "x": 1251.5,
-      "y": 695.1,
+      "x": 1019.2,
+      "y": 728.3,
+      "group": "body-nature"
+    },
+    {
+      "tag": "youth",
+      "emoji": "🌸",
+      "labels": {
+        "fr": "jeunesse",
+        "en": "youth",
+        "es": "juventud",
+        "it": "giovinezza",
+        "tr": "gençlik",
+        "de": "Jugend",
+        "ja": "若さ"
+      },
+      "x": 1003.6,
+      "y": 666.9,
+      "group": "body-nature"
+    },
+    {
+      "tag": "animals",
+      "emoji": "🐾",
+      "labels": {
+        "fr": "animaux",
+        "en": "animals",
+        "es": "animales",
+        "it": "animali",
+        "tr": "hayvanlar",
+        "de": "Tiere",
+        "ja": "動物"
+      },
+      "x": 1080.1,
+      "y": 745.2,
       "group": "body-nature"
     },
     {
@@ -1077,8 +997,152 @@
         "de": "Einheit",
         "ja": "団結"
       },
-      "x": 1276.2,
-      "y": 629.3,
+      "x": 1213.1,
+      "y": 921.3,
+      "group": "body-nature"
+    },
+    {
+      "tag": "hardship",
+      "emoji": "⛰️",
+      "labels": {
+        "fr": "difficulté",
+        "en": "hardship",
+        "es": "dificultad",
+        "it": "difficoltà",
+        "tr": "zorluk",
+        "de": "Härte",
+        "ja": "困難"
+      },
+      "x": 1143.8,
+      "y": 909.1,
+      "group": "body-nature"
+    },
+    {
+      "tag": "fear",
+      "emoji": "😨",
+      "labels": {
+        "fr": "peur",
+        "en": "fear",
+        "es": "miedo",
+        "it": "paura",
+        "tr": "korku",
+        "de": "Angst",
+        "ja": "恐怖"
+      },
+      "x": 1247.3,
+      "y": 858.5,
+      "group": "body-nature"
+    },
+    {
+      "tag": "hunger",
+      "emoji": "🍚",
+      "labels": {
+        "fr": "faim",
+        "en": "Hunger",
+        "es": "hambre",
+        "it": "fame",
+        "tr": "açlık",
+        "de": "Hunger",
+        "ja": "空腹"
+      },
+      "x": 1197.1,
+      "y": 806.8,
+      "group": "body-nature"
+    },
+    {
+      "tag": "old-age",
+      "emoji": "👴",
+      "labels": {
+        "fr": "vieillesse",
+        "en": "Old Age",
+        "es": "vejez",
+        "it": "vecchiaia",
+        "tr": "yaşlılık",
+        "de": "Alter",
+        "ja": "老年"
+      },
+      "x": 1187.3,
+      "y": 866.1,
+      "group": "body-nature"
+    },
+    {
+      "tag": "rural-life",
+      "emoji": "🚜",
+      "labels": {
+        "fr": "vie rurale",
+        "en": "rural life",
+        "es": "vida rural",
+        "it": "vita rurale",
+        "tr": "kırsal yaşam",
+        "de": "Landleben",
+        "ja": "田舎の生活"
+      },
+      "x": 1133.1,
+      "y": 838.9,
+      "group": "body-nature"
+    },
+    {
+      "tag": "body",
+      "emoji": "🫀",
+      "labels": {
+        "fr": "corps",
+        "en": "body",
+        "es": "cuerpo",
+        "it": "corpo",
+        "tr": "vücut",
+        "de": "Körper",
+        "ja": "体"
+      },
+      "x": 1285.1,
+      "y": 668.4,
+      "group": "body-nature"
+    },
+    {
+      "tag": "home",
+      "emoji": "🏠",
+      "labels": {
+        "fr": "maison",
+        "en": "home",
+        "es": "hogar",
+        "it": "casa",
+        "tr": "ev",
+        "de": "Zuhause",
+        "ja": "家"
+      },
+      "x": 1340.7,
+      "y": 690.0,
+      "group": "body-nature"
+    },
+    {
+      "tag": "health",
+      "emoji": "💊",
+      "labels": {
+        "fr": "santé",
+        "en": "health",
+        "es": "salud",
+        "it": "salute",
+        "tr": "sağlık",
+        "de": "Gesundheit",
+        "ja": "健康"
+      },
+      "x": 1280.3,
+      "y": 729.0,
+      "group": "body-nature"
+    },
+    {
+      "tag": "seasons",
+      "emoji": "🍂",
+      "labels": {
+        "fr": "saisons",
+        "en": "seasons",
+        "es": "estaciones",
+        "it": "stagioni",
+        "tr": "mevsimler",
+        "de": "Jahreszeiten",
+        "ja": "季節"
+      },
+      "x": 1225.4,
+      "y": 684.1,
       "group": "body-nature"
     },
     {
@@ -1093,312 +1157,40 @@
         "de": "Altern",
         "ja": "老化"
       },
-      "x": 1347.4,
-      "y": 631.3,
+      "x": 1250.1,
+      "y": 618.3,
       "group": "body-nature"
     },
     {
-      "tag": "abundance",
-      "emoji": "🌻",
+      "tag": "strength",
+      "emoji": "💪",
       "labels": {
-        "fr": "abondance",
-        "en": "abundance",
-        "es": "abundancia",
-        "it": "abbondanza",
-        "tr": "bolluk",
-        "de": "Fülle",
-        "ja": "豊富"
+        "fr": "force",
+        "en": "Strength",
+        "es": "fuerza",
+        "it": "forza",
+        "tr": "güç",
+        "de": "Stärke",
+        "ja": "強さ"
       },
-      "x": 743.7,
-      "y": 1546.7,
-      "group": "misc"
+      "x": 1321.2,
+      "y": 620.3,
+      "group": "body-nature"
     },
     {
-      "tag": "adaptability",
-      "emoji": "🦎",
+      "tag": "reflection",
+      "emoji": "🧘",
       "labels": {
-        "fr": "adaptabilité",
-        "en": "adaptability",
-        "es": "adaptabilidad",
-        "it": "adattabilità",
-        "tr": "uyum yeteneği",
-        "de": "Anpassungsfähigkeit",
-        "ja": "適応性"
+        "fr": "réflexion",
+        "en": "reflection",
+        "es": "reflexión",
+        "it": "riflessione",
+        "tr": "yansıma",
+        "de": "Reflexion",
+        "ja": "反省"
       },
-      "x": 709.0,
-      "y": 1589.7,
-      "group": "misc"
-    },
-    {
-      "tag": "injustice",
-      "emoji": "🚫",
-      "labels": {
-        "fr": "injustice",
-        "en": "Injustice",
-        "es": "injusticia",
-        "it": "ingiustizia",
-        "tr": "adaletsizlik",
-        "de": "Ungerechtigkeit",
-        "ja": "不正"
-      },
-      "x": 731.7,
-      "y": 1640.5,
-      "group": "misc"
-    },
-    {
-      "tag": "exile",
-      "emoji": "🧳",
-      "labels": {
-        "fr": "exil",
-        "en": "exile",
-        "es": "exilio",
-        "it": "esilio",
-        "tr": "sürgün",
-        "de": "Exil",
-        "ja": "追放"
-      },
-      "x": 818.5,
-      "y": 1603.4,
-      "group": "misc"
-    },
-    {
-      "tag": "beauty",
-      "emoji": "🌹",
-      "labels": {
-        "fr": "beauté",
-        "en": "beauty",
-        "es": "belleza",
-        "it": "bellezza",
-        "tr": "güzellik",
-        "de": "Schönheit",
-        "ja": "美"
-      },
-      "x": 786.6,
-      "y": 1648.3,
-      "group": "misc"
-    },
-    {
-      "tag": "homeland",
-      "emoji": "🏞️",
-      "labels": {
-        "fr": "patrie",
-        "en": "homeland",
-        "es": "patria",
-        "it": "patria",
-        "tr": "vatan",
-        "de": "Heimatland",
-        "ja": "故郷"
-      },
-      "x": 798.7,
-      "y": 1551.6,
-      "group": "misc"
-    },
-    {
-      "tag": "words",
-      "emoji": "📝",
-      "labels": {
-        "fr": "mots",
-        "en": "words",
-        "es": "palabras",
-        "it": "parole",
-        "tr": "kelimeler",
-        "de": "Wörter",
-        "ja": "言葉"
-      },
-      "x": 530.8,
-      "y": 1570.1,
-      "group": "misc"
-    },
-    {
-      "tag": "community",
-      "emoji": "🏘️",
-      "labels": {
-        "fr": "communauté",
-        "en": "Community",
-        "es": "comunidad",
-        "it": "comunità",
-        "tr": "topluluk",
-        "de": "Gemeinschaft",
-        "ja": "コミュニティ"
-      },
-      "x": 550.9,
-      "y": 1457.1,
-      "group": "misc"
-    },
-    {
-      "tag": "heartbreak",
-      "emoji": "💔",
-      "labels": {
-        "fr": "chagrin d'amour",
-        "en": "heartbreak",
-        "es": "desamor",
-        "it": "dolore d'amore",
-        "tr": "kalp kırıklığı",
-        "de": "Herzschmerz",
-        "ja": "失恋"
-      },
-      "x": 601.4,
-      "y": 1561.3,
-      "group": "misc"
-    },
-    {
-      "tag": "parenting",
-      "emoji": "🍼",
-      "labels": {
-        "fr": "éducation des enfants",
-        "en": "parenting",
-        "es": "crianza",
-        "it": "genitorialità",
-        "tr": "ebeveynlik",
-        "de": "Erziehung",
-        "ja": "子育て"
-      },
-      "x": 614.7,
-      "y": 1490.4,
-      "group": "misc"
-    },
-    {
-      "tag": "seasons",
-      "emoji": "🍂",
-      "labels": {
-        "fr": "saisons",
-        "en": "seasons",
-        "es": "estaciones",
-        "it": "stagioni",
-        "tr": "mevsimler",
-        "de": "Jahreszeiten",
-        "ja": "季節"
-      },
-      "x": 560.9,
-      "y": 1517.1,
-      "group": "misc"
-    },
-    {
-      "tag": "parenthood",
-      "emoji": "👶",
-      "labels": {
-        "fr": "parentalité",
-        "en": "parenthood",
-        "es": "paternidad",
-        "it": "genitorialità",
-        "tr": "ebeveynlik",
-        "de": "Elternschaft",
-        "ja": "親であること"
-      },
-      "x": 500.4,
-      "y": 1506.9,
-      "group": "misc"
-    },
-    {
-      "tag": "inequality",
-      "emoji": "📊",
-      "labels": {
-        "fr": "inégalité",
-        "en": "inequality",
-        "es": "desigualdad",
-        "it": "disuguaglianza",
-        "tr": "eşitsizlik",
-        "de": "Ungleichheit",
-        "ja": "不平等"
-      },
-      "x": 756.2,
-      "y": 1429.5,
-      "group": "misc"
-    },
-    {
-      "tag": "listening",
-      "emoji": "👂",
-      "labels": {
-        "fr": "écoute",
-        "en": "Listening",
-        "es": "escucha",
-        "it": "ascolto",
-        "tr": "dinleme",
-        "de": "Zuhören",
-        "ja": "聴くこと"
-      },
-      "x": 785.7,
-      "y": 1382.5,
-      "group": "misc"
-    },
-    {
-      "tag": "reciprocity",
-      "emoji": "↔️",
-      "labels": {
-        "fr": "réciprocité",
-        "en": "reciprocity",
-        "es": "reciprocidad",
-        "it": "reciprocità",
-        "tr": "karşılıklılık",
-        "de": "Reziprozität",
-        "ja": "相互性"
-      },
-      "x": 706.1,
-      "y": 1330.1,
-      "group": "misc"
-    },
-    {
-      "tag": "discipline",
-      "emoji": "📏",
-      "labels": {
-        "fr": "discipline",
-        "en": "discipline",
-        "es": "disciplina",
-        "it": "disciplina",
-        "tr": "disiplin",
-        "de": "Disziplin",
-        "ja": "規律"
-      },
-      "x": 761.5,
-      "y": 1332.8,
-      "group": "misc"
-    },
-    {
-      "tag": "folly",
-      "emoji": "🤡",
-      "labels": {
-        "fr": "folie",
-        "en": "folly",
-        "es": "locura",
-        "it": "follia",
-        "tr": "aptallık",
-        "de": "Torheit",
-        "ja": "愚かさ"
-      },
-      "x": 701.5,
-      "y": 1424.1,
-      "group": "misc"
-    },
-    {
-      "tag": "cooperation",
-      "emoji": "👐",
-      "labels": {
-        "fr": "coopération",
-        "en": "cooperation",
-        "es": "cooperación",
-        "it": "cooperazione",
-        "tr": "işbirliği",
-        "de": "Zusammenarbeit",
-        "ja": "協力"
-      },
-      "x": 674.9,
-      "y": 1376.2,
-      "group": "misc"
-    },
-    {
-      "tag": "decision-making",
-      "emoji": "🔀",
-      "labels": {
-        "fr": "prise de décision",
-        "en": "decision making",
-        "es": "toma de decisiones",
-        "it": "processo decisionale",
-        "tr": "karar verme",
-        "de": "Entscheidungsfindung",
-        "ja": "意思決定"
-      },
-      "x": 60.0,
-      "y": 1107.8,
+      "x": 476.7,
+      "y": 1511.3,
       "group": "time-change"
     },
     {
@@ -1413,72 +1205,24 @@
         "de": "Zeit",
         "ja": "時間"
       },
-      "x": 171.4,
-      "y": 1100.1,
+      "x": 588.1,
+      "y": 1503.7,
       "group": "time-change"
     },
     {
-      "tag": "persistence",
-      "emoji": "🐢",
+      "tag": "adaptability",
+      "emoji": "🦎",
       "labels": {
-        "fr": "persévérance",
-        "en": "persistence",
-        "es": "persistencia",
-        "it": "perseveranza",
-        "tr": "ısrar",
-        "de": "Beharrlichkeit",
-        "ja": "粘り強さ"
+        "fr": "adaptabilité",
+        "en": "adaptability",
+        "es": "adaptabilidad",
+        "it": "adattabilità",
+        "tr": "uyum yeteneği",
+        "de": "Anpassungsfähigkeit",
+        "ja": "適応性"
       },
-      "x": 85.5,
-      "y": 1058.2,
-      "group": "time-change"
-    },
-    {
-      "tag": "growth",
-      "emoji": "📈",
-      "labels": {
-        "fr": "croissance",
-        "en": "growth",
-        "es": "crecimiento",
-        "it": "crescita",
-        "tr": "büyüme",
-        "de": "Wachstum",
-        "ja": "成長"
-      },
-      "x": 147.4,
-      "y": 1150.4,
-      "group": "time-change"
-    },
-    {
-      "tag": "experience",
-      "emoji": "📖",
-      "labels": {
-        "fr": "expérience",
-        "en": "experience",
-        "es": "experiencia",
-        "it": "esperienza",
-        "tr": "deneyim",
-        "de": "Erfahrung",
-        "ja": "経験"
-      },
-      "x": 92.2,
-      "y": 1152.5,
-      "group": "time-change"
-    },
-    {
-      "tag": "perseverance",
-      "emoji": "🏃",
-      "labels": {
-        "fr": "persévérance",
-        "en": "Perseverance",
-        "es": "perseverancia",
-        "it": "perseveranza",
-        "tr": "azim",
-        "de": "Ausdauer",
-        "ja": "忍耐"
-      },
-      "x": 140.4,
-      "y": 1054.5,
+      "x": 502.2,
+      "y": 1461.8,
       "group": "time-change"
     },
     {
@@ -1493,136 +1237,8 @@
         "de": "Vergänglichkeit",
         "ja": "はかなさ"
       },
-      "x": 309.9,
-      "y": 1240.7,
-      "group": "time-change"
-    },
-    {
-      "tag": "planning",
-      "emoji": "🗓️",
-      "labels": {
-        "fr": "planification",
-        "en": "planning",
-        "es": "planificación",
-        "it": "pianificazione",
-        "tr": "planlama",
-        "de": "Planung",
-        "ja": "計画"
-      },
-      "x": 322.5,
-      "y": 1181.6,
-      "group": "time-change"
-    },
-    {
-      "tag": "patience",
-      "emoji": "🕐",
-      "labels": {
-        "fr": "patience",
-        "en": "patience",
-        "es": "paciencia",
-        "it": "pazienza",
-        "tr": "sabır",
-        "de": "Geduld",
-        "ja": "忍耐"
-      },
-      "x": 375.1,
-      "y": 1212.3,
-      "group": "time-change"
-    },
-    {
-      "tag": "action",
-      "emoji": "⚡",
-      "labels": {
-        "fr": "action",
-        "en": "action",
-        "es": "acción",
-        "it": "azione",
-        "tr": "eylem",
-        "de": "Handlung",
-        "ja": "行動"
-      },
-      "x": 299.2,
-      "y": 1125.7,
-      "group": "time-change"
-    },
-    {
-      "tag": "reflection",
-      "emoji": "🧘",
-      "labels": {
-        "fr": "réflexion",
-        "en": "reflection",
-        "es": "reflexión",
-        "it": "riflessione",
-        "tr": "yansıma",
-        "de": "Reflexion",
-        "ja": "反省"
-      },
-      "x": 368.6,
-      "y": 1141.8,
-      "group": "time-change"
-    },
-    {
-      "tag": "resilience",
-      "emoji": "🔄",
-      "labels": {
-        "fr": "résilience",
-        "en": "resilience",
-        "es": "resiliencia",
-        "it": "resilienza",
-        "tr": "dayanıklılık",
-        "de": "Resilienz",
-        "ja": "回復力"
-      },
-      "x": 262.5,
-      "y": 1186.8,
-      "group": "time-change"
-    },
-    {
-      "tag": "metaphor",
-      "emoji": "🖼️",
-      "labels": {
-        "fr": "métaphore",
-        "en": "metaphor",
-        "es": "metáfora",
-        "it": "metafora",
-        "tr": "metafor",
-        "de": "Metapher",
-        "ja": "隠喩"
-      },
-      "x": 339.2,
-      "y": 962.9,
-      "group": "time-change"
-    },
-    {
-      "tag": "change",
-      "emoji": "🦋",
-      "labels": {
-        "fr": "changement",
-        "en": "change",
-        "es": "cambio",
-        "it": "cambiamento",
-        "tr": "değişiklik",
-        "de": "Veränderung",
-        "ja": "変化"
-      },
-      "x": 303.7,
-      "y": 1012.3,
-      "group": "time-change"
-    },
-    {
-      "tag": "memory",
-      "emoji": "📸",
-      "labels": {
-        "fr": "mémoire",
-        "en": "memory",
-        "es": "memoria",
-        "it": "memoria",
-        "tr": "hatıra",
-        "de": "Erinnerung",
-        "ja": "記憶"
-      },
-      "x": 245.3,
-      "y": 994.4,
+      "x": 564.1,
+      "y": 1553.9,
       "group": "time-change"
     },
     {
@@ -1637,8 +1253,24 @@
         "de": "Timing",
         "ja": "タイミング"
       },
-      "x": 245.4,
-      "y": 933.4,
+      "x": 508.9,
+      "y": 1556.0,
+      "group": "time-change"
+    },
+    {
+      "tag": "growth",
+      "emoji": "📈",
+      "labels": {
+        "fr": "croissance",
+        "en": "growth",
+        "es": "crecimiento",
+        "it": "crescita",
+        "tr": "büyüme",
+        "de": "Wachstum",
+        "ja": "成長"
+      },
+      "x": 557.1,
+      "y": 1458.0,
       "group": "time-change"
     },
     {
@@ -1653,8 +1285,184 @@
         "de": "Landwirtschaft",
         "ja": "農業"
       },
-      "x": 302.9,
-      "y": 913.8,
+      "x": 726.6,
+      "y": 1644.3,
+      "group": "time-change"
+    },
+    {
+      "tag": "planning",
+      "emoji": "🗓️",
+      "labels": {
+        "fr": "planification",
+        "en": "planning",
+        "es": "planificación",
+        "it": "pianificazione",
+        "tr": "planlama",
+        "de": "Planung",
+        "ja": "計画"
+      },
+      "x": 739.2,
+      "y": 1585.2,
+      "group": "time-change"
+    },
+    {
+      "tag": "patience",
+      "emoji": "🕐",
+      "labels": {
+        "fr": "patience",
+        "en": "patience",
+        "es": "paciencia",
+        "it": "pazienza",
+        "tr": "sabır",
+        "de": "Geduld",
+        "ja": "忍耐"
+      },
+      "x": 791.8,
+      "y": 1615.9,
+      "group": "time-change"
+    },
+    {
+      "tag": "action",
+      "emoji": "⚡",
+      "labels": {
+        "fr": "action",
+        "en": "action",
+        "es": "acción",
+        "it": "azione",
+        "tr": "eylem",
+        "de": "Handlung",
+        "ja": "行動"
+      },
+      "x": 715.9,
+      "y": 1529.2,
+      "group": "time-change"
+    },
+    {
+      "tag": "experience",
+      "emoji": "📖",
+      "labels": {
+        "fr": "expérience",
+        "en": "experience",
+        "es": "experiencia",
+        "it": "esperienza",
+        "tr": "deneyim",
+        "de": "Erfahrung",
+        "ja": "経験"
+      },
+      "x": 785.3,
+      "y": 1545.3,
+      "group": "time-change"
+    },
+    {
+      "tag": "perseverance",
+      "emoji": "🏃",
+      "labels": {
+        "fr": "persévérance",
+        "en": "Perseverance",
+        "es": "perseverancia",
+        "it": "perseveranza",
+        "tr": "azim",
+        "de": "Ausdauer",
+        "ja": "忍耐"
+      },
+      "x": 679.2,
+      "y": 1590.4,
+      "group": "time-change"
+    },
+    {
+      "tag": "metaphor",
+      "emoji": "🖼️",
+      "labels": {
+        "fr": "métaphore",
+        "en": "metaphor",
+        "es": "metáfora",
+        "it": "metafora",
+        "tr": "metafor",
+        "de": "Metapher",
+        "ja": "隠喩"
+      },
+      "x": 655.7,
+      "y": 1403.6,
+      "group": "time-change"
+    },
+    {
+      "tag": "change",
+      "emoji": "🦋",
+      "labels": {
+        "fr": "changement",
+        "en": "change",
+        "es": "cambio",
+        "it": "cambiamento",
+        "tr": "değişiklik",
+        "de": "Veränderung",
+        "ja": "変化"
+      },
+      "x": 724.5,
+      "y": 1423.7,
+      "group": "time-change"
+    },
+    {
+      "tag": "memory",
+      "emoji": "📸",
+      "labels": {
+        "fr": "mémoire",
+        "en": "memory",
+        "es": "memoria",
+        "it": "memoria",
+        "tr": "hatıra",
+        "de": "Erinnerung",
+        "ja": "記憶"
+      },
+      "x": 703.9,
+      "y": 1367.2,
+      "group": "time-change"
+    },
+    {
+      "tag": "persistence",
+      "emoji": "🐢",
+      "labels": {
+        "fr": "persévérance",
+        "en": "persistence",
+        "es": "persistencia",
+        "it": "perseveranza",
+        "tr": "ısrar",
+        "de": "Beharrlichkeit",
+        "ja": "粘り強さ"
+      },
+      "x": 654.5,
+      "y": 1332.3,
+      "group": "time-change"
+    },
+    {
+      "tag": "decision-making",
+      "emoji": "🔀",
+      "labels": {
+        "fr": "prise de décision",
+        "en": "decision making",
+        "es": "toma de decisiones",
+        "it": "processo decisionale",
+        "tr": "karar verme",
+        "de": "Entscheidungsfindung",
+        "ja": "意思決定"
+      },
+      "x": 764.4,
+      "y": 1365.0,
+      "group": "time-change"
+    },
+    {
+      "tag": "resilience",
+      "emoji": "🔄",
+      "labels": {
+        "fr": "résilience",
+        "en": "resilience",
+        "es": "resiliencia",
+        "it": "resilienza",
+        "tr": "dayanıklılık",
+        "de": "Resilienz",
+        "ja": "回復力"
+      },
+      "x": 721.3,
+      "y": 1309.0,
       "group": "time-change"
     },
     {
@@ -1669,8 +1477,8 @@
         "de": "Leidenschaft",
         "ja": "情熱"
       },
-      "x": 1750.6,
-      "y": 1158.8,
+      "x": 313.7,
+      "y": 1081.8,
       "group": "emotions"
     },
     {
@@ -1685,8 +1493,8 @@
         "de": "Liebe",
         "ja": "愛"
       },
-      "x": 1813.5,
-      "y": 1153.7,
+      "x": 376.5,
+      "y": 1076.7,
       "group": "emotions"
     },
     {
@@ -1701,8 +1509,8 @@
         "de": "Freude",
         "ja": "喜び"
       },
-      "x": 1687.9,
-      "y": 1162.7,
+      "x": 251.0,
+      "y": 1085.7,
       "group": "emotions"
     },
     {
@@ -1717,8 +1525,8 @@
         "de": "Identität",
         "ja": "アイデンティティ"
       },
-      "x": 1786.3,
-      "y": 1210.4,
+      "x": 349.3,
+      "y": 1133.4,
       "group": "emotions"
     },
     {
@@ -1733,8 +1541,8 @@
         "de": "Nostalgie",
         "ja": "郷愁"
       },
-      "x": 1715.6,
-      "y": 1106.0,
+      "x": 278.6,
+      "y": 1029.0,
       "group": "emotions"
     },
     {
@@ -1749,8 +1557,8 @@
         "de": "Glück",
         "ja": "幸せ"
       },
-      "x": 1723.2,
-      "y": 1215.1,
+      "x": 286.2,
+      "y": 1138.1,
       "group": "emotions"
     },
     {
@@ -1765,8 +1573,8 @@
         "de": "Familie",
         "ja": "家族"
       },
-      "x": 1778.5,
-      "y": 1101.7,
+      "x": 341.5,
+      "y": 1024.7,
       "group": "emotions"
     },
     {
@@ -1781,8 +1589,8 @@
         "de": "Wahrnehmung",
         "ja": "知覚"
       },
-      "x": 1561.9,
-      "y": 1202.5,
+      "x": 124.9,
+      "y": 1125.6,
       "group": "emotions"
     },
     {
@@ -1797,8 +1605,8 @@
         "de": "Hoffnung",
         "ja": "希望"
       },
-      "x": 1547.3,
-      "y": 1077.3,
+      "x": 110.4,
+      "y": 1000.4,
       "group": "emotions"
     },
     {
@@ -1813,8 +1621,8 @@
         "de": "Charakter",
         "ja": "性格"
       },
-      "x": 1554.7,
-      "y": 1139.9,
+      "x": 117.7,
+      "y": 1062.9,
       "group": "emotions"
     },
     {
@@ -1829,8 +1637,8 @@
         "de": "Optimismus",
         "ja": "楽観主義"
       },
-      "x": 1503.9,
-      "y": 1177.4,
+      "x": 67.0,
+      "y": 1100.5,
       "group": "emotions"
     },
     {
@@ -1845,8 +1653,8 @@
         "de": "Bedauern",
         "ja": "後悔"
       },
-      "x": 1612.7,
-      "y": 1164.6,
+      "x": 175.7,
+      "y": 1087.6,
       "group": "emotions"
     },
     {
@@ -1861,8 +1669,8 @@
         "de": "Heimweh",
         "ja": "ホームシック"
       },
-      "x": 1605.4,
-      "y": 1102.1,
+      "x": 168.4,
+      "y": 1025.1,
       "group": "emotions"
     },
     {
@@ -1877,392 +1685,24 @@
         "de": "Reise",
         "ja": "旅行"
       },
-      "x": 1497.0,
-      "y": 1114.8,
+      "x": 60.0,
+      "y": 1037.8,
       "group": "emotions"
     },
     {
-      "tag": "conflict",
-      "emoji": "⚔️",
+      "tag": "community",
+      "emoji": "🏘️",
       "labels": {
-        "fr": "conflit",
-        "en": "conflict",
-        "es": "conflicto",
-        "it": "conflitto",
-        "tr": "çatışma",
-        "de": "Konflikt",
-        "ja": "衝突"
+        "fr": "communauté",
+        "en": "Community",
+        "es": "comunidad",
+        "it": "comunità",
+        "tr": "topluluk",
+        "de": "Gemeinschaft",
+        "ja": "コミュニティ"
       },
-      "x": 389.3,
-      "y": 447.5,
-      "group": "speech-conflict"
-    },
-    {
-      "tag": "ignorance",
-      "emoji": "🙈",
-      "labels": {
-        "fr": "ignorance",
-        "en": "ignorance",
-        "es": "ignorancia",
-        "it": "ignoranza",
-        "tr": "cehalet",
-        "de": "Unwissenheit",
-        "ja": "無知"
-      },
-      "x": 335.6,
-      "y": 435.6,
-      "group": "speech-conflict"
-    },
-    {
-      "tag": "humor",
-      "emoji": "😂",
-      "labels": {
-        "fr": "humour",
-        "en": "humor",
-        "es": "humor",
-        "it": "umorismo",
-        "tr": "mizah",
-        "de": "Humor",
-        "ja": "ユーモア"
-      },
-      "x": 409.8,
-      "y": 353.7,
-      "group": "speech-conflict"
-    },
-    {
-      "tag": "behavior",
-      "emoji": "🧠",
-      "labels": {
-        "fr": "comportement",
-        "en": "behavior",
-        "es": "comportamiento",
-        "it": "comportamento",
-        "tr": "davranış",
-        "de": "Verhalten",
-        "ja": "行動"
-      },
-      "x": 355.6,
-      "y": 343.1,
-      "group": "speech-conflict"
-    },
-    {
-      "tag": "truth",
-      "emoji": "✅",
-      "labels": {
-        "fr": "vérité",
-        "en": "truth",
-        "es": "verdad",
-        "it": "verità",
-        "tr": "gerçek",
-        "de": "Wahrheit",
-        "ja": "真実"
-      },
-      "x": 317.6,
-      "y": 383.2,
-      "group": "speech-conflict"
-    },
-    {
-      "tag": "cunning",
-      "emoji": "🦊",
-      "labels": {
-        "fr": "ruse",
-        "en": "cunning",
-        "es": "astucia",
-        "it": "astuzia",
-        "tr": "kurnazlık",
-        "de": "Schlauheit",
-        "ja": "狡猾"
-      },
-      "x": 426.7,
-      "y": 406.7,
-      "group": "speech-conflict"
-    },
-    {
-      "tag": "silence",
-      "emoji": "🤫",
-      "labels": {
-        "fr": "silence",
-        "en": "silence",
-        "es": "silencio",
-        "it": "silenzio",
-        "tr": "sessizlik",
-        "de": "Stille",
-        "ja": "沈黙"
-      },
-      "x": 240.3,
-      "y": 587.3,
-      "group": "speech-conflict"
-    },
-    {
-      "tag": "hypocrisy",
-      "emoji": "🎭",
-      "labels": {
-        "fr": "hypocrisie",
-        "en": "Hypocrisy",
-        "es": "hipocresía",
-        "it": "ipocrisia",
-        "tr": "ikiyüzlülük",
-        "de": "Heuchelei",
-        "ja": "偽善"
-      },
-      "x": 260.5,
-      "y": 490.8,
-      "group": "speech-conflict"
-    },
-    {
-      "tag": "culture",
-      "emoji": "🌍",
-      "labels": {
-        "fr": "culture",
-        "en": "culture",
-        "es": "cultura",
-        "it": "cultura",
-        "tr": "kültür",
-        "de": "Kultur",
-        "ja": "文化"
-      },
-      "x": 187.3,
-      "y": 556.8,
-      "group": "speech-conflict"
-    },
-    {
-      "tag": "foolishness",
-      "emoji": "🤪",
-      "labels": {
-        "fr": "folie",
-        "en": "Foolishness",
-        "es": "locura",
-        "it": "follia",
-        "tr": "aptallık",
-        "de": "Torheit",
-        "ja": "愚かさ"
-      },
-      "x": 285.6,
-      "y": 546.5,
-      "group": "speech-conflict"
-    },
-    {
-      "tag": "irony",
-      "emoji": "🙃",
-      "labels": {
-        "fr": "ironie",
-        "en": "irony",
-        "es": "ironía",
-        "it": "ironia",
-        "tr": "ironi",
-        "de": "Ironie",
-        "ja": "皮肉"
-      },
-      "x": 199.9,
-      "y": 497.1,
-      "group": "speech-conflict"
-    },
-    {
-      "tag": "authority",
-      "emoji": "👮",
-      "labels": {
-        "fr": "autorité",
-        "en": "authority",
-        "es": "autoridad",
-        "it": "autorità",
-        "tr": "otorite",
-        "de": "Autorität",
-        "ja": "権威"
-      },
-      "x": 683.7,
-      "y": 846.6,
-      "group": "effort-ambition"
-    },
-    {
-      "tag": "vanity",
-      "emoji": "💅",
-      "labels": {
-        "fr": "vanité",
-        "en": "Vanity",
-        "es": "vanidad",
-        "it": "vanità",
-        "tr": "kibir",
-        "de": "Eitelkeit",
-        "ja": "虚栄心"
-      },
-      "x": 590.9,
-      "y": 880.9,
-      "group": "effort-ambition"
-    },
-    {
-      "tag": "pride",
-      "emoji": "👑",
-      "labels": {
-        "fr": "fierté",
-        "en": "pride",
-        "es": "orgullo",
-        "it": "orgoglio",
-        "tr": "gurur",
-        "de": "Stolz",
-        "ja": "誇り"
-      },
-      "x": 628.8,
-      "y": 928.5,
-      "group": "effort-ambition"
-    },
-    {
-      "tag": "greed",
-      "emoji": "🤑",
-      "labels": {
-        "fr": "cupidité",
-        "en": "Greed",
-        "es": "codicia",
-        "it": "avidità",
-        "tr": "açgözlülük",
-        "de": "Gier",
-        "ja": "貪欲"
-      },
-      "x": 624.9,
-      "y": 830.5,
-      "group": "effort-ambition"
-    },
-    {
-      "tag": "power",
-      "emoji": "👑",
-      "labels": {
-        "fr": "pouvoir",
-        "en": "power",
-        "es": "poder",
-        "it": "potere",
-        "tr": "güç",
-        "de": "Macht",
-        "ja": "力"
-      },
-      "x": 685.8,
-      "y": 907.6,
-      "group": "effort-ambition"
-    },
-    {
-      "tag": "dignity",
-      "emoji": "🎩",
-      "labels": {
-        "fr": "dignité",
-        "en": "Dignity",
-        "es": "dignidad",
-        "it": "dignità",
-        "tr": "haysiyet",
-        "de": "Würde",
-        "ja": "尊厳"
-      },
-      "x": 792.2,
-      "y": 867.7,
-      "group": "effort-ambition"
-    },
-    {
-      "tag": "success",
-      "emoji": "🏆",
-      "labels": {
-        "fr": "succès",
-        "en": "success",
-        "es": "éxito",
-        "it": "successo",
-        "tr": "başarı",
-        "de": "Erfolg",
-        "ja": "成功"
-      },
-      "x": 833.3,
-      "y": 921.0,
-      "group": "effort-ambition"
-    },
-    {
-      "tag": "humility",
-      "emoji": "🙏",
-      "labels": {
-        "fr": "humilité",
-        "en": "humility",
-        "es": "humildad",
-        "it": "umiltà",
-        "tr": "alçakgönüllülük",
-        "de": "Demut",
-        "ja": "謙虚"
-      },
-      "x": 845.7,
-      "y": 826.9,
-      "group": "effort-ambition"
-    },
-    {
-      "tag": "courage",
-      "emoji": "🦁",
-      "labels": {
-        "fr": "courage",
-        "en": "courage",
-        "es": "coraje",
-        "it": "coraggio",
-        "tr": "cesaret",
-        "de": "Mut",
-        "ja": "勇気"
-      },
-      "x": 887.0,
-      "y": 880.2,
-      "group": "effort-ambition"
-    },
-    {
-      "tag": "friendship",
-      "emoji": "🤝",
-      "labels": {
-        "fr": "amitié",
-        "en": "friendship",
-        "es": "amistad",
-        "it": "amicizia",
-        "tr": "dostluk",
-        "de": "Freundschaft",
-        "ja": "友情"
-      },
-      "x": 1213.0,
-      "y": 168.2,
-      "group": "pleasure-love"
-    },
-    {
-      "tag": "food",
-      "emoji": "🍽️",
-      "labels": {
-        "fr": "nourriture",
-        "en": "food",
-        "es": "comida",
-        "it": "cibo",
-        "tr": "yiyecek",
-        "de": "Essen",
-        "ja": "食べ物"
-      },
-      "x": 1269.5,
-      "y": 125.2,
-      "group": "pleasure-love"
-    },
-    {
-      "tag": "relationships",
-      "emoji": "👥",
-      "labels": {
-        "fr": "relations",
-        "en": "relationships",
-        "es": "relaciones",
-        "it": "relazioni",
-        "tr": "ilişkiler",
-        "de": "Beziehungen",
-        "ja": "関係"
-      },
-      "x": 1267.8,
-      "y": 196.8,
-      "group": "pleasure-love"
-    },
-    {
-      "tag": "laziness",
-      "emoji": "😴",
-      "labels": {
-        "fr": "paresse",
-        "en": "laziness",
-        "es": "pereza",
-        "it": "pigrizia",
-        "tr": "tembellik",
-        "de": "Faulheit",
-        "ja": "怠惰"
-      },
-      "x": 1240.8,
-      "y": 60.0,
+      "x": 1710.7,
+      "y": 1086.6,
       "group": "pleasure-love"
     },
     {
@@ -2277,8 +1717,40 @@
         "de": "Unterstützung",
         "ja": "支援"
       },
-      "x": 1340.0,
-      "y": 111.7,
+      "x": 1733.4,
+      "y": 1145.1,
+      "group": "pleasure-love"
+    },
+    {
+      "tag": "friendship",
+      "emoji": "🤝",
+      "labels": {
+        "fr": "amitié",
+        "en": "friendship",
+        "es": "amistad",
+        "it": "amicizia",
+        "tr": "dostluk",
+        "de": "Freundschaft",
+        "ja": "友情"
+      },
+      "x": 1648.9,
+      "y": 1074.9,
+      "group": "pleasure-love"
+    },
+    {
+      "tag": "laziness",
+      "emoji": "😴",
+      "labels": {
+        "fr": "paresse",
+        "en": "laziness",
+        "es": "pereza",
+        "it": "pigrizia",
+        "tr": "tembellik",
+        "de": "Faulheit",
+        "ja": "怠惰"
+      },
+      "x": 1670.6,
+      "y": 1134.8,
       "group": "pleasure-love"
     },
     {
@@ -2293,8 +1765,104 @@
         "de": "Gastfreundschaft",
         "ja": "もてなし"
       },
-      "x": 1303.1,
-      "y": 62.1,
+      "x": 1689.6,
+      "y": 1026.8,
+      "group": "pleasure-love"
+    },
+    {
+      "tag": "parenting",
+      "emoji": "🍼",
+      "labels": {
+        "fr": "éducation des enfants",
+        "en": "parenting",
+        "es": "crianza",
+        "it": "genitorialità",
+        "tr": "ebeveynlik",
+        "de": "Erziehung",
+        "ja": "子育て"
+      },
+      "x": 1773.3,
+      "y": 1096.6,
+      "group": "pleasure-love"
+    },
+    {
+      "tag": "parenthood",
+      "emoji": "👶",
+      "labels": {
+        "fr": "parentalité",
+        "en": "parenthood",
+        "es": "paternidad",
+        "it": "genitorialità",
+        "tr": "ebeveynlik",
+        "de": "Elternschaft",
+        "ja": "親であること"
+      },
+      "x": 1751.4,
+      "y": 1037.8,
+      "group": "pleasure-love"
+    },
+    {
+      "tag": "beauty",
+      "emoji": "🌹",
+      "labels": {
+        "fr": "beauté",
+        "en": "beauty",
+        "es": "belleza",
+        "it": "bellezza",
+        "tr": "güzellik",
+        "de": "Schönheit",
+        "ja": "美"
+      },
+      "x": 1479.9,
+      "y": 1185.4,
+      "group": "pleasure-love"
+    },
+    {
+      "tag": "cooperation",
+      "emoji": "👐",
+      "labels": {
+        "fr": "coopération",
+        "en": "cooperation",
+        "es": "cooperación",
+        "it": "cooperazione",
+        "tr": "işbirliği",
+        "de": "Zusammenarbeit",
+        "ja": "協力"
+      },
+      "x": 1507.5,
+      "y": 1242.1,
+      "group": "pleasure-love"
+    },
+    {
+      "tag": "heartbreak",
+      "emoji": "💔",
+      "labels": {
+        "fr": "chagrin d'amour",
+        "en": "heartbreak",
+        "es": "desamor",
+        "it": "dolore d'amore",
+        "tr": "kalp kırıklığı",
+        "de": "Herzschmerz",
+        "ja": "失恋"
+      },
+      "x": 1570.6,
+      "y": 1246.6,
+      "group": "pleasure-love"
+    },
+    {
+      "tag": "relationships",
+      "emoji": "👥",
+      "labels": {
+        "fr": "relations",
+        "en": "relationships",
+        "es": "relaciones",
+        "it": "relazioni",
+        "tr": "ilişkiler",
+        "de": "Beziehungen",
+        "ja": "関係"
+      },
+      "x": 1605.8,
+      "y": 1194.1,
       "group": "pleasure-love"
     },
     {
@@ -2309,8 +1877,24 @@
         "de": "Zugehörigkeit",
         "ja": "帰属"
       },
-      "x": 1323.9,
-      "y": 171.1,
+      "x": 1515.2,
+      "y": 1133.5,
+      "group": "pleasure-love"
+    },
+    {
+      "tag": "food",
+      "emoji": "🍽️",
+      "labels": {
+        "fr": "nourriture",
+        "en": "food",
+        "es": "comida",
+        "it": "cibo",
+        "tr": "yiyecek",
+        "de": "Essen",
+        "ja": "食べ物"
+      },
+      "x": 1577.7,
+      "y": 1137.7,
       "group": "pleasure-love"
     },
     {
@@ -2325,9 +1909,393 @@
         "de": "Teamarbeit",
         "ja": "チームワーク"
       },
-      "x": 1200.8,
-      "y": 107.4,
+      "x": 1543.0,
+      "y": 1190.0,
       "group": "pleasure-love"
+    },
+    {
+      "tag": "words",
+      "emoji": "📝",
+      "labels": {
+        "fr": "mots",
+        "en": "words",
+        "es": "palabras",
+        "it": "parole",
+        "tr": "kelimeler",
+        "de": "Wörter",
+        "ja": "言葉"
+      },
+      "x": 311.4,
+      "y": 436.6,
+      "group": "speech-conflict"
+    },
+    {
+      "tag": "culture",
+      "emoji": "🌍",
+      "labels": {
+        "fr": "culture",
+        "en": "culture",
+        "es": "cultura",
+        "it": "cultura",
+        "tr": "kültür",
+        "de": "Kultur",
+        "ja": "文化"
+      },
+      "x": 283.4,
+      "y": 379.6,
+      "group": "speech-conflict"
+    },
+    {
+      "tag": "humor",
+      "emoji": "😂",
+      "labels": {
+        "fr": "humour",
+        "en": "humor",
+        "es": "humor",
+        "it": "umorismo",
+        "tr": "mizah",
+        "de": "Humor",
+        "ja": "ユーモア"
+      },
+      "x": 409.5,
+      "y": 387.4,
+      "group": "speech-conflict"
+    },
+    {
+      "tag": "behavior",
+      "emoji": "🧠",
+      "labels": {
+        "fr": "comportement",
+        "en": "behavior",
+        "es": "comportamiento",
+        "it": "comportamento",
+        "tr": "davranış",
+        "de": "Verhalten",
+        "ja": "行動"
+      },
+      "x": 346.0,
+      "y": 384.6,
+      "group": "speech-conflict"
+    },
+    {
+      "tag": "ignorance",
+      "emoji": "🙈",
+      "labels": {
+        "fr": "ignorance",
+        "en": "ignorance",
+        "es": "ignorancia",
+        "it": "ignoranza",
+        "tr": "cehalet",
+        "de": "Unwissenheit",
+        "ja": "無知"
+      },
+      "x": 318.5,
+      "y": 327.2,
+      "group": "speech-conflict"
+    },
+    {
+      "tag": "foolishness",
+      "emoji": "🤪",
+      "labels": {
+        "fr": "folie",
+        "en": "Foolishness",
+        "es": "locura",
+        "it": "follia",
+        "tr": "aptallık",
+        "de": "Torheit",
+        "ja": "愚かさ"
+      },
+      "x": 374.9,
+      "y": 440.3,
+      "group": "speech-conflict"
+    },
+    {
+      "tag": "cunning",
+      "emoji": "🦊",
+      "labels": {
+        "fr": "ruse",
+        "en": "cunning",
+        "es": "astucia",
+        "it": "astuzia",
+        "tr": "kurnazlık",
+        "de": "Schlauheit",
+        "ja": "狡猾"
+      },
+      "x": 380.8,
+      "y": 331.6,
+      "group": "speech-conflict"
+    },
+    {
+      "tag": "silence",
+      "emoji": "🤫",
+      "labels": {
+        "fr": "silence",
+        "en": "silence",
+        "es": "silencio",
+        "it": "silenzio",
+        "tr": "sessizlik",
+        "de": "Stille",
+        "ja": "沈黙"
+      },
+      "x": 271.7,
+      "y": 528.6,
+      "group": "speech-conflict"
+    },
+    {
+      "tag": "irony",
+      "emoji": "🙃",
+      "labels": {
+        "fr": "ironie",
+        "en": "irony",
+        "es": "ironía",
+        "it": "ironia",
+        "tr": "ironi",
+        "de": "Ironie",
+        "ja": "皮肉"
+      },
+      "x": 208.5,
+      "y": 524.5,
+      "group": "speech-conflict"
+    },
+    {
+      "tag": "folly",
+      "emoji": "🤡",
+      "labels": {
+        "fr": "folie",
+        "en": "folly",
+        "es": "locura",
+        "it": "follia",
+        "tr": "aptallık",
+        "de": "Torheit",
+        "ja": "愚かさ"
+      },
+      "x": 145.7,
+      "y": 521.1,
+      "group": "speech-conflict"
+    },
+    {
+      "tag": "listening",
+      "emoji": "👂",
+      "labels": {
+        "fr": "écoute",
+        "en": "Listening",
+        "es": "escucha",
+        "it": "ascolto",
+        "tr": "dinleme",
+        "de": "Zuhören",
+        "ja": "聴くこと"
+      },
+      "x": 237.0,
+      "y": 580.9,
+      "group": "speech-conflict"
+    },
+    {
+      "tag": "hypocrisy",
+      "emoji": "🎭",
+      "labels": {
+        "fr": "hypocrisie",
+        "en": "Hypocrisy",
+        "es": "hipocresía",
+        "it": "ipocrisia",
+        "tr": "ikiyüzlülük",
+        "de": "Heuchelei",
+        "ja": "偽善"
+      },
+      "x": 243.6,
+      "y": 472.1,
+      "group": "speech-conflict"
+    },
+    {
+      "tag": "truth",
+      "emoji": "✅",
+      "labels": {
+        "fr": "vérité",
+        "en": "truth",
+        "es": "verdad",
+        "it": "verità",
+        "tr": "gerçek",
+        "de": "Wahrheit",
+        "ja": "真実"
+      },
+      "x": 174.0,
+      "y": 577.3,
+      "group": "speech-conflict"
+    },
+    {
+      "tag": "conflict",
+      "emoji": "⚔️",
+      "labels": {
+        "fr": "conflit",
+        "en": "conflict",
+        "es": "conflicto",
+        "it": "conflitto",
+        "tr": "çatışma",
+        "de": "Konflikt",
+        "ja": "衝突"
+      },
+      "x": 180.2,
+      "y": 467.9,
+      "group": "speech-conflict"
+    },
+    {
+      "tag": "dignity",
+      "emoji": "🎩",
+      "labels": {
+        "fr": "dignité",
+        "en": "Dignity",
+        "es": "dignidad",
+        "it": "dignità",
+        "tr": "haysiyet",
+        "de": "Würde",
+        "ja": "尊厳"
+      },
+      "x": 657.6,
+      "y": 835.5,
+      "group": "effort-ambition"
+    },
+    {
+      "tag": "vanity",
+      "emoji": "💅",
+      "labels": {
+        "fr": "vanité",
+        "en": "Vanity",
+        "es": "vanidad",
+        "it": "vanità",
+        "tr": "kibir",
+        "de": "Eitelkeit",
+        "ja": "虚栄心"
+      },
+      "x": 564.7,
+      "y": 869.9,
+      "group": "effort-ambition"
+    },
+    {
+      "tag": "pride",
+      "emoji": "👑",
+      "labels": {
+        "fr": "fierté",
+        "en": "pride",
+        "es": "orgullo",
+        "it": "orgoglio",
+        "tr": "gurur",
+        "de": "Stolz",
+        "ja": "誇り"
+      },
+      "x": 602.6,
+      "y": 917.5,
+      "group": "effort-ambition"
+    },
+    {
+      "tag": "greed",
+      "emoji": "🤑",
+      "labels": {
+        "fr": "cupidité",
+        "en": "Greed",
+        "es": "codicia",
+        "it": "avidità",
+        "tr": "açgözlülük",
+        "de": "Gier",
+        "ja": "貪欲"
+      },
+      "x": 598.8,
+      "y": 819.5,
+      "group": "effort-ambition"
+    },
+    {
+      "tag": "authority",
+      "emoji": "👮",
+      "labels": {
+        "fr": "autorité",
+        "en": "authority",
+        "es": "autoridad",
+        "it": "autorità",
+        "tr": "otorite",
+        "de": "Autorität",
+        "ja": "権威"
+      },
+      "x": 659.7,
+      "y": 896.6,
+      "group": "effort-ambition"
+    },
+    {
+      "tag": "discipline",
+      "emoji": "📏",
+      "labels": {
+        "fr": "discipline",
+        "en": "discipline",
+        "es": "disciplina",
+        "it": "disciplina",
+        "tr": "disiplin",
+        "de": "Disziplin",
+        "ja": "規律"
+      },
+      "x": 789.7,
+      "y": 909.6,
+      "group": "effort-ambition"
+    },
+    {
+      "tag": "success",
+      "emoji": "🏆",
+      "labels": {
+        "fr": "succès",
+        "en": "success",
+        "es": "éxito",
+        "it": "successo",
+        "tr": "başarı",
+        "de": "Erfolg",
+        "ja": "成功"
+      },
+      "x": 849.7,
+      "y": 898.8,
+      "group": "effort-ambition"
+    },
+    {
+      "tag": "humility",
+      "emoji": "🙏",
+      "labels": {
+        "fr": "humilité",
+        "en": "humility",
+        "es": "humildad",
+        "it": "umiltà",
+        "tr": "alçakgönüllülük",
+        "de": "Demut",
+        "ja": "謙虚"
+      },
+      "x": 859.6,
+      "y": 838.7,
+      "group": "effort-ambition"
+    },
+    {
+      "tag": "courage",
+      "emoji": "🦁",
+      "labels": {
+        "fr": "courage",
+        "en": "courage",
+        "es": "coraje",
+        "it": "coraggio",
+        "tr": "cesaret",
+        "de": "Mut",
+        "ja": "勇気"
+      },
+      "x": 804.6,
+      "y": 811.9,
+      "group": "effort-ambition"
+    },
+    {
+      "tag": "power",
+      "emoji": "👑",
+      "labels": {
+        "fr": "pouvoir",
+        "en": "power",
+        "es": "poder",
+        "it": "potere",
+        "tr": "güç",
+        "de": "Macht",
+        "ja": "力"
+      },
+      "x": 762.0,
+      "y": 855.1,
+      "group": "effort-ambition"
     },
     {
       "tag": "wisdom",
@@ -2341,8 +2309,8 @@
         "de": "Weisheit",
         "ja": "知恵"
       },
-      "x": 719.2,
-      "y": 79.1,
+      "x": 1227.9,
+      "y": 60.0,
       "group": "wisdom-knowledge"
     },
     {
@@ -2357,8 +2325,8 @@
         "de": "Anstrengung",
         "ja": "努力"
       },
-      "x": 782.2,
-      "y": 101.3,
+      "x": 1290.8,
+      "y": 82.2,
       "group": "wisdom-knowledge"
     },
     {
@@ -2373,8 +2341,8 @@
         "de": "Lernen",
         "ja": "学習"
       },
-      "x": 779.4,
-      "y": 167.7,
+      "x": 1288.1,
+      "y": 148.6,
       "group": "wisdom-knowledge"
     },
     {
@@ -2389,8 +2357,8 @@
         "de": "Bildung",
         "ja": "教育"
       },
-      "x": 678.7,
-      "y": 131.8,
+      "x": 1187.3,
+      "y": 112.7,
       "group": "wisdom-knowledge"
     },
     {
@@ -2405,183 +2373,215 @@
         "de": "Wissen",
         "ja": "知識"
       },
-      "x": 715.9,
-      "y": 186.8,
+      "x": 1224.6,
+      "y": 167.7,
       "group": "wisdom-knowledge"
+    },
+    {
+      "tag": "exile",
+      "emoji": "🧳",
+      "labels": {
+        "fr": "exil",
+        "en": "exile",
+        "es": "exilio",
+        "it": "esilio",
+        "tr": "sürgün",
+        "de": "Exil",
+        "ja": "追放"
+      },
+      "x": 676.3,
+      "y": 138.9,
+      "group": "travel"
+    },
+    {
+      "tag": "homeland",
+      "emoji": "🏞️",
+      "labels": {
+        "fr": "patrie",
+        "en": "homeland",
+        "es": "patria",
+        "it": "patria",
+        "tr": "vatan",
+        "de": "Heimatland",
+        "ja": "故郷"
+      },
+      "x": 741.7,
+      "y": 105.8,
+      "group": "travel"
     }
   ],
   "edges": [
-    [
-      32,
-      37
-    ],
-    [
-      33,
-      36
-    ],
     [
       50,
       52
     ],
     [
-      26,
-      30
+      67,
+      68
+    ],
+    [
+      98,
+      101
     ],
     [
       105,
       107
     ],
     [
-      44,
-      45
-    ],
-    [
       99,
       100
-    ],
-    [
-      147,
-      149
     ],
     [
       87,
       89
     ],
     [
-      46,
-      48
-    ],
-    [
       8,
       9
     ],
     [
-      23,
-      25
+      0,
+      5
     ],
     [
-      34,
-      37
+      114,
+      118
     ],
     [
-      100,
-      101
+      92,
+      97
     ],
     [
-      137,
-      138
+      13,
+      17
     ],
     [
-      41,
-      42
+      120,
+      122
+    ],
+    [
+      6,
+      11
+    ],
+    [
+      7,
+      10
+    ],
+    [
+      24,
+      26
+    ],
+    [
+      79,
+      81
     ],
     [
       18,
       19
     ],
     [
-      50,
-      54
+      67,
+      70
     ],
     [
-      133,
-      134
+      44,
+      47
     ],
     [
-      3,
-      6
+      61,
+      63
     ],
     [
       20,
       22
     ],
     [
-      87,
-      91
-    ],
-    [
       14,
       15
     ],
     [
-      9,
-      10
+      29,
+      34
     ],
     [
-      40,
-      43
+      57,
+      59
     ],
     [
-      112,
-      114
+      122,
+      124
     ],
     [
-      129,
-      130
+      138,
+      142
     ],
     [
-      94,
-      96
+      15,
+      16
     ],
     [
-      111,
-      112
-    ],
-    [
-      53,
-      55
-    ],
-    [
-      47,
-      48
-    ],
-    [
-      62,
-      67
+      25,
+      27
     ],
     [
       42,
       43
     ],
     [
-      56,
-      60
+      145,
+      147
     ],
     [
-      44,
-      49
+      99,
+      104
+    ],
+    [
+      133,
+      136
+    ],
+    [
+      134,
+      135
+    ],
+    [
+      144,
+      145
     ],
     [
       38,
       39
     ],
     [
-      86,
-      88
+      14,
+      17
+    ],
+    [
+      48,
+      49
     ],
     [
       80,
       81
     ],
     [
-      57,
-      61
-    ],
-    [
       112,
       116
+    ],
+    [
+      91,
+      93
     ],
     [
       123,
       125
     ],
     [
-      138,
-      144
+      140,
+      141
     ],
     [
-      15,
-      18
+      36,
+      41
     ],
     [
       16,
@@ -2592,36 +2592,32 @@
       72
     ],
     [
-      59,
-      61
+      64,
+      66
     ],
     [
-      124,
-      126
-    ],
-    [
-      22,
+      18,
       23
     ],
     [
-      77,
-      78
+      12,
+      13
     ],
     [
-      14,
-      19
+      127,
+      131
     ],
     [
-      86,
-      90
+      38,
+      41
     ],
     [
-      103,
-      106
+      49,
+      50
     ],
     [
-      74,
-      79
+      80,
+      83
     ],
     [
       114,
@@ -2644,112 +2640,152 @@
       95
     ],
     [
-      16,
-      19
+      110,
+      111
+    ],
+    [
+      88,
+      90
+    ],
+    [
+      105,
+      106
+    ],
+    [
+      98,
+      100
+    ],
+    [
+      42,
+      47
     ],
     [
       82,
       83
     ],
     [
-      125,
-      127
-    ],
-    [
       51,
       52
     ],
     [
-      29,
-      31
+      46,
+      47
     ],
     [
-      22,
-      25
+      48,
+      53
     ],
     [
-      39,
-      41
+      143,
+      144
     ],
     [
-      38,
-      43
+      138,
+      139
     ],
     [
-      78,
-      79
+      1,
+      5
     ],
     [
-      103,
-      108
+      19,
+      20
+    ],
+    [
+      13,
+      16
     ],
     [
       7,
       9
     ],
     [
-      62,
-      64
+      24,
+      25
     ],
     [
-      93,
-      97
-    ],
-    [
-      110,
-      113
+      79,
+      80
     ],
     [
       56,
       57
     ],
     [
-      33,
-      37
-    ],
-    [
       105,
       108
     ],
     [
-      82,
-      85
+      116,
+      117
     ],
     [
-      58,
-      60
+      3,
+      5
     ],
     [
       20,
       21
     ],
     [
-      51,
-      54
+      58,
+      60
+    ],
+    [
+      12,
+      17
+    ],
+    [
+      29,
+      33
+    ],
+    [
+      67,
+      72
+    ],
+    [
+      61,
+      65
     ],
     [
       95,
       97
     ],
     [
+      57,
+      58
+    ],
+    [
       112,
       113
+    ],
+    [
+      126,
+      130
     ],
     [
       89,
       90
     ],
     [
-      104,
-      109
+      121,
+      125
     ],
     [
-      8,
-      13
+      143,
+      146
     ],
     [
-      53,
-      54
+      115,
+      118
+    ],
+    [
+      19,
+      22
+    ],
+    [
+      36,
+      38
     ],
     [
       30,
@@ -2760,20 +2796,40 @@
       66
     ],
     [
-      145,
-      146
+      55,
+      60
     ],
     [
-      32,
-      34
+      63,
+      65
+    ],
+    [
+      56,
+      59
+    ],
+    [
+      73,
+      75
+    ],
+    [
+      99,
+      103
     ],
     [
       26,
       27
     ],
     [
-      21,
-      22
+      20,
+      23
+    ],
+    [
+      31,
+      32
+    ],
+    [
+      86,
+      87
     ],
     [
       141,
@@ -2784,16 +2840,24 @@
       131
     ],
     [
-      17,
-      18
+      106,
+      108
+    ],
+    [
+      27,
+      28
     ],
     [
       54,
       55
     ],
     [
-      47,
-      49
+      30,
+      33
+    ],
+    [
+      85,
+      88
     ],
     [
       64,
@@ -2804,72 +2868,52 @@
       120
     ],
     [
-      111,
-      116
+      25,
+      28
+    ],
+    [
+      6,
+      8
+    ],
+    [
+      73,
+      77
     ],
     [
       128,
       132
     ],
     [
-      145,
-      148
-    ],
-    [
       146,
       147
     ],
     [
-      137,
-      144
-    ],
-    [
-      26,
-      29
+      43,
+      45
     ],
     [
       134,
       136
     ],
     [
-      5,
-      6
-    ],
-    [
-      20,
-      25
-    ],
-    [
-      21,
-      24
-    ],
-    [
       38,
       40
     ],
     [
-      60,
-      61
+      86,
+      89
     ],
     [
-      70,
-      72
+      87,
+      88
     ],
     [
-      103,
-      105
+      80,
+      82
     ],
     [
-      118,
-      121
-    ],
-    [
-      113,
-      116
-    ],
-    [
-      75,
-      77
+      135,
+      137
     ],
     [
       1,
@@ -2880,128 +2924,104 @@
       4
     ],
     [
-      123,
-      126
-    ],
-    [
-      34,
-      36
-    ],
-    [
-      130,
-      132
-    ],
-    [
-      27,
-      30
-    ],
-    [
-      28,
-      29
-    ],
-    [
-      76,
-      78
-    ],
-    [
-      93,
-      94
+      106,
+      110
     ],
     [
       148,
       149
     ],
     [
-      71,
-      73
+      37,
+      41
     ],
     [
       119,
       122
     ],
     [
-      120,
-      121
+      67,
+      69
     ],
     [
-      139,
-      143
+      29,
+      30
     ],
     [
-      26,
-      31
+      43,
+      47
     ],
     [
-      84,
-      85
+      61,
+      62
     ],
     [
-      98,
-      102
-    ],
-    [
-      104,
-      106
+      87,
+      90
     ],
     [
       80,
       84
     ],
     [
-      39,
-      43
+      113,
+      118
     ],
     [
-      1,
-      4
+      45,
+      47
     ],
     [
-      0,
-      6
-    ],
-    [
-      62,
-      63
+      100,
+      102
     ],
     [
       93,
       96
     ],
     [
-      110,
-      112
-    ],
-    [
       117,
       118
     ],
     [
-      88,
-      91
+      120,
+      123
     ],
     [
-      137,
-      139
+      82,
+      84
     ],
     [
-      41,
-      43
+      24,
+      27
     ],
     [
-      133,
-      135
+      18,
+      20
     ],
     [
-      95,
-      96
+      51,
+      53
     ],
     [
-      8,
-      12
+      67,
+      71
     ],
     [
-      1,
-      6
+      126,
+      129
+    ],
+    [
+      127,
+      128
+    ],
+    [
+      121,
+      124
+    ],
+    [
+      115,
+      117
     ],
     [
       2,
@@ -3020,52 +3040,44 @@
       69
     ],
     [
+      100,
+      104
+    ],
+    [
       62,
       65
     ],
     [
-      63,
-      64
+      15,
+      17
     ],
     [
-      56,
-      58
+      42,
+      44
     ],
     [
-      7,
-      13
-    ],
-    [
-      51,
-      55
-    ],
-    [
-      59,
-      60
-    ],
-    [
-      52,
-      54
-    ],
-    [
-      69,
-      70
+      4,
+      5
     ],
     [
       107,
       109
     ],
     [
-      101,
-      102
+      69,
+      70
+    ],
+    [
+      133,
+      137
+    ],
+    [
+      127,
+      130
     ],
     [
       10,
       11
-    ],
-    [
-      9,
-      13
     ],
     [
       65,
@@ -3076,96 +3088,84 @@
       78
     ],
     [
-      92,
-      93
+      36,
+      39
     ],
     [
-      140,
-      142
+      91,
+      94
     ],
     [
-      117,
-      122
+      37,
+      38
     ],
     [
-      111,
-      115
+      85,
+      87
+    ],
+    [
+      102,
+      103
     ],
     [
       128,
       131
     ],
     [
-      15,
-      19
-    ],
-    [
       32,
       35
     ],
     [
-      33,
-      34
-    ],
-    [
-      26,
-      28
+      139,
+      140
     ],
     [
       81,
       83
     ],
     [
-      98,
-      99
+      21,
+      23
     ],
     [
-      124,
-      127
+      70,
+      71
     ],
     [
-      141,
-      143
+      101,
+      104
     ],
     [
-      135,
-      136
-    ],
-    [
-      22,
-      24
+      127,
+      132
     ],
     [
       0,
       3
     ],
     [
-      17,
-      19
-    ],
-    [
       34,
       35
     ],
     [
-      11,
-      12
+      76,
+      77
     ],
     [
-      66,
-      67
+      91,
+      96
     ],
     [
-      75,
-      79
+      37,
+      40
     ],
     [
-      68,
-      73
+      54,
+      56
     ],
     [
-      140,
-      144
+      109,
+      111
     ]
   ]
 }

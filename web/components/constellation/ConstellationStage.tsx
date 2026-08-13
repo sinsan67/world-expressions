@@ -36,9 +36,10 @@
  * no live re-centering/imperative ref required.
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { ConstellationGraph } from "@/lib/api";
+import { DOMAIN_GROUPS } from "@/lib/editorialDomains";
 
 type Props = {
   graph: ConstellationGraph;
@@ -46,6 +47,7 @@ type Props = {
   browseLabel: string;
   onNodeTap: (tag: string) => void;
   centerTag?: string;
+  uiLang: string;
 };
 
 const MARGIN = 80;
@@ -57,8 +59,14 @@ const MAX_SCALE = 2.5;
 // Max movement (client px) between pointerdown and pointerup still counted
 // as a tap rather than a drag — see the tap-detection note below.
 const TAP_THRESHOLD = 8;
+// Zone rects (group background) — padding beyond the raw node bounding-box
+// so a node sitting right on the box edge is never clipped by the rect
+// stroke. NODE_RADIUS mirrors the node <button>'s own 52px diameter / -26px
+// margin below.
+const NODE_RADIUS = 26;
+const ZONE_PADDING = NODE_RADIUS + 22;
 
-export default function ConstellationStage({ graph, hint, browseLabel, onNodeTap, centerTag }: Props) {
+export default function ConstellationStage({ graph, hint, browseLabel, onNodeTap, centerTag, uiLang }: Props) {
   const router = useRouter();
   const viewportRef = useRef<HTMLDivElement>(null);
   const worldRef = useRef<HTMLDivElement>(null);
@@ -79,6 +87,35 @@ export default function ConstellationStage({ graph, hint, browseLabel, onNodeTap
   // correct regardless of how many nodes a future regeneration produces.
   const maxX = Math.max(...graph.nodes.map((n) => n.x), 0) + MARGIN;
   const maxY = Math.max(...graph.nodes.map((n) => n.y), 0) + MARGIN;
+
+  // Group zones (backdrop rect + label) — pure calc off the static `graph`
+  // prop, same "renders once" spirit as the nodes/edges above. Keyed off
+  // DOMAIN_GROUPS's canonical 10 slugs (not `graph.nodes` directly) so an
+  // unexpected/stray group value is silently skipped rather than crashing.
+  const zones = useMemo(() => {
+    const boxes = new Map<string, { minX: number; minY: number; maxX: number; maxY: number }>();
+    for (const n of graph.nodes) {
+      const b = boxes.get(n.group);
+      if (!b) boxes.set(n.group, { minX: n.x, minY: n.y, maxX: n.x, maxY: n.y });
+      else {
+        b.minX = Math.min(b.minX, n.x);
+        b.minY = Math.min(b.minY, n.y);
+        b.maxX = Math.max(b.maxX, n.x);
+        b.maxY = Math.max(b.maxY, n.y);
+      }
+    }
+    return DOMAIN_GROUPS.filter((g) => boxes.has(g.slug)).map((g) => {
+      const b = boxes.get(g.slug)!;
+      return {
+        slug: g.slug,
+        label: g.labels[uiLang as keyof typeof g.labels] ?? g.labels.en,
+        x: b.minX - ZONE_PADDING,
+        y: b.minY - ZONE_PADDING,
+        width: b.maxX - b.minX + ZONE_PADDING * 2,
+        height: b.maxY - b.minY + ZONE_PADDING * 2,
+      };
+    });
+  }, [graph, uiLang]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -264,6 +301,23 @@ export default function ConstellationStage({ graph, hint, browseLabel, onNodeTap
             style={{ position: "absolute", top: 0, left: 0 }}
             aria-hidden="true"
           >
+            {zones.map((z) => (
+              <g key={z.slug} data-testid={`constellation-zone-${z.slug}`} pointerEvents="none">
+                <rect
+                  x={z.x}
+                  y={z.y}
+                  width={z.width}
+                  height={z.height}
+                  rx={16}
+                  fill="rgba(253,248,238,0.035)"
+                  stroke="rgba(201,184,217,0.25)"
+                  strokeWidth={1}
+                />
+                <text x={z.x + 12} y={z.y + 24} fill="rgba(253,248,238,0.5)" fontSize={18}>
+                  {z.label}
+                </text>
+              </g>
+            ))}
             {graph.edges.map(([i, j], idx) => {
               const a = graph.nodes[i];
               const b = graph.nodes[j];
