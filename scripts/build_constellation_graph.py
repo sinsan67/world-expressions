@@ -179,51 +179,6 @@ def fetch_tag_domains(tag_ids: list[str]) -> dict[str, list[str]]:
     return domains
 
 
-def force_directed_layout(n: int, seed: int = 42, iterations: int = 500) -> list[tuple[float, float]]:
-    """Sans dépendance, déterministe. Répulsion O(n²) entre tous les nœuds
-    (n≈150-250 -> quelques dizaines de milliers de paires, trivial) + légère
-    attraction vers le centre, refroidissement linéaire. Canvas mis à l'échelle
-    pour garder une densité ~constante par rapport à la référence du wireframe
-    (1600x1000 pour 41 nœuds)."""
-    rng = random.Random(seed)
-    scale = math.sqrt(n / 41)
-    width, height = 1600 * scale, 1000 * scale
-    cx, cy = width / 2, height / 2
-    pos = [[rng.uniform(0, width), rng.uniform(0, height)] for _ in range(n)]
-    k = math.sqrt(width * height / max(n, 1))
-
-    for it in range(iterations):
-        step = 1.0 - it / iterations
-        disp = [[0.0, 0.0] for _ in range(n)]
-        for i in range(n):
-            for j in range(i + 1, n):
-                dx, dy = pos[i][0] - pos[j][0], pos[i][1] - pos[j][1]
-                dist = math.hypot(dx, dy) or 0.01
-                force = (k * k) / dist
-                fx, fy = dx / dist * force, dy / dist * force
-                disp[i][0] += fx
-                disp[i][1] += fy
-                disp[j][0] -= fx
-                disp[j][1] -= fy
-        # Centering pull must be ~O(k), not a small fixed fraction of distance —
-        # at 0.01 it's an order of magnitude weaker than the O(n) aggregate
-        # repulsion any node near the boundary receives from every other node,
-        # so nothing pulls nodes back off the walls once they reach them and
-        # they pile up along the 4 edges (observed: all 151 nodes clamped to
-        # the frame, empty interior). 8.0 keeps every node off the boundary
-        # while preserving an even, non-overlapping spread (tuned empirically).
-        for i in range(n):
-            disp[i][0] += (cx - pos[i][0]) * 8.0
-            disp[i][1] += (cy - pos[i][1]) * 8.0
-        max_disp = k * 0.5 * step + 0.1
-        for i in range(n):
-            dlen = math.hypot(*disp[i]) or 0.01
-            capped = min(dlen, max_disp)
-            pos[i][0] = min(max(pos[i][0] + disp[i][0] / dlen * capped, 40), width - 40)
-            pos[i][1] = min(max(pos[i][1] + disp[i][1] / dlen * capped, 40), height - 40)
-    return [(round(x, 1), round(y, 1)) for x, y in pos]
-
-
 def nearest_neighbor_edges(
     positions: list[tuple[float, float]],
     k: int = 2,
@@ -269,9 +224,9 @@ def repulsion_center_layout(
 ) -> list[tuple[float, float]]:
     """Force-directed générique (répulsion O(n²) + rappel centre + refroidissement
     linéaire) paramétré par la taille de canvas, le coefficient de rappel et la
-    seed — même algorithme que force_directed_layout() (voir son commentaire
-    sur center_coef=8.0), mais réutilisable à toute échelle (groupe, sous-
-    grappe, membres) pour le layout hiérarchique à 3 niveaux (S240)."""
+    seed — réutilisable à toute échelle (groupe, sous-grappe, membres) pour le
+    layout hiérarchique à 3 niveaux (S240). Remplace l'ancien force_directed_layout()
+    (single-level, supprimé S241 — plus appelé depuis l'intégration du clustering)."""
     if n == 0:
         return []
     if n == 1:
@@ -293,6 +248,14 @@ def repulsion_center_layout(
                 disp[i][1] += fy
                 disp[j][0] -= fx
                 disp[j][1] -= fy
+        # Centering pull must be ~O(k), not a small fixed fraction of distance —
+        # too weak and it's dwarfed by the O(n) aggregate repulsion any node
+        # near the boundary receives from every other node, so nothing pulls
+        # nodes back off the walls once they reach them and they pile up along
+        # the 4 edges. Every call site here passes center_coef=8.0 — keeps
+        # nodes off the boundary while preserving an even, non-overlapping
+        # spread (tuned empirically, verified at n=151 with an empty-interior
+        # regression before the fix).
         for i in range(n):
             disp[i][0] += (cx - pos[i][0]) * center_coef
             disp[i][1] += (cy - pos[i][1]) * center_coef
@@ -340,12 +303,12 @@ def hierarchical_layout(
 
     group_slugs = sorted(groups, key=lambda g: -len(groups[g]))
 
-    # Niveau 1 : centres des groupes. Canvas proportionnel à len(candidates) —
-    # même technique que force_directed_layout (scale = sqrt(n/41)), mais avec
-    # comme référence n=151 (taille type du jeu complet de candidats, écart
-    # discuté contract §0) -> 3600x2300 (tunées empiriquement au prototype) :
-    # évite un canvas surdimensionné et des groupes épars quand --top réduit
-    # fortement n.
+    # Niveau 1 : centres des groupes. Canvas proportionnel à len(candidates)
+    # (scale = sqrt(n/référence), même technique que l'ancien single-level
+    # force_directed_layout), avec comme référence n=151 (taille type du jeu
+    # complet de candidats, écart discuté contract §0) -> 3600x2300 (tunées
+    # empiriquement au prototype) : évite un canvas surdimensionné et des
+    # groupes épars quand --top réduit fortement n.
     outer_scale = math.sqrt(max(n_total, 1) / 151)
     outer_w, outer_h = 3600 * outer_scale, 2300 * outer_scale
     group_centers = repulsion_center_layout(
