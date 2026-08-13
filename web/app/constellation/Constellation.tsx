@@ -28,7 +28,7 @@
  * this route change always remounts the component fresh.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { getConstellationGraph, getConstellationTag, type ConstellationGraph, type ConstellationTag } from "@/lib/api";
 import { CONSTELLATION_LABELS } from "@/lib/constellationLabels";
@@ -86,10 +86,18 @@ export default function Constellation({ initialTag }: Props) {
     setDetail(null);
   }
 
-  // Deep-link entry from "Parcourir/Filtrer" (§7.3) — fires once the graph is
-  // in hand so handleNodeTap can resolve the node's emoji/label immediately.
+  // Deep-link entry from "Parcourir/Filtrer" (§7.3) — fires exactly once,
+  // the first time the graph is in hand. Guarded by a ref rather than just
+  // the [graph] dep: `graph` gets a new object reference on every UI
+  // language switch (see the effect above), so without the guard, switching
+  // language after navigating away from initialTag would silently snap the
+  // overlay back to it, discarding the user's manual navigation.
+  const initialTagConsumedRef = useRef(false);
   useEffect(() => {
-    if (initialTag && graph) handleNodeTap(initialTag);
+    if (initialTag && graph && !initialTagConsumedRef.current) {
+      initialTagConsumedRef.current = true;
+      handleNodeTap(initialTag);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [graph]);
 
