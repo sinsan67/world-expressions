@@ -123,6 +123,23 @@ DOMAIN_TO_GROUP = {
     "body": "body-nature", "nature": "body-nature",
     "emotions": "emotions", "travel": "travel",
 }
+# Rattachement manuel des tags sans entrée dans concept_domains (jamais atteints par
+# DOMAIN_TO_GROUP, qui retombe sur le fourre-tout "misc") — validé avec Sinan (QA Review 6,
+# S243) pour que les 10 groupes du jeu couvrent 100% des candidats, "travel" inclus (0 nœud
+# jusqu'ici). Prioritaire sur DOMAIN_TO_GROUP : même si l'un de ces tags obtient un jour un
+# domaine via une repopulation Mistral (populate_concept_domains.py), ce choix éditorial doit
+# rester stable plutôt que de dériver silencieusement au run suivant.
+TAG_GROUP_OVERRIDE = {
+    "abundance": "money-luck", "adaptability": "time-change",
+    "injustice": "morality-justice", "exile": "travel",
+    "beauty": "pleasure-love", "homeland": "travel",
+    "words": "speech-conflict", "community": "pleasure-love",
+    "heartbreak": "pleasure-love", "parenting": "pleasure-love",
+    "seasons": "body-nature", "parenthood": "pleasure-love",
+    "inequality": "morality-justice", "listening": "speech-conflict",
+    "reciprocity": "morality-justice", "discipline": "effort-ambition",
+    "folly": "speech-conflict", "cooperation": "pleasure-love",
+}
 TARGET_SUBCLUSTER_SIZE = 6
 SPLIT_THRESHOLD = 8  # groupes <= ce seuil : pas de sous-grappe (niveau 2 = niveau 3)
 
@@ -303,8 +320,11 @@ def hierarchical_layout(
     n_total = len(candidates)
     groups: dict[str, list[dict]] = defaultdict(list)
     for c in candidates:
-        doms = tag_domains.get(c["slug"], [])
-        group = DOMAIN_TO_GROUP.get(doms[0], "misc") if doms else "misc"
+        if c["slug"] in TAG_GROUP_OVERRIDE:
+            group = TAG_GROUP_OVERRIDE[c["slug"]]
+        else:
+            doms = tag_domains.get(c["slug"], [])
+            group = DOMAIN_TO_GROUP.get(doms[0], "misc") if doms else "misc"
         groups[group].append(c)
 
     group_slugs = sorted(groups, key=lambda g: -len(groups[g]))
