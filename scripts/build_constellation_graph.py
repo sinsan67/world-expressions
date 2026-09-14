@@ -143,6 +143,19 @@ TAG_GROUP_OVERRIDE = {
 TARGET_SUBCLUSTER_SIZE = 6
 SPLIT_THRESHOLD = 8  # groupes <= ce seuil : pas de sous-grappe (niveau 2 = niveau 3)
 
+# Placement niveau 1 (shelf packing, S244 — remplace la répulsion générique
+# qui espaçait tous les groupes pareil peu importe leur taille réelle,
+# laissant beaucoup de vide autour des petits groupes).
+ROW_ASPECT_RATIO = 1.565  # cible largeur:hauteur, reprend l'aspect ratio de l'ancien canevas fixe (3600x2300)
+PACKING_SLACK = 1.2       # le shelf packing n'est jamais 100% efficace
+SHELF_MARGIN = 100.0      # gap (px) entre boîtes de groupe adjacentes — DOIT rester
+                           # >= 96 : le frontend paddingue chaque rect de groupe de 48px
+                           # de chaque côté (ConstellationStage.tsx, ZONE_PADDING), donc
+                           # deux boîtes séparées d'un espace brut G ne se touchent qu'à
+                           # G >= 2*48 = 96. Le packer garantit un espacement >= SHELF_MARGIN
+                           # entre toute paire de boîtes (même ligne ou lignes différentes),
+                           # donc le non-chevauchement est garanti par construction ici.
+
 
 def fetch_candidate_tags(min_langs: int = 3, min_proverbs: int = 10) -> list[dict]:
     sql = """
@@ -300,6 +313,56 @@ def layout_members(members: list, span_fn, seed: int) -> tuple[list[tuple[float,
     return [(x - span / 2, y - span / 2) for x, y in raw], span
 
 
+def _bbox(local_positions: list[tuple[float, float]]) -> tuple[float, float, float, float]:
+    """min_x, min_y, width, height d'un layout local (relatif à l'origine du groupe)."""
+    xs = [x for x, _ in local_positions]
+    ys = [y for _, y in local_positions]
+    return min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys)
+
+
+def pack_group_centers(
+    footprints: list[tuple[str, float, float, float, float, int]],
+) -> dict[str, tuple[float, float]]:
+    """Niveau 1 (S244 — remplace repulsion_center_layout() pour ce niveau
+    uniquement, qui plaçait les groupes comme des points équivalents peu
+    importe leur taille réelle). footprints: (group_slug, min_x, min_y,
+    width, height, member_count) — bbox MESURÉE du layout local déjà calculé
+    pour ce groupe (Pass 1 de hierarchical_layout), jamais une formule
+    d'estimation.
+
+    Tri déterministe décroissant par member_count puis par slug (jamais par
+    ordre d'itération dict/set ni hash() natif — même précaution que
+    stable_seed()). Empaquetage "shelf" : plus grands groupes en premier,
+    retour à la ligne au dépassement de la largeur cible, les groupes
+    suivants comblent le reste de chaque ligne. Le gap SHELF_MARGIN entre
+    boîtes (même ligne ou lignes différentes) garantit 0 chevauchement des
+    rects paddés du frontend par construction (voir commentaire SHELF_MARGIN
+    plus haut dans le fichier).
+
+    Renvoie slug -> (gx, gy), anchor à additionner tel quel aux positions
+    locales du groupe (gx+lx, gy+ly) — même contrat que l'ancien
+    group_centers zippé sur group_slugs."""
+    if not footprints:
+        return {}
+    ordered = sorted(footprints, key=lambda f: (-f[5], f[0]))
+    total_area = sum(w * h for _, _, _, w, h, _ in ordered)
+    target_row_width = max(
+        math.sqrt(total_area * PACKING_SLACK * ROW_ASPECT_RATIO),
+        max(w for _, _, _, w, _, _ in ordered),  # jamais sous la + grande boîte seule
+    )
+
+    anchors: dict[str, tuple[float, float]] = {}
+    cursor_x, row_y, row_height = 0.0, 0.0, 0.0
+    for slug, min_x, min_y, w, h, _n in ordered:
+        if cursor_x > 0 and cursor_x + w > target_row_width:
+            row_y += row_height + SHELF_MARGIN
+            cursor_x, row_height = 0.0, 0.0
+        anchors[slug] = (cursor_x - min_x, row_y - min_y)
+        cursor_x += w + SHELF_MARGIN
+        row_height = max(row_height, h)
+    return anchors
+
+
 def hierarchical_layout(
     candidates: list[dict], tag_domains: dict[str, list[str]]
 ) -> tuple[list[dict], list[tuple[float, float]], list[str], list[tuple[str, int]]]:
@@ -308,16 +371,19 @@ def hierarchical_layout(
     groupe dépasse SPLIT_THRESHOLD membres — pur partitionnement spatial sans
     nouvelle donnée) -> nœud individuel. Porté depuis le prototype S238/S239
     (scripts/_prototype_clustered_layout.py, supprimé après intégration), avec
-    2 corrections : seeds déterministes entre process (stable_seed, pas hash()
-    natif) et canvas de niveau 1 proportionné à len(candidates) au lieu d'une
-    constante fixe (pour que --top N reste sain à petite échelle).
+    seeds déterministes entre process (stable_seed, pas hash() natif).
+
+    Niveau 1 (S244) : shelf packing sur le footprint RÉEL de chaque groupe
+    (pack_group_centers) au lieu d'une répulsion générique sur canevas fixe
+    — les niveaux 2/3 (sous-grappes, nœuds individuels) sont calculés en
+    Pass 1 exactement comme avant, juste avant que leur ancre de groupe ne
+    soit connue, pour que le packer connaisse leur taille réelle.
 
     Retourne les candidats réordonnés (groupés par groupe/sous-grappe — l'ordre
     de `candidates` n'est PAS préservé, il n'a pas de sens produit) alignés
     avec positions/groupes/clés de sous-grappe — cette dernière liste est faite
     pour nearest_neighbor_edges(..., groups=...) afin de ne tracer des arêtes
     qu'au sein d'une même sous-grappe."""
-    n_total = len(candidates)
     groups: dict[str, list[dict]] = defaultdict(list)
     for c in candidates:
         if c["slug"] in TAG_GROUP_OVERRIDE:
@@ -327,62 +393,65 @@ def hierarchical_layout(
             group = DOMAIN_TO_GROUP.get(doms[0], "misc") if doms else "misc"
         groups[group].append(c)
 
-    group_slugs = sorted(groups, key=lambda g: -len(groups[g]))
+    # Pass 1 : layout local par groupe (membres relatifs à l'origine du
+    # groupe — subclustering/layout_members/seeds strictement inchangés,
+    # juste déplacés dans cette boucle) + mesure du footprint réel. Ordre
+    # d'itération de `groups` sans importance : pack_group_centers() retrie
+    # en interne.
+    group_locals: dict[str, list[tuple[dict, float, float, tuple[str, int]]]] = {}
+    footprints: list[tuple[str, float, float, float, float, int]] = []
 
-    # Niveau 1 : centres des groupes. Canvas proportionnel à len(candidates)
-    # (scale = sqrt(n/référence), même technique que l'ancien single-level
-    # force_directed_layout), avec comme référence n=151 (taille type du jeu
-    # complet de candidats, écart discuté contract §0) -> 3600x2300 (tunées
-    # empiriquement au prototype) : évite un canvas surdimensionné et des
-    # groupes épars quand --top réduit fortement n.
-    outer_scale = math.sqrt(max(n_total, 1) / 151)
-    outer_w, outer_h = 3600 * outer_scale, 2300 * outer_scale
-    group_centers = repulsion_center_layout(
-        len(group_slugs), outer_w, outer_h, center_coef=8.0, seed=1, iterations=400
-    )
-
-    ordered_candidates: list[dict] = []
-    positions: list[tuple[float, float]] = []
-    node_groups: list[str] = []
-    subcluster_keys: list[tuple[str, int]] = []
-
-    for group, (gx, gy) in zip(group_slugs, group_centers):
-        members = groups[group]
+    for group, members in groups.items():
         m = len(members)
+        entries: list[tuple[dict, float, float, tuple[str, int]]] = []
 
         if m <= SPLIT_THRESHOLD:
             # Pas de niveau 2 : un seul amas pour tout le groupe.
             local, _ = layout_members(members, lambda mm: 130 + 55 * math.sqrt(mm), seed=stable_seed(group))
             for c, (lx, ly) in zip(members, local):
-                ordered_candidates.append(c)
-                positions.append((gx + lx, gy + ly))
-                node_groups.append(group)
-                subcluster_keys.append((group, 0))
-            continue
+                entries.append((c, lx, ly, (group, 0)))
+        else:
+            # Niveau 2 : sous-grappes géométriques (~TARGET_SUBCLUSTER_SIZE nœuds).
+            # Découpage arbitraire (aucune similarité sémantique entre tags d'un
+            # même domaine dans les données actuelles) — pur chunking visuel.
+            n_sub = max(2, round(m / TARGET_SUBCLUSTER_SIZE))
+            rng = random.Random(stable_seed(group, "shuffle"))
+            shuffled = members[:]
+            rng.shuffle(shuffled)
+            sub_members = [s for s in (shuffled[i::n_sub] for i in range(n_sub)) if s]
 
-        # Niveau 2 : sous-grappes géométriques (~TARGET_SUBCLUSTER_SIZE nœuds).
-        # Découpage arbitraire (aucune similarité sémantique entre tags d'un
-        # même domaine dans les données actuelles) — pur chunking visuel.
-        n_sub = max(2, round(m / TARGET_SUBCLUSTER_SIZE))
-        rng = random.Random(stable_seed(group, "shuffle"))
-        shuffled = members[:]
-        rng.shuffle(shuffled)
-        sub_members = [s for s in (shuffled[i::n_sub] for i in range(n_sub)) if s]
+            group_span = 260 + 210 * math.sqrt(len(sub_members))
+            sub_centers = repulsion_center_layout(
+                len(sub_members), group_span, group_span, center_coef=8.0,
+                seed=stable_seed(group, "subcenters"), iterations=300,
+            )
+            sub_centers = [(x - group_span / 2, y - group_span / 2) for x, y in sub_centers]
 
-        group_span = 260 + 210 * math.sqrt(len(sub_members))
-        sub_centers = repulsion_center_layout(
-            len(sub_members), group_span, group_span, center_coef=8.0,
-            seed=stable_seed(group, "subcenters"), iterations=300,
-        )
-        sub_centers = [(x - group_span / 2, y - group_span / 2) for x, y in sub_centers]
+            for sub_id, (sub, (scx, scy)) in enumerate(zip(sub_members, sub_centers)):
+                local, _ = layout_members(sub, lambda mm: 120 + 50 * math.sqrt(mm), seed=stable_seed(group, sub_id))
+                for c, (lx, ly) in zip(sub, local):
+                    entries.append((c, scx + lx, scy + ly, (group, sub_id)))
 
-        for sub_id, (sub, (scx, scy)) in enumerate(zip(sub_members, sub_centers)):
-            local, _ = layout_members(sub, lambda mm: 120 + 50 * math.sqrt(mm), seed=stable_seed(group, sub_id))
-            for c, (lx, ly) in zip(sub, local):
-                ordered_candidates.append(c)
-                positions.append((gx + scx + lx, gy + scy + ly))
-                node_groups.append(group)
-                subcluster_keys.append((group, sub_id))
+        group_locals[group] = entries
+        min_x, min_y, w, h = _bbox([(lx, ly) for _, lx, ly, _ in entries])
+        footprints.append((group, min_x, min_y, w, h, m))
+
+    # Pass 2 : shelf-packing des ancres, sur footprint mesuré.
+    anchors = pack_group_centers(footprints)
+
+    # Pass 3 : translation + concaténation, ordre de sortie déterministe.
+    ordered_candidates: list[dict] = []
+    positions: list[tuple[float, float]] = []
+    node_groups: list[str] = []
+    subcluster_keys: list[tuple[str, int]] = []
+
+    for group, _min_x, _min_y, _w, _h, _m in sorted(footprints, key=lambda f: (-f[5], f[0])):
+        gx, gy = anchors[group]
+        for c, lx, ly, subkey in group_locals[group]:
+            ordered_candidates.append(c)
+            positions.append((gx + lx, gy + ly))
+            node_groups.append(group)
+            subcluster_keys.append(subkey)
 
     # Normalise dans le cadre positif (mêmes marges que le prototype).
     min_x = min(x for x, _ in positions)
